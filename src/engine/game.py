@@ -1,6 +1,5 @@
 import pygame 
 import random
-import os
 pygame.init()
 
 
@@ -11,7 +10,7 @@ clock = pygame.time.Clock()
 
 screen = pygame.display.set_mode((1200,674))
 pygame.display.set_caption("BrawlForge")
-icon = pygame.image.load("icon.jpg")
+icon = pygame.image.load("../assets/images/icon.jpg")
 pygame.display.set_icon(icon)
 
 screen_width=1200
