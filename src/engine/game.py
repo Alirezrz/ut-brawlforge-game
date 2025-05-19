@@ -55,6 +55,11 @@ ghost=pygame.transform.scale(ghost,(64,64))
 ghost_width=ghost.get_width()
 ghost_height=ghost.get_height()
 
+ghost2=pygame.image.load("ghost2.png")
+ghost2=pygame.transform.scale(ghost2,(64,64))
+ghost2_width=ghost.get_width()
+ghost2_height=ghost.get_height()
+
 
  
  
@@ -127,17 +132,18 @@ class Hero:
     def shoot(self):
         bullet = Bullet(self.x_pos + self.width // 2, self.y_pos + self.height // 2, 10, self.Look)
         self.bullets.append(bullet)
+        shot_bullets.append(bullet)
         
     def update_bullets(self, screen):
-        x=0
-        y=0
         for bullet in self.bullets[:]:
             bullet.update()
             bullet.draw(screen)
             if bullet.is_off_screen(screen_width):
-                x=bullet.x_pos
-                y=bullet.y_pos
-                self.bullets.remove(bullet)
+                if bullet in self.bullets:
+                    self.bullets.remove(bullet)
+                if bullet in shot_bullets:
+                    shot_bullets.remove(bullet)
+
                 
                 
     
@@ -215,6 +221,7 @@ class Enemy:
         self.width=ghost_width
         self.height=ghost_height
         self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.width,self.height)
+        self.condition='alive'
         
      
      
@@ -224,19 +231,31 @@ class Enemy:
         if self.x_pos <= 0 or self.x_pos >= screen_width - self.width:
             self.x_pos-=self.speed
             self.speed*=-1
+        self.hitbox.topleft = (self.x_pos, self.y_pos)  
             
                
     def display(self,screen):
         screen.blit(self.picture,(self.x_pos,self.y_pos))
         self.move()
         
+        
+    def damage(self,volume):
+        self.health-=volume
+        self.picture=ghost2
+        if self.speed<0 :
+            self.speed =-7
+        else:
+            self.speed=7
+        if self.health==0:
+            self.condition='dead'
+        
+        
     
     
             
         
 
 
-enemy = Enemy(random.randint(0,screen_width-ghost_width),screen_height-ghost_height-platform_height,5)     
 
 #==================================================================================================================================================================================================
 # functions :
@@ -249,6 +268,18 @@ enemy = Enemy(random.randint(0,screen_width-ghost_width),screen_height-ghost_hei
 
 
 #==================================================================================================================================================================================================
+
+enemys =list ()
+for i in range(5): 
+    enemys.append(Enemy(random.randint(0,screen_width-ghost_width),screen_height-ghost_height-platform_height,5))
+    
+    
+shot_bullets= list()
+
+
+
+
+
 #   Game Main Loop : 
 
 GAME_ACTIVE = True
@@ -283,7 +314,28 @@ while GAME_ACTIVE:
           
           
           
-    enemy.display(screen)     
+    for enemy in enemys[:]:  
+        ALIVE = True
+        for bullet in shot_bullets[:]:  
+            if enemy.hitbox.colliderect(bullet.hitbox):
+                shot_bullets.remove(bullet)
+                if bullet in hero.bullets:
+                    hero.bullets.remove(bullet)
+                ALIVE = False
+                break  
+        if ALIVE:
+            enemy.display(screen)
+        else:
+            enemy.damage(50)
+            if enemy.condition=='dead':
+                enemys.remove(enemy)
+                
+            
+
+    
+     
+        
+           
     pygame.draw.rect(screen, platform_color, pygame.Rect(0, screen_height - platform_height, screen_width, platform_height))
     hero.update_bullets(screen)   
     hero.display(screen)
