@@ -51,8 +51,8 @@ explosion=pygame.transform.scale(explosion,(40,40))
 
 ghost=pygame.image.load("../assets/images/ghost.png")
 ghost=pygame.transform.scale(ghost,(64,64))
-ghost_width=ghost.get_width
-ghost_height=ghost.get_height
+ghost_width=ghost.get_width()
+ghost_height=ghost.get_height()
 
 
  
@@ -189,7 +189,7 @@ class Bullet:
         self.picture = bullet_picture
         self.width = bullet_width
         self.height = bullet_height
-        self.rect = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
+        self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
 
     
     def update(self):
@@ -198,7 +198,7 @@ class Bullet:
         else:
             self.x_pos -= self.speed
 
-        self.rect.topleft = (self.x_pos, self.y_pos)
+        self.hitbox.topleft = (self.x_pos, self.y_pos)
         
     def draw(self, screen):
         if self.direction=='right':
@@ -222,7 +222,40 @@ class Bullet:
 
 #==================================================================================================================================================================================================
 
+# Enemy class :
 
+class Enemy:
+    def __init__(self,x,y,speed):
+        self.x_pos=x
+        self.y_pos=y
+        self.picture=ghost
+        self.health=100
+        self.speed=speed
+        self.width=ghost_width
+        self.height=ghost_height
+        self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.width,self.height)
+        
+     
+     
+     
+    def move(self):
+        self.x_pos+=self.speed
+        if self.x_pos <= 0 or self.x_pos >= screen_width - self.width:
+            self.x_pos-=self.speed
+            self.speed*=-1
+            
+               
+    def display(self,screen):
+        screen.blit(self.picture,(self.x_pos,self.y_pos))
+        self.move()
+        
+    
+    
+            
+        
+
+
+enemy = Enemy(random.randint(0,screen_width-ghost_width),screen_height-ghost_height-platform_height,5)     
 
 #==================================================================================================================================================================================================
 # functions :
@@ -273,7 +306,7 @@ while GAME_ACTIVE:
           
           
           
-          
+    enemy.display(screen)     
     pygame.draw.rect(screen, platform_color, pygame.Rect(0, screen_height - platform_height, screen_width, platform_height))
     hero.update_bullets(screen)   
     hero.display(screen)
