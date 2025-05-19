@@ -134,14 +134,10 @@ class Hero:
         self.bullets.append(bullet)
         
     def update_bullets(self, screen):
-        x=0
-        y=0
         for bullet in self.bullets[:]:
             bullet.update()
             bullet.draw(screen)
             if bullet.is_off_screen(screen_width):
-                x=bullet.x_pos
-                y=bullet.y_pos
                 self.bullets.remove(bullet)
     
     def jump(self):
@@ -265,7 +261,7 @@ while GAME_ACTIVE:
         hero.move_right()
     if keys[pygame.K_a]:
         hero.move_left()
-    if keys[pygame.K_w]:
+    if keys[pygame.K_SPACE]:
         hero.jump()
     
     
