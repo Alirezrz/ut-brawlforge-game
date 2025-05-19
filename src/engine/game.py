@@ -179,7 +179,7 @@ class Bullet:
         else:
             self.x_pos -= self.speed
 
-        self.rect.topleft = (self.x_pos, self.y_pos)
+        self.hitbox.topleft = (self.x_pos, self.y_pos)
         
     def draw(self, screen):
         if self.direction=='right':
