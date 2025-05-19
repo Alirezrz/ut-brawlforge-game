@@ -74,11 +74,14 @@ class Hero:
         self.picture = pygame.image.load("hero.png")
         self.Look='right'
         self.horizontal_speed=7
-        self.vertical_speed=5
+        self.vertical_speed=0
+        self.jump_strenght=15
+        self.gravity_strenght=1
+        self.on_ground=False
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
         self.health=100
         self.bullets=[]
-        
+    
         
 
         
@@ -87,6 +90,8 @@ class Hero:
         
     
     def display(self,screen):
+        if self.y_pos > screen_height - self.height : # به دلیل وجود شتاب وقتی هیرو  با سرعت زیاد میومد پایین ممکن بود توی هیچ فریمی روی پلتفرم اصلی قرار نگیره و مستقیم بره پایین برای همین این خط اضافه شده
+            self.y_pos=screen_height - self.height
         if self.Look == 'right':
             screen.blit(self.picture,(self.x_pos,self.y_pos))
             
@@ -138,14 +143,33 @@ class Hero:
                 x=bullet.x_pos
                 y=bullet.y_pos
                 self.bullets.remove(bullet)
-                
-                
     
-    #  def jump---
-    #            |
-    #            V
-            
-                
+    def jump(self):
+        if self.on_ground :
+            self.vertical_speed+=self.jump_strenght
+
+
+    def gravity(self):
+        if self.on_ground == False :
+            self.vertical_speed-=self.gravity_strenght
+   
+                    
+    def is_on_ground(self):
+        if self.y_pos == screen_height-Hero_height :
+            self.on_ground=True
+        else :
+            self.on_ground=False
+
+
+    def vertical_move(self):
+        if self.vertical_speed < 0 and self.y_pos >= screen_height - self.height :       # به دلیل وجود شتاب وقتی هیرو  با سرعت زیاد میومد پایین ممکن بود توی هیچ فریمی روی پلتفرم اصلی قرار نگیره و مستقیم بره پایین برای همین این خط اضافه شده (دلیل اضافه شدن علامت بزرگتر مساوی به جای مساوی)
+            self.clamp_to_screen(screen_width,screen_height)
+            self.vertical_speed=0
+        self.y_pos-=self.vertical_speed     
+        
+    
+    
+         
 
 
         
@@ -231,20 +255,24 @@ while GAME_ACTIVE:
             if event.button == 1:  
                 hero.shoot()
      
-     
-     
+    hero.is_on_ground() 
+    hero.gravity()    
+    hero.vertical_move()    
+
     # Chekcing for player inputs :       
     keys = pygame.key.get_pressed()
     if keys[pygame.K_d]:
         hero.move_right()
     if keys[pygame.K_a]:
         hero.move_left()
+    if keys[pygame.K_w]:
+        hero.jump()
     
-        
-   
+    
+    
 
                 
-          
+        
           
           
           
