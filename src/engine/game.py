@@ -29,28 +29,28 @@ platform_color = (105, 5, 120)
 #                     V
 
 
-background = pygame.image.load("BrawlhalaBackground.jpg")
+background = pygame.image.load("../assets/images/BrawlhalaBackground.jpg")
 
 
 
-hero_picture = pygame.image.load("hero.png")
+hero_picture = pygame.image.load("../assets/images/hero.png")
 Hero_width = hero_picture.get_width()
 Hero_height = hero_picture.get_height()
 
 
-bullet_picture = pygame.image.load("bullet.png")
+bullet_picture = pygame.image.load("../assets/images/bullet.png")
 bullet_picture=pygame.transform.scale(bullet_picture,(40,40))
 bullet_width=bullet_picture.get_width()
 bullet_height=bullet_picture.get_height()
 
 
-explosion = pygame.image.load("explode.png")
+explosion = pygame.image.load("../assets/images/explode.png")
 explosion=pygame.transform.scale(explosion,(40,40))
 
 
 
 
-ghost=pygame.image.load("ghost.png")
+ghost=pygame.image.load("../assets/images/ghost.png")
 ghost=pygame.transform.scale(ghost,(64,64))
 ghost_width=ghost.get_width
 ghost_height=ghost.get_height
@@ -71,11 +71,11 @@ class Hero:
         self.y_pos=y
         self.width=Hero_width
         self.height=Hero_height
-        self.picture = pygame.image.load("hero.png")
+        self.picture = pygame.image.load("../assets/images/hero.png")
         self.Look='right'
         self.horizontal_speed=7
         self.vertical_speed=0
-        self.jump_strenght=15
+        self.jump_strenght=10
         self.gravity_strenght=1
         self.on_ground=False
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
