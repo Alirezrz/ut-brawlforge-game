@@ -1,5 +1,6 @@
 import pygame 
 import random
+import os
 pygame.init()
 
 
@@ -250,7 +251,6 @@ while GAME_ACTIVE:
           
           
           
-    screen.blit(ghost,(100,100))  
     pygame.draw.rect(screen, platform_color, pygame.Rect(0, screen_height - platform_height, screen_width, platform_height))
     hero.update_bullets(screen)   
     hero.display(screen)
