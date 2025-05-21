@@ -1,380 +1,106 @@
-import pygame 
+import pygame
 import random
-pygame.init()
+from config import screen_width, screen_height, platform_height, FPS
+from src.engine.hero import Hero
+from src.engine.bullet import Bullet
+from src.engine.enemy import Enemy
+from src.engine.platform import Platform
 
+class Game:
+    def __init__(self,screen, hero_picture,bullet_picture,ghost_picture, ghost2_picture, platform_image,background):
+        # Initialize game objects
+        self.screen = screen
+        self.background = background
+        self.clock = pygame.time.Clock()
+        self.hero = Hero(0, screen_height - hero_picture.get_height(), hero_picture, screen_width, screen_height)
+        self.platforms = [
+            Platform(110, 490, 170, platform_image),
+            Platform(340, 400, 150, platform_image, moving=True, move_range=100),   
+            Platform(950, 380, 180, platform_image),  
+            Platform(600, 300, 150, platform_image),   
+            Platform(300, 220, 150, platform_image,moving=True, move_range=100),   
+            Platform(100, 150, 140, platform_image),   
+            Platform(850, 120, 180, platform_image)
+]
 
-clock = pygame.time.Clock()
+        self.enemies = []
+        for i in range(5):
+            self.enemies.append(Enemy(
+                random.randint(0,screen_width - ghost_picture.get_width()),
+                screen_height - ghost_picture.get_height() - platform_height,
+                5, ghost_picture, ghost2_picture,screen_width
+            ))
+        self.shot_bullets =[]
+        self.bullet_class =Bullet  
+        self.game_active =True
+        self.platform_image = pygame.transform.scale(platform_image, (screen_width, platform_height))
 
+    def handle_events(self, events):
+        for event in events:
+            if event.type == pygame.QUIT:
+                self.game_active = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    self.hero.shoot(self.shot_bullets, self.bullet_class)
 
-# screen :
+    def handle_inputs(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_d]:
+            self.hero.move_right()
+        if keys[pygame.K_a]:
+            self.hero.move_left()
+        if keys[pygame.K_SPACE]:
+            self.hero.jump()
 
-screen = pygame.display.set_mode((1200,674))
-pygame.display.set_caption("BrawlForge")
-icon = pygame.image.load("../assets/images/icon.jpg")
-pygame.display.set_icon(icon)
-
-screen_width=1200
-screen_height=674
-
-
-platform_height = 20  
-platform_color = (105, 5, 120)  
-
-
-
-# image loadings ------
-#                     |
-#                     |
-#                     V
-
-
-background = pygame.image.load("../assets/images/BrawlhalaBackground.jpg")
-
-
-
-hero_picture = pygame.image.load("../assets/images/hero.png")
-Hero_width = hero_picture.get_width()
-Hero_height = hero_picture.get_height()
-
-
-bullet_picture = pygame.image.load("../assets/images/bullet.png")
-bullet_picture=pygame.transform.scale(bullet_picture,(40,40))
-bullet_width=bullet_picture.get_width()
-bullet_height=bullet_picture.get_height()
-
-
-explosion = pygame.image.load("../assets/images/explode.png")
-explosion=pygame.transform.scale(explosion,(40,40))
-
-
-platform_tileset_picture= pygame.image.load("../assets/images/platform.jpg")
-platform_tileset_height=platform_tileset_picture.get_height()
-platform_tileset_width=platform_tileset_picture.get_width()
-
-
-
-
-
-
-ghost=pygame.image.load("../assets/images/ghost.png")
-ghost=pygame.transform.scale(ghost,(64,64))
-ghost_width=ghost.get_width()
-ghost_height=ghost.get_height()
-
-ghost2=pygame.image.load("../assets/images/ghost2.png")
-ghost2=pygame.transform.scale(ghost2,(64,64))
-ghost2_width=ghost.get_width()
-ghost2_height=ghost.get_height()
-
-
- 
- 
- 
- 
-#=======================================================================================================================================================================================================
- 
- 
- # Hero Class:
- 
-class Hero:
-    def __init__(self,x,y):
-        self.x_pos=x
-        self.y_pos=y
-        self.width=Hero_width
-        self.height=Hero_height
-        self.picture = pygame.image.load("../assets/images/hero.png")
-        self.Look='right'
-        self.horizontal_speed=7
-        self.vertical_speed=0
-        self.jump_strenght=10
-        self.gravity_strenght=1
-        self.on_ground=False
-        self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
-        self.health=100
-        self.bullets=[]
-    
-        
-
-        
-        
-        
-        
-    
-    def display(self,screen):
-        if self.y_pos > screen_height - self.height : # به دلیل وجود شتاب وقتی هیرو  با سرعت زیاد میومد پایین ممکن بود توی هیچ فریمی روی پلتفرم اصلی قرار نگیره و مستقیم بره پایین برای همین این خط اضافه شده
-            self.y_pos=screen_height - self.height
-        if self.Look == 'right':
-            screen.blit(self.picture,(self.x_pos,self.y_pos))
-            
-        elif self.Look == 'left':
-            flipped_picture = pygame.transform.flip(self.picture, True, False)
-            screen.blit(flipped_picture, (self.x_pos, self.y_pos))
-    
-    def move_right(self):
-        self.x_pos += self.horizontal_speed
-        self.Look = 'right'
-        if self.x_pos >= screen_width - self.width:
-            self.x_pos = screen_width - self.width
-        self.hitbox.topleft = (self.x_pos, self.y_pos)
-    
-    def move_left(self):
-        self.x_pos-=self.horizontal_speed  
-        self.Look = 'left'
-        if self.x_pos<=0:
-            self.x_pos=0
-        self.hitbox.topleft=(self.x_pos, self.y_pos)
-        self.clamp_to_screen(screen_width,screen_height)
-        
-        
-    
-        
-        
-    def clamp_to_screen(self, screen_width, screen_height):
-        if self.x_pos < 0:
-            self.x_pos = 0
-        if self.x_pos > screen_width - self.width:
-            self.x_pos = screen_width - self.width
-        if self.y_pos < 0:
-            self.y_pos = 0
-        if self.y_pos > screen_height - self.height:
-            self.y_pos = screen_height - self.height
-            
-            
-    def shoot(self):
-        bullet = Bullet(self.x_pos + self.width // 2, self.y_pos + self.height // 2, 10, self.Look)
-        self.bullets.append(bullet)
-        shot_bullets.append(bullet)
-        
-    def update_bullets(self, screen):
-        for bullet in self.bullets[:]:
-            bullet.update()
-            bullet.draw(screen)
-            if bullet.is_off_screen(screen_width):
-                if bullet in self.bullets:
-                    self.bullets.remove(bullet)
-                if bullet in shot_bullets:
-                    shot_bullets.remove(bullet)
-
-                
-                
-    
-    def jump(self):
-        if self.on_ground :
-            self.vertical_speed+=self.jump_strenght
-
-
-    def gravity(self):
-        if self.on_ground == False :
-            self.vertical_speed-=self.gravity_strenght
-   
-                    
-    def is_on_ground(self):
-        if self.y_pos == screen_height-Hero_height :
-            self.on_ground=True
-        else :
-            self.on_ground=False
-
-
-    def vertical_move(self):
-        if self.vertical_speed < 0 and self.y_pos >= screen_height - self.height :       # به دلیل وجود شتاب وقتی هیرو  با سرعت زیاد میومد پایین ممکن بود توی هیچ فریمی روی پلتفرم اصلی قرار نگیره و مستقیم بره پایین برای همین این خط اضافه شده (دلیل اضافه شدن علامت بزرگتر مساوی به جای مساوی)
-            self.clamp_to_screen(screen_width,screen_height)
-            self.vertical_speed=0
-        self.y_pos-=self.vertical_speed     
-        
-    
-    
-         
-
-
-        
-        
-        
-        
-        
-
-hero = Hero(0,screen_height-Hero_height)
-
-#======================================================================================================================================================
-
-
-# Bullet class:
-
-class Bullet:
-    def __init__(self, x, y, speed, direction):
-        self.x_pos = x
-        self.y_pos = y
-        self.speed = speed
-        self.direction = direction
-        self.picture = bullet_picture
-        self.width = bullet_width
-        self.height = bullet_height
-        self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
-
-    
     def update(self):
-        if self.direction == "right":
-            self.x_pos += self.speed
-        else:
-            self.x_pos -= self.speed
+        # Update Hero
+        self.hero.is_on_ground()
+        self.hero.gravity()
+        self.hero.vertical_move()
+        # Update platforms
+        for platform in self.platforms:
+            platform.update()
+        # Update enemies 
+        for enemy in self.enemies[:]:
+            ALIVE = True
+            for bullet in self.shot_bullets[:]:
+                if enemy.hitbox.colliderect(bullet.hitbox):
+                    self.shot_bullets.remove(bullet)
+                    if bullet in self.hero.bullets:
+                        self.hero.bullets.remove(bullet)
+                    ALIVE = False
+                    break
+            if ALIVE:
+                enemy.move()
+            else:
+                enemy.damage(50)
+                if enemy.condition == 'dead':
+                    self.enemies.remove(enemy)
 
-        self.hitbox.topleft = (self.x_pos, self.y_pos)
-        
-    def draw(self, screen):
-        if self.direction=='right':
-            screen.blit(self.picture, (self.x_pos, self.y_pos))
-        else :
-            screen.blit(pygame.transform.flip(self.picture,True,False), (self.x_pos, self.y_pos))
-            
-        
-        
-    def is_off_screen(self, screen_width):
-        return self.x_pos < -self.width or self.x_pos > screen_width
-    
+        # Update bullets
+        self.hero.update_bullets(None)  # Pass None since drawing is handled in run_game.py
 
-    def explode(self, screen):
-        screen.blit(explosion, (self.x_pos, self.y_pos))
-        
-        
-    
-            
-           
+    def draw(self):
+        self.screen.blit(self.background, (0, 0))
+        self.screen.blit(self.platform_image, (0, screen_height - platform_height))
+        # Draw platforms
+        for platform in self.platforms:
+            platform.draw(self.screen)
 
-#==================================================================================================================================================================================================
+        for enemy in self.enemies:
+            enemy.display(self.screen)
 
-# Enemy class :
+        for bullet in self.shot_bullets:
+            bullet.draw(self.screen)
 
-class Enemy:
-    def __init__(self,x,y,speed):
-        self.x_pos=x
-        self.y_pos=y
-        self.picture=ghost
-        self.health=100
-        self.speed=speed
-        self.width=ghost_width
-        self.height=ghost_height
-        self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.width,self.height)
-        self.condition='alive'
-        
-     
-     
-     
-    def move(self):
-        self.x_pos+=self.speed
-        if self.x_pos <= 0 or self.x_pos >= screen_width - self.width:
-            self.x_pos-=self.speed
-            self.speed*=-1
-        self.hitbox.topleft = (self.x_pos, self.y_pos)  
-            
-               
-    def display(self,screen):
-        screen.blit(self.picture,(self.x_pos,self.y_pos))
-        self.move()
-        
-        
-    def damage(self,volume):
-        self.health-=volume
-        self.picture=ghost2
-        if self.speed<0 :
-            self.speed =-7
-        else:
-            self.speed=7
-        if self.health==0:
-            self.condition='dead'
-        
-        
-    
-    
-            
-        
+        self.hero.display(self.screen)
 
-
-
-#==================================================================================================================================================================================================
-# functions :
-
-
-    
-
-
-
-
-
-#==================================================================================================================================================================================================
-
-enemys =list ()
-for i in range(5): 
-    enemys.append(Enemy(random.randint(0,screen_width-ghost_width),screen_height-ghost_height-platform_height,5))
-    
-    
-shot_bullets= list()
-
-
-
-
-
-#   Game Main Loop : 
-
-GAME_ACTIVE = True
-
-while GAME_ACTIVE:
-    
-    screen.blit(background,(0,0))
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            GAME_ACTIVE=False
-            
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:  
-                hero.shoot()
-     
-    hero.is_on_ground() 
-    hero.gravity()    
-    hero.vertical_move()    
-
-    # Chekcing for player inputs :       
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_d]:
-        hero.move_right()
-    if keys[pygame.K_a]:
-        hero.move_left()
-    if keys[pygame.K_SPACE]:
-        hero.jump()
-    
-    
-    
-
-                
-        
-          
-          
-          
-          
-          
-    for enemy in enemys[:]:  
-        ALIVE = True
-        for bullet in shot_bullets[:]:  
-            if enemy.hitbox.colliderect(bullet.hitbox):
-                shot_bullets.remove(bullet)
-                if bullet in hero.bullets:
-                    hero.bullets.remove(bullet)
-                ALIVE = False
-                break  
-        if ALIVE:
-            enemy.display(screen)
-        else:
-            enemy.damage(50)
-            if enemy.condition=='dead':
-                enemys.remove(enemy)
-                
-            
-
-    
-     
-        
-    pygame.draw.rect(screen, platform_color, pygame.Rect(0, screen_height - platform_height, screen_width, platform_height))
-    hero.update_bullets(screen)   
-    hero.display(screen)
-    pygame.display.update()
-    clock.tick(60)
-    
-
+    def run(self):
+        while self.game_active:
+            events = pygame.event.get()
+            self.handle_events(events)
+            self.handle_inputs()
+            self.update()
+            self.draw()
+            pygame.display.update()
+            self.clock.tick(FPS)
