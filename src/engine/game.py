@@ -10,9 +10,10 @@ class Game:
     def __init__(self,screen, hero_picture,bullet_picture,ghost_picture, ghost2_picture, platform_image,background):
         # Initialize game objects
         self.screen = screen
+        self.bullet_picture=bullet_picture
         self.background = background
         self.clock = pygame.time.Clock()
-        self.hero = Hero(0, screen_height - hero_picture.get_height(), hero_picture, screen_width, screen_height)
+        self.hero = Hero(0, screen_height - hero_picture.get_height(), hero_picture, screen_width, screen_height,bullet_picture)
         self.platforms = [
             Platform(110, 490, 170, platform_image),
             Platform(340, 400, 150, platform_image, moving=True, move_range=100),   
@@ -30,7 +31,7 @@ class Game:
                 screen_height - ghost_picture.get_height() - platform_height,
                 5, ghost_picture, ghost2_picture,screen_width
             ))
-        self.shot_bullets =[]
+        self.shot_bullets = []
         self.bullet_class =Bullet  
         self.game_active =True
         self.platform_image = pygame.transform.scale(platform_image, (screen_width, platform_height))
@@ -78,7 +79,7 @@ class Game:
                     self.enemies.remove(enemy)
 
         # Update bullets
-        self.hero.update_bullets(None)  # Pass None since drawing is handled in run_game.py
+        self.hero.update_bullets(self.screen,self.shot_bullets)  # Pass None since drawing is handled in run_game.py
 
     def draw(self):
         self.screen.blit(self.background, (0, 0))

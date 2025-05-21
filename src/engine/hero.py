@@ -1,9 +1,10 @@
 import pygame
 
 class Hero:
-    def __init__(self, x, y, hero_picture, screen_width, screen_height):
+    def __init__(self, x, y, hero_picture, screen_width, screen_height,bullet_picture):
         self.x_pos = x
         self.y_pos = y
+        self.bullet_picture=bullet_picture
         self.width = hero_picture.get_width()
         self.height = hero_picture.get_height()
         self.picture = hero_picture
@@ -18,6 +19,7 @@ class Hero:
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
         self.health = 100
         self.bullets = []
+    
 
     def display(self, screen):
         if self.y_pos > self.screen_height - self.height:   # به دلیل وجود شتاب وقتی هیرو  با سرعت زیاد میومد پایین ممکن بود توی هیچ فریمی روی پلتفرم اصلی قرار نگیره و مستقیم بره پایین برای همین این خط اضافه شده
@@ -54,11 +56,11 @@ class Hero:
             self.y_pos = self.screen_height - self.height
 
     def shoot(self, shot_bullets, Bullet):
-        bullet = Bullet(self.x_pos + self.width // 2, self.y_pos + self.height // 2, 10, self.Look)
+        bullet = Bullet(self.x_pos + self.width // 2, self.y_pos + self.height // 2, 10, self.Look, self.bullet_picture , self.screen_width)
         self.bullets.append(bullet)
         shot_bullets.append(bullet)
 
-    def update_bullets(self, screen):
+    def update_bullets(self, screen,shot_bullets):
         for bullet in self.bullets[:]:
             bullet.update()
             bullet.draw(screen)
