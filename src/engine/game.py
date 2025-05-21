@@ -47,6 +47,13 @@ explosion = pygame.image.load("../assets/images/explode.png")
 explosion=pygame.transform.scale(explosion,(40,40))
 
 
+platform_tileset_picture= pygame.image.load("../assets/images/platform.jpg")
+platform_tileset_height=platform_tileset_picture.get_height()
+platform_tileset_width=platform_tileset_picture.get_width()
+
+
+
+
 
 
 ghost=pygame.image.load("../assets/images/ghost.png")
@@ -364,7 +371,6 @@ while GAME_ACTIVE:
     
      
         
-           
     pygame.draw.rect(screen, platform_color, pygame.Rect(0, screen_height - platform_height, screen_width, platform_height))
     hero.update_bullets(screen)   
     hero.display(screen)
