@@ -1,0 +1,37 @@
+import pygame
+
+class Enemy:
+    def __init__(self,x,y,speed, ghost_picture, ghost2_picture, screen_width):
+        self.x_pos =x
+        self.y_pos =y
+        self.picture = ghost_picture
+        self.ghost2_picture = ghost2_picture
+        self.health =100
+        self.speed =speed
+        self.width = ghost_picture.get_width()
+        self.height = ghost_picture.get_height()
+        self.screen_width =screen_width
+        self.hitbox =pygame.Rect(self.x_pos,self.y_pos,self.width,self.height)
+        self.condition ='alive'
+
+    def move(self):
+        self.x_pos +=self.speed
+        if self.x_pos <= 0 or self.x_pos >= self.screen_width - self.width:
+            self.x_pos -=self.speed
+            self.speed *=-1
+        self.hitbox.topleft = (self.x_pos,self.y_pos)
+
+    def display(self, screen):
+        screen.blit(self.picture,(self.x_pos,self.y_pos))
+        self.move()
+
+    def damage(self, volume):
+        self.health -=volume
+        self.picture = self.ghost2_picture
+        if self.speed <0:
+            self.speed =-7
+        else:
+            self.speed =7
+        if self.health ==0:
+            self.condition ='dead'
+
