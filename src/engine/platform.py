@@ -6,12 +6,17 @@ class Platform:
         self.rect = pygame.Rect(x, y, width, height)
         self.image = pygame.transform.scale(image, (width, height))
         self.moving = moving
+        self.height=height
+        self.width=width
         self.move_range = move_range
         self.start_x =x
+        self.x_pos=x
+        self.y_pos=y
+        self.x_center=x+(width/2)
         self.offset = 0
         self.direction=1
     def draw(self, screen):
-        screen.blit(self.image, (self.rect.x, self.rect.y))
+        screen.blit(self.image, (self.x_pos, self.y_pos))
 
     def update(self):
      if self.moving:
@@ -20,5 +25,6 @@ class Platform:
             self.direction *= -1
             self.offset = max(min(self.offset, self.move_range), -self.move_range)
         self.rect.x = self.start_x + self.offset
+        self.x_pos = self.start_x + self.offset
 
 

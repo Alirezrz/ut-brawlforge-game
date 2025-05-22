@@ -4,6 +4,8 @@ class Hero:
     def __init__(self, x, y, hero_picture, screen_width, screen_height,bullet_picture):
         self.x_pos = x
         self.y_pos = y
+        self.on_platform=False
+        self.current_platform =None
         self.bullet_picture=bullet_picture
         self.width = hero_picture.get_width()
         self.height = hero_picture.get_height()
@@ -13,7 +15,7 @@ class Hero:
         self.Look = 'right'
         self.horizontal_speed = 7
         self.vertical_speed = 0
-        self.jump_strenght = 10
+        self.jump_strenght = 20
         self.gravity_strenght = 1
         self.on_ground = False
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
@@ -29,6 +31,16 @@ class Hero:
         elif self.Look == 'left':
             flipped_picture = pygame.transform.flip(self.picture, True, False)
             screen.blit(flipped_picture, (self.x_pos, self.y_pos))
+    def fall_from_platform(self):
+        
+        if self.current_platform != None:
+            print(self.x_pos )
+            print(self.current_platform.x_pos-20)
+            if self.x_pos + self.width  < self.current_platform.x_pos + 20 or self.x_pos > self.current_platform.x_pos + self.current_platform.width - 20 :
+                self.on_ground=False                
+                self.current_platform=None
+
+        
 
     def move_right(self):
         self.x_pos += self.horizontal_speed
@@ -36,6 +48,8 @@ class Hero:
         if self.x_pos >= self.screen_width - self.width:
             self.x_pos = self.screen_width - self.width
         self.hitbox.topleft = (self.x_pos, self.y_pos)
+        self.fall_from_platform()
+        
 
     def move_left(self):
         self.x_pos -= self.horizontal_speed
@@ -44,6 +58,8 @@ class Hero:
             self.x_pos = 0
         self.hitbox.topleft = (self.x_pos, self.y_pos)
         self.clamp_to_screen()
+        self.fall_from_platform()
+
 
     def clamp_to_screen(self):
         if self.x_pos < 0:
@@ -72,7 +88,9 @@ class Hero:
 
     def jump(self):
         if self.on_ground:
-            self.vertical_speed += self.jump_strenght
+            self.vertical_speed = self.jump_strenght
+        self.on_ground=False 
+        self.current_platform=None  
 
     def gravity(self):
         if not self.on_ground:
@@ -81,11 +99,22 @@ class Hero:
     def is_on_ground(self):
         if self.y_pos == self.screen_height-self.height:
             self.on_ground = True
-        else:
-            self.on_ground = False
+        
 
     def vertical_move(self):
         if self.vertical_speed < 0 and self.y_pos >= self.screen_height - self.height:       # به دلیل وجود شتاب وقتی هیرو  با سرعت زیاد میومد پایین ممکن بود توی هیچ فریمی روی پلتفرم اصلی قرار نگیره و مستقیم بره پایین برای همین این خط اضافه شده (دلیل اضافه شدن علامت بزرگتر مساوی به جای مساوی)
             self.clamp_to_screen()
             self.vertical_speed = 0
         self.y_pos -= self.vertical_speed
+        
+    
+    def platforms_collisions(self,platforms):
+        for platform in platforms:
+            if self.x_pos + self.width  > platform.x_pos + 20 and self.x_pos < platform.x_pos + platform.width - 20 :
+                if ((self.y_pos + self.height) >= platform.y_pos) and ((self.y_pos + self.height) < (platform.y_pos + platform.height)) :
+                    if self.vertical_speed < 0:
+                        self.on_ground=True
+                        self.vertical_speed=0
+                        self.y_pos=platform.y_pos - self.height + 17
+                        self.current_platform=platform
+                        
