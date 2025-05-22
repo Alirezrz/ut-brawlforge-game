@@ -1,4 +1,6 @@
 import pygame
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 from config import screen_width, screen_height
 from src.engine.game import Game
 
