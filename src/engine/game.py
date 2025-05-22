@@ -59,6 +59,8 @@ class Game:
         self.hero.gravity()
         self.hero.vertical_move()
         self.hero.platforms_collisions(self.platforms)
+        self.hero.move_with_platform()
+        self.hero.jump_under_platform(self.platforms)
         # Update platforms
         for platform in self.platforms:
             platform.update()
