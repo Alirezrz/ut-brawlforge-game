@@ -14,10 +14,11 @@ class Platform:
         screen.blit(self.image, (self.rect.x, self.rect.y))
 
     def update(self):
-        if self.moving:
-            self.offset += 2.5 * self.direction 
-            if abs(self.offset) >= self.move_range:  
-                self.direction *= -1  
-                self.offset = self.move_range if self.direction == -1 else 0
-            self.rect.x = self.start_x + self.offset
+     if self.moving:
+        self.offset += 2.5 * self.direction
+        if abs(self.offset) >= self.move_range:
+            self.direction *= -1
+            self.offset = max(min(self.offset, self.move_range), -self.move_range)
+        self.rect.x = self.start_x + self.offset
+
 
