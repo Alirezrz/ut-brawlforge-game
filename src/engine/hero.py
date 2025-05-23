@@ -93,7 +93,8 @@ class Hero:
         if self.on_ground:
             self.vertical_speed = self.jump_strenght
         self.on_ground=False 
-        self.current_platform=None  
+        self.current_platform=None 
+         
 
     def gravity(self):
         if not self.on_ground:
