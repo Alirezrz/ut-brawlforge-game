@@ -33,7 +33,6 @@ class Hero:
             flipped_picture = pygame.transform.flip(self.picture, True, False)
             screen.blit(flipped_picture, (self.x_pos, self.y_pos))
     def fall_from_platform(self):
-        
         if self.current_platform != None:
             if self.x_pos + self.width  < self.current_platform.x_pos + 20 or self.x_pos > self.current_platform.x_pos + self.current_platform.width - 20 :
                 self.on_ground=False                
@@ -103,6 +102,8 @@ class Hero:
     def is_on_ground(self):
         if self.y_pos == self.screen_height-self.height:
             self.on_ground = True
+        elif(self.current_platform==None):
+            self.on_ground=False    
         
 
     def vertical_move(self):
