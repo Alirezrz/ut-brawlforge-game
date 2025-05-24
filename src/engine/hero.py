@@ -111,6 +111,7 @@ class Hero:
             self.clamp_to_screen()
             self.vertical_speed = 0
         self.y_pos -= self.vertical_speed
+        self.hitbox.topleft = (self.x_pos,self.y_pos)     # hitbox of the hero should be updated
         
     def horizontal_move(self):
             self.clamp_to_screen()

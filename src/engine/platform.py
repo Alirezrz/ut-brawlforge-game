@@ -1,8 +1,8 @@
 import pygame
-from config import platform_height
+from config import platform_height # type: ignore
 
 class Platform:
-    def __init__(self, x, y, width, image, height=platform_height,moving=False ,move_range=100):
+    def __init__(self, x, y, width, image, height=platform_height,moving=False ,move_range=100,start_direction=1):
         self.rect = pygame.Rect(x, y, width, height)
         self.image = pygame.transform.scale(image, (width, height))
         self.moving = moving
@@ -14,7 +14,7 @@ class Platform:
         self.y_pos=y
         self.x_center=x+(width/2)
         self.offset = 0
-        self.direction=1
+        self.direction=start_direction
     def draw(self, screen):
         screen.blit(self.image, (self.x_pos, self.y_pos))
 

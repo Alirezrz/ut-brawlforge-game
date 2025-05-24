@@ -23,7 +23,6 @@ class Enemy:
 
     def display(self, screen):
         screen.blit(self.picture,(self.x_pos,self.y_pos))
-        self.move()
 
     def damage(self, volume):
         self.health -=volume
@@ -34,4 +33,9 @@ class Enemy:
             self.speed =7
         if self.health ==0:
             self.condition ='dead'
+            
+            
+    def collide(self):
+        self.speed = -self.speed
+          
 

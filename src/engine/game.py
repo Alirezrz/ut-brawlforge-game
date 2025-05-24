@@ -1,10 +1,10 @@
 import pygame
 import random
-from config import screen_width, screen_height, platform_height, FPS
-from src.engine.hero import Hero
-from src.engine.bullet import Bullet
-from src.engine.enemy import Enemy
-from src.engine.platform import Platform
+from config import screen_width, screen_height, platform_height, FPS # type: ignore
+from src.engine.hero import Hero # type: ignore
+from src.engine.bullet import Bullet # type: ignore # type: ignore
+from src.engine.enemy import Enemy # type: ignore
+from src.engine.platform import Platform # type: ignore
 
 class Game:
     def __init__(self,screen, hero_picture,bullet_picture,ghost_picture, ghost2_picture, platform_image,background):
@@ -18,18 +18,24 @@ class Game:
     Platform(100, 520, 250, platform_image),                            # P1: Bottom-left
     Platform(500, 430, 180, platform_image, moving=True, move_range=100), # P2: Mid-center moving
     Platform(820, 340, 300, platform_image),                            # P3: Mid-right
-    Platform(300, 250, 160, platform_image),                            # P4: Upper-left
-    Platform(700, 160, 160, platform_image),                            # P5: Top-right
+    Platform(200, 250, 210, platform_image, moving=True, move_range=150,start_direction=-1),                            # P4: Upper-left
 ]
 
 
         self.enemies = []
-        for i in range(5):
-            self.enemies.append(Enemy(
+        self.enemies.append(Enemy(
                 random.randint(0,screen_width - ghost_picture.get_width()),
                 screen_height - ghost_picture.get_height() - platform_height,
-                5, ghost_picture, ghost2_picture,screen_width
-            ))
+                    3, ghost_picture, ghost2_picture,screen_width))
+        self.enemies.append(Enemy(
+                random.randint(0,screen_width - ghost_picture.get_width()),
+                180 - ghost_picture.get_height() - platform_height,
+                    3, ghost_picture, ghost2_picture,screen_width))
+        self.enemies.append(Enemy(
+                random.randint(0,screen_width - ghost_picture.get_width()),
+                354 - ghost_picture.get_height() - platform_height,
+                    3, ghost_picture, ghost2_picture,screen_width))
+        
         self.shot_bullets = []
         self.bullet_class =Bullet  
         self.game_active =True
@@ -75,6 +81,8 @@ class Game:
                     break
             if ALIVE:
                 enemy.move()
+                
+                        
             else:
                 enemy.damage(50)
                 if enemy.condition == 'dead':
