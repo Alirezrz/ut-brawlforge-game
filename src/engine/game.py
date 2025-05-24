@@ -15,9 +15,9 @@ class Game:
         self.clock = pygame.time.Clock()
         self.hero = Hero(0, screen_height - hero_picture.get_height(), hero_picture, screen_width, screen_height,bullet_picture)
         self.platforms = [
-    Platform(150, 520, 180, platform_image),                            # P1: Bottom-left
+    Platform(100, 520, 250, platform_image),                            # P1: Bottom-left
     Platform(500, 430, 180, platform_image, moving=True, move_range=100), # P2: Mid-center moving
-    Platform(850, 340, 160, platform_image),                            # P3: Mid-right
+    Platform(820, 340, 300, platform_image),                            # P3: Mid-right
     Platform(300, 250, 160, platform_image),                            # P4: Upper-left
     Platform(700, 160, 160, platform_image),                            # P5: Top-right
 ]
