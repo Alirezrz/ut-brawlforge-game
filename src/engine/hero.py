@@ -52,11 +52,18 @@ class Hero:
                 self.horizontal_auto_speed=2.5*self.current_platform.direction
                 self.horizontal_move()
 
-    def move_right(self):
+    def move_right(self,platforms):
         self.x_pos += self.horizontal_speed
         self.Look = 'right'
         if self.x_pos >= self.screen_width - self.width:
             self.x_pos = self.screen_width - self.width
+            
+            
+            
+        for platform in platforms:
+            if self.hitbox.colliderect(platform.rect) and self.current_platform!=platform:
+                self.x_pos-=2
+                
           
             
         
@@ -64,7 +71,7 @@ class Hero:
         self.fall_from_platform()
         
 
-    def move_left(self):
+    def move_left(self,platforms):
         self.x_pos -= self.horizontal_speed
         self.Look = 'left'
         if self.x_pos <= 0:
@@ -72,6 +79,12 @@ class Hero:
         self.hitbox.topleft = (self.x_pos, self.y_pos)
         self.clamp_to_screen()
         self.fall_from_platform()
+        
+        
+        
+        for platform in platforms:
+            if self.hitbox.colliderect(platform.rect) and self.current_platform!=platform:
+                self.x_pos+=2
 
 
     def clamp_to_screen(self):

@@ -65,9 +65,9 @@ class Game:
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_d]:
-            self.hero.move_right()
+            self.hero.move_right(self.platforms)
         if keys[pygame.K_a]:
-            self.hero.move_left()
+            self.hero.move_left(self.platforms)
         if keys[pygame.K_SPACE]:
             self.hero.jump()
 
@@ -79,12 +79,7 @@ class Game:
         self.hero.platforms_collisions(self.platforms)
         self.hero.move_with_platform()
         self.hero.jump_under_platform(self.platforms)
-        for platform in self.platforms:
-            if self.hero.hitbox.colliderect(platform.rect) and self.hero.current_platform!=platform:
-                if self.hero.Look== "right" :
-                    self.hero.x_pos-=5
-                elif self.hero.Look == "left":
-                    self.hero.x_pos+=5
+        
         
         
         
