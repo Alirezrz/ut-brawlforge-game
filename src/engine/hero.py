@@ -62,7 +62,7 @@ class Hero:
             
         for platform in platforms:
             if self.hitbox.colliderect(platform.rect) and self.current_platform!=platform:
-                self.x_pos-=2
+                self.x_pos-=7
                 
           
             
@@ -84,7 +84,7 @@ class Hero:
         
         for platform in platforms:
             if self.hitbox.colliderect(platform.rect) and self.current_platform!=platform:
-                self.x_pos+=2
+                self.x_pos+=7
 
 
     def clamp_to_screen(self):
