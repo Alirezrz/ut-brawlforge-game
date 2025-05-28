@@ -6,6 +6,8 @@ from src.engine.bullet import Bullet # type: ignore # type: ignore
 from src.engine.enemy import Enemy # type: ignore
 from src.engine.platform import Platform # type: ignore
 from src.engine.explosion import Explosion # type: ignore
+from src.engine.camera import Camera # type: ignore
+
 
 
 class Game:
@@ -45,6 +47,13 @@ class Game:
         self.game_active =True
         self.platform_image = pygame.transform.scale(platform_image, (screen_width, platform_height))
 
+
+
+
+        self.camera=Camera(self.screen,self.platforms,self.enemies,self.shot_bullets,self.hero,self.explosions)
+        
+        
+        
     def handle_events(self, events):
         for event in events:
             if event.type == pygame.QUIT:
@@ -106,7 +115,7 @@ class Game:
         for bullet in self.shot_bullets:
             for platform in self.platforms:
                 platform_hitbox_for_bullets = platform.rect.inflate(-10, -platform.height // 2)
-                if bullet.hitbox.colliderect(platform_hitbox_for_bullets) and platform != self.hero.current_platform:
+                if bullet.hitbox.colliderect(platform_hitbox_for_bullets):
                     self.explosions.append(Explosion(bullet.x_pos,bullet.y_pos,self.explosion_picture))
                     
                     
@@ -126,36 +135,19 @@ class Game:
         
         
 
-    def draw(self):
+    def render_screen(self):
         self.screen.blit(self.background, (0, 0))
         self.screen.blit(self.platform_image, (0, screen_height - platform_height))
         
-
-        # Draw platforms
-        for platform in self.platforms:
-            platform.draw(self.screen)
-
-        for enemy in self.enemies:
-            enemy.display(self.screen)
-
-        for bullet in self.shot_bullets:
-            bullet.draw(self.screen)
-
-        self.hero.display(self.screen)
         
         
-        
-        # handeling explosions:
-        for explosion in self.explosions[:]:
-            if not explosion.draw(self.screen):  # If expired, remove it
-                self.explosions.remove(explosion)
-
     def run(self):
         while self.game_active:
             events = pygame.event.get()
             self.handle_events(events)
             self.handle_inputs()
             self.update()
-            self.draw()
+            self.render_screen()
+            self.camera.render()
             pygame.display.update()
             self.clock.tick(FPS)
