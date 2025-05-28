@@ -3,7 +3,7 @@ from config import platform_height # type: ignore
 
 class Platform:
     def __init__(self, x, y, width, image, height=platform_height,moving=False ,move_range=0,start_direction=1):
-        self.rect = pygame.Rect(x+20, y, width-47, height)
+        self.rect = pygame.Rect(x, y, width, height)
         self.image = pygame.transform.scale(image, (width, height))
         self.moving = moving
         self.height=height

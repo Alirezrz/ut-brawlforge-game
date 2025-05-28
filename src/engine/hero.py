@@ -179,4 +179,4 @@ class Hero:
                 if self.x_pos + self.width  > platform.x_pos + 20 and self.x_pos < platform.x_pos + platform.width - 20 :
                     if self.y_pos + 20 <= platform.y_pos + platform.height and self.y_pos + 20 > platform.y_pos :
                         self.vertical_speed=0
-                        self.y_pos=platform.y_pos + platform.height
+                        self.y_pos=platform.y_pos + platform.height-20
