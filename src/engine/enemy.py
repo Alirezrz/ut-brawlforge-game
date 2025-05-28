@@ -25,10 +25,10 @@ class Enemy:
         self.hitbox.topleft = (self.x_pos,self.y_pos)
 
     def display(self, screen):
-        self.health_bar_green=pygame.transform.scale(self.health_bar_green, (self.health_bar_red.get_width()*(self.health/self.max_health), 10))
+        self.health_bar_green=pygame.transform.scale(self.health_bar_green, (self.health_bar_red.get_width()*(self.health/self.max_health), 5))
         screen.blit(self.picture,(self.x_pos,self.y_pos))
-        screen.blit(self.health_bar_red,(self.x_pos+(self.width/2)-(self.health_bar_red.get_width()/2),self.y_pos-20))
-        screen.blit(self.health_bar_green,(self.x_pos+(self.width/2)-(self.health_bar_red.get_width()/2),self.y_pos-20))
+        screen.blit(self.health_bar_red,(self.x_pos+(self.width/2)-(self.health_bar_red.get_width()/2),self.y_pos-10))
+        screen.blit(self.health_bar_green,(self.x_pos+(self.width/2)-(self.health_bar_red.get_width()/2),self.y_pos-10))
 
 
     def damage(self, volume):

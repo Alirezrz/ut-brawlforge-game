@@ -37,8 +37,9 @@ class Hero:
         elif self.Look == 'left':
             flipped_picture = pygame.transform.flip(self.picture, True, False)
             screen.blit(flipped_picture, (self.x_pos, self.y_pos))
-        screen.blit(self.health_bar_red,(0,0))
-        screen.blit(self.health_bar_green,(0,0))    
+        screen.blit(self.health_bar_red,(35,0))
+        screen.blit(self.health_bar_green,(35,0))
+        screen.blit(pygame.transform.scale(self.picture, (35, 35)),(0,0))
     def fall_from_platform(self):
         if self.current_platform != None:
             if self.x_pos + self.width  < self.current_platform.x_pos + 20 or self.x_pos > self.current_platform.x_pos + self.current_platform.width - 20 :
