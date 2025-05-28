@@ -49,6 +49,9 @@ class Hero:
         self.Look = 'right'
         if self.x_pos >= self.screen_width - self.width:
             self.x_pos = self.screen_width - self.width
+          
+            
+        
         self.hitbox.topleft = (self.x_pos, self.y_pos)
         self.fall_from_platform()
         
