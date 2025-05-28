@@ -159,7 +159,7 @@ class Hero:
                         self.current_platform=platform
             if  self.x_pos + self.width  >= platform.x_pos + 20 and self.x_pos <= platform.x_pos + platform.width - 20 :
                     
-                if ((self.y_pos + self.height) >= platform.y_pos) and ((self.y_pos) < (platform.y_pos + platform.height)+10) :  
+                if ((self.y_pos + self.height) >= platform.y_pos+25) and ((self.y_pos) < (platform.y_pos + platform.height)+10) :  
                     
                     if abs(self.x_pos-(platform.x_pos + platform.width - 20)) <= self.horizontal_speed+platform.move_range :
                         
