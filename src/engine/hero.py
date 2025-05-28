@@ -112,11 +112,21 @@ class Hero:
                 if bullet in shot_bullets:
                     shot_bullets.remove(bullet)
 
-    def jump(self):
+    def jump(self,platforms):
         if self.on_ground:
             self.vertical_speed = self.jump_strenght
         self.on_ground=False 
         self.current_platform=None 
+        
+        
+        
+        for platform in platforms:
+            if self.hitbox.colliderect(platform) and self.current_platform!= platform:
+                if self.hitbox.topleft[0]<platform.rect.topleft[0]:
+                    self.x_pos-=7
+                else:
+                    self.x_pos+=7
+                    
          
 
     def gravity(self):

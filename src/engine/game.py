@@ -69,7 +69,7 @@ class Game:
         if keys[pygame.K_a]:
             self.hero.move_left(self.platforms)
         if keys[pygame.K_SPACE]:
-            self.hero.jump()
+            self.hero.jump(self.platforms)
 
     def update(self):
         # Update Hero
