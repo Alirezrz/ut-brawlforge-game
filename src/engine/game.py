@@ -20,8 +20,8 @@ class Game:
         self.clock = pygame.time.Clock()
         self.hero = Hero(0, screen_height - hero_picture.get_height(), hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red)
         self.platforms = [
-    Platform(100, 620, 250, platform_image),                            # P1: Bottom-left
-    Platform(500, 620, 180, platform_image, moving=True, move_range=100), # P2: Mid-center moving
+    Platform(100, 520, 250, platform_image),                            # P1: Bottom-left
+    Platform(500, 430, 180, platform_image, moving=True, move_range=100), # P2: Mid-center moving
     Platform(800, 340, 300, platform_image),                            # P3: Mid-right
     Platform(200, 250, 210, platform_image, moving=True, move_range=150,start_direction=-1),                            # P4: Upper-left
 ]
