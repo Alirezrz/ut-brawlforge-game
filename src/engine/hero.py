@@ -13,6 +13,8 @@ class Hero:
         self.height = hero_picture.get_height()
         self.horizontal_auto_speed=0
         self.picture = hero_picture
+        self.allow_move_right=True
+        self.allow_move_left=True
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.Look = 'right'
@@ -52,39 +54,37 @@ class Hero:
                 self.horizontal_auto_speed=2.5*self.current_platform.direction
                 self.horizontal_move()
 
-    def move_right(self,platforms):
-        self.x_pos += self.horizontal_speed
-        self.Look = 'right'
-        if self.x_pos >= self.screen_width - self.width:
-            self.x_pos = self.screen_width - self.width
+    def move_right(self):
+        if self.allow_move_right:
+            self.x_pos += self.horizontal_speed
+            self.Look = 'right'
+            if self.x_pos >= self.screen_width - self.width:
+                self.x_pos = self.screen_width - self.width
             
             
             
-        for platform in platforms:
-            if self.hitbox.colliderect(platform.rect) and self.current_platform!=platform:
-                self.x_pos-=7
-                
+        
           
             
         
-        self.hitbox.topleft = (self.x_pos, self.y_pos)
-        self.fall_from_platform()
+            self.hitbox.topleft = (self.x_pos, self.y_pos)
+            self.fall_from_platform()
         
 
-    def move_left(self,platforms):
-        self.x_pos -= self.horizontal_speed
-        self.Look = 'left'
-        if self.x_pos <= 0:
-            self.x_pos = 0
-        self.hitbox.topleft = (self.x_pos, self.y_pos)
-        self.clamp_to_screen()
-        self.fall_from_platform()
+    def move_left(self):
+        #print(self.allow_move_left)
+        if self.allow_move_left:
+            self.x_pos -= self.horizontal_speed
+            self.Look = 'left'
+            if self.x_pos <= 0:
+                self.x_pos = 0
+            self.hitbox.topleft = (self.x_pos, self.y_pos)
+            self.clamp_to_screen()
+            self.fall_from_platform()
         
         
         
-        for platform in platforms:
-            if self.hitbox.colliderect(platform.rect) and self.current_platform!=platform:
-                self.x_pos+=7
+        
 
 
     def clamp_to_screen(self):
@@ -112,7 +112,7 @@ class Hero:
                 if bullet in shot_bullets:
                     shot_bullets.remove(bullet)
 
-    def jump(self,platforms):
+    def jump(self):
         if self.on_ground:
             self.vertical_speed = self.jump_strenght
         self.on_ground=False 
@@ -120,12 +120,7 @@ class Hero:
         
         
         
-        for platform in platforms:
-            if self.hitbox.colliderect(platform) and self.current_platform!= platform:
-                if self.hitbox.topleft[0]<platform.rect.topleft[0]:
-                    self.x_pos-=7
-                else:
-                    self.x_pos+=7
+        
                     
          
 
@@ -162,6 +157,21 @@ class Hero:
                         self.vertical_speed=0
                         self.y_pos=platform.y_pos - self.height + 17
                         self.current_platform=platform
+            if  self.x_pos + self.width  >= platform.x_pos + 20 and self.x_pos <= platform.x_pos + platform.width - 20 :
+                    
+                if ((self.y_pos + self.height) >= platform.y_pos) and ((self.y_pos) < (platform.y_pos + platform.height)+10) :  
+                    
+                    if abs(self.x_pos-(platform.x_pos + platform.width - 20)) <= self.horizontal_speed+platform.move_range :
+                        
+                        self.allow_move_left=False
+                        self.x_pos=platform.x_pos + platform.width - 20
+                    if abs(self.x_pos+self.width-(platform.x_pos + 20)<=self.horizontal_speed+platform.move_range) :
+                        
+                        self.allow_move_right=False     
+                        self.x_pos=platform.x_pos + 20-self.width
+            else :
+                self.allow_move_left=True
+                self.allow_move_right=True
 
     def jump_under_platform(self,platforms):
         if(self.vertical_speed>0):

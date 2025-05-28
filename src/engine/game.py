@@ -21,7 +21,7 @@ class Game:
         self.hero = Hero(0, screen_height - hero_picture.get_height(), hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red)
         self.platforms = [
     Platform(100, 620, 250, platform_image),                            # P1: Bottom-left
-    Platform(500, 430, 180, platform_image, moving=True, move_range=100), # P2: Mid-center moving
+    Platform(500, 620, 180, platform_image, moving=True, move_range=100), # P2: Mid-center moving
     Platform(800, 340, 300, platform_image),                            # P3: Mid-right
     Platform(200, 250, 210, platform_image, moving=True, move_range=150,start_direction=-1),                            # P4: Upper-left
 ]
@@ -65,11 +65,11 @@ class Game:
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_d]:
-            self.hero.move_right(self.platforms)
+            self.hero.move_right()
         if keys[pygame.K_a]:
-            self.hero.move_left(self.platforms)
+            self.hero.move_left()
         if keys[pygame.K_SPACE]:
-            self.hero.jump(self.platforms)
+            self.hero.jump()
 
     def update(self):
         # Update Hero
