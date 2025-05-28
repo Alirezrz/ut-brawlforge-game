@@ -104,7 +104,7 @@ class Game:
                 
                         
             else:
-                enemy.damage(50)
+                enemy.damage(20)
                 if enemy.condition == 'dead':
                     self.enemies.remove(enemy)
 
