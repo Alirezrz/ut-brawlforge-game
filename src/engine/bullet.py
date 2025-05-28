@@ -11,6 +11,15 @@ class Bullet:
         self.height = bullet_picture.get_height()
         self.screen_width = screen_width
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
+        
+        
+        shrink = 8  
+        self.hitbox = pygame.Rect(
+            self.x_pos + shrink // 2,
+            self.y_pos + shrink // 2,
+            self.width - shrink,
+            self.height - shrink
+        )
 
     def update(self):
         if self.direction == "right":
@@ -18,6 +27,9 @@ class Bullet:
         else:
             self.x_pos -= self.speed
         self.hitbox.topleft = (self.x_pos, self.y_pos)
+        
+        shrink = 8
+        self.hitbox.topleft = (self.x_pos + shrink // 2, self.y_pos + shrink // 2)
 
     def draw(self, screen):
         if self.direction == 'right':

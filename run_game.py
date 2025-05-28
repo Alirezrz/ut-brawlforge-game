@@ -1,8 +1,8 @@
 import pygame
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-from config import screen_width, screen_height
-from src.engine.game import Game
+from config import screen_width, screen_height # type: ignore
+from src.engine.game import Game # type: ignore
 
 pygame.init()
 
@@ -24,13 +24,16 @@ try:
     ghost2 = pygame.image.load("src/assets/images/ghost2.png")
     ghost2 = pygame.transform.scale(ghost2, (64, 64))
     platform_tileset_picture = pygame.image.load("src/assets/images/platform.jpg")
+    explode_picture = pygame.image.load("src/assets/images/explode.png")
+    explode_picture = pygame.transform.scale(explode_picture, (50, 50))
+    
 except FileNotFoundError as e:
     print(f"Error: Could not load image: {e}")
     pygame.quit()
     exit()
 
 
-game = Game(screen, hero_picture, bullet_picture, ghost, ghost2, platform_tileset_picture, background)
+game = Game(screen, hero_picture, bullet_picture, ghost, ghost2, platform_tileset_picture, background,explode_picture)
 game.run()
 
 pygame.quit()

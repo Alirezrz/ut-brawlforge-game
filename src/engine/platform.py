@@ -15,6 +15,7 @@ class Platform:
         self.x_center=x+(width/2)
         self.offset = 0
         self.direction=start_direction
+        
     def draw(self, screen):
         screen.blit(self.image, (self.x_pos, self.y_pos))
 

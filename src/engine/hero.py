@@ -74,7 +74,7 @@ class Hero:
             self.y_pos = self.screen_height - self.height
 
     def shoot(self, shot_bullets, Bullet):
-        bullet = Bullet(self.x_pos + self.width // 2, self.y_pos + self.height // 2, 10, self.Look, self.bullet_picture , self.screen_width)
+        bullet = Bullet(self.x_pos + self.width // 2, self.y_pos + self.height // 2, 15, self.Look, self.bullet_picture , self.screen_width)
         self.bullets.append(bullet)
         shot_bullets.append(bullet)
 
