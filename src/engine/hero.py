@@ -1,9 +1,11 @@
 import pygame
 
 class Hero:
-    def __init__(self, x, y, hero_picture, screen_width, screen_height,bullet_picture):
+    def __init__(self, x, y, hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red):
         self.x_pos = x
         self.y_pos = y
+        self.health_bar_green=health_bar_green
+        self.health_bar_red=health_bar_red
         self.on_platform=False
         self.current_platform =None
         self.bullet_picture=bullet_picture
@@ -20,11 +22,14 @@ class Hero:
         self.gravity_strenght = 1
         self.on_ground = False
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
-        self.health = 100
+        self.health = 63
+        self.max_health=100
         self.bullets = []
+        
     
-
     def display(self, screen):
+        self.health_bar_green= pygame.transform.scale(self.health_bar_green, (300*(self.health/self.max_health), 35))
+        self.health_bar_red= pygame.transform.scale(self.health_bar_red, (300, 35))
         if self.y_pos > self.screen_height - self.height:   # به دلیل وجود شتاب وقتی هیرو  با سرعت زیاد میومد پایین ممکن بود توی هیچ فریمی روی پلتفرم اصلی قرار نگیره و مستقیم بره پایین برای همین این خط اضافه شده
             self.y_pos = self.screen_height - self.height
         if self.Look == 'right':
@@ -32,6 +37,8 @@ class Hero:
         elif self.Look == 'left':
             flipped_picture = pygame.transform.flip(self.picture, True, False)
             screen.blit(flipped_picture, (self.x_pos, self.y_pos))
+        screen.blit(self.health_bar_red,(0,0))
+        screen.blit(self.health_bar_green,(0,0))    
     def fall_from_platform(self):
         if self.current_platform != None:
             if self.x_pos + self.width  < self.current_platform.x_pos + 20 or self.x_pos > self.current_platform.x_pos + self.current_platform.width - 20 :

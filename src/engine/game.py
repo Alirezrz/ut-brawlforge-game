@@ -11,18 +11,18 @@ from src.engine.camera import Camera # type: ignore
 
 
 class Game:
-    def __init__(self,screen, hero_picture,bullet_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture):
+    def __init__(self,screen, hero_picture,bullet_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture,health_bar_green,health_bar_red):
         # Initialize game objects
         self.screen = screen
         self.bullet_picture=bullet_picture
         self.background = background
         self.explosion_picture=explosion_picture
         self.clock = pygame.time.Clock()
-        self.hero = Hero(0, screen_height - hero_picture.get_height(), hero_picture, screen_width, screen_height,bullet_picture)
+        self.hero = Hero(0, screen_height - hero_picture.get_height(), hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red)
         self.platforms = [
-    Platform(100, 520, 250, platform_image),                            # P1: Bottom-left
+    Platform(100, 620, 250, platform_image),                            # P1: Bottom-left
     Platform(500, 430, 180, platform_image, moving=True, move_range=100), # P2: Mid-center moving
-    Platform(820, 340, 300, platform_image),                            # P3: Mid-right
+    Platform(800, 340, 300, platform_image),                            # P3: Mid-right
     Platform(200, 250, 210, platform_image, moving=True, move_range=150,start_direction=-1),                            # P4: Upper-left
 ]
 
@@ -31,15 +31,15 @@ class Game:
         self.enemies.append(Enemy(
                 random.randint(0,screen_width - ghost_picture.get_width()),
                 screen_height - ghost_picture.get_height() - platform_height,
-                    3, ghost_picture, ghost2_picture,screen_width))
+                    3, ghost_picture, ghost2_picture,screen_width,health_bar_green,health_bar_red))
         self.enemies.append(Enemy(
                 random.randint(0,screen_width - ghost_picture.get_width()),
                 180 - ghost_picture.get_height() - platform_height,
-                    3, ghost_picture, ghost2_picture,screen_width))
+                    3, ghost_picture, ghost2_picture,screen_width,health_bar_green,health_bar_red))
         self.enemies.append(Enemy(
                 random.randint(0,screen_width - ghost_picture.get_width()),
                 354 - ghost_picture.get_height() - platform_height,
-                    3, ghost_picture, ghost2_picture,screen_width))
+                    3, ghost_picture, ghost2_picture,screen_width,health_bar_green,health_bar_red))
         
         self.shot_bullets = []
         self.explosions=[]

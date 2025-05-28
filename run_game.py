@@ -26,14 +26,17 @@ try:
     platform_tileset_picture = pygame.image.load("src/assets/images/platform.jpg")
     explode_picture = pygame.image.load("src/assets/images/explode.png")
     explode_picture = pygame.transform.scale(explode_picture, (50, 50))
-    
+    health_bar_green= pygame.image.load("src/assets/images/green_image.jpg")
+    health_bar_green= pygame.transform.scale(health_bar_green, (75, 10))
+    health_bar_red=pygame.image.load("src/assets/images/red_image.jpg")
+    health_bar_red=pygame.transform.scale(health_bar_red, (75, 10))
 except FileNotFoundError as e:
     print(f"Error: Could not load image: {e}")
     pygame.quit()
     exit()
 
 
-game = Game(screen, hero_picture, bullet_picture, ghost, ghost2, platform_tileset_picture, background,explode_picture)
+game = Game(screen, hero_picture, bullet_picture, ghost, ghost2, platform_tileset_picture, background,explode_picture,health_bar_green,health_bar_red)
 game.run()
 
 pygame.quit()
