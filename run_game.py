@@ -38,7 +38,7 @@ except FileNotFoundError as e:
 menu = Menu(screen,background)
 menu_action = menu.run()
 if menu_action == "start":
-    game = Game(screen, hero_picture, bullet_picture, ghost, ghost2, platform_tileset_picture, background,explode_picture)
+    game = Game(screen, hero_picture, bullet_picture, ghost, ghost2, platform_tileset_picture, background,explode_picture,health_bar_green,health_bar_red)
     game.run()
 elif menu_action == "settings":
     print("Settings menu not implemented yet!")
