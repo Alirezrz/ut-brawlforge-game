@@ -19,16 +19,18 @@ class Enemy:
 
     def move(self):
         self.x_pos +=self.speed
-        if self.x_pos <= 0 or self.x_pos >= self.screen_width - self.width:
-            self.x_pos -=self.speed
-            self.speed *=-1
+        # If enemy goes off screen, wrap it around to the other side
+        if self.x_pos < -self.width:
+            self.x_pos = self.screen_width
+        elif self.x_pos > self.screen_width:
+            self.x_pos = -self.width
         self.hitbox.topleft = (self.x_pos,self.y_pos)
 
-    def display(self, screen):
-        self.health_bar_green=pygame.transform.scale(self.health_bar_green, (self.health_bar_red.get_width()*(self.health/self.max_health), 5))
-        screen.blit(self.picture,(self.x_pos,self.y_pos))
-        screen.blit(self.health_bar_red,(self.x_pos+(self.width/2)-(self.health_bar_red.get_width()/2),self.y_pos-10))
-        screen.blit(self.health_bar_green,(self.x_pos+(self.width/2)-(self.health_bar_red.get_width()/2),self.y_pos-10))
+    def display(self, screen,offset):
+        self.health_bar_green=pygame.transform.scale(self.health_bar_green, (self.health_bar_red.get_width()*(self.health/self.max_health) , 5))
+        screen.blit(self.picture,(self.x_pos - offset[0],self.y_pos - offset[1]))
+        screen.blit(self.health_bar_red,(self.x_pos+(self.width/2)-(self.health_bar_red.get_width()/2)   - offset[0] ,self.y_pos-10  - offset[1]))
+        screen.blit(self.health_bar_green,(self.x_pos+(self.width/2)-(self.health_bar_red.get_width()/2)   - offset[0] ,self.y_pos-10   - offset[1]))
 
 
     def damage(self, volume):
@@ -45,4 +47,3 @@ class Enemy:
     def collide(self):
         self.speed = -self.speed
           
-

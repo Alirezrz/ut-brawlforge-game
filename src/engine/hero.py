@@ -29,16 +29,16 @@ class Hero:
         self.bullets = []
         
     
-    def display(self, screen):
+    def display(self, screen ,offset):
         self.health_bar_green= pygame.transform.scale(self.health_bar_green, (300*(self.health/self.max_health), 35))
         self.health_bar_red= pygame.transform.scale(self.health_bar_red, (300, 35))
         if self.y_pos > self.screen_height - self.height:   # به دلیل وجود شتاب وقتی هیرو  با سرعت زیاد میومد پایین ممکن بود توی هیچ فریمی روی پلتفرم اصلی قرار نگیره و مستقیم بره پایین برای همین این خط اضافه شده
             self.y_pos = self.screen_height - self.height
         if self.Look == 'right':
-            screen.blit(self.picture, (self.x_pos, self.y_pos))
+            screen.blit(self.picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
         elif self.Look == 'left':
             flipped_picture = pygame.transform.flip(self.picture, True, False)
-            screen.blit(flipped_picture, (self.x_pos, self.y_pos))
+            screen.blit(flipped_picture, (self.x_pos - offset[0] , self.y_pos - offset[1]))
         screen.blit(self.health_bar_red,(35,0))
         screen.blit(self.health_bar_green,(35,0))
         screen.blit(pygame.transform.scale(self.picture, (35, 35)),(0,0))
@@ -58,10 +58,7 @@ class Hero:
         if self.allow_move_right:
             self.x_pos += self.horizontal_speed
             self.Look = 'right'
-            if self.x_pos >= self.screen_width - self.width:
-                self.x_pos = self.screen_width - self.width
-            
-            
+            # Removed screen boundary clamping for infinite world
             
         
           
@@ -76,26 +73,25 @@ class Hero:
         if self.allow_move_left:
             self.x_pos -= self.horizontal_speed
             self.Look = 'left'
-            if self.x_pos <= 0:
-                self.x_pos = 0
+            # Removed screen boundary clamping for infinite world
             self.hitbox.topleft = (self.x_pos, self.y_pos)
-            self.clamp_to_screen()
+            # self.clamp_to_screen() # Removed for infinite world
             self.fall_from_platform()
         
         
         
         
 
-
-    def clamp_to_screen(self):
-        if self.x_pos < 0:
-            self.x_pos = 0
-        if self.x_pos > self.screen_width - self.width:
-            self.x_pos = self.screen_width - self.width
-        if self.y_pos < 0:
-            self.y_pos = 0
-        if self.y_pos > self.screen_height - self.height:
-            self.y_pos = self.screen_height - self.height
+    # Removed clamp_to_screen method for infinite world
+    # def clamp_to_screen(self):
+    #     if self.x_pos < 0:
+    #         self.x_pos = 0
+    #     if self.x_pos > self.screen_width - self.width:
+    #         self.x_pos = self.screen_width - self.width
+    #     if self.y_pos < 0:
+    #         self.y_pos = 0
+    #     if self.y_pos > self.screen_height - self.height:
+    #         self.y_pos = self.screen_height - self.height
 
     def shoot(self, shot_bullets, Bullet):
         bullet = Bullet(self.x_pos + self.width // 2, self.y_pos + self.height // 2, 15, self.Look, self.bullet_picture , self.screen_width)
@@ -105,7 +101,13 @@ class Hero:
     def update_bullets(self, screen,shot_bullets):
         for bullet in self.bullets[:]:
             bullet.update()
-            bullet.draw(screen)
+            # The bullet drawing offset is handled by the camera in game.py now
+            # So, the bullet.draw(screen,[1,0]) line here is not needed.
+            # However, if you want to keep it, it should also use the camera scroll.
+            # For now, I'll assume bullets are drawn via the camera's render method.
+            
+            # Bullets are removed if they go far off screen to simulate infinite world
+            # but prevent an endless list of bullets.
             if bullet.is_off_screen(self.screen_width):
                 if bullet in self.bullets:
                     self.bullets.remove(bullet)
@@ -137,13 +139,13 @@ class Hero:
 
     def vertical_move(self):
         if self.vertical_speed < 0 and self.y_pos >= self.screen_height - self.height:       # به دلیل وجود شتاب وقتی هیرو  با سرعت زیاد میومد پایین ممکن بود توی هیچ فریمی روی پلتفرم اصلی قرار نگیره و مستقیم بره پایین برای همین این خط اضافه شده (دلیل اضافه شدن علامت بزرگتر مساوی به جای مساوی)
-            self.clamp_to_screen()
+            # self.clamp_to_screen() # Removed for infinite world
             self.vertical_speed = 0
         self.y_pos -= self.vertical_speed
         self.hitbox.topleft = (self.x_pos,self.y_pos)     # hitbox of the hero should be updated
         
     def horizontal_move(self):
-            self.clamp_to_screen()
+            # self.clamp_to_screen() # Removed for infinite world
             self.x_pos += self.horizontal_auto_speed 
             self.horizontal_auto_speed=0
   

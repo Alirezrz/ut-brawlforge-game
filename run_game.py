@@ -3,7 +3,7 @@ import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 from config import screen_width, screen_height # type: ignore
 from src.engine.game import Game # type: ignore
-from src.engine.menu import Menu
+from src.engine.menu import Menu # type: ignore
 pygame.init()
 
 # Screen 

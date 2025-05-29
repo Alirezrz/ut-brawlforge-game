@@ -26,7 +26,7 @@ class Game:
     Platform(200, 250, 210, platform_image, moving=True, move_range=150,start_direction=-1),                            # P4: Upper-left
 ]
 
-
+        self.screen_color=(60,100,150) 
         self.enemies = []
         self.enemies.append(Enemy(
                 random.randint(0,screen_width - ghost_picture.get_width()),
@@ -48,9 +48,15 @@ class Game:
         self.platform_image = pygame.transform.scale(platform_image, (screen_width, platform_height))
 
 
+        self.scroll=[0,0]#-----------
+        #                           |
+        #                           V
+        # when the scroll x is positive -- >    camera moves to right    and everything goes to left 
+        # when the scroll x is negative -- >    camera moves to left    and everything goes to right 
+        # when the scroll y is positive -- >    camera moves down    and everything goes up 
+        # when the scroll y is negative -- >    camera moves down    and everything goes down
 
-
-        self.camera=Camera(self.screen,self.platforms,self.enemies,self.shot_bullets,self.hero,self.explosions)
+        self.camera=Camera(self.screen,self.platforms,self.enemies,self.shot_bullets,self.hero,self.explosions,self.scroll)
         
         
         
@@ -111,7 +117,6 @@ class Game:
         # Update bullets
         self.hero.update_bullets(self.screen,self.shot_bullets) 
         
-        
 
         for bullet in self.shot_bullets:
             for platform in self.platforms:
@@ -126,6 +131,12 @@ class Game:
                         self.hero.bullets.remove(bullet)
                         
                         
+                        
+        # Updating camera scroll:
+        self.scroll[0] += (self.hero.hitbox.centerx - screen_width/2 -self.scroll[0]) / 15
+        self.scroll[1] += ((self.hero.hitbox.centery - screen_height/2 -self.scroll[1]) / 15 ) 
+                        
+                        
                     
                     
                     
@@ -137,8 +148,8 @@ class Game:
         
 
     def render_screen(self):
-        self.screen.blit(self.background, (0, 0))
-        self.screen.blit(self.platform_image, (0, screen_height - platform_height))
+        self.screen.fill(self.screen_color)
+        self.screen.blit(self.platform_image, (0 - self.scroll[0], screen_height - platform_height - self.scroll[1]))
         
         
         

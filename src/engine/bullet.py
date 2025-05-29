@@ -31,14 +31,16 @@ class Bullet:
         shrink = 8
         self.hitbox.topleft = (self.x_pos + shrink // 2, self.y_pos + shrink // 2)
 
-    def draw(self, screen):
+    def draw(self, screen, offset):
         if self.direction == 'right':
-            screen.blit(self.picture, (self.x_pos, self.y_pos))
+            screen.blit(self.picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
         else:
-            screen.blit(pygame.transform.flip(self.picture, True, False), (self.x_pos, self.y_pos))
+            screen.blit(pygame.transform.flip(self.picture, True, False), (self.x_pos - offset[0], self.y_pos - offset[1]))
 
     def is_off_screen(self, screen_width):
-        return self.x_pos < -self.width or self.x_pos > screen_width
+        # Bullets are now removed if they go far off screen to simulate infinite world
+        # but prevent an endless list of bullets.
+        return self.x_pos < -screen_width or self.x_pos > screen_width * 2
 
     def explode(self, screen, explosion_picture):
         screen.blit(explosion_picture, (self.x_pos, self.y_pos))

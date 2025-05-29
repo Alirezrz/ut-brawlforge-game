@@ -16,8 +16,8 @@ class Platform:
         self.offset = 0
         self.direction=start_direction
         
-    def draw(self, screen):
-        screen.blit(self.image, (self.x_pos, self.y_pos))
+    def draw(self, screen,offset):
+        screen.blit(self.image, (self.x_pos - offset[0], self.y_pos - offset[1]))
 
     def update(self):
      if self.moving:

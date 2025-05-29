@@ -12,10 +12,10 @@ class Explosion:
         
         
         
-    def draw(self,screen):
+    def draw(self,screen,offset):
         current_time=pygame.time.get_ticks()
         if current_time - self.start_time < self.display_time:
-            screen.blit(self.picture,(self.x_pos,self.y_pos))
+            screen.blit(self.picture,(self.x_pos  - offset[0] ,self.y_pos - offset[1]))
             return True
         
         return False
