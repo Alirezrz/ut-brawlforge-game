@@ -3,7 +3,7 @@ import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 from config import screen_width, screen_height # type: ignore
 from src.engine.game import Game # type: ignore
-
+from src.engine.menu import Menu
 pygame.init()
 
 # Screen 
@@ -35,8 +35,14 @@ except FileNotFoundError as e:
     pygame.quit()
     exit()
 
-
-game = Game(screen, hero_picture, bullet_picture, ghost, ghost2, platform_tileset_picture, background,explode_picture,health_bar_green,health_bar_red)
-game.run()
-
+menu = Menu(screen,background)
+menu_action = menu.run()
+if menu_action == "start":
+    game = Game(screen, hero_picture, bullet_picture, ghost, ghost2, platform_tileset_picture, background,explode_picture)
+    game.run()
+elif menu_action == "settings":
+    print("Settings menu not implemented yet!")
+elif menu_action == "exit":
+    pygame.quit()
+    exit()
 pygame.quit()
