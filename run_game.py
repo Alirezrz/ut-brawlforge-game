@@ -21,7 +21,25 @@ try:
     hero_run_frames=[]
     for i in range (1,9):
         tmp=pygame.image.load(f"src/assets/images/hero_run_frames/Run ({i}).png")
-        hero_run_frames.append(pygame.transform.scale(tmp,(70,118)))
+        if(i==1):
+            hero_run_frames.append(pygame.transform.scale(tmp,(63,118)))
+        if(i==2):
+            hero_run_frames.append(pygame.transform.scale(tmp,(62,118)))
+        if(i==3):
+            hero_run_frames.append(pygame.transform.scale(tmp,(82,118)))
+        if(i==4):
+            hero_run_frames.append(pygame.transform.scale(tmp,(77,118)))
+        if(i==5):
+            hero_run_frames.append(pygame.transform.scale(tmp,(73,118)))
+        if(i==6):
+            hero_run_frames.append(pygame.transform.scale(tmp,(80,118)))            
+        if(i==7):
+            hero_run_frames.append(pygame.transform.scale(tmp,(92,118)))
+        if(i==8):
+            hero_run_frames.append(pygame.transform.scale(tmp,(79,118)))
+        if(i==9):
+            hero_run_frames.append(pygame.transform.scale(tmp,(82,118)))
+        
     hero_profile_picture = pygame.image.load("src/assets/images/hero_profile.png")
     bullet_picture = pygame.image.load("src/assets/images/bullet.png")
     bullet_picture = pygame.transform.scale(bullet_picture, (40, 40))

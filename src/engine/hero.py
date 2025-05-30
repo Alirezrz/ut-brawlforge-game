@@ -35,7 +35,7 @@ class Hero:
         self.run_frames = hero_run_frames
         self.current_picture = self.idle_picture 
         self.current_frame_index = 0
-        self.animation_speed = 200 # Milliseconds per frame
+        self.animation_speed = 100
         self.last_frame_update_time = pygame.time.get_ticks()
         self.is_moving_horizontally = False 
         
