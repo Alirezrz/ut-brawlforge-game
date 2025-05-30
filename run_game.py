@@ -17,6 +17,7 @@ except FileNotFoundError:
 try:
     background = pygame.image.load("src/assets/images/BrawlhalaBackground.jpg")
     hero_picture = pygame.image.load("src/assets/images/hero.png")
+    hero_picture = pygame.transform.scale(hero_picture,(70,118))
     bullet_picture = pygame.image.load("src/assets/images/bullet.png")
     bullet_picture = pygame.transform.scale(bullet_picture, (40, 40))
     ghost = pygame.image.load("src/assets/images/ghost.png")
