@@ -11,14 +11,16 @@ from src.engine.camera import Camera # type: ignore
 
 
 class Game:
-    def __init__(self,screen, hero_picture,bullet_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture,health_bar_green,health_bar_red,hero_profile_picture):
+    def __init__(self,screen, hero_picture,bullet_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture,health_bar_green,health_bar_red,hero_profile_picture,hero_run_frames):
         # Initialize game objects
         self.screen = screen
         self.bullet_picture=bullet_picture
         self.background = background
         self.explosion_picture=explosion_picture
         self.clock = pygame.time.Clock()
-        self.hero = Hero(200, 250 - hero_picture.get_height()-20, hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red,hero_profile_picture)
+        self.hero = Hero(200, 250 - hero_picture.get_height()-20, hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red,hero_profile_picture,hero_run_frames)
+        self.hero_run_frames=hero_run_frames
+        
         self.platforms = [
     Platform(100, 520, 250, platform_image),                            # P1: Bottom-left
     Platform(500, 430, 180, platform_image, moving=True, move_range=100), # P2: Mid-center moving
@@ -71,14 +73,18 @@ class Game:
 
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
+        self.hero.is_moving_horizontally = False 
+
         if keys[pygame.K_d]:
             self.hero.move_right()
+            self.hero.is_moving_horizontally = True 
         if keys[pygame.K_a]:
             self.hero.move_left()
+            self.hero.is_moving_horizontally = True 
         if keys[pygame.K_SPACE]:
             self.hero.jump()
         if keys[pygame.K_r]:
-            self.hero.respawn()    
+            self.hero.respawn()   
 
     def update(self):
         # Update Hero
@@ -89,7 +95,8 @@ class Game:
         self.hero.move_with_platform()
         self.hero.jump_under_platform(self.platforms)
         
-        
+        # Update hero animation
+        self.hero.update_animation() 
         
         
         # Update platforms

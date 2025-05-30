@@ -1,7 +1,7 @@
 import pygame
 
 class Hero:
-    def __init__(self, x, y, hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red,hero_profile_picture):
+    def __init__(self, x, y, hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red,hero_profile_picture,hero_run_frames):
         self.x_pos = x
         self.y_pos = y
         self.hero_profile_picture=hero_profile_picture
@@ -29,19 +29,49 @@ class Hero:
         self.max_health=100
         self.bullets = []
         
+        
+        # Animation attributes
+        self.idle_picture = hero_picture 
+        self.run_frames = hero_run_frames
+        self.current_picture = self.idle_picture 
+        self.current_frame_index = 0
+        self.animation_speed = 200 # Milliseconds per frame
+        self.last_frame_update_time = pygame.time.get_ticks()
+        self.is_moving_horizontally = False 
+        
     
     def display(self, screen ,offset):
         self.health_bar_green= pygame.transform.scale(self.health_bar_green, (300*(self.health/self.max_health), 35))
         self.health_bar_red= pygame.transform.scale(self.health_bar_red, (300, 35))
-       
+        display_picture = self.current_picture
         if self.Look == 'right':
-            screen.blit(self.picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
+            screen.blit(display_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
         elif self.Look == 'left':
-            flipped_picture = pygame.transform.flip(self.picture, True, False)
+            flipped_picture = pygame.transform.flip(display_picture, True, False)
             screen.blit(flipped_picture, (self.x_pos - offset[0] , self.y_pos - offset[1]))
         screen.blit(self.health_bar_red,(35,0))
         screen.blit(self.health_bar_green,(35,0))
         screen.blit(pygame.transform.scale(self.hero_profile_picture, (35, 35)),(0,0))
+        
+    def update_animation(self):
+        current_time = pygame.time.get_ticks()
+        if self.is_moving_horizontally and self.run_frames:
+            if current_time - self.last_frame_update_time > self.animation_speed:
+                self.current_frame_index = (self.current_frame_index + 1) % len(self.run_frames)
+                self.current_picture = self.run_frames[self.current_frame_index]
+                self.last_frame_update_time = current_time
+        else:
+            self.current_picture = self.idle_picture
+            self.current_frame_index = 0
+            
+            
+            
+    def stop_horizontal_movement(self):
+        self.is_moving_horizontally = False
+        
+        
+        
+        
     def fall_from_platform(self):
         if self.current_platform != None:
             if self.x_pos + self.width  < self.current_platform.x_pos  or self.x_pos > self.current_platform.x_pos + self.current_platform.width  :
@@ -55,10 +85,12 @@ class Hero:
                 self.horizontal_move()
 
     def move_right(self):
+        
         if self.allow_move_right:
             self.x_pos += self.horizontal_speed
+            self.is_moving_horizontally = True
             self.Look = 'right'
-            # Removed screen boundary clamping for infinite world
+            
             
         
           
@@ -72,6 +104,7 @@ class Hero:
         #print(self.allow_move_left)
         if self.allow_move_left:
             self.x_pos -= self.horizontal_speed
+            self.is_moving_horizontally = True
             self.Look = 'left'
             # Removed screen boundary clamping for infinite world
             self.hitbox.topleft = (self.x_pos, self.y_pos)
@@ -102,6 +135,7 @@ class Hero:
         self.on_ground=False
         self.x_pos=200
         self.y_pos=250 - self.picture.get_height()-20
+        self.vertical_speed=0
         
     def update_bullets(self, screen,shot_bullets):
         for bullet in self.bullets[:]:

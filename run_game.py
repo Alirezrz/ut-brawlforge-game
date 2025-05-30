@@ -18,6 +18,10 @@ try:
     background = pygame.image.load("src/assets/images/BrawlhalaBackground.jpg")
     hero_picture = pygame.image.load("src/assets/images/hero.png")
     hero_picture = pygame.transform.scale(hero_picture,(70,118))
+    hero_run_frames=[]
+    for i in range (1,9):
+        tmp=pygame.image.load(f"src/assets/images/hero_run_frames/Run ({i}).png")
+        hero_run_frames.append(pygame.transform.scale(tmp,(70,118)))
     hero_profile_picture = pygame.image.load("src/assets/images/hero_profile.png")
     bullet_picture = pygame.image.load("src/assets/images/bullet.png")
     bullet_picture = pygame.transform.scale(bullet_picture, (40, 40))
@@ -40,7 +44,7 @@ except FileNotFoundError as e:
 menu = Menu(screen,background)
 menu_action = menu.run()
 if menu_action == "start":
-    game = Game(screen, hero_picture, bullet_picture, ghost, ghost2, platform_tileset_picture, background,explode_picture,health_bar_green,health_bar_red,hero_profile_picture)
+    game = Game(screen, hero_picture, bullet_picture, ghost, ghost2, platform_tileset_picture, background,explode_picture,health_bar_green,health_bar_red,hero_profile_picture,hero_run_frames)
     game.run()
 elif menu_action == "settings":
     print("Settings menu not implemented yet!")
