@@ -1,9 +1,10 @@
 import pygame
 
 class Hero:
-    def __init__(self, x, y, hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red):
+    def __init__(self, x, y, hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red,hero_profile_picture):
         self.x_pos = x
         self.y_pos = y
+        self.hero_profile_picture=hero_profile_picture
         self.health_bar_green=health_bar_green
         self.health_bar_red=health_bar_red
         self.on_platform=False
@@ -40,7 +41,7 @@ class Hero:
             screen.blit(flipped_picture, (self.x_pos - offset[0] , self.y_pos - offset[1]))
         screen.blit(self.health_bar_red,(35,0))
         screen.blit(self.health_bar_green,(35,0))
-        screen.blit(pygame.transform.scale(self.picture, (35, 35)),(0,0))
+        screen.blit(pygame.transform.scale(self.hero_profile_picture, (35, 35)),(0,0))
     def fall_from_platform(self):
         if self.current_platform != None:
             if self.x_pos + self.width  < self.current_platform.x_pos  or self.x_pos > self.current_platform.x_pos + self.current_platform.width  :
@@ -96,7 +97,12 @@ class Hero:
         bullet = Bullet(self.x_pos + self.width // 2, self.y_pos + self.height // 2, 15, self.Look, self.bullet_picture , self.screen_width)
         self.bullets.append(bullet)
         shot_bullets.append(bullet)
-
+    def respawn(self):
+        self.current_platform=None
+        self.on_ground=False
+        self.x_pos=200
+        self.y_pos=250 - self.picture.get_height()-20
+        
     def update_bullets(self, screen,shot_bullets):
         for bullet in self.bullets[:]:
             bullet.update()
@@ -150,12 +156,13 @@ class Hero:
     def platforms_collisions(self,platforms):
         for platform in platforms:
             if self.x_pos + self.width  > platform.x_pos  and self.x_pos < platform.x_pos + platform.width  :
-                if ((self.y_pos + self.height) >= platform.y_pos) and ((self.y_pos + self.height) < (platform.y_pos + platform.height)) :
-                    if self.vertical_speed < 0:
-                        self.on_ground=True
-                        self.vertical_speed=0
-                        self.y_pos=platform.y_pos - self.height 
-                        self.current_platform=platform
+                if ((self.y_pos + self.height) >= platform.y_pos) and ((self.y_pos + self.height) < (platform.y_pos + platform.height)+10) :
+                   # if self.vertical_speed < 0:
+                  
+                    self.on_ground=True
+                    self.vertical_speed=0
+                    self.y_pos=platform.y_pos - self.height 
+                    self.current_platform=platform
 
             if  self.x_pos + self.width  >= platform.x_pos  and self.x_pos <= platform.x_pos + platform.width  :
                     
