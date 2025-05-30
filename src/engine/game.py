@@ -18,13 +18,14 @@ class Game:
         self.background = background
         self.explosion_picture=explosion_picture
         self.clock = pygame.time.Clock()
-        self.hero = Hero(0, screen_height - hero_picture.get_height(), hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red)
+        self.hero = Hero(200, 250 - hero_picture.get_height()-20, hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red)
         self.platforms = [
     Platform(100, 520, 250, platform_image),                            # P1: Bottom-left
     Platform(500, 430, 180, platform_image, moving=True, move_range=100), # P2: Mid-center moving
     Platform(800, 340, 300, platform_image),                            # P3: Mid-right
-    Platform(200, 250, 210, platform_image, moving=True, move_range=150,start_direction=-1),                            # P4: Upper-left
-]
+    Platform(200, 250, 210, platform_image, moving=True, move_range=150,start_direction=-1),
+    Platform(0, 600, 1000, platform_image),                           
+]   
 
         self.screen_color=(60,100,150) 
         self.enemies = []
@@ -149,7 +150,6 @@ class Game:
 
     def render_screen(self):
         self.screen.fill(self.screen_color)
-        self.screen.blit(self.platform_image, (0 - self.scroll[0], screen_height - platform_height - self.scroll[1]))
         
         
         

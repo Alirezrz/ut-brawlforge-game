@@ -32,8 +32,7 @@ class Hero:
     def display(self, screen ,offset):
         self.health_bar_green= pygame.transform.scale(self.health_bar_green, (300*(self.health/self.max_health), 35))
         self.health_bar_red= pygame.transform.scale(self.health_bar_red, (300, 35))
-        if self.y_pos > self.screen_height - self.height:   # به دلیل وجود شتاب وقتی هیرو  با سرعت زیاد میومد پایین ممکن بود توی هیچ فریمی روی پلتفرم اصلی قرار نگیره و مستقیم بره پایین برای همین این خط اضافه شده
-            self.y_pos = self.screen_height - self.height
+       
         if self.Look == 'right':
             screen.blit(self.picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
         elif self.Look == 'left':
@@ -44,7 +43,7 @@ class Hero:
         screen.blit(pygame.transform.scale(self.picture, (35, 35)),(0,0))
     def fall_from_platform(self):
         if self.current_platform != None:
-            if self.x_pos + self.width  < self.current_platform.x_pos + 20 or self.x_pos > self.current_platform.x_pos + self.current_platform.width - 20 :
+            if self.x_pos + self.width  < self.current_platform.x_pos  or self.x_pos > self.current_platform.x_pos + self.current_platform.width  :
                 self.on_ground=False                
                 self.current_platform=None
 
@@ -131,16 +130,14 @@ class Hero:
             self.vertical_speed -= self.gravity_strenght
 
     def is_on_ground(self):
-        if self.y_pos == self.screen_height-self.height:
+        if self.current_platform:
             self.on_ground = True
         elif(self.current_platform==None):
             self.on_ground=False    
         
 
     def vertical_move(self):
-        if self.vertical_speed < 0 and self.y_pos >= self.screen_height - self.height:       # به دلیل وجود شتاب وقتی هیرو  با سرعت زیاد میومد پایین ممکن بود توی هیچ فریمی روی پلتفرم اصلی قرار نگیره و مستقیم بره پایین برای همین این خط اضافه شده (دلیل اضافه شدن علامت بزرگتر مساوی به جای مساوی)
-            # self.clamp_to_screen() # Removed for infinite world
-            self.vertical_speed = 0
+           
         self.y_pos -= self.vertical_speed
         self.hitbox.topleft = (self.x_pos,self.y_pos)     # hitbox of the hero should be updated
         
@@ -152,25 +149,26 @@ class Hero:
     
     def platforms_collisions(self,platforms):
         for platform in platforms:
-            if self.x_pos + self.width  > platform.x_pos + 20 and self.x_pos < platform.x_pos + platform.width - 20 :
-                if ((self.y_pos + self.height) >= platform.y_pos) and ((self.y_pos + self.height) < (platform.y_pos + platform.height)+10) :
+            if self.x_pos + self.width  > platform.x_pos  and self.x_pos < platform.x_pos + platform.width  :
+                if ((self.y_pos + self.height) >= platform.y_pos) and ((self.y_pos + self.height) < (platform.y_pos + platform.height)) :
                     if self.vertical_speed < 0:
                         self.on_ground=True
                         self.vertical_speed=0
-                        self.y_pos=platform.y_pos - self.height + 17
+                        self.y_pos=platform.y_pos - self.height 
                         self.current_platform=platform
-            if  self.x_pos + self.width  >= platform.x_pos + 20 and self.x_pos <= platform.x_pos + platform.width - 20 :
+
+            if  self.x_pos + self.width  >= platform.x_pos  and self.x_pos <= platform.x_pos + platform.width  :
                     
-                if ((self.y_pos + self.height) >= platform.y_pos+25) and ((self.y_pos) < (platform.y_pos + platform.height)-25) :  
+                if ((self.y_pos + self.height) > platform.y_pos) and ((self.y_pos) < (platform.y_pos + platform.height)) :  
                     
-                    if abs(self.x_pos-(platform.x_pos + platform.width - 20)) <= self.horizontal_speed+platform.move_range :
+                    if abs(self.x_pos-(platform.x_pos + platform.width )) <= 10:
                         
                         self.allow_move_left=False
-                        self.x_pos=platform.x_pos + platform.width - 20
-                    if abs(self.x_pos+self.width-(platform.x_pos + 20)<=self.horizontal_speed+platform.move_range) :
+                        self.x_pos=platform.x_pos + platform.width 
+                    if abs(self.x_pos+self.width-(platform.x_pos )) <=10:
                         
                         self.allow_move_right=False     
-                        self.x_pos=platform.x_pos + 20-self.width
+                        self.x_pos=platform.x_pos -self.width
             else :
                 self.allow_move_left=True
                 self.allow_move_right=True
@@ -178,7 +176,7 @@ class Hero:
     def jump_under_platform(self,platforms):
         if(self.vertical_speed>0):
             for platform in platforms :
-                if self.x_pos + self.width  > platform.x_pos + 20 and self.x_pos < platform.x_pos + platform.width - 20 :
-                    if self.y_pos + 20 <= platform.y_pos + platform.height and self.y_pos + 20 > platform.y_pos :
+                if self.x_pos + self.width  > platform.x_pos  and self.x_pos < platform.x_pos + platform.width :
+                    if self.y_pos<= platform.y_pos + platform.height and self.y_pos  > platform.y_pos :
                         self.vertical_speed=0
-                        self.y_pos=platform.y_pos + platform.height-20
+                        self.y_pos=platform.y_pos + platform.height
