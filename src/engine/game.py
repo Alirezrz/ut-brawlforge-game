@@ -62,6 +62,12 @@ class Game:
         self.camera=Camera(self.screen,self.platforms,self.enemies,self.shot_bullets,self.hero,self.explosions,self.scroll)
         
         
+        # Screen shutter effect variables for explosions 
+        self.shutter_strength = 0
+        self.shutter_start_time = 0
+        self.shutter_duration = 150 # milliseconds
+        
+        
         
     def handle_events(self, events):
         for event in events:
@@ -84,7 +90,11 @@ class Game:
         if keys[pygame.K_SPACE]:
             self.hero.jump()
         if keys[pygame.K_r]:
-            self.hero.respawn()   
+            self.hero.respawn()  
+            
+            
+            
+     
 
     def update(self):
         # Update Hero
@@ -135,6 +145,11 @@ class Game:
                     self.explosions.append(Explosion(bullet.x_pos,bullet.y_pos,self.explosion_picture))
                     
                     
+                    # preparing the screen to shutter :
+                    self.shutter_strength = 10  
+                    self.shutter_start_time = pygame.time.get_ticks()
+                    
+                    
                     if bullet in self.shot_bullets:
                         self.shot_bullets.remove(bullet)
                     if bullet in self.hero.bullets:
@@ -146,7 +161,19 @@ class Game:
         self.scroll[0] += (self.hero.hitbox.centerx - screen_width/2 -self.scroll[0]) / 15
         self.scroll[1] += ((self.hero.hitbox.centery - screen_height/2 -self.scroll[1]) / 15 ) 
                         
-                        
+        #shutter effect if it is active
+        current_time = pygame.time.get_ticks()
+        if self.shutter_strength > 0:
+            shttered_time = current_time - self.shutter_start_time
+            if shttered_time < self.shutter_duration:
+                shake_x = random.randint(-int(self.shutter_strength), int(self.shutter_strength))
+                shake_y = random.randint(-int(self.shutter_strength), int(self.shutter_strength))
+                self.camera.scroll[0] += shake_x
+                self.camera.scroll[1] += shake_y
+                decay_factor = shttered_time / self.shutter_duration
+                self.shutter_strength = max(0, 10 - (10 * decay_factor)) 
+            else:
+                self.shutter_strength = 0           
                     
                     
                     
