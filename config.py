@@ -1,6 +1,11 @@
-# Game configuration settings
-screen_width = 1200
-screen_height = 674
+import pygame
+
+pygame.init()
+info = pygame.display.Info()
+
+screen_width = info.current_w
+screen_height = info.current_h
+
 platform_height = 20
-platform_color = (105,5,120)
+platform_color = (105, 5, 120)
 FPS = 60
