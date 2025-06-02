@@ -7,6 +7,8 @@ from src.engine.enemy import Enemy # type: ignore
 from src.engine.platform import Platform # type: ignore
 from src.engine.explosion import Explosion # type: ignore
 from src.engine.camera import Camera # type: ignore
+from src.engine.input_handler import InputHandler  
+
 
 
 
@@ -20,6 +22,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.hero = Hero(200, 250 - hero_picture.get_height()-20, hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red,hero_profile_picture,hero_run_frames)
         self.hero_run_frames=hero_run_frames
+
         
         self.platforms = [
     Platform(100, 520, 250, platform_image),                            # P1: Bottom-left
@@ -66,6 +69,8 @@ class Game:
         self.shutter_strength = 0
         self.shutter_start_time = 0
         self.shutter_duration = 150 # milliseconds
+        self.input_handler = InputHandler(self.hero, self.bullet_class, self.shot_bullets)
+
         
         
         
@@ -193,7 +198,9 @@ class Game:
         while self.game_active:
             events = pygame.event.get()
             self.handle_events(events)
-            self.handle_inputs()
+            #self.handle_inputs()
+            self.input_handler.handle_all_inputs()
+
             self.update()
             self.render_screen()
             self.camera.render()
