@@ -12,13 +12,12 @@ class InputHandler:
             self.joystick = pygame.joystick.Joystick(0)
             self.joystick.init()
 
-        # حالت برای جلوگیری از شلیک مکرر با R2
         self.shooting_triggered = False
 
     def handle_keyboard(self):
         keys = pygame.key.get_pressed()
         self.hero.is_moving_horizontally = False
-
+        
         if keys[pygame.K_d]:
             self.hero.move_right()
             self.hero.is_moving_horizontally = True
@@ -40,7 +39,6 @@ class InputHandler:
         r1 = self.joystick.get_button(5)  # R1
         a_button = self.joystick.get_button(0)  # Jump
 
-        self.hero.is_moving_horizontally = False
         if axis_x > 0.2:
             self.hero.move_right()
             self.hero.is_moving_horizontally = True
@@ -51,15 +49,13 @@ class InputHandler:
         if a_button:
             self.hero.jump()
 
-        # شلیک فقط وقتی R2 فشار داده شده (بیش از 0.5) و قبلاً زده نشده
         if trigger_r2 > 0.5:
             if not self.shooting_triggered:
                 self.hero.shoot(self.shot_bullets, self.bullet_class)
                 self.shooting_triggered = True
         else:
-            self.shooting_triggered = False  # وقتی رها شد، دوباره اجازه شلیک بده
+            self.shooting_triggered = False 
 
-        # ریسپاون فقط اگر L1 و R1 همزمان گرفته شده باشن
         if l1 and r1:
             self.hero.respawn()
 
