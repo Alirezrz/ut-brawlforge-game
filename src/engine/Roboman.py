@@ -382,14 +382,14 @@ class Roboman:
                 if self.allow_move_right and self.x_pos < platform.x_pos and \
                    self.hitbox.right > platform.rect.left and \
                    self.hitbox.bottom > platform.rect.top + 30 and \
-                   self.hitbox.top < platform.rect.bottom - 30: # Small buffer for top/bottom
+                   self.hitbox.top < platform.rect.bottom - 10: # Small buffer for top/bottom
                     self.allow_move_right = False
                     self.x_pos = platform.x_pos - self.width
                 # If colliding from the right side of the platform
                 elif self.allow_move_left and self.x_pos + self.width > platform.x_pos + platform.width and \
                      self.hitbox.left < platform.rect.right and \
                      self.hitbox.bottom > platform.rect.top + 30 and \
-                     self.hitbox.top < platform.rect.bottom - 30: # Small buffer for top/bottom
+                     self.hitbox.top < platform.rect.bottom - 10: # Small buffer for top/bottom
                     self.allow_move_left = False
                     self.x_pos = platform.x_pos + platform.width
             # Reset allow_move flags if not colliding horizontally
