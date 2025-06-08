@@ -1,10 +1,10 @@
 import pygame
 
 class Hero:
-    def __init__(self, x, y, hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red,hero_profile_picture,hero_run_frames):
+    def __init__(self, x, y, hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red):
         self.x_pos = x
         self.y_pos = y
-        self.hero_profile_picture=hero_profile_picture
+        ##self.hero_profile_picture=hero_profile_picture
         self.health_bar_green=health_bar_green
         self.health_bar_red=health_bar_red
         self.on_platform=False
@@ -32,7 +32,6 @@ class Hero:
         
         # Animation attributes
         self.idle_picture = hero_picture 
-        self.run_frames = hero_run_frames
         self.current_picture = self.idle_picture 
         self.current_frame_index = 0
         self.animation_speed = 100
@@ -221,3 +220,8 @@ class Hero:
                     if self.y_pos<= platform.y_pos + platform.height and self.y_pos  > platform.y_pos :
                         self.vertical_speed=0
                         self.y_pos=platform.y_pos + platform.height
+                        
+                        
+                        
+                        
+       

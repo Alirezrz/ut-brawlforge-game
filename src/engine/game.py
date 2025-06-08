@@ -1,36 +1,35 @@
 import pygame
 import random
 from config import screen_width, screen_height, platform_height, FPS # type: ignore
-from src.engine.hero import Hero # type: ignore
-from src.engine.bullet import Bullet # type: ignore # type: ignore
+from src.engine.Roboman import Roboman # type: ignore
+from src.engine.bullet import Bullet # type: ignore
 from src.engine.enemy import Enemy # type: ignore
 from src.engine.platform import Platform # type: ignore
 from src.engine.explosion import Explosion # type: ignore
 from src.engine.camera import Camera # type: ignore
 from src.engine.input_handler import InputHandler  
 
-
-
-
 class Game:
-    def __init__(self,screen, hero_picture,bullet_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture,health_bar_green,health_bar_red,hero_profile_picture,hero_run_frames):
-        # Initialize game objects
+    def __init__(self,screen, hero_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture,health_bar_green,health_bar_red,hero_profile_picture):
         self.screen = screen
-        self.bullet_picture=bullet_picture
         self.background = background
         self.explosion_picture=explosion_picture
         self.clock = pygame.time.Clock()
-        self.hero = Hero(200, 250 - hero_picture.get_height()-20, hero_picture, screen_width, screen_height,bullet_picture,health_bar_green,health_bar_red,hero_profile_picture,hero_run_frames)
-        self.hero_run_frames=hero_run_frames
-
         
+    
+        self.Roboman = Roboman(
+            200, 250 - 118 - 20 
+            , health_bar_green, health_bar_red, hero_profile_picture,
+            screen_width, screen_height
+        )
+
         self.platforms = [
-    Platform(100, 520, 250, platform_image),                            # P1: Bottom-left
-    Platform(500, 430, 180, platform_image, moving=True, move_range=100), # P2: Mid-center moving
-    Platform(800, 340, 300, platform_image),                            # P3: Mid-right
-    Platform(200, 250, 210, platform_image, moving=True, move_range=150,start_direction=-1),
-    Platform(0, 600, 1000, platform_image),                           
-]   
+            Platform(100, 520, 250, platform_image),                            # P1: Bottom-left
+            Platform(500, 430, 180, platform_image, moving=True, move_range=100), # P2: Mid-center moving
+            Platform(800, 340, 300, platform_image),                            # P3: Mid-right
+            Platform(200, 250, 210, platform_image, moving=True, move_range=150,start_direction=-1),
+            Platform(0, 600, 1000, platform_image),                           
+        ]   
 
         self.screen_color=(60,100,150) 
         self.enemies = []
@@ -53,72 +52,55 @@ class Game:
         self.game_active =True
         self.platform_image = pygame.transform.scale(platform_image, (screen_width, platform_height))
 
+        self.scroll=[0,0] # Camera scroll offset
 
-        self.scroll=[0,0]#-----------
-        #                           |
-        #                           V
-        # when the scroll x is positive -- >    camera moves to right    and everything goes to left 
-        # when the scroll x is negative -- >    camera moves to left    and everything goes to right 
-        # when the scroll y is positive -- >    camera moves down    and everything goes up 
-        # when the scroll y is negative -- >    camera moves down    and everything goes down
-
-        self.camera=Camera(self.screen,self.platforms,self.enemies,self.shot_bullets,self.hero,self.explosions,self.scroll)
-        
+        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll)
         
         # Screen shutter effect variables for explosions 
         self.shutter_strength = 0
         self.shutter_start_time = 0
-        self.shutter_duration = 150 # milliseconds
-        self.input_handler = InputHandler(self.hero, self.bullet_class, self.shot_bullets)
+        self.shutter_duration = 150 #  <---- milliseconds
+        self.input_handler = InputHandler(self.Roboman, self.bullet_class, self.shot_bullets)
 
-        
-        
-        
     def handle_events(self, events):
+        """Handles Pygame events like quitting and mouse clicks."""
         for event in events:
             if event.type == pygame.QUIT:
                 self.game_active = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    self.hero.shoot(self.shot_bullets, self.bullet_class)
+                    self.Roboman.shoot(self.shot_bullets, self.bullet_class)
 
     def handle_inputs(self):
+        """Handles keyboard inputs (legacy, now mostly in InputHandler)."""
         keys = pygame.key.get_pressed()
-        self.hero.is_moving_horizontally = False 
+        self.Roboman.is_moving_horizontally = False
 
         if keys[pygame.K_d]:
-            self.hero.move_right()
-            self.hero.is_moving_horizontally = True 
+            self.Roboman.move_right()
+            self.Roboman.is_moving_horizontally = True 
         if keys[pygame.K_a]:
-            self.hero.move_left()
-            self.hero.is_moving_horizontally = True 
+            self.Roboman.move_left()
+            self.Roboman.is_moving_horizontally = True 
         if keys[pygame.K_SPACE]:
-            self.hero.jump()
+            self.Roboman.jump()
         if keys[pygame.K_r]:
-            self.hero.respawn()  
+            self.Roboman.respawn()  
             
-            
-            
-     
-
     def update(self):
-        # Update Hero
-        self.hero.is_on_ground()
-        self.hero.gravity()
-        self.hero.vertical_move()
-        self.hero.platforms_collisions(self.platforms)
-        self.hero.move_with_platform()
-        self.hero.jump_under_platform(self.platforms)
-        
-        # Update hero animation
-        self.hero.update_animation() 
-        
+        """Updates game state including character, enemies, and bullets."""
+        # Update Roboman
+        self.Roboman.is_on_ground()
+        self.Roboman.gravity()
+        self.Roboman.vertical_move()
+        self.Roboman.platforms_collisions(self.platforms)
+        self.Roboman.move_with_platform()
+        self.Roboman.jump_under_platform(self.platforms)
+        self.Roboman.update_animation() 
         
         # Update platforms
         for platform in self.platforms:
             platform.update()
-        
-        
         
         # Update enemies 
         for enemy in self.enemies[:]:
@@ -126,47 +108,40 @@ class Game:
             for bullet in self.shot_bullets[:]:
                 if enemy.hitbox.colliderect(bullet.hitbox):
                     self.shot_bullets.remove(bullet)
-                    if bullet in self.hero.bullets:
-                        self.hero.bullets.remove(bullet)
+                    if bullet in self.Roboman.bullets: 
+                        self.Roboman.bullets.remove(bullet)
                     ALIVE = False
                     break
             if ALIVE:
                 enemy.move()
-                
-                        
             else:
                 enemy.damage(20)
                 if enemy.condition == 'dead':
                     self.enemies.remove(enemy)
 
-        # Update bullets
-        self.hero.update_bullets(self.screen,self.shot_bullets) 
+        # Update bullets shot by Roboman
+        self.Roboman.update_bullets(self.screen, self.shot_bullets) 
         
-
         for bullet in self.shot_bullets:
             for platform in self.platforms:
                 platform_hitbox_for_bullets = platform.rect.inflate(-10, -platform.height // 2)
                 if bullet.hitbox.colliderect(platform_hitbox_for_bullets):
-                    self.explosions.append(Explosion(bullet.x_pos,bullet.y_pos,self.explosion_picture))
+                    self.explosions.append(Explosion(bullet.x_pos, bullet.y_pos, self.explosion_picture))
                     
-                    
-                    # preparing the screen to shutter :
                     self.shutter_strength = 10  
                     self.shutter_start_time = pygame.time.get_ticks()
                     
-                    
                     if bullet in self.shot_bullets:
                         self.shot_bullets.remove(bullet)
-                    if bullet in self.hero.bullets:
-                        self.hero.bullets.remove(bullet)
-                        
-                        
+                    if bullet in self.Roboman.bullets: 
+                        self.Roboman.bullets.remove(bullet)
                         
         # Updating camera scroll:
-        self.scroll[0] += (self.hero.hitbox.centerx - screen_width/2 -self.scroll[0]) / 15
-        self.scroll[1] += ((self.hero.hitbox.centery - screen_height/2 -self.scroll[1]) / 15 ) 
+        # Use Roboman's hitbox for camera centering
+        self.scroll[0] += (self.Roboman.hitbox.centerx - screen_width / 2 - self.scroll[0]) / 15
+        self.scroll[1] += ((self.Roboman.hitbox.centery - screen_height / 2 - self.scroll[1]) / 15 ) 
                         
-        #shutter effect if it is active
+        # Shutter effect if it is active
         current_time = pygame.time.get_ticks()
         if self.shutter_strength > 0:
             shttered_time = current_time - self.shutter_start_time
@@ -179,27 +154,17 @@ class Game:
                 self.shutter_strength = max(0, 10 - (10 * decay_factor)) 
             else:
                 self.shutter_strength = 0           
-                    
-                    
-                    
-                    
-                    
         
-        
-        
-        
-
     def render_screen(self):
+        """Fills the screen background."""
         self.screen.fill(self.screen_color)
         
-        
-        
     def run(self):
+        """Main game loop."""
         while self.game_active:
             events = pygame.event.get()
             self.handle_events(events)
-            #self.handle_inputs()
-            self.input_handler.handle_all_inputs()
+            self.input_handler.handle_all_inputs() # Use the input handler
 
             self.update()
             self.render_screen()
