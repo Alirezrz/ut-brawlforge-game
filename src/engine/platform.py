@@ -2,7 +2,7 @@ import pygame
 from config import platform_height # type: ignore
 
 class Platform:
-    def __init__(self, x, y, width, image, height=platform_height,moving=False ,move_range=0,start_direction=1):
+    def __init__(self, x, y, image, width=64, height=platform_height,moving=False ,move_range=0,start_direction=1):
         self.rect = pygame.Rect(x, y, width, height)
         self.image = pygame.transform.scale(image, (width, height))
         self.moving = moving

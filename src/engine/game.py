@@ -24,11 +24,11 @@ class Game:
         )
 
         self.platforms = [
-            Platform(100, 520, 250, platform_image),                            # P1: Bottom-left
-            Platform(500, 430, 180, platform_image, moving=True, move_range=100), # P2: Mid-center moving
-            Platform(800, 340, 300, platform_image),                            # P3: Mid-right
-            Platform(200, 250, 210, platform_image, moving=True, move_range=150,start_direction=-1),
-            Platform(0, 600, 1000, platform_image),                           
+            Platform(100, 520, platform_image),                            # P1: Bottom-left
+            Platform(500, 430, platform_image, moving=True, move_range=100), # P2: Mid-center moving
+            Platform(800, 340, platform_image),                            # P3: Mid-right
+            Platform(200, 250, platform_image, moving=True, move_range=150,start_direction=-1),
+            Platform(0, 600, platform_image),                           
         ]   
 
         self.screen_color=(60,100,150) 

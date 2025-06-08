@@ -365,9 +365,9 @@ class Roboman:
         """Handles collisions between Roboman and platforms."""
         for platform in platforms:
             # Check for collision with the top of the platform (landing)
-            if self.x_pos + self.width > platform.x_pos and \
-               self.x_pos < platform.x_pos + platform.width:
-                if (self.y_pos + self.height) >= platform.y_pos and \
+            if self.x_pos + self.width > platform.x_pos+20 and \
+               self.x_pos+20 < platform.x_pos + platform.width:
+                if (self.y_pos + self.height) > platform.y_pos and \
                    (self.y_pos + self.height) < (platform.y_pos + platform.height) + 10:
                     if self.vertical_speed <= 0:
                         self.on_ground = True
@@ -381,15 +381,15 @@ class Roboman:
                 # If colliding from the left side of the platform
                 if self.allow_move_right and self.x_pos < platform.x_pos and \
                    self.hitbox.right > platform.rect.left and \
-                   self.hitbox.bottom > platform.rect.top + 5 and \
-                   self.hitbox.top < platform.rect.bottom - 5: # Small buffer for top/bottom
+                   self.hitbox.bottom > platform.rect.top + 30 and \
+                   self.hitbox.top < platform.rect.bottom - 30: # Small buffer for top/bottom
                     self.allow_move_right = False
                     self.x_pos = platform.x_pos - self.width
                 # If colliding from the right side of the platform
                 elif self.allow_move_left and self.x_pos + self.width > platform.x_pos + platform.width and \
                      self.hitbox.left < platform.rect.right and \
-                     self.hitbox.bottom > platform.rect.top + 5 and \
-                     self.hitbox.top < platform.rect.bottom - 5: # Small buffer for top/bottom
+                     self.hitbox.bottom > platform.rect.top + 30 and \
+                     self.hitbox.top < platform.rect.bottom - 30: # Small buffer for top/bottom
                     self.allow_move_left = False
                     self.x_pos = platform.x_pos + platform.width
             # Reset allow_move flags if not colliding horizontally
