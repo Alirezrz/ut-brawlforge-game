@@ -93,6 +93,26 @@ class Roboman:
             except FileNotFoundError:
                 print(f"Error: Roboman Shoot frame 'Shoot ({i}).png' not found at {img_path}. Check path.")
                 self.shoot_frames.append(pygame.Surface((70, 118)))
+ 
+        #load run shoot frames:
+        self.RunShoot_frames=[]
+        for i in range(1, 9):
+            try:
+                img_path = os.path.join(base_path, "RunShoot", f"RunShoot ({i}).png")
+                tmp = pygame.image.load(img_path)
+                if i == 1: self.RunShoot_frames.append(pygame.transform.scale(tmp, (83, 118)))
+                elif i == 2: self.RunShoot_frames.append(pygame.transform.scale(tmp, (87, 118)))
+                elif i == 3: self.RunShoot_frames.append(pygame.transform.scale(tmp, (93, 118)))
+                elif i == 4: self.RunShoot_frames.append(pygame.transform.scale(tmp, (97, 118)))
+                elif i == 5: self.RunShoot_frames.append(pygame.transform.scale(tmp, (88, 118)))
+                elif i == 6: self.RunShoot_frames.append(pygame.transform.scale(tmp, (90, 118)))
+                elif i == 7: self.RunShoot_frames.append(pygame.transform.scale(tmp, (100, 118)))
+                elif i == 8: self.RunShoot_frames.append(pygame.transform.scale(tmp, (89, 118)))
+            except FileNotFoundError:
+                print(f"Error: Roboman Shoot frame 'Shoot ({i}).png' not found at {img_path}. Check path.")
+                self.RunShoot_frames.append(pygame.Surface((70, 118)))
+            
+ 
                 
         # loading bullet
         
@@ -102,7 +122,7 @@ class Roboman:
         )
         try:
             self.bullet_picture = pygame.image.load(bullet_image_path).convert_alpha()
-            self.bullet_picture = pygame.transform.scale(self.bullet_picture ,(23,23))
+            self.bullet_picture = pygame.transform.scale(self.bullet_picture ,(35,15))
         except FileNotFoundError:
             print(f"Error: Bullet.png not found at {bullet_image_path}. Using a placeholder.")
             self.bullet_picture = pygame.Surface((40, 40), pygame.SRCALPHA)
@@ -144,6 +164,11 @@ class Roboman:
         self.shooting_animation_start_time = 0
         self.shooting_animation_duration = len(self.shoot_frames) * self.animation_speed if self.shoot_frames else 1
         self.last_animation_state = None
+        self.RunShoot=False
+        self.Last_RunShoot_frame_index=0
+        self.Reload_duration= 400 #millisec
+        self.Last__Shooting_time=0  # using it for reload 
+        
         #====================================================================================================================================
         
 
@@ -173,9 +198,24 @@ class Roboman:
     def update_animation(self):
         """Updates Roboman's animation frame based on current state (shooting, moving, idle)."""
         current_time = pygame.time.get_ticks()
-
         # Prioritize shooting animation if active
-        if self.is_shooting and self.shoot_frames:
+        if self.RunShoot:
+            elapsed_time = current_time - self.shooting_animation_start_time
+            if elapsed_time >= self.shooting_animation_duration:
+                self.is_shooting = False
+                self.RunShoot=False
+                self.current_frame_index = 0
+                return
+            if self.is_shooting:
+                if current_time - self.last_frame_update_time > self.animation_speed:
+                    self.current_frame_index =(self.Last_RunShoot_frame_index + int((elapsed_time / self.animation_speed)) % len(self.RunShoot_frames))%len(self.RunShoot_frames)
+                    self.current_picture = self.RunShoot_frames[self.current_frame_index]
+                    self.Last_RunShoot_frame_index=self.current_frame_index
+                    self.last_frame_update_time = current_time
+                return
+            
+            
+        elif self.is_shooting and self.shoot_frames:
             elapsed_time = current_time - self.shooting_animation_start_time
 
             if elapsed_time >= self.shooting_animation_duration:
@@ -235,16 +275,31 @@ class Roboman:
 
     def move_right(self):
         """Moves Roboman to the right."""
-        if self.allow_move_right:
+        if self.RunShoot and self.allow_move_right:
             self.x_pos += self.horizontal_speed
             self.is_moving_horizontally = True
             self.Look = 'right'
             self.hitbox.topleft = (self.x_pos, self.y_pos)
             self.fall_from_platform()
 
+        elif self.allow_move_right and not (self.is_shooting and not self.is_moving_horizontally):
+            self.x_pos += self.horizontal_speed
+            self.is_moving_horizontally = True
+            self.Look = 'right'
+            self.hitbox.topleft = (self.x_pos, self.y_pos)
+            self.fall_from_platform()
+
+
     def move_left(self):
         """Moves Roboman to the left."""
-        if self.allow_move_left:
+        if self.RunShoot and self.allow_move_left:
+            self.x_pos -= self.horizontal_speed
+            self.is_moving_horizontally = True
+            self.Look = 'left'
+            self.hitbox.topleft = (self.x_pos, self.y_pos)
+            self.fall_from_platform()
+            
+        elif self.allow_move_left and not (self.is_shooting and not self.is_moving_horizontally):
             self.x_pos -= self.horizontal_speed
             self.is_moving_horizontally = True
             self.Look = 'left'
@@ -252,28 +307,42 @@ class Roboman:
             self.fall_from_platform()
 
     def shoot(self, shot_bullets, Bullet_Class):
-        """Roboman shoots a bullet."""
-        bullet_start_x = self.x_pos + (self.width - 25 if self.Look == 'right' else -5)
-        bullet_start_y = self.y_pos + 35
-        if self.Look=='right' :
-            bullet_start_x-=5
-        else:
-            bullet_start_x+=5
-        bullet = Bullet_Class(
-            bullet_start_x,
-            bullet_start_y+10,
-            15, # Bullet speed
-            self.Look,
-            self.bullet_picture, 
-            self.screen_width
-        )
-        self.bullets.append(bullet)
-        shot_bullets.append(bullet)
+        """Roboman shoots a bullet, with a reload cooldown."""
+        current_time = pygame.time.get_ticks()
+        
+        if current_time - self.Last__Shooting_time > self.Reload_duration:
+            self.Last__Shooting_time = current_time 
 
-        # Trigger shooting animation
-        self.is_shooting = True
-        self.shooting_animation_start_time = pygame.time.get_ticks()
-        self.current_frame_index = 0
+            if self.is_moving_horizontally and self.vertical_speed == 0: 
+                self.RunShoot = True 
+                self.shooting_animation_start_time = pygame.time.get_ticks()
+                self.current_frame_index = self.Last_RunShoot_frame_index 
+            
+            self.is_shooting = True 
+            if not self.RunShoot:
+                self.shooting_animation_start_time = pygame.time.get_ticks()
+                self.current_frame_index = 0 
+
+            bullet_start_x = self.x_pos + (self.width - 25 if self.Look == 'right' else -5)
+            bullet_start_y = self.y_pos + 35
+            if self.Look == 'right':
+                bullet_start_x -= 5
+            else:
+                bullet_start_x += 5
+            
+            # Create and add the new bullet to the game's bullet lists
+            bullet = Bullet_Class(
+                bullet_start_x,
+                bullet_start_y + 18, 
+                15, 
+                self.Look, 
+                self.bullet_picture, 
+                self.screen_width 
+            )
+            self.bullets.append(bullet) 
+            shot_bullets.append(bullet) 
+
+        
         
         
         
