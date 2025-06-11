@@ -115,7 +115,7 @@ class Roboman:
         # loading jump frames :
         self.Jump_frames=[]
         self.last_jump_time=0
-        scale_numebrs=[(73,118),(80,118),(90,118),(91,118),(95,118),(94,118),(95,118),(96,118),(84,118)]
+        scale_numebrs=[(73,118),(80,118),(90,118),(91,118),(90,118),(109,118),(95,118),(96,118),(84,118)]
         for i in range(1,10):
             try:
                 img_path = os.path.join(base_path, "jump", f"Jump ({i}).png")
@@ -133,6 +133,27 @@ class Roboman:
                 print(f"Error: Roboman jump frame 'Jump ({i}).png' not found at {img_path}. Check path.")
                 self.jump_frames.append(pygame.Surface((70, 118)))
                 print(img_path)
+        # loading jump shoot frames :
+        self.jump_shoot_animation_speed = 50 
+        self.jumpshoot_flag=False
+        self.JumpShoot_frames=[]
+        self.JumpShoot = False
+        self.last_jump_shoot_index = 0
+        scale_numebrs=[(97,118),(97,118),(98,118),(95,118),(97,118)]
+        for i in range(1,6):
+            try:
+                img_path = os.path.join(base_path, "jump shoot", f"JumpShoot ({i}).png")
+                tmp = pygame.image.load(img_path)
+                if i == 1: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                elif i == 2: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                elif i == 3: self.JumpShoot_frames.append(pygame.transform.scale(tmp,scale_numebrs[i-1]))
+                elif i == 4: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                elif i == 5: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+            except FileNotFoundError:
+                print(f"Error: Roboman jump shhot frame 'JumpShoot ({i}).png' not found at {img_path}. Check path.")
+                self.JumpShoot_frames.append(pygame.Surface((70, 118)))
+                print(img_path)
+            
             
             
  
@@ -224,7 +245,17 @@ class Roboman:
     def update_animation(self):
         """Updates Roboman's animation frame based on current state (shooting, moving, idle)."""
         current_time = pygame.time.get_ticks()
-        # Prioritize shooting animation if active
+        
+        if self.JumpShoot and self.JumpShoot_frames:
+            elapsed_time = current_time - self.shooting_animation_start_time
+            if current_time - self.last_frame_update_time > self.jump_shoot_animation_speed:
+                self.last_jump_shoot_index = (self.last_jump_shoot_index + 1) % len(self.JumpShoot_frames)
+                self.current_picture = self.JumpShoot_frames[self.last_jump_shoot_index]
+                self.last_frame_update_time = current_time
+                if self.last_jump_shoot_index == len(self.JumpShoot_frames) - 1:
+                    self.JumpShoot = False
+            return
+        
         if not self.on_ground and self.current_platform is None:
             if self.frame_flag:
                 if current_time - self.last_frame_update_time > self.animation_speed:
@@ -353,6 +384,11 @@ class Roboman:
         
         if current_time - self.Last__Shooting_time > self.Reload_duration:
             self.Last__Shooting_time = current_time 
+            if not self.on_ground:
+                self.jumpShoot(shot_bullets, Bullet_Class)
+                return
+                
+                
 
             if self.is_moving_horizontally and self.vertical_speed == 0: 
                 self.RunShoot = True 
@@ -384,7 +420,30 @@ class Roboman:
             shot_bullets.append(bullet) 
 
         
-        
+    def jumpShoot(self, shot_bullets, Bullet_Class):
+        bullet_start_x = self.x_pos + (self.width - 25 if self.Look == 'right' else -5)
+        bullet_start_y = self.y_pos + 35
+        if self.Look == 'right':
+            bullet_start_x -= 5
+        else:
+            bullet_start_x += 5
+
+        bullet = Bullet_Class(
+            bullet_start_x,
+            bullet_start_y + 18, 
+            15, 
+            self.Look, 
+            self.bullet_picture, 
+            self.screen_width 
+        )
+        self.bullets.append(bullet)
+        shot_bullets.append(bullet)
+
+        # Trigger jump shoot animation
+        self.JumpShoot = True
+        self.shooting_animation_start_time = pygame.time.get_ticks()
+        self.current_frame_index = 0
+
         
         
         
@@ -427,6 +486,8 @@ class Roboman:
             self.current_frame_index = 0 
             self.frame_flag=True
             self.in_jump_animation = True 
+            self.allow_move_left=True
+            self.allow_move_right=True
             
             
             
