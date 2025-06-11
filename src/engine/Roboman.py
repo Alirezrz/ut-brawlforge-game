@@ -1,6 +1,6 @@
 import pygame
 import os
-from config import ROBOMAN_LANDING_INSET, ROBOMAN_SIDE_COLLISION_TOP_BUFFER, ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER,jump_strenght ,horizontal_speed,gravity_strenght,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
+from config import roboman_reload_time,ROBOMAN_LANDING_INSET, ROBOMAN_SIDE_COLLISION_TOP_BUFFER, ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER,jump_strenght ,horizontal_speed,gravity_strenght,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
 
 class Roboman:
 
@@ -210,7 +210,7 @@ class Roboman:
         self.last_animation_state = None
         self.RunShoot=False
         self.Last_RunShoot_frame_index=0
-        self.Reload_duration= 400 #millisec
+        self.Reload_duration= roboman_reload_time #millisec
         self.Last__Shooting_time=0  # using it for reload 
         self.frame_flag=False  #usaed in jump animation
         self.in_jump_animation = False

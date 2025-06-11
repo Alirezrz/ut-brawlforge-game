@@ -12,6 +12,7 @@ gravity_strenght=1
 horizontal_speed=8
 health_bar_lenght=276
 roboman_health_bar_frame_thickness=24
+roboman_reload_time=400
 
 platform_height = 64
 platform_width = 64
