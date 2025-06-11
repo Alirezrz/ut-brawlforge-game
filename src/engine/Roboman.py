@@ -115,7 +115,7 @@ class Roboman:
         # loading jump frames :
         self.Jump_frames=[]
         self.last_jump_time=0
-        scale_numebrs=[(73,118),(80,118),(90,118),(91,118),(95,118),(109,118),(95,118),(96,118),(84,118)]
+        scale_numebrs=[(73,118),(80,118),(90,118),(91,118),(95,118),(94,118),(95,118),(96,118),(84,118)]
         for i in range(1,10):
             try:
                 img_path = os.path.join(base_path, "jump", f"Jump ({i}).png")
@@ -234,7 +234,7 @@ class Roboman:
                         self.last_frame_update_time = current_time
                     else:
                         self.frame_flag = False
-                        self.current_frame_index = 8  # Ensure it locks on 9th frame
+                        self.current_frame_index = 8  
                         self.current_picture = self.Jump_frames[8]
             else:
                 self.current_picture = self.Jump_frames[8]
