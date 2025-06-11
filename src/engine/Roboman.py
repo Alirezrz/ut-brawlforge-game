@@ -1,10 +1,10 @@
 import pygame
 import os
-from config import roboman_reload_time,ROBOMAN_LANDING_INSET, ROBOMAN_SIDE_COLLISION_TOP_BUFFER, ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER,jump_strenght ,horizontal_speed,gravity_strenght,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
+from config import roboman_jetpack_reload,roboman_reload_time,ROBOMAN_LANDING_INSET, ROBOMAN_SIDE_COLLISION_TOP_BUFFER, ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER,jump_strenght ,horizontal_speed,gravity_strenght,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
 
 class Roboman:
 
-    def __init__(self, x, y,  roboman_health_bar_frame,roboman_health_bar, hero_profile_picture, screen_width, screen_height):
+    def __init__(self, x, y,  roboman_health_bar_frame,roboman_health_bar, hero_profile_picture, screen_width, screen_height,trigger_shutter_callback=None):
 
         self.x_pos = x
         self.y_pos = y
@@ -14,6 +14,7 @@ class Roboman:
         self.on_platform = False
         self.current_platform = None
         self.status="idle"
+        self.trigger_shutter_callback = trigger_shutter_callback
 
         
          
@@ -154,8 +155,10 @@ class Roboman:
                 self.JumpShoot_frames.append(pygame.Surface((70, 118)))
                 print(img_path)
             
-            
-            
+        # jetpack photo:
+        img_path = os.path.join(base_path, f"jetpack.png")
+        self.jetpack_frame=pygame.image.load(img_path)
+        self.jetpack_frame=pygame.transform.scale(self.jetpack_frame, (80,118))
  
                 
         # loading bullet
@@ -194,6 +197,15 @@ class Roboman:
         self.health = 25
         self.max_health = 100
         self.bullets = []
+        
+        self.jetpack_reload_duration = roboman_jetpack_reload
+        self.last_jetpack_fire=0
+        self.jetpack_thrust = 12  # upward speed when using jetpack
+        self.jetpack_burn_time = 600  # milliseconds duration per activation
+        self.jetpack_reload_duration = 2000  # milliseconds before next use
+        self.last_jetpack_use_time = 0
+        self.jetpack_start_time = 0
+        self.jetpack_active = False
         #====================================================================================================================================
 
         # Animation attributes
@@ -245,7 +257,9 @@ class Roboman:
     def update_animation(self):
         """Updates Roboman's animation frame based on current state (shooting, moving, idle)."""
         current_time = pygame.time.get_ticks()
-        
+        if self.jetpack_active and self.jetpack_frame:
+            self.current_picture = self.jetpack_frame
+            return
         if self.JumpShoot and self.JumpShoot_frames:
             elapsed_time = current_time - self.shooting_animation_start_time
             if current_time - self.last_frame_update_time > self.jump_shoot_animation_speed:
@@ -382,7 +396,7 @@ class Roboman:
         """Roboman shoots a bullet, with a reload cooldown."""
         current_time = pygame.time.get_ticks()
         
-        if current_time - self.Last__Shooting_time > self.Reload_duration:
+        if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active:
             self.Last__Shooting_time = current_time 
             if not self.on_ground:
                 self.jumpShoot(shot_bullets, Bullet_Class)
@@ -489,6 +503,28 @@ class Roboman:
             self.allow_move_left=True
             self.allow_move_right=True
             
+    def activate_jetpack(self):
+        current_time = pygame.time.get_ticks()
+        if not self.on_ground and not self.jetpack_active and (current_time - self.last_jetpack_use_time >= self.jetpack_reload_duration):
+            self.jetpack_active = True
+            self.jetpack_start_time = current_time
+            self.last_jetpack_use_time = current_time
+            if self.trigger_shutter_callback:
+                self.trigger_shutter_callback(strength=5, duration=150)
+
+    def update_jetpack(self):
+        """Applies jetpack upward thrust during active time."""
+        if self.jetpack_active:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.jetpack_start_time <= self.jetpack_burn_time:
+                self.vertical_speed = self.jetpack_thrust
+            else:
+                self.jetpack_active = False
+                if self.Jump_frames:
+                    self.current_frame_index = 8
+                    self.current_picture = self.Jump_frames[8]
+       
+            
             
             
             
@@ -497,6 +533,7 @@ class Roboman:
 
     def gravity(self):
         """Applies gravity to Roboman."""
+        self.update_jetpack() 
         if not self.on_ground:
             self.vertical_speed -= self.gravity_strenght
             

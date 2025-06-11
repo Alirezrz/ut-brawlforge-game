@@ -28,6 +28,8 @@ class InputHandler:
             self.hero.jump()
         if keys[pygame.K_r]:
             self.hero.respawn()
+        if keys[pygame.K_j]:
+            self.hero.activate_jetpack()
 
     def handle_gamepad(self):
         if not self.joystick:

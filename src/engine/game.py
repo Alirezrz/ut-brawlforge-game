@@ -22,7 +22,8 @@ class Game:
         self.Roboman = Roboman(
             player_start_pos['x'], player_start_pos['y'], 
             roboman_health_bar_frame, roboman_health_bar, hero_profile_picture,
-            screen_width, screen_height
+            screen_width, screen_height,
+            trigger_shutter_callback=self.trigger_jetpack_shutter
         )
 
         self.platforms = load_level(level_1_data, platform_image)
@@ -167,3 +168,9 @@ class Game:
             self.camera.render()
             pygame.display.update()
             self.clock.tick(FPS)
+            
+    def trigger_jetpack_shutter(self, strength=5, duration=150):
+        self.shutter_strength = strength
+        self.shutter_duration = duration
+        self.shutter_start_time = pygame.time.get_ticks()
+
