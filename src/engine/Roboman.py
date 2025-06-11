@@ -1,6 +1,6 @@
 import pygame
 import os
-
+from config import jump_strenght ,horizontal_speed,gravity_strenght
 class Roboman:
 
     def __init__(self, x, y, health_bar_green, health_bar_red, hero_profile_picture, screen_width, screen_height):
@@ -141,10 +141,10 @@ class Roboman:
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.Look = 'right'
-        self.horizontal_speed = 8 # Roboman specific speed
+        self.horizontal_speed = horizontal_speed # Roboman specific speed
         self.vertical_speed = 0
-        self.jump_strenght = 22 # Roboman specific jump strength
-        self.gravity_strenght = 1
+        self.jump_strenght =jump_strenght # Roboman specific jump strength
+        self.gravity_strenght = gravity_strenght
         self.on_ground = False
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
         self.health = 63
