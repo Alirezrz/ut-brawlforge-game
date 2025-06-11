@@ -22,3 +22,7 @@ explode_side_size=50
 
 enenmy_health_bar_width=40
 enenmy_health_bar_height=5
+
+ROBOMAN_LANDING_INSET = 20
+ROBOMAN_SIDE_COLLISION_TOP_BUFFER = 40
+ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER = 10

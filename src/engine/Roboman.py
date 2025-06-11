@@ -1,6 +1,6 @@
 import pygame
 import os
-from config import jump_strenght ,horizontal_speed,gravity_strenght,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
+from config import ROBOMAN_LANDING_INSET, ROBOMAN_SIDE_COLLISION_TOP_BUFFER, ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER,jump_strenght ,horizontal_speed,gravity_strenght,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
 
 class Roboman:
 
@@ -435,8 +435,8 @@ class Roboman:
         """Handles collisions between Roboman and platforms."""
         for platform in platforms:
             # Check for collision with the top of the platform (landing)
-            if self.x_pos + self.width > platform.x_pos+20 and \
-               self.x_pos+20 < platform.x_pos + platform.width:
+            if self.x_pos + self.width > platform.x_pos + ROBOMAN_LANDING_INSET and \
+   self.x_pos + ROBOMAN_LANDING_INSET < platform.x_pos + platform.width:
                 if (self.y_pos + self.height) > platform.y_pos and \
                    (self.y_pos + self.height) < (platform.y_pos + platform.height) + 10:
                     if self.vertical_speed <= 0:
@@ -451,15 +451,15 @@ class Roboman:
                 # If colliding from the left side of the platform
                 if self.allow_move_right and self.x_pos < platform.x_pos and \
                    self.hitbox.right > platform.rect.left and \
-                   self.hitbox.bottom > platform.rect.top + 30 and \
-                   self.hitbox.top < platform.rect.bottom - 10: # Small buffer for top/bottom
+                   self.hitbox.bottom > platform.rect.top + ROBOMAN_SIDE_COLLISION_TOP_BUFFER and \
+                 self.hitbox.top < platform.rect.bottom - ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER: # Small buffer for top/bottom
                     self.allow_move_right = False
                     self.x_pos = platform.x_pos - self.width
                 # If colliding from the right side of the platform
                 elif self.allow_move_left and self.x_pos + self.width > platform.x_pos + platform.width and \
                      self.hitbox.left < platform.rect.right and \
-                     self.hitbox.bottom > platform.rect.top + 30 and \
-                     self.hitbox.top < platform.rect.bottom - 10: # Small buffer for top/bottom
+                     self.hitbox.bottom > platform.rect.top + ROBOMAN_SIDE_COLLISION_TOP_BUFFER and \
+                     self.hitbox.top < platform.rect.bottom - ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER: # Small buffer for top/bottom
                     self.allow_move_left = False
                     self.x_pos = platform.x_pos + platform.width
             # Reset allow_move flags if not colliding horizontally
