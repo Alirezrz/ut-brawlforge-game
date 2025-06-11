@@ -438,7 +438,7 @@ class Roboman:
             if self.x_pos + self.width > platform.x_pos + ROBOMAN_LANDING_INSET and \
    self.x_pos + ROBOMAN_LANDING_INSET < platform.x_pos + platform.width:
                 if (self.y_pos + self.height) > platform.y_pos and \
-                   (self.y_pos + self.height) < (platform.y_pos + platform.height) + 10:
+                   (self.y_pos + self.height) < (platform.y_pos + platform.height) + ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER:
                     if self.vertical_speed <= 0:
                         self.on_ground = True
                         self.vertical_speed = 0
