@@ -1,15 +1,16 @@
 import pygame
 import os
-from config import jump_strenght ,horizontal_speed,gravity_strenght
+from config import jump_strenght ,horizontal_speed,gravity_strenght,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
+
 class Roboman:
 
-    def __init__(self, x, y, health_bar_green, health_bar_red, hero_profile_picture, screen_width, screen_height):
+    def __init__(self, x, y,  roboman_health_bar_frame,roboman_health_bar, hero_profile_picture, screen_width, screen_height):
 
         self.x_pos = x
         self.y_pos = y
         self.hero_profile_picture = hero_profile_picture
-        self.health_bar_green = health_bar_green
-        self.health_bar_red = health_bar_red
+        self.roboman_health_bar_frame = roboman_health_bar_frame
+        self.roboman_health_bar = roboman_health_bar
         self.on_platform = False
         self.current_platform = None
         self.status="idle"
@@ -147,7 +148,7 @@ class Roboman:
         self.gravity_strenght = gravity_strenght
         self.on_ground = False
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
-        self.health = 63
+        self.health = 100
         self.max_health = 100
         self.bullets = []
         #====================================================================================================================================
@@ -175,8 +176,8 @@ class Roboman:
 
     def display(self, screen, offset):
         """Draws the Roboman and its health bar on the screen."""
-        self.health_bar_green = pygame.transform.scale(self.health_bar_green, (int(300 * (self.health / self.max_health)), 35))
-        self.health_bar_red = pygame.transform.scale(self.health_bar_red, (300, 35))
+        self.roboman_health_bar = pygame.transform.scale(self.roboman_health_bar, (int(health_bar_lenght * (self.health / self.max_health)), profileSideSize-(2*roboman_health_bar_frame_thickness)))
+        self.roboman_health_bar_frame = pygame.transform.scale(self.roboman_health_bar_frame, (health_bar_lenght + (2*roboman_health_bar_frame_thickness), profileSideSize))
         display_picture = self.current_picture
 
         if self.Look == 'right':
@@ -185,9 +186,9 @@ class Roboman:
             flipped_picture = pygame.transform.flip(display_picture, True, False)
             screen.blit(flipped_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
 
-        screen.blit(self.health_bar_red, (35, 0))
-        screen.blit(self.health_bar_green, (35, 0))
-        screen.blit(pygame.transform.scale(self.hero_profile_picture, (35, 35)), (0, 0))
+        screen.blit(self.roboman_health_bar_frame, (profileSideSize, 0))
+        screen.blit(self.roboman_health_bar, (profileSideSize+roboman_health_bar_frame_thickness, roboman_health_bar_frame_thickness))
+        screen.blit(pygame.transform.scale(self.hero_profile_picture, (profileSideSize, profileSideSize)), (0, 0))
         
         
         

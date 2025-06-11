@@ -35,6 +35,8 @@ try:
     health_bar_green= pygame.transform.scale(health_bar_green, (40, 5))
     health_bar_red=pygame.image.load("src/assets/images/red_image.jpg")
     health_bar_red=pygame.transform.scale(health_bar_red, (40, 5))
+    roboman_health_bar_frame=pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar_frame.png")
+    roboman_health_bar=pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar.png")
 except FileNotFoundError as e:
     print(f"Error: Could not load image: {e}")
     pygame.quit()
@@ -49,7 +51,8 @@ if menu_action == "start":
     game = Game(
         screen, None, ghost, ghost2, 
         platform_tileset_picture, background, explode_picture, 
-        health_bar_green, health_bar_red, hero_profile_picture
+        health_bar_green, health_bar_red, hero_profile_picture,
+        roboman_health_bar_frame,roboman_health_bar
     )
     game.run()
 elif menu_action == "settings":

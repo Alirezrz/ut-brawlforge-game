@@ -10,7 +10,7 @@ from src.engine.camera import Camera # type: ignore
 from src.engine.input_handler import InputHandler  
 
 class Game:
-    def __init__(self,screen, hero_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture,health_bar_green,health_bar_red,hero_profile_picture):
+    def __init__(self,screen, hero_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture,health_bar_green,health_bar_red,hero_profile_picture, roboman_health_bar_frame,roboman_health_bar):
         self.screen = screen
         self.background = background
         self.explosion_picture=explosion_picture
@@ -19,7 +19,7 @@ class Game:
     
         self.Roboman = Roboman(
             200, 250 - 118 - 20 
-            , health_bar_green, health_bar_red, hero_profile_picture,
+            , roboman_health_bar_frame, roboman_health_bar, hero_profile_picture,
             screen_width, screen_height
         )
 
