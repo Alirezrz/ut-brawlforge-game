@@ -8,6 +8,7 @@ from src.engine.platform import Platform # type: ignore
 from src.engine.explosion import Explosion # type: ignore
 from src.engine.camera import Camera # type: ignore
 from src.engine.input_handler import InputHandler  
+from src.levels import level_1_data, load_level 
 
 class Game:
     def __init__(self,screen, hero_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture,health_bar_green,health_bar_red,hero_profile_picture, roboman_health_bar_frame,roboman_health_bar):
@@ -17,58 +18,14 @@ class Game:
         self.clock = pygame.time.Clock()
         
     
+        player_start_pos = level_1_data['player_start']
         self.Roboman = Roboman(
-            200, 250 - 118 - 20 
-            , roboman_health_bar_frame, roboman_health_bar, hero_profile_picture,
+            player_start_pos['x'], player_start_pos['y'], 
+            roboman_health_bar_frame, roboman_health_bar, hero_profile_picture,
             screen_width, screen_height
         )
 
-        self.platforms = [
-            
-                                                              # P1: Bottom-left
-            Platform(600, 430, platform_image, moving=True, move_range=100), # P2: Mid-center moving
-            Platform(600+64, 430, platform_image, moving=True, move_range=100), # P2: Mid-center moving
-            Platform(600+64+64, 430, platform_image, moving=True, move_range=100), # P2: Mid-center moving
-            Platform(600+64+64+64, 430, platform_image, moving=True, move_range=100), # P2: Mid-center moving
-            Platform(600+64+64+64+64, 430, platform_image, moving=True, move_range=100), # P2: Mid-center moving
-            
-            Platform(800+64, 340, platform_image),
-            Platform(800+64+64, 340, platform_image),
-            Platform(800+64+64+64, 340, platform_image),
-            Platform(800+64+64+64+64, 340, platform_image),
-            Platform(800+64+64+64+64+64, 340, platform_image),
-            Platform(800+64+64+64+64+64+64, 340, platform_image),
-            Platform(800+64+64+64+64+64+64+64, 340, platform_image),
-
-            Platform(400-64-64-64-64, 250, platform_image, moving=True, move_range=150,start_direction=-1),
-            Platform(400-64-64-64, 250, platform_image, moving=True, move_range=150,start_direction=-1),
-            Platform(400-64-64, 250, platform_image, moving=True, move_range=150,start_direction=-1),
-            Platform(400-64, 250, platform_image, moving=True, move_range=150,start_direction=-1),
-            Platform(400, 250, platform_image, moving=True, move_range=150,start_direction=-1),
-            Platform(400-64, 250, platform_image, moving=True, move_range=150,start_direction=-1),
-            Platform(400-64-64, 250, platform_image, moving=True, move_range=150,start_direction=-1),
-
-            Platform(-200, 50, platform_image),
-            Platform(-200-64, 50, platform_image),
-            Platform(-200-64-64, 50, platform_image),
-            Platform(-200-64-64-64, 50, platform_image),
-            Platform(-200-64-64-64-64, 50, platform_image),
-            Platform(-200-64-64-64-64-64, 50, platform_image),          
-
-
-            Platform(0, 600, platform_image),  
-            Platform(0+64, 600, platform_image),                           
-            Platform(0+64+64, 600, platform_image),                           
-            Platform(0+64+64+64, 600, platform_image),                           
-            Platform(0+64+64+64+64, 600, platform_image),                           
-            Platform(0+64+64+64+64+64, 600, platform_image),                           
-            Platform(0+64+64+64+64+64+64, 600, platform_image),                           
-            Platform(0+64+64+64+64+64+64+64, 600, platform_image),                           
-            Platform(0+64+64+64+64+64+64+64+64, 600, platform_image),                           
-            Platform(0+64+64+64+64+64+64+64+64+64, 600, platform_image),                           
-            Platform(0+64+64+64+64+64+64+64+64+64+64, 600, platform_image),                           
-
-        ]   
+        self.platforms = load_level(level_1_data, platform_image)
 
         self.screen_color=(60,100,150) 
         self.enemies = []

@@ -148,7 +148,7 @@ class Roboman:
         self.gravity_strenght = gravity_strenght
         self.on_ground = False
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
-        self.health = 100
+        self.health = 25
         self.max_health = 100
         self.bullets = []
         #====================================================================================================================================
