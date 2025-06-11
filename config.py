@@ -17,3 +17,8 @@ platform_height = 64
 platform_width = 64
 platform_color = (105, 5, 120)
 FPS = 60
+
+explode_side_size=50
+
+enenmy_health_bar_width=5
+enenmy_health_bar_height=40

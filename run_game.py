@@ -2,7 +2,7 @@ import pygame
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-from config import screen_width, screen_height # type: ignore
+from config import screen_width, screen_height,explode_side_size,enenmy_health_bar_height,enenmy_health_bar_width # type: ignore
 from src.engine.game import Game # type: ignore
 from src.engine.menu import Menu # type: ignore
 pygame.init()
@@ -30,11 +30,11 @@ try:
     ghost2 = pygame.transform.scale(ghost2, (64, 64))
     platform_tileset_picture = pygame.image.load("src/assets/images/platform.jpg")
     explode_picture = pygame.image.load("src/assets/images/explode.png")
-    explode_picture = pygame.transform.scale(explode_picture, (50, 50))
+    explode_picture = pygame.transform.scale(explode_picture, (explode_side_size, explode_side_size))
     health_bar_green= pygame.image.load("src/assets/images/green_image.jpg")
-    health_bar_green= pygame.transform.scale(health_bar_green, (40, 5))
+    health_bar_green= pygame.transform.scale(health_bar_green, (enenmy_health_bar_width,enenmy_health_bar_height))
     health_bar_red=pygame.image.load("src/assets/images/red_image.jpg")
-    health_bar_red=pygame.transform.scale(health_bar_red, (40, 5))
+    health_bar_red=pygame.transform.scale(health_bar_red, (enenmy_health_bar_width, enenmy_health_bar_height))
     roboman_health_bar_frame=pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar_frame.png")
     roboman_health_bar=pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar.png")
 except FileNotFoundError as e:
