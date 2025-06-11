@@ -20,5 +20,5 @@ FPS = 60
 
 explode_side_size=50
 
-enenmy_health_bar_width=5
-enenmy_health_bar_height=40
+enenmy_health_bar_width=40
+enenmy_health_bar_height=5
