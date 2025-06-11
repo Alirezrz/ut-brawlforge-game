@@ -112,6 +112,28 @@ class Roboman:
             except FileNotFoundError:
                 print(f"Error: Roboman Shoot frame 'Shoot ({i}).png' not found at {img_path}. Check path.")
                 self.RunShoot_frames.append(pygame.Surface((70, 118)))
+        # loading jump frames :
+        self.Jump_frames=[]
+        self.last_jump_time=0
+        scale_numebrs=[(73,118),(80,118),(90,118),(91,118),(95,118),(109,118),(95,118),(96,118),(84,118)]
+        for i in range(1,10):
+            try:
+                img_path = os.path.join(base_path, "jump", f"Jump ({i}).png")
+                tmp = pygame.image.load(img_path)
+                if i == 1: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                elif i == 2: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                elif i == 3: self.Jump_frames.append(pygame.transform.scale(tmp,scale_numebrs[i-1]))
+                elif i == 4: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                elif i == 5: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                elif i == 6: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                elif i == 7: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                elif i == 8: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                elif i == 9: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+            except FileNotFoundError:
+                print(f"Error: Roboman jump frame 'Jump ({i}).png' not found at {img_path}. Check path.")
+                self.jump_frames.append(pygame.Surface((70, 118)))
+                print(img_path)
+            
             
  
                 
@@ -169,6 +191,9 @@ class Roboman:
         self.Last_RunShoot_frame_index=0
         self.Reload_duration= 400 #millisec
         self.Last__Shooting_time=0  # using it for reload 
+        self.frame_flag=False  #usaed in jump animation
+        self.in_jump_animation = False
+
         
         #====================================================================================================================================
         
@@ -200,7 +225,22 @@ class Roboman:
         """Updates Roboman's animation frame based on current state (shooting, moving, idle)."""
         current_time = pygame.time.get_ticks()
         # Prioritize shooting animation if active
-        if self.RunShoot:
+        if not self.on_ground and self.current_platform is None:
+            if self.frame_flag:
+                if current_time - self.last_frame_update_time > self.animation_speed:
+                    if self.current_frame_index < 8:
+                        self.current_frame_index += 1
+                        self.current_picture = self.Jump_frames[self.current_frame_index]
+                        self.last_frame_update_time = current_time
+                    else:
+                        self.frame_flag = False
+                        self.current_frame_index = 8  # Ensure it locks on 9th frame
+                        self.current_picture = self.Jump_frames[8]
+            else:
+                self.current_picture = self.Jump_frames[8]
+            return
+                 
+        elif self.RunShoot:
             elapsed_time = current_time - self.shooting_animation_start_time
             if elapsed_time >= self.shooting_animation_duration:
                 self.is_shooting = False
@@ -379,10 +419,14 @@ class Roboman:
 
     def jump(self):
         """Makes Roboman jump if on the ground."""
-        if self.on_ground:
+        if self.on_ground :
             self.vertical_speed = self.jump_strenght
             self.on_ground = False
             self.current_platform = None
+            self.last_jump_time=pygame.time.get_ticks()
+            self.current_frame_index = 0 
+            self.frame_flag=True
+            self.in_jump_animation = True 
             
             
             
