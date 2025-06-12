@@ -197,6 +197,7 @@ class Game:
         while self.game_active:
             events = pygame.event.get()
             self.handle_events(events)
+            self.handle_inputs() 
             self.input_handler.handle_all_inputs() 
             for event in events:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
