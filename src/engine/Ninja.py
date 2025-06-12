@@ -113,7 +113,7 @@ class Ninja:
             if self.current_frame_index < len(self.throw_frames) - 1:
                 self.current_frame_index += 1
                 
-                # Trigger kunai release at frame 003 
+                # Trigger kunai release at frame 3 
                 if self.current_frame_index == 3:
                     self.fire_kunai(shot_bullets)
 
