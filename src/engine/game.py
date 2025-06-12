@@ -98,6 +98,7 @@ class Game:
             self.Roboman.respawn() 
         if keys[pygame.K_SPACE] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
             self.Roboman.activate_jetpack()
+        
 
     # Ninja controls
         if keys[pygame.K_LEFT]:
@@ -111,6 +112,8 @@ class Game:
     
         if not self.ninja_moving:
             self.ninja.stop_horizontal_movement()
+        if keys[pygame.K_RCTRL] or keys[pygame.K_KP0]:  # Customize key if needed
+            self.ninja.shoot(self.shot_bullets, self.bullet_class)
         
              
             
@@ -129,7 +132,7 @@ class Game:
         self.ninja.platforms_collisions(self.platforms)
         self.ninja.move_with_platform()
         self.ninja.jump_under_platform(self.platforms)
-        self.ninja.update_animation() 
+        self.ninja.update_animation(self.shot_bullets) 
         
         for platform in self.platforms:
             platform.update()
@@ -154,6 +157,7 @@ class Game:
                     self.enemies.remove(enemy)
 
         self.Roboman.update_bullets(self.screen, self.shot_bullets) 
+        self.ninja.update_bullets(self.screen, self.shot_bullets) 
         
         for bullet in self.shot_bullets:
             for platform in self.platforms:
