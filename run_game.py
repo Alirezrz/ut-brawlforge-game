@@ -12,8 +12,6 @@ pygame.mixer.init()
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("BrawlForge")
 
-sound_path = "C:/Users/110/Desktop/Game/ut-brawlforge-void/src/assets/sounds/RoboMan/"
-
 try:
     icon = pygame.image.load("src/assets/images/icon.jpg")
     pygame.display.set_icon(icon)
@@ -21,6 +19,8 @@ except FileNotFoundError:
     print("Warning: Icon image not found. Continuing without icon.")
 
 try:
+    sound_path = os.path.join("src", "assets", "sounds", "RoboMan")
+
     background = pygame.image.load("src/assets/images/BrawlhalaBackground.jpg")
     background = pygame.transform.scale(background, (screen_width, screen_height))
     hero_profile_picture = pygame.image.load("src/assets/images/hero_profile.png") 
