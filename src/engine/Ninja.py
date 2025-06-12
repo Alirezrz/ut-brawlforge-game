@@ -80,29 +80,30 @@ class Ninja:
         
     def update_animation(self):
         current_time = pygame.time.get_ticks()
-        elapsed_time=current_time-self.last_frame_update_time
-        
-        if elapsed_time>=self.animation_speed:
-            if self.is_moving_horizontally and self.run_frames:
-                if self.last_animation_state != 'running':
-                    self.current_frame_index = 0
-                    self.last_frame_update_time = current_time
-                    self.last_animation_state = 'running'
+        elapsed_time = current_time - self.last_frame_update_time
 
-                if current_time - self.last_frame_update_time > self.animation_speed:
-                    self.current_frame_index = (self.current_frame_index + 1) % len(self.run_frames)
-                    self.current_picture = self.run_frames[self.current_frame_index]
-                    self.last_frame_update_time = current_time
-                
-            elif self.status=="Idle":
-                if self.last_animation_state != 'idle':
-                    self.current_frame_index = 0
-                    self.last_frame_update_time = current_time
-                    self.last_animation_state = 'idle'
-            if current_time - self.last_frame_update_time > self.animation_speed:
+        if self.is_moving_horizontally and self.run_frames:
+            if self.last_animation_state != 'running':
+                self.current_frame_index = 0
+                self.last_frame_update_time = current_time
+                self.last_animation_state = 'running'
+
+            if elapsed_time >= self.animation_speed:
+                self.current_frame_index = (self.current_frame_index + 1) % len(self.run_frames)
+                self.current_picture = self.run_frames[self.current_frame_index]
+                self.last_frame_update_time = current_time
+            return  
+        elif self.status == "Idle" and self.idle_frames:
+            if self.last_animation_state != 'idle':
+                self.current_frame_index = 0
+                self.last_frame_update_time = current_time
+                self.last_animation_state = 'idle'
+
+            if elapsed_time >= self.animation_speed:
                 self.current_frame_index = (self.current_frame_index + 1) % len(self.idle_frames)
                 self.current_picture = self.idle_frames[self.current_frame_index]
                 self.last_frame_update_time = current_time
+            return  
                 
         
         
@@ -111,6 +112,7 @@ class Ninja:
             
     def stop_horizontal_movement(self):
         self.is_moving_horizontally = False
+        self.status = 'Idle'
         
         
         

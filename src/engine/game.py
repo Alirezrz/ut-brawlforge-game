@@ -80,8 +80,12 @@ class Game:
 
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
+    
+    # Reset movement flags
         self.Roboman.is_moving_horizontally = False
+        self.ninja_moving = False
 
+    # Roboman controls
         if keys[pygame.K_d]:
             self.Roboman.move_right()
             self.Roboman.is_moving_horizontally = True 
@@ -92,16 +96,21 @@ class Game:
             self.Roboman.jump()
         if keys[pygame.K_r]:
             self.Roboman.respawn() 
-            
+        if keys[pygame.K_SPACE] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
+            self.Roboman.activate_jetpack()
+
+    # Ninja controls
         if keys[pygame.K_LEFT]:
             self.ninja.move_left()
-            self.ninja.is_moving_horizontally = True 
-            
+            self.ninja_moving = True
         if keys[pygame.K_RIGHT]:
             self.ninja.move_right()
-            self.ninja.is_moving_horizontally = True 
+            self.ninja_moving = True
         if keys[pygame.K_UP]:
             self.ninja.jump()
+    
+        if not self.ninja_moving:
+            self.ninja.stop_horizontal_movement()
         
              
             
