@@ -44,3 +44,55 @@ class Menu:
         button_rect = pygame.Rect(0,0,200,50)
         button_rect.center = button_pos
         return button_rect.collidepoint(mouse_pos)
+class PauseMenu:
+    def __init__(self, screen, background):
+        self.screen = screen
+        self.background = background  
+        self.font = pygame.font.Font(None, 60)
+        self.small_font = pygame.font.Font(None, 45)
+        self.buttons = [
+            {"text": "Resume", "pos": (screen.get_width() // 2, 250), "action": "resume"},
+            {"text": "Return to Menu", "pos": (screen.get_width() // 2, 350), "action": "menu"},
+            {"text": "Exit", "pos": (screen.get_width() // 2, 450), "action": "exit"}
+        ]
+        self.button_color = (255, 255, 255)
+        self.button_hover_color = (100, 200, 255)
+
+    def draw_text(self, text, font, color, pos):
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect(center=pos)
+        self.screen.blit(text_surface, text_rect)
+        return text_rect
+
+    def run(self):
+        paused = True
+        while paused:
+            self.screen.blit(self.background, (0, 0))
+            overlay = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 128)) 
+            self.screen.blit(overlay, (0, 0))
+            
+            self.draw_text("Paused", self.font, (255, 255, 255), (self.screen.get_width() // 2, 150))
+            mouse_pos = pygame.mouse.get_pos()
+
+            for button in self.buttons:
+                color = self.button_hover_color if self.is_hovered(button["pos"], mouse_pos) else self.button_color
+                button_rect = self.draw_text(button["text"], self.small_font, color, button["pos"])
+                button["rect"] = button_rect
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return "exit"
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    return "resume"
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    for button in self.buttons:
+                        if button.get("rect") and self.is_hovered(button["pos"], mouse_pos):
+                            return button["action"]
+
+            pygame.display.update()
+
+    def is_hovered(self, button_pos, mouse_pos):
+        button_rect = pygame.Rect(0, 0, 250, 50)
+        button_rect.center = button_pos
+        return button_rect.collidepoint(mouse_pos)

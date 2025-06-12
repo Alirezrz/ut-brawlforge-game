@@ -4,7 +4,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 from config import screen_width, screen_height,explode_side_size,enenmy_health_bar_height,enenmy_health_bar_width # type: ignore
 from src.engine.game import Game # type: ignore
-from src.engine.menu import Menu # type: ignore
+from src.engine.menu import Menu, PauseMenu 
 pygame.init()
 
 # Screen initialization
@@ -43,22 +43,25 @@ except FileNotFoundError as e:
     exit()
 
 # Main menu loop
-menu = Menu(screen, background)
-menu_action = menu.run()
+while True:
+    menu = Menu(screen, background)
+    menu_action = menu.run()
 
-if menu_action == "start":
-
-    game = Game(
-        screen, None, ghost, ghost2, 
-        platform_tileset_picture, background, explode_picture, 
-        health_bar_green, health_bar_red, hero_profile_picture,
-        roboman_health_bar_frame,roboman_health_bar
-    )
-    game.run()
-elif menu_action == "settings":
-    print("Settings menu not implemented yet!")
-elif menu_action == "exit":
-    pygame.quit()
-    exit()
-
-pygame.quit()
+    if menu_action == "start":
+        game = Game(
+            screen, None, ghost, ghost2, 
+            platform_tileset_picture, background, explode_picture, 
+            health_bar_green, health_bar_red, hero_profile_picture,
+            roboman_health_bar_frame, roboman_health_bar
+        )
+        result = game.run()
+        if result == "menu":
+            continue 
+        elif result == "exit":
+            pygame.quit()
+            break
+    elif menu_action == "settings":
+        print("Settings menu not implemented yet!")
+    elif menu_action == "exit":
+        pygame.quit()
+        break
