@@ -9,6 +9,7 @@ from src.engine.explosion import Explosion
 from src.engine.camera import Camera
 from src.engine.input_handler import InputHandler  
 from src.levels import level_1_data, load_level 
+from src.engine.menu import PauseMenu 
 
 class Game:
     def __init__(self,screen, hero_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture,health_bar_green,health_bar_red,hero_profile_picture, roboman_health_bar_frame,roboman_health_bar, sounds):
@@ -160,7 +161,18 @@ class Game:
             events = pygame.event.get()
             self.handle_events(events)
             self.input_handler.handle_all_inputs() 
-
+            for event in events:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    pause_menu = PauseMenu(self.screen,self.background)
+                    action = pause_menu.run()
+                    if action == "resume":
+                        continue
+                    elif action == "menu":
+                        self.game_active = False
+                        return "menu"
+                    elif action == "exit":
+                        self.game_active = False
+                        return "exit"
             self.update()
             self.render_screen()
             self.camera.render()

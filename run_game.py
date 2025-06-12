@@ -52,31 +52,33 @@ except (FileNotFoundError, pygame.error) as e:
     pygame.quit()
     exit()
 
-menu = Menu(screen, background)
-menu_action = menu.run()
+while True:
+    menu = Menu(screen, background)
+    menu_action = menu.run()
 
-if menu_action == "start":
-
-    game_sounds = {
-        "shoot": shoot_sound,
-        "jump": jump_sound,
-        "jetpack": jetpack_sound,
-        "explosion": explosion_sound,
-        "enemy_hit": enemy_hit_sound
-    }
-
-    game = Game(
-        screen, None, ghost, ghost2, 
-        platform_tileset_picture, background, explode_picture, 
-        health_bar_green, health_bar_red, hero_profile_picture,
-        roboman_health_bar_frame,roboman_health_bar,
-        game_sounds
-    )
-    game.run()
-elif menu_action == "settings":
-    print("Settings menu not implemented yet!")
-elif menu_action == "exit":
-    pygame.quit()
-    exit()
-
-pygame.quit()
+    if menu_action == "start":
+        game_sounds = {
+           "shoot": shoot_sound,
+           "jump": jump_sound,
+           "jetpack": jetpack_sound,
+           "explosion": explosion_sound,
+           "enemy_hit": enemy_hit_sound
+        }
+        game = Game(
+          screen, None, ghost, ghost2, 
+          platform_tileset_picture, background, explode_picture, 
+          health_bar_green, health_bar_red, hero_profile_picture,
+          roboman_health_bar_frame,roboman_health_bar,
+          game_sounds
+        )
+        result = game.run()
+        if result == "menu":
+            continue 
+        elif result == "exit":
+            pygame.quit()
+            break
+    elif menu_action == "settings":
+        print("Settings menu not implemented yet!")
+    elif menu_action == "exit":
+        pygame.quit()
+        break
