@@ -9,6 +9,7 @@ from src.engine.explosion import Explosion
 from src.engine.camera import Camera
 from src.engine.input_handler import InputHandler  
 from src.levels import level_1_data, load_level 
+from src.engine.Ninja import Ninja 
 from src.engine.menu import PauseMenu 
 
 class Game:
@@ -31,6 +32,10 @@ class Game:
             },
             trigger_shutter_callback=self.trigger_jetpack_shutter
         )
+        self.ninja = Ninja(
+    player_start_pos['x'] + 100, player_start_pos['y'], 
+    screen_width, screen_height
+)
 
         self.platforms = load_level(level_1_data, platform_image)
 
@@ -57,7 +62,7 @@ class Game:
 
         self.scroll=[0,0]
 
-        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll)
+        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja)
         
         self.shutter_strength = 0
         self.shutter_start_time = 0
@@ -71,11 +76,17 @@ class Game:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     self.Roboman.shoot(self.shot_bullets, self.bullet_class)
+                    
+            
 
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
+    
+    # Reset movement flags
         self.Roboman.is_moving_horizontally = False
+        self.ninja_moving = False
 
+    # Roboman controls
         if keys[pygame.K_d]:
             self.Roboman.move_right()
             self.Roboman.is_moving_horizontally = True 
@@ -85,7 +96,27 @@ class Game:
         if keys[pygame.K_SPACE]:
             self.Roboman.jump()
         if keys[pygame.K_r]:
-            self.Roboman.respawn()  
+            self.Roboman.respawn() 
+        if keys[pygame.K_SPACE] and (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
+            self.Roboman.activate_jetpack()
+        
+
+    # Ninja controls
+        if keys[pygame.K_LEFT]:
+            self.ninja.move_left()
+            self.ninja_moving = True
+        if keys[pygame.K_RIGHT]:
+            self.ninja.move_right()
+            self.ninja_moving = True
+        if keys[pygame.K_UP]:
+            self.ninja.jump()
+    
+        if not self.ninja_moving:
+            self.ninja.stop_horizontal_movement()
+        if keys[pygame.K_RCTRL] or keys[pygame.K_KP0]:  # Customize key if needed
+            self.ninja.shoot(self.shot_bullets, self.bullet_class)
+        
+             
             
     def update(self):
         self.Roboman.is_on_ground()
@@ -95,6 +126,14 @@ class Game:
         self.Roboman.move_with_platform()
         self.Roboman.jump_under_platform(self.platforms)
         self.Roboman.update_animation() 
+        
+        self.ninja.is_on_ground()
+        self.ninja.gravity()
+        self.ninja.vertical_move()
+        self.ninja.platforms_collisions(self.platforms)
+        self.ninja.move_with_platform()
+        self.ninja.jump_under_platform(self.platforms)
+        self.ninja.update_animation(self.shot_bullets) 
         
         for platform in self.platforms:
             platform.update()
@@ -119,6 +158,7 @@ class Game:
                     self.enemies.remove(enemy)
 
         self.Roboman.update_bullets(self.screen, self.shot_bullets) 
+        self.ninja.update_bullets(self.screen, self.shot_bullets) 
         
         for bullet in self.shot_bullets:
             for platform in self.platforms:
@@ -137,8 +177,8 @@ class Game:
                     if bullet in self.Roboman.bullets: 
                         self.Roboman.bullets.remove(bullet)
                         
-        self.scroll[0] += (self.Roboman.hitbox.centerx - screen_width / 2 - self.scroll[0]) / 15
-        self.scroll[1] += ((self.Roboman.hitbox.centery - screen_height / 2 - self.scroll[1]) / 15 ) 
+        self.scroll[0] += (self.ninja.hitbox.centerx - screen_width / 2 - self.scroll[0]) / 15
+        self.scroll[1] += ((self.ninja.hitbox.centery - screen_height / 2 - self.scroll[1]) / 15 ) 
                         
         current_time = pygame.time.get_ticks()
         if self.shutter_strength > 0:

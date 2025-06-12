@@ -1,0 +1,268 @@
+import pygame
+import os
+from src.engine.bullet import Bullet
+from config import Ninja_width, Ninja_height
+
+class Ninja:
+    def __init__(self, x, y, screen_width, screen_height):
+        self.x_pos = x
+        self.y_pos = y
+        self.on_platform = False
+        self.current_platform = None
+        self.horizontal_auto_speed = 0
+        self.allow_move_right = True
+        self.allow_move_left = True
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+        self.Look = 'right'
+        self.horizontal_speed = 7
+        self.vertical_speed = 0
+        self.jump_strenght = 20
+        self.gravity_strenght = 1
+        self.on_ground = False
+        self.width = Ninja_width
+        self.height = Ninja_height
+
+        self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
+        self.health = 63
+        self.max_health = 100
+        self.bullets = []
+        self.last_shot_time = 0
+        self.shot_cooldown = 300
+        self.throwing_until = 0
+
+        # Animation attributes
+        self.status = "Idle"
+        self.last_animation_state = 'idle'
+        self.current_frame_index = 0
+        self.animation_speed = 100
+        self.last_frame_update_time = pygame.time.get_ticks()
+        self.is_moving_horizontally = False
+
+        base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Ninja")
+
+        # Load Idle image for default state
+        tmp = pygame.image.load(os.path.join(base_path, "Idle", f"Idle__000.png"))
+        self.current_picture = pygame.transform.scale(tmp, (62, 118))
+
+        # Load Idle frames
+        self.idle_frames = []
+        for i in range(0, 10): 
+            img_path = os.path.join(base_path, "Idle", f"Idle__00{i}.png")
+            tmp = pygame.image.load(img_path)
+            self.idle_frames.append(pygame.transform.scale(tmp, (62, 118)))
+
+        # Load Run frames
+        self.run_frames = []
+        for i in range(1, 10):
+            img_path = os.path.join(base_path, "Run", f"Run__00{i}.png")
+            tmp = pygame.image.load(img_path)
+            self.run_frames.append(pygame.transform.scale(tmp, (94, 118)))
+
+        # Load Kunai
+        img_path = os.path.join(base_path, "Kunai.png")
+        self.Kunai_pic = pygame.image.load(img_path)
+        self.Kunai_pic = pygame.transform.scale(self.Kunai_pic, (60, 12))
+
+        # Load Throw frames
+        self.throw_frames = []
+        throw_widths = [72, 66, 83, 81, 79, 79, 78, 86, 78, 66]
+        for i in range(10):
+            img_path = os.path.join(base_path, "Throw", f"Throw__00{i}.png")
+            tmp = pygame.image.load(img_path)
+            scaled = pygame.transform.scale(tmp, (throw_widths[i], 118))
+            self.throw_frames.append(scaled)
+
+    def display(self, screen, offset):
+        display_picture = self.current_picture
+        if self.Look == 'right':
+            screen.blit(display_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
+        elif self.Look == 'left':
+            flipped_picture = pygame.transform.flip(display_picture, True, False)
+            screen.blit(flipped_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
+
+    def update_animation(self,shot_bullets):
+     current_time = pygame.time.get_ticks()
+
+    # Determine animation state
+     if self.status == "throw":
+        target_animation_state = 'throw'
+     elif self.is_moving_horizontally:
+        target_animation_state = 'running'
+     else:
+        target_animation_state = 'idle'
+
+    # Handle transition between states
+     if target_animation_state != self.last_animation_state:
+        self.current_frame_index = 0
+        self.last_frame_update_time = current_time
+        self.last_animation_state = target_animation_state
+
+        if target_animation_state == 'throw' and self.throw_frames:
+            self.current_picture = self.throw_frames[self.current_frame_index]
+        elif target_animation_state == 'running' and self.run_frames:
+            self.current_picture = self.run_frames[self.current_frame_index]
+        elif target_animation_state == 'idle' and self.idle_frames:
+            self.current_picture = self.idle_frames[self.current_frame_index]
+        return
+
+    # Update animation frames
+     elapsed_time = current_time - self.last_frame_update_time
+     if elapsed_time >= self.animation_speed:
+        if target_animation_state == 'throw' and self.throw_frames:
+            if self.current_frame_index < len(self.throw_frames) - 1:
+                self.current_frame_index += 1
+                
+                # Trigger kunai release at frame 003 
+                if self.current_frame_index == 3:
+                    self.fire_kunai(shot_bullets)
+
+            else:
+                if current_time > self.throwing_until:
+                    self.status = "Idle"
+
+            self.current_picture = self.throw_frames[self.current_frame_index]
+
+        elif target_animation_state == 'running' and self.run_frames:
+            self.current_frame_index = (self.current_frame_index + 1) % len(self.run_frames)
+            self.current_picture = self.run_frames[self.current_frame_index]
+
+        elif target_animation_state == 'idle' and self.idle_frames:
+            self.current_frame_index = (self.current_frame_index + 1) % len(self.idle_frames)
+            self.current_picture = self.idle_frames[self.current_frame_index]
+
+        self.last_frame_update_time = current_time
+
+    def fire_kunai(self, shot_bullets):
+        bullet_x = self.x_pos + (self.width if self.Look == 'right' else -self.Kunai_pic.get_width())
+        bullet_y = self.y_pos + self.height // 2 - self.Kunai_pic.get_height() // 2
+        if self.Look == 'right':
+            bullet_x -= 20
+        else:
+            bullet_x += 20
+
+        bullet = Bullet(
+        bullet_x,
+        bullet_y,
+        15,
+        self.Look,
+        self.Kunai_pic,
+        self.screen_width
+        )
+
+        self.bullets.append(bullet)
+        shot_bullets.append(bullet)
+
+    def shoot(self, shot_bullets, Bullet):
+        current_time = pygame.time.get_ticks()
+
+        if self.status == "throw" and current_time < self.throwing_until:
+            return
+
+        if current_time - self.last_shot_time < self.shot_cooldown:
+            return
+
+        self.last_shot_time = current_time
+        self.status = "throw"
+        self.throwing_until = current_time + (len(self.throw_frames) * self.animation_speed)
+
+
+
+    def stop_horizontal_movement(self):
+        self.is_moving_horizontally = False
+        
+
+    def fall_from_platform(self):
+        if self.current_platform:
+            if self.x_pos + self.width < self.current_platform.x_pos or self.x_pos > self.current_platform.x_pos + self.current_platform.width:
+                self.on_ground = False
+                self.current_platform = None
+
+    def move_with_platform(self):
+        if self.current_platform and self.current_platform.moving:
+            self.horizontal_auto_speed = 2.5 * self.current_platform.direction
+            self.horizontal_move()
+
+    def move_right(self):
+        if self.allow_move_right:
+            self.x_pos += self.horizontal_speed
+            self.is_moving_horizontally = True
+            self.Look = 'right'
+            self.hitbox.topleft = (self.x_pos, self.y_pos)
+            self.fall_from_platform()
+
+    def move_left(self):
+        if self.allow_move_left:
+            self.x_pos -= self.horizontal_speed
+            self.is_moving_horizontally = True
+            self.Look = 'left'
+            self.hitbox.topleft = (self.x_pos, self.y_pos)
+            self.fall_from_platform()
+
+    def respawn(self):
+        self.current_platform = None
+        self.on_ground = False
+        self.x_pos = 200
+        self.y_pos = 250 - self.current_picture.get_height() - 20
+        self.vertical_speed = 0
+
+    def update_bullets(self, screen, shot_bullets):
+        for bullet in self.bullets[:]:
+            bullet.update()
+            if bullet.is_off_screen(self.screen_width):
+                if bullet in self.bullets:
+                    self.bullets.remove(bullet)
+                if bullet in shot_bullets:
+                    shot_bullets.remove(bullet)
+
+    def jump(self):
+        if self.on_ground:
+            self.vertical_speed = self.jump_strenght
+        self.on_ground = False
+        self.current_platform = None
+
+    def gravity(self):
+        if not self.on_ground:
+            self.vertical_speed -= self.gravity_strenght
+
+    def is_on_ground(self):
+        self.on_ground = bool(self.current_platform)
+
+    def vertical_move(self):
+        self.y_pos -= self.vertical_speed
+        self.hitbox.topleft = (self.x_pos, self.y_pos)
+
+    def horizontal_move(self):
+        self.x_pos += self.horizontal_auto_speed
+        self.horizontal_auto_speed = 0
+
+    def platforms_collisions(self, platforms):
+        for platform in platforms:
+            if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
+                if ((self.y_pos + self.height) >= platform.y_pos) and ((self.y_pos + self.height) < (platform.y_pos + platform.height) + 10):
+                    self.on_ground = True
+                    self.vertical_speed = 0
+                    self.y_pos = platform.y_pos - self.height
+                    self.current_platform = platform
+
+            if self.x_pos + self.width >= platform.x_pos and self.x_pos <= platform.x_pos + platform.width:
+                if ((self.y_pos + self.height) > platform.y_pos) and (self.y_pos < platform.y_pos + platform.height):
+                    if abs(self.x_pos - (platform.x_pos + platform.width)) <= 10:
+                        self.allow_move_left = False
+                        self.x_pos = platform.x_pos + platform.width
+                    if abs(self.x_pos + self.width - platform.x_pos) <= 10:
+                        self.allow_move_right = False
+                        self.x_pos = platform.x_pos - self.width
+            else:
+                self.allow_move_left = True
+                self.allow_move_right = True
+
+    def jump_under_platform(self, platforms):
+        if self.vertical_speed > 0:
+            for platform in platforms:
+                if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
+                    if self.y_pos <= platform.y_pos + platform.height and self.y_pos > platform.y_pos:
+                        self.vertical_speed = 0
+                        self.y_pos = platform.y_pos + platform.height
+                        
+                        
