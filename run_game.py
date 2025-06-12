@@ -2,14 +2,17 @@ import pygame
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-from config import screen_width, screen_height,explode_side_size,enenmy_health_bar_height,enenmy_health_bar_width # type: ignore
-from src.engine.game import Game # type: ignore
-from src.engine.menu import Menu, PauseMenu 
-pygame.init()
+from config import screen_width, screen_height,explode_side_size,enenmy_health_bar_height,enenmy_health_bar_width
+from src.engine.game import Game
+from src.engine.menu import Menu
 
-# Screen initialization
+pygame.init()
+pygame.mixer.init()
+
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("BrawlForge")
+
+sound_path = "C:/Users/110/Desktop/Game/ut-brawlforge-void/src/assets/sounds/RoboMan/"
 
 try:
     icon = pygame.image.load("src/assets/images/icon.jpg")
@@ -20,9 +23,6 @@ except FileNotFoundError:
 try:
     background = pygame.image.load("src/assets/images/BrawlhalaBackground.jpg")
     background = pygame.transform.scale(background, (screen_width, screen_height))
-    
-    
-    
     hero_profile_picture = pygame.image.load("src/assets/images/hero_profile.png") 
     ghost = pygame.image.load("src/assets/images/ghost.png")
     ghost = pygame.transform.scale(ghost, (64, 64))
@@ -37,31 +37,46 @@ try:
     health_bar_red=pygame.transform.scale(health_bar_red, (enenmy_health_bar_width, enenmy_health_bar_height))
     roboman_health_bar_frame=pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar_frame.png")
     roboman_health_bar=pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar.png")
-except FileNotFoundError as e:
-    print(f"Error: Could not load image: {e}")
+
+    shoot_sound = pygame.mixer.Sound(os.path.join(sound_path, "shoot.wav"))
+    jump_sound = pygame.mixer.Sound(os.path.join(sound_path, "robot jump.MP3"))
+    jetpack_sound = pygame.mixer.Sound(os.path.join(sound_path, "jetpack.wav"))
+    explosion_sound = pygame.mixer.Sound(os.path.join(sound_path, "shot_hit_platoform.wav"))
+    enemy_hit_sound = pygame.mixer.Sound(os.path.join(sound_path, "shot_hit_enemy.wav"))
+
+    shoot_sound.set_volume(0.5)
+    jump_sound.set_volume(0.7)
+
+except (FileNotFoundError, pygame.error) as e:
+    print(f"Error: Could not load asset: {e}")
     pygame.quit()
     exit()
 
-# Main menu loop
-while True:
-    menu = Menu(screen, background)
-    menu_action = menu.run()
+menu = Menu(screen, background)
+menu_action = menu.run()
 
-    if menu_action == "start":
-        game = Game(
-            screen, None, ghost, ghost2, 
-            platform_tileset_picture, background, explode_picture, 
-            health_bar_green, health_bar_red, hero_profile_picture,
-            roboman_health_bar_frame, roboman_health_bar
-        )
-        result = game.run()
-        if result == "menu":
-            continue 
-        elif result == "exit":
-            pygame.quit()
-            break
-    elif menu_action == "settings":
-        print("Settings menu not implemented yet!")
-    elif menu_action == "exit":
-        pygame.quit()
-        break
+if menu_action == "start":
+
+    game_sounds = {
+        "shoot": shoot_sound,
+        "jump": jump_sound,
+        "jetpack": jetpack_sound,
+        "explosion": explosion_sound,
+        "enemy_hit": enemy_hit_sound
+    }
+
+    game = Game(
+        screen, None, ghost, ghost2, 
+        platform_tileset_picture, background, explode_picture, 
+        health_bar_green, health_bar_red, hero_profile_picture,
+        roboman_health_bar_frame,roboman_health_bar,
+        game_sounds
+    )
+    game.run()
+elif menu_action == "settings":
+    print("Settings menu not implemented yet!")
+elif menu_action == "exit":
+    pygame.quit()
+    exit()
+
+pygame.quit()

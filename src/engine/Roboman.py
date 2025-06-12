@@ -4,7 +4,7 @@ from config import roboman_jetpack_reload,roboman_reload_time,ROBOMAN_LANDING_IN
 
 class Roboman:
 
-    def __init__(self, x, y,  roboman_health_bar_frame,roboman_health_bar, hero_profile_picture, screen_width, screen_height,trigger_shutter_callback=None):
+    def __init__(self, x, y,  roboman_health_bar_frame,roboman_health_bar, hero_profile_picture, screen_width, screen_height, sounds=None, trigger_shutter_callback=None):
 
         self.x_pos = x
         self.y_pos = y
@@ -16,21 +16,13 @@ class Roboman:
         self.status="idle"
         self.trigger_shutter_callback = trigger_shutter_callback
 
+        self.jump_sound = sounds.get('jump') if sounds else None
+        self.shoot_sound = sounds.get('shoot') if sounds else None
+        self.jetpack_sound = sounds.get('jetpack') if sounds else None
         
-         
-
-        
-        
-        
-        
-        
-        #==================================================================================================================================
-       
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "RoboMan_pictures")
 
-        # Load run animation frames
         self.run_frames = []
-        
         for i in range(1, 9):
             try:
                 img_path = os.path.join(base_path, "hero_run_frames", f"Run ({i}).png")
@@ -46,15 +38,7 @@ class Roboman:
             except FileNotFoundError:
                 print(f"Error: Roboman run frame 'Run ({i}).png' not found at {img_path}. Check path.")
                 self.run_frames.append(pygame.Surface((70, 118)))
-                
-                
-                
-                
-        # Load idle animation frames from the 'idle'
-        
-        
-        
-        
+
         self.idle_frames = []
         for i in range(1, 11):
             try:
@@ -65,9 +49,6 @@ class Roboman:
                 print(f"Error: Roboman idle frame 'Idle ({i}).png' not found at {img_path}. Check path.")
                 self.idle_frames.append(pygame.Surface((70, 118)))
 
-
-        # loading jump frames:
-        
         self.jump_frames = []
         for i in range(1, 11):
             try:
@@ -77,13 +58,9 @@ class Roboman:
             except FileNotFoundError:
                 print(f"Error: Roboman idle frame 'Idle ({i}).png' not found at {img_path}. Check path.")
 
-
-
-        # Load shoot frames
         self.shoot_frames = []
         self.Bullet_Class_ref = None
         self.shot_bullets_ref = None
-        
         for i in range(1, 5):
             try:
                 img_path = os.path.join(base_path, "Shoot", f"Shoot ({i}).png")
@@ -96,7 +73,6 @@ class Roboman:
                 print(f"Error: Roboman Shoot frame 'Shoot ({i}).png' not found at {img_path}. Check path.")
                 self.shoot_frames.append(pygame.Surface((70, 118)))
  
-        #load run shoot frames:
         self.RunShoot_frames=[]
         for i in range(1, 9):
             try:
@@ -113,7 +89,7 @@ class Roboman:
             except FileNotFoundError:
                 print(f"Error: Roboman Shoot frame 'Shoot ({i}).png' not found at {img_path}. Check path.")
                 self.RunShoot_frames.append(pygame.Surface((70, 118)))
-        # loading jump frames :
+
         self.Jump_frames=[]
         self.last_jump_time=0
         scale_numebrs=[(73,118),(80,118),(90,118),(91,118),(90,118),(109,118),(95,118),(96,118),(84,118)]
@@ -134,7 +110,7 @@ class Roboman:
                 print(f"Error: Roboman jump frame 'Jump ({i}).png' not found at {img_path}. Check path.")
                 self.jump_frames.append(pygame.Surface((70, 118)))
                 print(img_path)
-        # loading jump shoot frames :
+
         self.jump_shoot_animation_speed = 50 
         self.jumpshoot_flag=False
         self.JumpShoot_frames=[]
@@ -155,14 +131,10 @@ class Roboman:
                 self.JumpShoot_frames.append(pygame.Surface((70, 118)))
                 print(img_path)
             
-        # jetpack photo:
         img_path = os.path.join(base_path, f"jetpack.png")
         self.jetpack_frame=pygame.image.load(img_path)
         self.jetpack_frame=pygame.transform.scale(self.jetpack_frame, (80,118))
  
-                
-        # loading bullet
-        
         bullet_image_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
         "..", "assets", "images", "RoboMan_pictures", "Bullet.png"
@@ -174,10 +146,6 @@ class Roboman:
             print(f"Error: Bullet.png not found at {bullet_image_path}. Using a placeholder.")
             self.bullet_picture = pygame.Surface((40, 40), pygame.SRCALPHA)
 
-        #====================================================================================================================================
-
-
-        # Set initial picture and dimensions based on loaded frames
         self.picture = self.idle_frames[0] if self.idle_frames else pygame.Surface((70, 118))
         self.width = self.picture.get_width()
         self.height = self.picture.get_height()
@@ -188,9 +156,9 @@ class Roboman:
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.Look = 'right'
-        self.horizontal_speed = horizontal_speed # Roboman specific speed
+        self.horizontal_speed = horizontal_speed
         self.vertical_speed = 0
-        self.jump_strenght =jump_strenght # Roboman specific jump strength
+        self.jump_strenght =jump_strenght
         self.gravity_strenght = gravity_strenght
         self.on_ground = False
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
@@ -200,21 +168,19 @@ class Roboman:
         
         self.jetpack_reload_duration = roboman_jetpack_reload
         self.last_jetpack_fire=0
-        self.jetpack_thrust = 12  # upward speed when using jetpack
-        self.jetpack_burn_time = 600  # milliseconds duration per activation
-        self.jetpack_reload_duration = 2000  # milliseconds before next use
+        self.jetpack_thrust = 12
+        self.jetpack_burn_time = 600
+        self.jetpack_reload_duration = 2000
         self.last_jetpack_use_time = 0
         self.jetpack_start_time = 0
         self.jetpack_active = False
-        #====================================================================================================================================
 
-        # Animation attributes
         self.current_picture = self.picture
         self.current_frame_index = 0
-        self.animation_speed = 100 # Milliseconds per frame
+        self.animation_speed = 100
         self.last_frame_update_time = pygame.time.get_ticks()
         self.is_moving_horizontally = False
-        self.last_animation_state = None # To detect changes between moving and idle
+        self.last_animation_state = None
 
         self.is_shooting=False
         self.shooting_animation_start_time = 0
@@ -222,18 +188,12 @@ class Roboman:
         self.last_animation_state = None
         self.RunShoot=False
         self.Last_RunShoot_frame_index=0
-        self.Reload_duration= roboman_reload_time #millisec
-        self.Last__Shooting_time=0  # using it for reload 
-        self.frame_flag=False  #usaed in jump animation
+        self.Reload_duration= roboman_reload_time
+        self.Last__Shooting_time=0
+        self.frame_flag=False
         self.in_jump_animation = False
 
-        
-        #====================================================================================================================================
-        
-
-
     def display(self, screen, offset):
-        """Draws the Roboman and its health bar on the screen."""
         self.roboman_health_bar = pygame.transform.scale(self.roboman_health_bar, (int(health_bar_lenght * (self.health / self.max_health)), profileSideSize-(2*roboman_health_bar_frame_thickness)))
         self.roboman_health_bar_frame = pygame.transform.scale(self.roboman_health_bar_frame, (health_bar_lenght + (2*roboman_health_bar_frame_thickness), profileSideSize))
         display_picture = self.current_picture
@@ -247,15 +207,8 @@ class Roboman:
         screen.blit(self.roboman_health_bar_frame, (profileSideSize, 0))
         screen.blit(self.roboman_health_bar, (profileSideSize+roboman_health_bar_frame_thickness, roboman_health_bar_frame_thickness))
         screen.blit(pygame.transform.scale(self.hero_profile_picture, (profileSideSize, profileSideSize)), (0, 0))
-        
-        
-        
-        
-        
-        
 
     def update_animation(self):
-        """Updates Roboman's animation frame based on current state (shooting, moving, idle)."""
         current_time = pygame.time.get_ticks()
         if self.jetpack_active and self.jetpack_frame:
             self.current_picture = self.jetpack_frame
@@ -300,7 +253,6 @@ class Roboman:
                     self.last_frame_update_time = current_time
                 return
             
-            
         elif self.is_shooting and self.shoot_frames:
             elapsed_time = current_time - self.shooting_animation_start_time
 
@@ -309,7 +261,6 @@ class Roboman:
                 self.current_frame_index = 0
                 return
 
-            # If shooting animation is still active, update its frames
             if self.is_shooting:
                 if current_time - self.last_frame_update_time > self.animation_speed:
                     self.current_frame_index = int((elapsed_time / self.animation_speed)) % len(self.shoot_frames)
@@ -317,7 +268,6 @@ class Roboman:
                     self.last_frame_update_time = current_time
                 return
 
-        # If not shooting, proceed with running or idle animations
         if self.is_moving_horizontally and self.run_frames:
             if self.last_animation_state != 'running':
                 self.current_frame_index = 0
@@ -341,26 +291,21 @@ class Roboman:
         else:
             print("Roboman frames didnt detected")
 
-
     def stop_horizontal_movement(self):
-        """Stops horizontal movement for animation purposes."""
         self.is_moving_horizontally = False
 
     def fall_from_platform(self):
-        """Checks if Roboman has fallen off a platform."""
         if self.current_platform is not None:
             if self.x_pos + self.width < self.current_platform.x_pos or self.x_pos > self.current_platform.x_pos + self.current_platform.width:
                 self.on_ground = False
                 self.current_platform = None
 
     def move_with_platform(self):
-        """Moves Roboman along with a moving platform."""
         if self.current_platform is not None and self.current_platform.moving:
             self.horizontal_auto_speed = 2.5 * self.current_platform.direction
             self.horizontal_move()
 
     def move_right(self):
-        """Moves Roboman to the right."""
         if self.RunShoot and self.allow_move_right:
             self.x_pos += self.horizontal_speed
             self.is_moving_horizontally = True
@@ -375,9 +320,7 @@ class Roboman:
             self.hitbox.topleft = (self.x_pos, self.y_pos)
             self.fall_from_platform()
 
-
     def move_left(self):
-        """Moves Roboman to the left."""
         if self.RunShoot and self.allow_move_left:
             self.x_pos -= self.horizontal_speed
             self.is_moving_horizontally = True
@@ -393,17 +336,17 @@ class Roboman:
             self.fall_from_platform()
 
     def shoot(self, shot_bullets, Bullet_Class):
-        """Roboman shoots a bullet, with a reload cooldown."""
         current_time = pygame.time.get_ticks()
         
         if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active:
+            if self.shoot_sound:
+                self.shoot_sound.play()
+            
             self.Last__Shooting_time = current_time 
             if not self.on_ground:
                 self.jumpShoot(shot_bullets, Bullet_Class)
                 return
                 
-                
-
             if self.is_moving_horizontally and self.vertical_speed == 0: 
                 self.RunShoot = True 
                 self.shooting_animation_start_time = pygame.time.get_ticks()
@@ -421,7 +364,6 @@ class Roboman:
             else:
                 bullet_start_x += 5
             
-            # Create and add the new bullet to the game's bullet lists
             bullet = Bullet_Class(
                 bullet_start_x,
                 bullet_start_y + 18, 
@@ -433,7 +375,6 @@ class Roboman:
             self.bullets.append(bullet) 
             shot_bullets.append(bullet) 
 
-        
     def jumpShoot(self, shot_bullets, Bullet_Class):
         bullet_start_x = self.x_pos + (self.width - 25 if self.Look == 'right' else -5)
         bullet_start_y = self.y_pos + 35
@@ -453,30 +394,19 @@ class Roboman:
         self.bullets.append(bullet)
         shot_bullets.append(bullet)
 
-        # Trigger jump shoot animation
         self.JumpShoot = True
         self.shooting_animation_start_time = pygame.time.get_ticks()
         self.current_frame_index = 0
 
-        
-        
-        
-
     def respawn(self):
-        """Respawns Roboman to a default position."""
         self.current_platform = None
         self.on_ground = False
         self.x_pos = 200
         self.y_pos = 250 - self.height - 20
         self.vertical_speed = 0
         self.health = self.max_health
-        
-        
-        
-        
 
     def update_bullets(self, screen, shot_bullets):
-        """Updates and manages bullets shot by Roboman."""
         for bullet in self.bullets[:]:
             bullet.update()
             if bullet.is_off_screen(self.screen_width):
@@ -484,15 +414,11 @@ class Roboman:
                     self.bullets.remove(bullet)
                 if bullet in shot_bullets:
                     shot_bullets.remove(bullet)
-                    
-                    
-                    
-                    
-                    
 
     def jump(self):
-        """Makes Roboman jump if on the ground."""
         if self.on_ground :
+            if self.jump_sound:
+                self.jump_sound.play()
             self.vertical_speed = self.jump_strenght
             self.on_ground = False
             self.current_platform = None
@@ -506,6 +432,8 @@ class Roboman:
     def activate_jetpack(self):
         current_time = pygame.time.get_ticks()
         if not self.on_ground and not self.jetpack_active and (current_time - self.last_jetpack_use_time >= self.jetpack_reload_duration):
+            if self.jetpack_sound:
+                self.jetpack_sound.play()
             self.jetpack_active = True
             self.jetpack_start_time = current_time
             self.last_jetpack_use_time = current_time
@@ -513,7 +441,6 @@ class Roboman:
                 self.trigger_shutter_callback(strength=5, duration=150)
 
     def update_jetpack(self):
-        """Applies jetpack upward thrust during active time."""
         if self.jetpack_active:
             current_time = pygame.time.get_ticks()
             if current_time - self.jetpack_start_time <= self.jetpack_burn_time:
@@ -523,62 +450,30 @@ class Roboman:
                 if self.Jump_frames:
                     self.current_frame_index = 8
                     self.current_picture = self.Jump_frames[8]
-       
-            
-            
-            
-            
-            
-            
 
     def gravity(self):
-        """Applies gravity to Roboman."""
         self.update_jetpack() 
         if not self.on_ground:
             self.vertical_speed -= self.gravity_strenght
-            
-            
-            
-            
-            
 
     def is_on_ground(self):
-        """Checks if Roboman is currently on a platform."""
         if self.current_platform:
             self.on_ground = True
         elif self.current_platform is None and self.vertical_speed <= 0:
             self.on_ground = False
-            
-            
-            
-            
-            
 
     def vertical_move(self):
-        """Updates Roboman's vertical position based on vertical speed."""
         self.y_pos -= self.vertical_speed
         self.hitbox.topleft = (self.x_pos, self.y_pos)
-        
-        
-        
-        
-        
 
     def horizontal_move(self):
-        """Applies auto horizontal movement (e.g., from moving platforms)."""
         self.x_pos += self.horizontal_auto_speed
         self.horizontal_auto_speed = 0
-        
-        
-        
-        
 
     def platforms_collisions(self, platforms):
-        """Handles collisions between Roboman and platforms."""
         for platform in platforms:
-            # Check for collision with the top of the platform (landing)
             if self.x_pos + self.width > platform.x_pos + ROBOMAN_LANDING_INSET and \
-   self.x_pos + ROBOMAN_LANDING_INSET < platform.x_pos + platform.width:
+               self.x_pos + ROBOMAN_LANDING_INSET < platform.x_pos + platform.width:
                 if (self.y_pos + self.height) > platform.y_pos and \
                    (self.y_pos + self.height) < (platform.y_pos + platform.height) + ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER:
                     if self.vertical_speed <= 0:
@@ -587,35 +482,24 @@ class Roboman:
                         self.y_pos = platform.y_pos - self.height
                         self.current_platform = platform
                         
-                        
-            # Check for side collisions with platforms
             if self.hitbox.colliderect(platform.rect):
-                # If colliding from the left side of the platform
                 if self.allow_move_right and self.x_pos < platform.x_pos and \
                    self.hitbox.right > platform.rect.left and \
                    self.hitbox.bottom > platform.rect.top + ROBOMAN_SIDE_COLLISION_TOP_BUFFER and \
-                 self.hitbox.top < platform.rect.bottom - ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER: # Small buffer for top/bottom
+                   self.hitbox.top < platform.rect.bottom - ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER:
                     self.allow_move_right = False
                     self.x_pos = platform.x_pos - self.width
-                # If colliding from the right side of the platform
                 elif self.allow_move_left and self.x_pos + self.width > platform.x_pos + platform.width and \
                      self.hitbox.left < platform.rect.right and \
                      self.hitbox.bottom > platform.rect.top + ROBOMAN_SIDE_COLLISION_TOP_BUFFER and \
-                     self.hitbox.top < platform.rect.bottom - ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER: # Small buffer for top/bottom
+                     self.hitbox.top < platform.rect.bottom - ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER:
                     self.allow_move_left = False
                     self.x_pos = platform.x_pos + platform.width
-            # Reset allow_move flags if not colliding horizontally
             else:
                 self.allow_move_left = True
                 self.allow_move_right = True
-                
-                
-                
-                
-
 
     def jump_under_platform(self, platforms):
-        """Prevents Roboman from jumping through platforms from below."""
         if self.vertical_speed > 0:
             for platform in platforms:
                 if self.x_pos + self.width > platform.x_pos and \

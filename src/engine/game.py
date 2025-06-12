@@ -1,30 +1,33 @@
 import pygame
 import random
-from config import screen_width, screen_height, platform_height, FPS # type: ignore
-from src.engine.Roboman import Roboman # type: ignore
-from src.engine.bullet import Bullet # type: ignore
-from src.engine.enemy import Enemy # type: ignore
-from src.engine.platform import Platform # type: ignore
-from src.engine.explosion import Explosion # type: ignore
-from src.engine.camera import Camera # type: ignore
+from config import screen_width, screen_height, platform_height, FPS
+from src.engine.Roboman import Roboman
+from src.engine.bullet import Bullet
+from src.engine.enemy import Enemy
+from src.engine.platform import Platform
+from src.engine.explosion import Explosion
+from src.engine.camera import Camera
 from src.engine.input_handler import InputHandler  
 from src.levels import level_1_data, load_level 
-from src.engine.menu import PauseMenu  
-
 
 class Game:
-    def __init__(self,screen, hero_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture,health_bar_green,health_bar_red,hero_profile_picture, roboman_health_bar_frame,roboman_health_bar):
+    def __init__(self,screen, hero_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture,health_bar_green,health_bar_red,hero_profile_picture, roboman_health_bar_frame,roboman_health_bar, sounds):
         self.screen = screen
         self.background = background
         self.explosion_picture=explosion_picture
         self.clock = pygame.time.Clock()
+        self.sounds = sounds
         
-    
         player_start_pos = level_1_data['player_start']
         self.Roboman = Roboman(
             player_start_pos['x'], player_start_pos['y'], 
             roboman_health_bar_frame, roboman_health_bar, hero_profile_picture,
             screen_width, screen_height,
+            sounds={
+                'jump': self.sounds.get('jump'),
+                'shoot': self.sounds.get('shoot'),
+                'jetpack': self.sounds.get('jetpack')
+            },
             trigger_shutter_callback=self.trigger_jetpack_shutter
         )
 
@@ -51,18 +54,16 @@ class Game:
         self.game_active =True
         self.platform_image = pygame.transform.scale(platform_image, (screen_width, platform_height))
 
-        self.scroll=[0,0] # Camera scroll offset
+        self.scroll=[0,0]
 
         self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll)
         
-        # Screen shutter effect variables for explosions 
         self.shutter_strength = 0
         self.shutter_start_time = 0
-        self.shutter_duration = 150 #  <---- milliseconds
+        self.shutter_duration = 150
         self.input_handler = InputHandler(self.Roboman, self.bullet_class, self.shot_bullets)
 
     def handle_events(self, events):
-        """Handles Pygame events like quitting and mouse clicks."""
         for event in events:
             if event.type == pygame.QUIT:
                 self.game_active = False
@@ -71,7 +72,6 @@ class Game:
                     self.Roboman.shoot(self.shot_bullets, self.bullet_class)
 
     def handle_inputs(self):
-        """Handles keyboard inputs (legacy, now mostly in InputHandler)."""
         keys = pygame.key.get_pressed()
         self.Roboman.is_moving_horizontally = False
 
@@ -87,8 +87,6 @@ class Game:
             self.Roboman.respawn()  
             
     def update(self):
-        """Updates game state including character, enemies, and bullets."""
-        # Update Roboman
         self.Roboman.is_on_ground()
         self.Roboman.gravity()
         self.Roboman.vertical_move()
@@ -97,15 +95,16 @@ class Game:
         self.Roboman.jump_under_platform(self.platforms)
         self.Roboman.update_animation() 
         
-        # Update platforms
         for platform in self.platforms:
             platform.update()
         
-        # Update enemies 
         for enemy in self.enemies[:]:
             ALIVE = True
             for bullet in self.shot_bullets[:]:
                 if enemy.hitbox.colliderect(bullet.hitbox):
+                    if self.sounds and self.sounds.get('enemy_hit'):
+                        self.sounds['enemy_hit'].play()
+                        
                     self.shot_bullets.remove(bullet)
                     if bullet in self.Roboman.bullets: 
                         self.Roboman.bullets.remove(bullet)
@@ -118,13 +117,15 @@ class Game:
                 if enemy.condition == 'dead':
                     self.enemies.remove(enemy)
 
-        # Update bullets shot by Roboman
         self.Roboman.update_bullets(self.screen, self.shot_bullets) 
         
         for bullet in self.shot_bullets:
             for platform in self.platforms:
                 platform_hitbox_for_bullets = platform.rect.inflate(-10, -platform.height // 2)
                 if bullet.hitbox.colliderect(platform_hitbox_for_bullets):
+                    if self.sounds and self.sounds.get('explosion'):
+                        self.sounds['explosion'].play()
+                        
                     self.explosions.append(Explosion(bullet.x_pos, bullet.y_pos, self.explosion_picture))
                     
                     self.shutter_strength = 10  
@@ -135,12 +136,9 @@ class Game:
                     if bullet in self.Roboman.bullets: 
                         self.Roboman.bullets.remove(bullet)
                         
-        # Updating camera scroll:
-        # Use Roboman's hitbox for camera centering
         self.scroll[0] += (self.Roboman.hitbox.centerx - screen_width / 2 - self.scroll[0]) / 15
         self.scroll[1] += ((self.Roboman.hitbox.centery - screen_height / 2 - self.scroll[1]) / 15 ) 
                         
-        # Shutter effect if it is active
         current_time = pygame.time.get_ticks()
         if self.shutter_strength > 0:
             shttered_time = current_time - self.shutter_start_time
@@ -155,36 +153,21 @@ class Game:
                 self.shutter_strength = 0           
         
     def render_screen(self):
-        """Fills the screen background."""
         self.screen.fill(self.screen_color)
         
     def run(self):
-        """Main game loop."""
         while self.game_active:
             events = pygame.event.get()
             self.handle_events(events)
-            self.input_handler.handle_all_inputs()
-            for event in events:
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    pause_menu = PauseMenu(self.screen,self.background)
-                    action = pause_menu.run()
-                    if action == "resume":
-                        continue
-                    elif action == "menu":
-                        self.game_active = False
-                        return "menu"
-                    elif action == "exit":
-                        self.game_active = False
-                        return "exit"
+            self.input_handler.handle_all_inputs() 
+
             self.update()
             self.render_screen()
             self.camera.render()
             pygame.display.update()
             self.clock.tick(FPS)
             
-            
     def trigger_jetpack_shutter(self, strength=5, duration=150):
         self.shutter_strength = strength
         self.shutter_duration = duration
         self.shutter_start_time = pygame.time.get_ticks()
-
