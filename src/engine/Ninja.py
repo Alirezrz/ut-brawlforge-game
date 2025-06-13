@@ -58,6 +58,14 @@ class Ninja:
             img_path = os.path.join(base_path, "Run", f"Run__00{i}.png")
             tmp = pygame.image.load(img_path)
             self.run_frames.append(pygame.transform.scale(tmp, (94, 118)))
+            
+        # Load Jump frames
+        self.jump_frames = []
+        sizes = [77, 69, 69, 71, 70, 70, 77, 84, 95, 93]
+        for i in range(0, 10):
+            img_path = os.path.join(base_path, "Jump", f"Jump__00{i}.png")
+            tmp = pygame.image.load(img_path)
+            self.jump_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
 
         # Load Kunai
         img_path = os.path.join(base_path, "Kunai.png")
@@ -81,57 +89,68 @@ class Ninja:
             flipped_picture = pygame.transform.flip(display_picture, True, False)
             screen.blit(flipped_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
 
-    def update_animation(self,shot_bullets):
-     current_time = pygame.time.get_ticks()
+    def update_animation(self, shot_bullets):
+        current_time = pygame.time.get_ticks()
 
-    # Determine animation state
-     if self.status == "throw":
-        target_animation_state = 'throw'
-     elif self.is_moving_horizontally:
-        target_animation_state = 'running'
-     else:
-        target_animation_state = 'idle'
+        # Determine animation state
+        if not self.on_ground and self.current_platform is None:
+            target_animation_state = 'jump'
+        elif self.status == "throw":
+            target_animation_state = 'throw'
+        elif self.is_moving_horizontally:
+            target_animation_state = 'running'
+        else:
+            target_animation_state = 'idle'
 
-    # Handle transition between states
-     if target_animation_state != self.last_animation_state:
-        self.current_frame_index = 0
-        self.last_frame_update_time = current_time
-        self.last_animation_state = target_animation_state
+        # Handle transition between states
+        if target_animation_state != self.last_animation_state:
+            self.current_frame_index = 0
+            self.last_frame_update_time = current_time
+            self.last_animation_state = target_animation_state
 
-        if target_animation_state == 'throw' and self.throw_frames:
-            self.current_picture = self.throw_frames[self.current_frame_index]
-        elif target_animation_state == 'running' and self.run_frames:
-            self.current_picture = self.run_frames[self.current_frame_index]
-        elif target_animation_state == 'idle' and self.idle_frames:
-            self.current_picture = self.idle_frames[self.current_frame_index]
-        return
+            if target_animation_state == 'throw' and self.throw_frames:
+                self.current_picture = self.throw_frames[self.current_frame_index]
+            elif target_animation_state == 'running' and self.run_frames:
+                self.current_picture = self.run_frames[self.current_frame_index]
+            elif target_animation_state == 'idle' and self.idle_frames:
+                self.current_picture = self.idle_frames[self.current_frame_index]
+            elif target_animation_state == 'jump' and self.jump_frames:
+                self.current_picture = self.jump_frames[self.current_frame_index]
+            return
 
-    # Update animation frames
-     elapsed_time = current_time - self.last_frame_update_time
-     if elapsed_time >= self.animation_speed:
-        if target_animation_state == 'throw' and self.throw_frames:
-            if self.current_frame_index < len(self.throw_frames) - 1:
-                self.current_frame_index += 1
-                
-                # Trigger kunai release at frame 3 
-                if self.current_frame_index == 3:
-                    self.fire_kunai(shot_bullets)
+        # Update animation frames
+        elapsed_time = current_time - self.last_frame_update_time
+        if elapsed_time >= self.animation_speed:
+            if target_animation_state == 'jump' and self.jump_frames:
+                if self.current_frame_index < len(self.jump_frames) - 1:
+                    self.current_frame_index += 1
+                self.current_picture = self.jump_frames[self.current_frame_index]
+                    
+            elif target_animation_state == 'throw' and self.throw_frames:
+                if self.current_frame_index < len(self.throw_frames) - 1:
+                    self.current_frame_index += 1
+                    
+                    # Trigger kunai release at frame 3 
+                    if self.current_frame_index == 3:
+                        self.fire_kunai(shot_bullets)
+                else:
+                    if current_time > self.throwing_until:
+                        self.status = "Idle"
+                        # Reset to idle animation
+                        self.last_animation_state = 'idle'
+                        self.current_frame_index = 0
 
-            else:
-                if current_time > self.throwing_until:
-                    self.status = "Idle"
+                self.current_picture = self.throw_frames[self.current_frame_index]
 
-            self.current_picture = self.throw_frames[self.current_frame_index]
+            elif target_animation_state == 'running' and self.run_frames:
+                self.current_frame_index = (self.current_frame_index + 1) % len(self.run_frames)
+                self.current_picture = self.run_frames[self.current_frame_index]
 
-        elif target_animation_state == 'running' and self.run_frames:
-            self.current_frame_index = (self.current_frame_index + 1) % len(self.run_frames)
-            self.current_picture = self.run_frames[self.current_frame_index]
+            elif target_animation_state == 'idle' and self.idle_frames:
+                self.current_frame_index = (self.current_frame_index + 1) % len(self.idle_frames)
+                self.current_picture = self.idle_frames[self.current_frame_index]
 
-        elif target_animation_state == 'idle' and self.idle_frames:
-            self.current_frame_index = (self.current_frame_index + 1) % len(self.idle_frames)
-            self.current_picture = self.idle_frames[self.current_frame_index]
-
-        self.last_frame_update_time = current_time
+            self.last_frame_update_time = current_time
 
     def fire_kunai(self, shot_bullets):
         bullet_x = self.x_pos + (self.width if self.Look == 'right' else -self.Kunai_pic.get_width())
@@ -166,12 +185,9 @@ class Ninja:
         self.status = "throw"
         self.throwing_until = current_time + (len(self.throw_frames) * self.animation_speed)
 
-
-
     def stop_horizontal_movement(self):
         self.is_moving_horizontally = False
         
-
     def fall_from_platform(self):
         if self.current_platform:
             if self.x_pos + self.width < self.current_platform.x_pos or self.x_pos > self.current_platform.x_pos + self.current_platform.width:
@@ -264,5 +280,3 @@ class Ninja:
                     if self.y_pos <= platform.y_pos + platform.height and self.y_pos > platform.y_pos:
                         self.vertical_speed = 0
                         self.y_pos = platform.y_pos + platform.height
-                        
-                        
