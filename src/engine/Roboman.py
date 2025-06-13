@@ -1,6 +1,6 @@
 import pygame
 import os
-from config import roboman_jetpack_reload,roboman_reload_time,ROBOMAN_LANDING_INSET, ROBOMAN_SIDE_COLLISION_TOP_BUFFER, ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER,jump_strenght ,horizontal_speed,gravity_strenght,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
+from config import roboman_jetpack_reload,roboman_reload_time, jump_strenght ,horizontal_speed,gravity_strenght,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
 
 class Roboman:
 
@@ -15,6 +15,8 @@ class Roboman:
         self.current_platform = None
         self.status="idle"
         self.trigger_shutter_callback = trigger_shutter_callback
+        self.horizontal_speed = 7  
+        self.jump_strenght = 20 
 
         self.jump_sound = sounds.get('jump') if sounds else None
         self.shoot_sound = sounds.get('shoot') if sounds else None
@@ -457,10 +459,8 @@ class Roboman:
             self.vertical_speed -= self.gravity_strenght
 
     def is_on_ground(self):
-        if self.current_platform:
-            self.on_ground = True
-        elif self.current_platform is None and self.vertical_speed <= 0:
-            self.on_ground = False
+    # Simplify like Ninja's version
+        self.on_ground = bool(self.current_platform)
 
     def vertical_move(self):
         self.y_pos -= self.vertical_speed
@@ -471,33 +471,31 @@ class Roboman:
         self.horizontal_auto_speed = 0
 
     def platforms_collisions(self, platforms):
+    # Reset movement flags
+        self.allow_move_left = True
+        self.allow_move_right = True
+    
         for platform in platforms:
-            if self.x_pos + self.width > platform.x_pos + ROBOMAN_LANDING_INSET and \
-               self.x_pos + ROBOMAN_LANDING_INSET < platform.x_pos + platform.width:
-                if (self.y_pos + self.height) > platform.y_pos and \
-                   (self.y_pos + self.height) < (platform.y_pos + platform.height) + ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER:
-                    if self.vertical_speed <= 0:
+        # Landing detection
+            if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
+                if ((self.y_pos + self.height) >= platform.y_pos) and ((self.y_pos + self.height) < (platform.y_pos + platform.height) + 10):
+                    if self.vertical_speed <= 0:  # Only land if falling
                         self.on_ground = True
                         self.vertical_speed = 0
                         self.y_pos = platform.y_pos - self.height
                         self.current_platform = platform
-                        
-            if self.hitbox.colliderect(platform.rect):
-                if self.allow_move_right and self.x_pos < platform.x_pos and \
-                   self.hitbox.right > platform.rect.left and \
-                   self.hitbox.bottom > platform.rect.top + ROBOMAN_SIDE_COLLISION_TOP_BUFFER and \
-                   self.hitbox.top < platform.rect.bottom - ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER:
-                    self.allow_move_right = False
-                    self.x_pos = platform.x_pos - self.width
-                elif self.allow_move_left and self.x_pos + self.width > platform.x_pos + platform.width and \
-                     self.hitbox.left < platform.rect.right and \
-                     self.hitbox.bottom > platform.rect.top + ROBOMAN_SIDE_COLLISION_TOP_BUFFER and \
-                     self.hitbox.top < platform.rect.bottom - ROBOMAN_SIDE_COLLISION_BOTTOM_BUFFER:
-                    self.allow_move_left = False
-                    self.x_pos = platform.x_pos + platform.width
-            else:
-                self.allow_move_left = True
-                self.allow_move_right = True
+        
+        # Side collision detection
+            if self.x_pos + self.width >= platform.x_pos and self.x_pos <= platform.x_pos + platform.width:
+                if ((self.y_pos + self.height) > platform.y_pos) and (self.y_pos < platform.y_pos + platform.height):
+                # Left collision
+                    if abs(self.x_pos - (platform.x_pos + platform.width)) <= 10:
+                        self.allow_move_left = False
+                        self.x_pos = platform.x_pos + platform.width
+                # Right collision
+                    if abs(self.x_pos + self.width - platform.x_pos) <= 10:
+                        self.allow_move_right = False
+                        self.x_pos = platform.x_pos - self.width
 
     def jump_under_platform(self, platforms):
         if self.vertical_speed > 0:
