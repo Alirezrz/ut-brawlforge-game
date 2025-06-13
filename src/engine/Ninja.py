@@ -40,6 +40,9 @@ class Ninja:
         self.animation_speed = 100
         self.last_frame_update_time = pygame.time.get_ticks()
         self.is_moving_horizontally = False
+        self.last_doubleJump=0
+        self.double_jump_rest_time=400
+        self.jump_count = 0
 
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Ninja")
 
@@ -68,6 +71,7 @@ class Ninja:
             img_path = os.path.join(base_path, "Jump", f"Jump__00{i}.png")
             tmp = pygame.image.load(img_path)
             self.jump_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
+        
 
         # Load Kunai
         img_path = os.path.join(base_path, "Kunai.png")
@@ -89,6 +93,9 @@ class Ninja:
             img_path = os.path.join(base_path, "JumpThrow", f"Jump_Throw__00{i}.png")
             tmp = pygame.image.load(img_path)
             self.jumpThrow_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
+            
+            
+        
 
     def display(self, screen, offset):
         display_picture = self.current_picture
@@ -264,10 +271,26 @@ class Ninja:
                     shot_bullets.remove(bullet)
 
     def jump(self):
-        if self.on_ground:
-            self.vertical_speed = self.jump_strenght
+        if self.on_ground or self.jump_count < 2:
+            if self.on_ground:
+                self.vertical_speed = self.jump_strenght
+                self.jump_count = 1
+            elif self.jump_count == 1:
+                self.double_jump()
+            
+       
+            self.on_ground = False
+            self.current_platform = None
+        
+    def double_jump(self):
+     current_time = pygame.time.get_ticks()
+     if current_time-self.last_doubleJump>=self.double_jump_rest_time:
+        self.vertical_speed = self.jump_strenght+3
         self.on_ground = False
         self.current_platform = None
+        self.current_frame_index=1
+        self.last_doubleJump=current_time
+    
 
     def gravity(self):
         if not self.on_ground:
@@ -285,25 +308,49 @@ class Ninja:
         self.horizontal_auto_speed = 0
 
     def platforms_collisions(self, platforms):
-        for platform in platforms:
-            if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
-                if ((self.y_pos + self.height) >= platform.y_pos) and ((self.y_pos + self.height) < (platform.y_pos + platform.height) + 10):
-                    self.on_ground = True
-                    self.vertical_speed = 0
-                    self.y_pos = platform.y_pos - self.height
-                    self.current_platform = platform
-
-            if self.x_pos + self.width >= platform.x_pos and self.x_pos <= platform.x_pos + platform.width:
-                if ((self.y_pos + self.height) > platform.y_pos) and (self.y_pos < platform.y_pos + platform.height):
-                    if abs(self.x_pos - (platform.x_pos + platform.width)) <= 10:
-                        self.allow_move_left = False
-                        self.x_pos = platform.x_pos + platform.width
-                    if abs(self.x_pos + self.width - platform.x_pos) <= 10:
-                        self.allow_move_right = False
-                        self.x_pos = platform.x_pos - self.width
-            else:
-                self.allow_move_left = True
-                self.allow_move_right = True
+     # Reset movement permissions and landing status
+     self.allow_move_left = True
+     self.allow_move_right = True
+     landed = False
+    
+     for platform in platforms:
+         if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
+             # Landing on top of platform
+             if ((self.y_pos + self.height) >= platform.y_pos) and \
+                ((self.y_pos + self.height) < (platform.y_pos + platform.height) + 10) and \
+                self.vertical_speed <= 0:  # Only land if moving downward
+                
+                 self.on_ground = True
+                 self.vertical_speed = 0
+                 self.y_pos = platform.y_pos - self.height
+                 self.current_platform = platform
+                 landed = True
+                
+            # Side collisions (left/right of platform)
+             elif ((self.y_pos + self.height) > platform.y_pos) and \
+                  (self.y_pos < platform.y_pos + platform.height):
+                
+                # Left side collision
+                 if abs(self.x_pos - (platform.x_pos + platform.width)) <= 10:
+                     self.allow_move_left = False
+                     self.x_pos = platform.x_pos + platform.width
+                
+                # Right side collision
+                 elif abs(self.x_pos + self.width - platform.x_pos) <= 10:
+                     self.allow_move_right = False
+                     self.x_pos = platform.x_pos - self.width
+    
+    # Reset jump count if landed on any platform
+     if landed:
+         self.jump_count = 0
+         self.on_ground = True
+     else:
+        # Only set on_ground to False if not on any platform
+         if not any(platform.x_pos <= self.x_pos + self.width and 
+                   platform.x_pos + platform.width >= self.x_pos and
+                   abs((self.y_pos + self.height) - platform.y_pos) < 5 
+                   for platform in platforms):
+             self.on_ground = False
 
     def jump_under_platform(self, platforms):
         if self.vertical_speed > 0:

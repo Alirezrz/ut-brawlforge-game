@@ -104,6 +104,7 @@ class Game:
         if keys[pygame.K_RIGHT]:
             self.ninja.move_right()
             self.ninja_moving = True
+            
         if keys[pygame.K_UP]:
             self.ninja.jump()
     
