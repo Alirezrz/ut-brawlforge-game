@@ -30,6 +30,8 @@ class Ninja:
         self.last_shot_time = 0
         self.shot_cooldown = 300
         self.throwing_until = 0
+        self.kunai_fired = False
+        self.throw_flag=False
 
         # Animation attributes
         self.status = "Idle"
@@ -80,6 +82,13 @@ class Ninja:
             tmp = pygame.image.load(img_path)
             scaled = pygame.transform.scale(tmp, (throw_widths[i], 118))
             self.throw_frames.append(scaled)
+        # Load Jump throw frames
+        self.jumpThrow_frames = []
+        sizes = [85,88,92,99,101,104,103,96,89,89]
+        for i in range(0, 10):
+            img_path = os.path.join(base_path, "JumpThrow", f"Jump_Throw__00{i}.png")
+            tmp = pygame.image.load(img_path)
+            self.jumpThrow_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
 
     def display(self, screen, offset):
         display_picture = self.current_picture
@@ -94,7 +103,10 @@ class Ninja:
 
         # Determine animation state
         if not self.on_ground and self.current_platform is None:
-            target_animation_state = 'jump'
+            if self.status == "throw":
+                target_animation_state = 'jump_throw'
+            else:
+                target_animation_state = 'jump'
         elif self.status == "throw":
             target_animation_state = 'throw'
         elif self.is_moving_horizontally:
@@ -107,6 +119,7 @@ class Ninja:
             self.current_frame_index = 0
             self.last_frame_update_time = current_time
             self.last_animation_state = target_animation_state
+            self.kunai_fired = False
 
             if target_animation_state == 'throw' and self.throw_frames:
                 self.current_picture = self.throw_frames[self.current_frame_index]
@@ -121,7 +134,24 @@ class Ninja:
         # Update animation frames
         elapsed_time = current_time - self.last_frame_update_time
         if elapsed_time >= self.animation_speed:
-            if target_animation_state == 'jump' and self.jump_frames:
+            
+            if target_animation_state == 'jump_throw' and self.jumpThrow_frames :
+                if self.current_frame_index < len(self.throw_frames) - 1:
+                    self.current_frame_index += 1
+                
+                    if self.current_frame_index == 2 :  # 003 frame
+                        self.fire_kunai(shot_bullets)
+                        self.kunai_fired = True
+                        
+                    
+                if self.current_frame_index >= len(self.jumpThrow_frames) - 1:
+                    target_animation_state = 'jump'
+                    self.current_frame_index = 0
+                    self.last_animation_state = 'jump'
+            
+                self.current_picture = self.jumpThrow_frames[self.current_frame_index]
+            
+            elif target_animation_state == 'jump' and self.jump_frames:
                 if self.current_frame_index < len(self.jump_frames) - 1:
                     self.current_frame_index += 1
                 self.current_picture = self.jump_frames[self.current_frame_index]
@@ -180,10 +210,12 @@ class Ninja:
 
         if current_time - self.last_shot_time < self.shot_cooldown:
             return
-
+        
+        self.throw_flag=True
         self.last_shot_time = current_time
         self.status = "throw"
         self.throwing_until = current_time + (len(self.throw_frames) * self.animation_speed)
+        self.kunai_fired = False 
 
     def stop_horizontal_movement(self):
         self.is_moving_horizontally = False
