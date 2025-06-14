@@ -126,8 +126,8 @@ class Game:
         self.Roboman.update_animation() 
         
         self.ninja.is_on_ground()
-        self.ninja.gravity()
         self.ninja.vertical_move()
+        self.ninja.gravity()
         self.ninja.platforms_collisions(self.platforms)
         self.ninja.move_with_platform()
         self.ninja.jump_under_platform(self.platforms)
@@ -174,8 +174,8 @@ class Game:
                     if bullet in self.Roboman.bullets: 
                         self.Roboman.bullets.remove(bullet)
                         
-        self.scroll[0] += (self.ninja.hitbox.centerx - screen_width / 2 - self.scroll[0]) / 1
-        self.scroll[1] += ((self.ninja.hitbox.centery - screen_height / 2 - self.scroll[1]) / 1 ) 
+        self.scroll[0] += (self.ninja.hitbox.centerx - screen_width / 2 - self.scroll[0]) / 15
+        self.scroll[1] += ((self.ninja.hitbox.centery - screen_height / 2 - self.scroll[1]) / 15) 
                         
         current_time = pygame.time.get_ticks()
         if self.shutter_strength > 0:

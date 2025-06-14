@@ -43,6 +43,7 @@ class Ninja:
         self.last_doubleJump=0
         self.double_jump_rest_time=400
         self.jump_count = 0
+        self.Allow_double_jump=True
 
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Ninja")
 
@@ -271,25 +272,26 @@ class Ninja:
                     shot_bullets.remove(bullet)
 
     def jump(self):
-        if self.on_ground or self.jump_count < 2:
-            if self.on_ground:
+        if self.on_ground and self.current_platform!=None:
                 self.vertical_speed = self.jump_strenght
                 self.jump_count = 1
-            elif self.jump_count == 1:
-                self.double_jump()
+                return
+        elif self.Allow_double_jump:
+            self.double_jump()
             
        
-            self.on_ground = False
-            self.current_platform = None
+        self.on_ground = False
+        self.current_platform = None
         
     def double_jump(self):
-     current_time = pygame.time.get_ticks()
-     if current_time-self.last_doubleJump>=self.double_jump_rest_time:
-        self.vertical_speed = self.jump_strenght+3
+        current_time = pygame.time.get_ticks()
+        self.vertical_speed = self.jump_strenght
         self.on_ground = False
         self.current_platform = None
         self.current_frame_index=1
         self.last_doubleJump=current_time
+        self.Allow_double_jump=False
+        print("calling double jump")
     
 
     def gravity(self):
@@ -344,6 +346,7 @@ class Ninja:
      if landed:
          self.jump_count = 0
          self.on_ground = True
+         self.Allow_double_jump = True
      else:
         # Only set on_ground to False if not on any platform
          if not any(platform.x_pos <= self.x_pos + self.width and 
