@@ -111,84 +111,67 @@ class Ninja:
 
         # Determine animation state
         if not self.on_ground and self.current_platform is None:
-            if self.status == "throw":
+            if self.status == "jump_throw":
                 target_animation_state = 'jump_throw'
+            elif self.status == "throw":
+                target_animation_state = 'jump_throw'  # fallback for air
             else:
                 target_animation_state = 'jump'
         elif self.status == "throw":
             target_animation_state = 'throw'
-        elif self.is_moving_horizontally:
-            target_animation_state = 'running'
         else:
-            target_animation_state = 'idle'
+            target_animation_state = 'running' if self.is_moving_horizontally else 'idle'
 
-        # Handle transition between states
+        # Handle animation transition
         if target_animation_state != self.last_animation_state:
             self.current_frame_index = 0
             self.last_frame_update_time = current_time
             self.last_animation_state = target_animation_state
             self.kunai_fired = False
 
-            if target_animation_state == 'throw' and self.throw_frames:
-                self.current_picture = self.throw_frames[self.current_frame_index]
-            elif target_animation_state == 'running' and self.run_frames:
-                self.current_picture = self.run_frames[self.current_frame_index]
-            elif target_animation_state == 'idle' and self.idle_frames:
-                self.current_picture = self.idle_frames[self.current_frame_index]
-            elif target_animation_state == 'jump' and self.jump_frames:
-                self.current_picture = self.jump_frames[self.current_frame_index]
+        # Frame update
+        elapsed_time = current_time - self.last_frame_update_time
+        if elapsed_time < self.animation_speed:
             return
 
-        # Update animation frames
-        elapsed_time = current_time - self.last_frame_update_time
-        if elapsed_time >= self.animation_speed:
-            
-            if target_animation_state == 'jump_throw' and self.jumpThrow_frames :
-                if self.current_frame_index < len(self.throw_frames) - 1:
-                    self.current_frame_index += 1
-                
-                    if self.current_frame_index == 2 :  # 003 frame
-                        self.fire_kunai(shot_bullets)
-                        self.kunai_fired = True
-                        
-                    
-                if self.current_frame_index >= len(self.jumpThrow_frames) - 1:
-                    target_animation_state = 'jump'
-                    self.current_frame_index = 0
-                    self.last_animation_state = 'jump'
-            
+        if target_animation_state == 'jump_throw':
+            if self.current_frame_index < len(self.jumpThrow_frames):
                 self.current_picture = self.jumpThrow_frames[self.current_frame_index]
-            
-            elif target_animation_state == 'jump' and self.jump_frames:
-                if self.current_frame_index < len(self.jump_frames) - 1:
-                    self.current_frame_index += 1
+                if self.current_frame_index == 2 and not self.kunai_fired:
+                    self.fire_kunai(shot_bullets)
+                    self.kunai_fired = True
+                self.current_frame_index += 1
+            else:
+                self.status = "Idle"
+                self.last_animation_state = "jump"
+                self.current_frame_index = 0
+
+        elif target_animation_state == 'jump':
+            if self.current_frame_index < len(self.jump_frames):
                 self.current_picture = self.jump_frames[self.current_frame_index]
-                    
-            elif target_animation_state == 'throw' and self.throw_frames:
-                if self.current_frame_index < len(self.throw_frames) - 1:
-                    self.current_frame_index += 1
-                    
-                    # Trigger kunai release at frame 3 
-                    if self.current_frame_index == 3:
-                        self.fire_kunai(shot_bullets)
-                else:
-                    if current_time > self.throwing_until:
-                        self.status = "Idle"
-                        # Reset to idle animation
-                        self.last_animation_state = 'idle'
-                        self.current_frame_index = 0
+                self.current_frame_index += 1
 
+        elif target_animation_state == 'throw':
+            if self.current_frame_index < len(self.throw_frames):
                 self.current_picture = self.throw_frames[self.current_frame_index]
+                if self.current_frame_index == 3 and not self.kunai_fired:
+                    self.fire_kunai(shot_bullets)
+                    self.kunai_fired = True
+                self.current_frame_index += 1
+            else:
+                self.status = "Idle"
+                self.last_animation_state = "idle"
+                self.current_frame_index = 0
 
-            elif target_animation_state == 'running' and self.run_frames:
-                self.current_frame_index = (self.current_frame_index + 1) % len(self.run_frames)
-                self.current_picture = self.run_frames[self.current_frame_index]
+        elif target_animation_state == 'running':
+            self.current_frame_index = (self.current_frame_index + 1) % len(self.run_frames)
+            self.current_picture = self.run_frames[self.current_frame_index]
 
-            elif target_animation_state == 'idle' and self.idle_frames:
-                self.current_frame_index = (self.current_frame_index + 1) % len(self.idle_frames)
-                self.current_picture = self.idle_frames[self.current_frame_index]
+        elif target_animation_state == 'idle':
+            self.current_frame_index = (self.current_frame_index + 1) % len(self.idle_frames)
+            self.current_picture = self.idle_frames[self.current_frame_index]
 
-            self.last_frame_update_time = current_time
+        self.last_frame_update_time = current_time
 
     def fire_kunai(self, shot_bullets):
         bullet_x = self.x_pos + (self.width if self.Look == 'right' else -self.Kunai_pic.get_width())
@@ -212,18 +195,39 @@ class Ninja:
 
     def shoot(self, shot_bullets, Bullet):
         current_time = pygame.time.get_ticks()
+        if self.on_ground and self.current_platform!=None:
+            if self.status == "throw" and current_time < self.throwing_until:
+                return
 
-        if self.status == "throw" and current_time < self.throwing_until:
-            return
-
-        if current_time - self.last_shot_time < self.shot_cooldown:
-            return
+            if current_time - self.last_shot_time < self.shot_cooldown:
+                return
         
-        self.throw_flag=True
+            self.throw_flag=True
+            self.last_shot_time = current_time
+            self.status = "throw"
+            self.throwing_until = current_time + (len(self.throw_frames) * self.animation_speed)
+            self.kunai_fired = False 
+        else:
+            self.jump_throw()
+            
+    def jump_throw(self):
+        """Triggers a throwing animation in mid-air (jump_throw) if allowed."""
+        current_time = pygame.time.get_ticks()
+
+        # Prevent interrupting an ongoing air-throw or a repeat bug
+        if self.status == "jump_throw" and current_time < self.throwing_until:
+            return
+
+        # Use doubled cooldown for jump_throw
+        if current_time - self.last_shot_time < self.shot_cooldown * 2:
+            return
+
+        # Mark as air-throwing
+        self.throw_flag = True
         self.last_shot_time = current_time
-        self.status = "throw"
-        self.throwing_until = current_time + (len(self.throw_frames) * self.animation_speed)
-        self.kunai_fired = False 
+        self.status = "jump_throw"
+        self.throwing_until = current_time + (len(self.jumpThrow_frames) * self.animation_speed)
+        self.kunai_fired = False
 
     def stop_horizontal_movement(self):
         self.is_moving_horizontally = False
