@@ -30,6 +30,8 @@ class Ninja:
         self.last_shot_time = 0
         self.shot_cooldown = 300
         self.throwing_until = 0
+        self.kunai_fired = False
+        self.throw_flag=False
 
         # Animation attributes
         self.status = "Idle"
@@ -38,6 +40,10 @@ class Ninja:
         self.animation_speed = 100
         self.last_frame_update_time = pygame.time.get_ticks()
         self.is_moving_horizontally = False
+        self.last_doubleJump=0
+        self.double_jump_rest_time=400
+        self.jump_count = 0
+        self.Allow_double_jump=True
 
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Ninja")
 
@@ -58,6 +64,15 @@ class Ninja:
             img_path = os.path.join(base_path, "Run", f"Run__00{i}.png")
             tmp = pygame.image.load(img_path)
             self.run_frames.append(pygame.transform.scale(tmp, (94, 118)))
+            
+        # Load Jump frames
+        self.jump_frames = []
+        sizes = [77, 69, 69, 71, 70, 70, 77, 84, 95, 93]
+        for i in range(0, 10):
+            img_path = os.path.join(base_path, "Jump", f"Jump__00{i}.png")
+            tmp = pygame.image.load(img_path)
+            self.jump_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
+        
 
         # Load Kunai
         img_path = os.path.join(base_path, "Kunai.png")
@@ -72,6 +87,16 @@ class Ninja:
             tmp = pygame.image.load(img_path)
             scaled = pygame.transform.scale(tmp, (throw_widths[i], 118))
             self.throw_frames.append(scaled)
+        # Load Jump throw frames
+        self.jumpThrow_frames = []
+        sizes = [85,88,92,99,101,104,103,96,89,89]
+        for i in range(0, 10):
+            img_path = os.path.join(base_path, "JumpThrow", f"Jump_Throw__00{i}.png")
+            tmp = pygame.image.load(img_path)
+            self.jumpThrow_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
+            
+            
+        
 
     def display(self, screen, offset):
         display_picture = self.current_picture
@@ -81,57 +106,89 @@ class Ninja:
             flipped_picture = pygame.transform.flip(display_picture, True, False)
             screen.blit(flipped_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
 
-    def update_animation(self,shot_bullets):
-     current_time = pygame.time.get_ticks()
+    def update_animation(self, shot_bullets):
+        current_time = pygame.time.get_ticks()
 
-    # Determine animation state
-     if self.status == "throw":
-        target_animation_state = 'throw'
-     elif self.is_moving_horizontally:
-        target_animation_state = 'running'
-     else:
-        target_animation_state = 'idle'
-
-    # Handle transition between states
-     if target_animation_state != self.last_animation_state:
-        self.current_frame_index = 0
-        self.last_frame_update_time = current_time
-        self.last_animation_state = target_animation_state
-
-        if target_animation_state == 'throw' and self.throw_frames:
-            self.current_picture = self.throw_frames[self.current_frame_index]
-        elif target_animation_state == 'running' and self.run_frames:
-            self.current_picture = self.run_frames[self.current_frame_index]
-        elif target_animation_state == 'idle' and self.idle_frames:
-            self.current_picture = self.idle_frames[self.current_frame_index]
-        return
-
-    # Update animation frames
-     elapsed_time = current_time - self.last_frame_update_time
-     if elapsed_time >= self.animation_speed:
-        if target_animation_state == 'throw' and self.throw_frames:
-            if self.current_frame_index < len(self.throw_frames) - 1:
-                self.current_frame_index += 1
-                
-                # Trigger kunai release at frame 3 
-                if self.current_frame_index == 3:
-                    self.fire_kunai(shot_bullets)
-
+        # Determine animation state
+        if not self.on_ground and self.current_platform is None:
+            if self.status == "throw":
+                target_animation_state = 'jump_throw'
             else:
-                if current_time > self.throwing_until:
-                    self.status = "Idle"
+                target_animation_state = 'jump'
+        elif self.status == "throw":
+            target_animation_state = 'throw'
+        elif self.is_moving_horizontally:
+            target_animation_state = 'running'
+        else:
+            target_animation_state = 'idle'
 
-            self.current_picture = self.throw_frames[self.current_frame_index]
+        # Handle transition between states
+        if target_animation_state != self.last_animation_state:
+            self.current_frame_index = 0
+            self.last_frame_update_time = current_time
+            self.last_animation_state = target_animation_state
+            self.kunai_fired = False
 
-        elif target_animation_state == 'running' and self.run_frames:
-            self.current_frame_index = (self.current_frame_index + 1) % len(self.run_frames)
-            self.current_picture = self.run_frames[self.current_frame_index]
+            if target_animation_state == 'throw' and self.throw_frames:
+                self.current_picture = self.throw_frames[self.current_frame_index]
+            elif target_animation_state == 'running' and self.run_frames:
+                self.current_picture = self.run_frames[self.current_frame_index]
+            elif target_animation_state == 'idle' and self.idle_frames:
+                self.current_picture = self.idle_frames[self.current_frame_index]
+            elif target_animation_state == 'jump' and self.jump_frames:
+                self.current_picture = self.jump_frames[self.current_frame_index]
+            return
 
-        elif target_animation_state == 'idle' and self.idle_frames:
-            self.current_frame_index = (self.current_frame_index + 1) % len(self.idle_frames)
-            self.current_picture = self.idle_frames[self.current_frame_index]
+        # Update animation frames
+        elapsed_time = current_time - self.last_frame_update_time
+        if elapsed_time >= self.animation_speed:
+            
+            if target_animation_state == 'jump_throw' and self.jumpThrow_frames :
+                if self.current_frame_index < len(self.throw_frames) - 1:
+                    self.current_frame_index += 1
+                
+                    if self.current_frame_index == 2 :  # 003 frame
+                        self.fire_kunai(shot_bullets)
+                        self.kunai_fired = True
+                        
+                    
+                if self.current_frame_index >= len(self.jumpThrow_frames) - 1:
+                    target_animation_state = 'jump'
+                    self.current_frame_index = 0
+                    self.last_animation_state = 'jump'
+            
+                self.current_picture = self.jumpThrow_frames[self.current_frame_index]
+            
+            elif target_animation_state == 'jump' and self.jump_frames:
+                if self.current_frame_index < len(self.jump_frames) - 1:
+                    self.current_frame_index += 1
+                self.current_picture = self.jump_frames[self.current_frame_index]
+                    
+            elif target_animation_state == 'throw' and self.throw_frames:
+                if self.current_frame_index < len(self.throw_frames) - 1:
+                    self.current_frame_index += 1
+                    
+                    # Trigger kunai release at frame 3 
+                    if self.current_frame_index == 3:
+                        self.fire_kunai(shot_bullets)
+                else:
+                    if current_time > self.throwing_until:
+                        self.status = "Idle"
+                        # Reset to idle animation
+                        self.last_animation_state = 'idle'
+                        self.current_frame_index = 0
 
-        self.last_frame_update_time = current_time
+                self.current_picture = self.throw_frames[self.current_frame_index]
+
+            elif target_animation_state == 'running' and self.run_frames:
+                self.current_frame_index = (self.current_frame_index + 1) % len(self.run_frames)
+                self.current_picture = self.run_frames[self.current_frame_index]
+
+            elif target_animation_state == 'idle' and self.idle_frames:
+                self.current_frame_index = (self.current_frame_index + 1) % len(self.idle_frames)
+                self.current_picture = self.idle_frames[self.current_frame_index]
+
+            self.last_frame_update_time = current_time
 
     def fire_kunai(self, shot_bullets):
         bullet_x = self.x_pos + (self.width if self.Look == 'right' else -self.Kunai_pic.get_width())
@@ -161,17 +218,16 @@ class Ninja:
 
         if current_time - self.last_shot_time < self.shot_cooldown:
             return
-
+        
+        self.throw_flag=True
         self.last_shot_time = current_time
         self.status = "throw"
         self.throwing_until = current_time + (len(self.throw_frames) * self.animation_speed)
-
-
+        self.kunai_fired = False 
 
     def stop_horizontal_movement(self):
         self.is_moving_horizontally = False
         
-
     def fall_from_platform(self):
         if self.current_platform:
             if self.x_pos + self.width < self.current_platform.x_pos or self.x_pos > self.current_platform.x_pos + self.current_platform.width:
@@ -216,10 +272,27 @@ class Ninja:
                     shot_bullets.remove(bullet)
 
     def jump(self):
-        if self.on_ground:
-            self.vertical_speed = self.jump_strenght
+        if self.on_ground and self.current_platform!=None:
+                self.vertical_speed = self.jump_strenght
+                self.jump_count = 1
+                return
+        elif self.Allow_double_jump:
+            self.double_jump()
+            
+       
         self.on_ground = False
         self.current_platform = None
+        
+    def double_jump(self):
+        current_time = pygame.time.get_ticks()
+        self.vertical_speed = self.jump_strenght
+        self.on_ground = False
+        self.current_platform = None
+        self.current_frame_index=1
+        self.last_doubleJump=current_time
+        self.Allow_double_jump=False
+        print("calling double jump")
+    
 
     def gravity(self):
         if not self.on_ground:
@@ -237,25 +310,50 @@ class Ninja:
         self.horizontal_auto_speed = 0
 
     def platforms_collisions(self, platforms):
-        for platform in platforms:
-            if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
-                if ((self.y_pos + self.height) >= platform.y_pos) and ((self.y_pos + self.height) < (platform.y_pos + platform.height) + 10):
-                    self.on_ground = True
-                    self.vertical_speed = 0
-                    self.y_pos = platform.y_pos - self.height
-                    self.current_platform = platform
-
-            if self.x_pos + self.width >= platform.x_pos and self.x_pos <= platform.x_pos + platform.width:
-                if ((self.y_pos + self.height) > platform.y_pos) and (self.y_pos < platform.y_pos + platform.height):
-                    if abs(self.x_pos - (platform.x_pos + platform.width)) <= 10:
-                        self.allow_move_left = False
-                        self.x_pos = platform.x_pos + platform.width
-                    if abs(self.x_pos + self.width - platform.x_pos) <= 10:
-                        self.allow_move_right = False
-                        self.x_pos = platform.x_pos - self.width
-            else:
-                self.allow_move_left = True
-                self.allow_move_right = True
+     # Reset movement permissions and landing status
+     self.allow_move_left = True
+     self.allow_move_right = True
+     landed = False
+    
+     for platform in platforms:
+         if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
+             # Landing on top of platform
+             if ((self.y_pos + self.height) >= platform.y_pos) and \
+                ((self.y_pos + self.height) < (platform.y_pos + platform.height) + 10) and \
+                self.vertical_speed <= 0:  # Only land if moving downward
+                
+                 self.on_ground = True
+                 self.vertical_speed = 0
+                 self.y_pos = platform.y_pos - self.height
+                 self.current_platform = platform
+                 landed = True
+                
+            # Side collisions (left/right of platform)
+             elif ((self.y_pos + self.height) > platform.y_pos) and \
+                  (self.y_pos < platform.y_pos + platform.height):
+                
+                # Left side collision
+                 if abs(self.x_pos - (platform.x_pos + platform.width)) <= 10:
+                     self.allow_move_left = False
+                     self.x_pos = platform.x_pos + platform.width
+                
+                # Right side collision
+                 elif abs(self.x_pos + self.width - platform.x_pos) <= 10:
+                     self.allow_move_right = False
+                     self.x_pos = platform.x_pos - self.width
+    
+    # Reset jump count if landed on any platform
+     if landed:
+         self.jump_count = 0
+         self.on_ground = True
+         self.Allow_double_jump = True
+     else:
+        # Only set on_ground to False if not on any platform
+         if not any(platform.x_pos <= self.x_pos + self.width and 
+                   platform.x_pos + platform.width >= self.x_pos and
+                   abs((self.y_pos + self.height) - platform.y_pos) < 5 
+                   for platform in platforms):
+             self.on_ground = False
 
     def jump_under_platform(self, platforms):
         if self.vertical_speed > 0:
@@ -264,5 +362,3 @@ class Ninja:
                     if self.y_pos <= platform.y_pos + platform.height and self.y_pos > platform.y_pos:
                         self.vertical_speed = 0
                         self.y_pos = platform.y_pos + platform.height
-                        
-                        
