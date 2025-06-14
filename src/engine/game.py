@@ -79,6 +79,8 @@ class Game:
                     
             
 
+
+    
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
     
@@ -94,7 +96,11 @@ class Game:
             self.Roboman.move_left()
             self.Roboman.is_moving_horizontally = True 
         if keys[pygame.K_SPACE]:
-            self.Roboman.jump()
+            if keys[pygame.K_LSHIFT]:
+                self.Roboman.activate_jetpack()
+            
+            else:
+                self.Roboman.jump()
         if keys[pygame.K_r]:
             self.Roboman.respawn() 
 
@@ -198,7 +204,7 @@ class Game:
             events = pygame.event.get()
             self.handle_events(events)
             self.handle_inputs() 
-            self.input_handler.handle_all_inputs() 
+            #self.input_handler.handle_all_inputs() 
             for event in events:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     pause_menu = PauseMenu(self.screen,self.background)
