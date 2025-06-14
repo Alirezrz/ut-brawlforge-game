@@ -44,12 +44,30 @@ class Ninja:
         self.double_jump_rest_time=400
         self.jump_count = 0
         self.Allow_double_jump=True
+        
+        
+        
+        
 
+        
+        #Super power attributes:
+        self.Super_cofficent=1
+        self.Super_duration=5000
+        self.Super_lastActivation=0
+        self.SuperPower_CoolDown=100
+        
+        
+        
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Ninja")
 
         # Load Idle image for default state
         tmp = pygame.image.load(os.path.join(base_path, "Idle", f"Idle__000.png"))
         self.current_picture = pygame.transform.scale(tmp, (62, 118))
+        
+        
+        
+        img_path = os.path.join(base_path, "SuperPower effect.png")
+        self.SuperPower_pic=pygame.image.load(img_path )
 
         # Load Idle frames
         self.idle_frames = []
@@ -99,6 +117,10 @@ class Ninja:
         
 
     def display(self, screen, offset):
+        self.Update_SuperPower()    
+        
+        
+    
         display_picture = self.current_picture
         if self.Look == 'right':
             screen.blit(display_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
@@ -245,7 +267,7 @@ class Ninja:
 
     def move_right(self):
         if self.allow_move_right:
-            self.x_pos += self.horizontal_speed
+            self.x_pos += self.horizontal_speed*self.Super_cofficent
             self.is_moving_horizontally = True
             self.Look = 'right'
             self.hitbox.topleft = (self.x_pos, self.y_pos)
@@ -253,7 +275,7 @@ class Ninja:
 
     def move_left(self):
         if self.allow_move_left:
-            self.x_pos -= self.horizontal_speed
+            self.x_pos -= self.horizontal_speed*self.Super_cofficent
             self.is_moving_horizontally = True
             self.Look = 'left'
             self.hitbox.topleft = (self.x_pos, self.y_pos)
@@ -277,7 +299,7 @@ class Ninja:
 
     def jump(self):
         if self.on_ground and self.current_platform!=None:
-                self.vertical_speed = self.jump_strenght
+                self.vertical_speed = self.jump_strenght*self.Super_cofficent
                 self.jump_count = 1
                 return
         elif self.Allow_double_jump:
@@ -289,7 +311,7 @@ class Ninja:
         
     def double_jump(self):
         current_time = pygame.time.get_ticks()
-        self.vertical_speed = self.jump_strenght
+        self.vertical_speed = self.jump_strenght*self.Super_cofficent
         self.on_ground = False
         self.current_platform = None
         self.current_frame_index=1
@@ -366,3 +388,17 @@ class Ninja:
                     if self.y_pos <= platform.y_pos + platform.height and self.y_pos > platform.y_pos:
                         self.vertical_speed = 0
                         self.y_pos = platform.y_pos + platform.height
+                        
+                        
+                        
+    def Activate_Super_Power(self):
+        current_time=pygame.time.get_ticks()
+        if current_time-self.Super_lastActivation>=self.SuperPower_CoolDown:
+            self.Super_cofficent=2
+            self.Super_lastActivation = current_time
+            print("active")
+            
+    def Update_SuperPower(self):
+        current_time=pygame.time.get_ticks()
+        if current_time-self.Super_lastActivation>self.Super_duration:
+            self.Super_cofficent=1

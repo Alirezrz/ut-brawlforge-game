@@ -113,6 +113,8 @@ class Game:
             self.ninja_moving = True
         if keys[pygame.K_UP]:
             self.ninja.jump()
+        if keys[pygame.K_RSHIFT]:
+            self.ninja.Activate_Super_Power()
     
         if not self.ninja_moving:
             self.ninja.stop_horizontal_movement()
