@@ -10,6 +10,7 @@ from src.engine.camera import Camera
 from src.engine.input_handler import InputHandler  
 from src.levels import level_1_data, load_level 
 from src.engine.Ninja import Ninja 
+from src.engine.menu import PauseMenu 
 
 class Game:
     def __init__(self,screen, hero_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture,health_bar_green,health_bar_red,hero_profile_picture, roboman_health_bar_frame,roboman_health_bar, sounds):
@@ -78,6 +79,8 @@ class Game:
                     
             
 
+
+    
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
     
@@ -93,7 +96,11 @@ class Game:
             self.Roboman.move_left()
             self.Roboman.is_moving_horizontally = True 
         if keys[pygame.K_SPACE]:
-            self.Roboman.jump()
+            if keys[pygame.K_LSHIFT]:
+                self.Roboman.activate_jetpack()
+            
+            else:
+                self.Roboman.jump()
         if keys[pygame.K_r]:
             self.Roboman.respawn() 
 
@@ -104,7 +111,6 @@ class Game:
         if keys[pygame.K_RIGHT]:
             self.ninja.move_right()
             self.ninja_moving = True
-            
         if keys[pygame.K_UP]:
             self.ninja.jump()
     
@@ -126,8 +132,8 @@ class Game:
         self.Roboman.update_animation() 
         
         self.ninja.is_on_ground()
-        self.ninja.vertical_move()
         self.ninja.gravity()
+        self.ninja.vertical_move()
         self.ninja.platforms_collisions(self.platforms)
         self.ninja.move_with_platform()
         self.ninja.jump_under_platform(self.platforms)
@@ -175,7 +181,7 @@ class Game:
                         self.Roboman.bullets.remove(bullet)
                         
         self.scroll[0] += (self.ninja.hitbox.centerx - screen_width / 2 - self.scroll[0]) / 15
-        self.scroll[1] += ((self.ninja.hitbox.centery - screen_height / 2 - self.scroll[1]) / 15) 
+        self.scroll[1] += ((self.ninja.hitbox.centery - screen_height / 2 - self.scroll[1]) / 15 ) 
                         
         current_time = pygame.time.get_ticks()
         if self.shutter_strength > 0:
@@ -197,8 +203,20 @@ class Game:
         while self.game_active:
             events = pygame.event.get()
             self.handle_events(events)
-            #self.input_handler.handle_all_inputs()   movaghat bardashtam
-            self.handle_inputs()
+            self.handle_inputs() 
+            #self.input_handler.handle_all_inputs() 
+            for event in events:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    pause_menu = PauseMenu(self.screen,self.background)
+                    action = pause_menu.run()
+                    if action == "resume":
+                        continue
+                    elif action == "menu":
+                        self.game_active = False
+                        return "menu"
+                    elif action == "exit":
+                        self.game_active = False
+                        return "exit"
             self.update()
             self.render_screen()
             self.camera.render()
