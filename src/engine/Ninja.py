@@ -104,6 +104,12 @@ class Ninja:
         img_path = os.path.join(base_path, "Kunai.png")
         self.Kunai_pic = pygame.image.load(img_path)
         self.Kunai_pic = pygame.transform.scale(self.Kunai_pic, (60, 12))
+        
+        img_path = os.path.join(base_path, "FiredKunai.png") 
+        self.Fired_kunai_pic=pygame.image.load(img_path)
+        self.Fired_kunai_pic= pygame.transform.scale(self.Fired_kunai_pic, (70, 24))
+        
+        self.Kunai=self.Kunai_pic
 
         # Load Throw frames
         self.throw_frames = []
@@ -176,6 +182,7 @@ class Ninja:
                     self.fire_kunai(shot_bullets)
                     self.kunai_fired = True
                 self.current_frame_index += 1
+                
             else:
                 self.status = "Idle"
                 self.last_animation_state = "jump"
@@ -193,6 +200,9 @@ class Ninja:
                     self.fire_kunai(shot_bullets)
                     self.kunai_fired = True
                 self.current_frame_index += 1
+                if self.current_frame_index==len(self.throw_frames)-1:
+                    self.allow_move_left=True
+                    self.allow_move_right=True
             else:
                 self.status = "Idle"
                 self.last_animation_state = "idle"
@@ -221,12 +231,13 @@ class Ninja:
         bullet_y,
         15,
         self.Look,
-        self.Kunai_pic,
+        self.Kunai,
         self.screen_width
         )
 
         self.bullets.append(bullet)
         shot_bullets.append(bullet)
+        
 
     def shoot(self, shot_bullets, Bullet):
         current_time = pygame.time.get_ticks()
@@ -239,6 +250,8 @@ class Ninja:
         
             self.throw_flag=True
             self.last_shot_time = current_time
+            self.allow_move_left=False
+            self.allow_move_right=False
             self.status = "throw"
             self.throwing_until = current_time + (len(self.throw_frames) * self.animation_speed)
             self.kunai_fired = False 
@@ -279,7 +292,7 @@ class Ninja:
             self.horizontal_move()
 
     def move_right(self):
-        if self.allow_move_right:
+        if self.allow_move_right and self.status not in ["throw"]:
             self.x_pos += self.horizontal_speed*self.Super_cofficent
             self.is_moving_horizontally = True
             self.Look = 'right'
@@ -287,7 +300,7 @@ class Ninja:
             self.fall_from_platform()
 
     def move_left(self):
-        if self.allow_move_left:
+        if self.allow_move_left  and self.status not in ["throw"]:
             self.x_pos -= self.horizontal_speed*self.Super_cofficent
             self.is_moving_horizontally = True
             self.Look = 'left'
@@ -411,12 +424,15 @@ class Ninja:
             self.Super_lastActivation = current_time
             self.last_SPdisplay=current_time
             self.Super_PowerFlag=True
+            self.Kunai=self.Fired_kunai_pic
             print("active")
             
     def Update_SuperPower(self):
         current_time=pygame.time.get_ticks()
         if current_time-self.Super_lastActivation>self.Super_duration and self.current_platform!=None:
             self.Super_cofficent=1
+            self.Kunai=self.Kunai_pic
+            
             
             
             
