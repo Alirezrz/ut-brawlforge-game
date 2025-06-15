@@ -114,6 +114,8 @@ class Game:
         if keys[pygame.K_UP]:
             self.ninja.jump()
         if keys[pygame.K_RSHIFT]:
+            if not self.ninja.Super_PowerFlag:  
+                self.trigger_shutter(strength=10, duration=1500)
             self.ninja.Activate_Super_Power()
     
         if not self.ninja_moving:
@@ -226,6 +228,11 @@ class Game:
             self.clock.tick(FPS)
             
     def trigger_jetpack_shutter(self, strength=5, duration=150):
+        self.shutter_strength = strength
+        self.shutter_duration = duration
+        self.shutter_start_time = pygame.time.get_ticks()
+        
+    def trigger_shutter(self, strength=5, duration=100):
         self.shutter_strength = strength
         self.shutter_duration = duration
         self.shutter_start_time = pygame.time.get_ticks()

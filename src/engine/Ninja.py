@@ -55,6 +55,13 @@ class Ninja:
         self.Super_duration=5000
         self.Super_lastActivation=0
         self.SuperPower_CoolDown=100
+        self.SuperPower_pic_display_duratiom=1500
+        self.last_SPdisplay=0
+        self.Super_PowerFlag=False
+        
+        self.shutter_overlay = pygame.Surface((self.screen_width, self.screen_height))
+        self.shutter_alpha = 0
+        self.shutter_direction = 1 
         
         
         
@@ -68,6 +75,7 @@ class Ninja:
         
         img_path = os.path.join(base_path, "SuperPower effect.png")
         self.SuperPower_pic=pygame.image.load(img_path )
+        self.SuperPower_pic=pygame.transform.scale(self.SuperPower_pic,(100,118))
 
         # Load Idle frames
         self.idle_frames = []
@@ -117,7 +125,9 @@ class Ninja:
         
 
     def display(self, screen, offset):
-        self.Update_SuperPower()    
+        self.Update_SuperPower() 
+        self.Super_Power_effect()
+           
         
         
     
@@ -130,7 +140,10 @@ class Ninja:
 
     def update_animation(self, shot_bullets):
         current_time = pygame.time.get_ticks()
-
+        if self.Super_PowerFlag:
+            self.current_picture=self.SuperPower_pic
+            print("here")
+            return
         # Determine animation state
         if not self.on_ground and self.current_platform is None:
             if self.status == "jump_throw":
@@ -396,9 +409,35 @@ class Ninja:
         if current_time-self.Super_lastActivation>=self.SuperPower_CoolDown:
             self.Super_cofficent=2
             self.Super_lastActivation = current_time
+            self.last_SPdisplay=current_time
+            self.Super_PowerFlag=True
             print("active")
             
     def Update_SuperPower(self):
         current_time=pygame.time.get_ticks()
-        if current_time-self.Super_lastActivation>self.Super_duration:
+        if current_time-self.Super_lastActivation>self.Super_duration and self.current_platform!=None:
             self.Super_cofficent=1
+            
+            
+            
+    def Super_Power_effect(self):
+        current_time=pygame.time.get_ticks()
+        if current_time - self.last_SPdisplay < self.SuperPower_pic_display_duratiom:
+            self.allow_move_left=False
+            self.allow_move_right=False
+            self.vertical_speed=0
+            
+            self.shutter_alpha += self.shutter_direction * 10
+            if self.shutter_alpha >= 100:
+                self.shutter_alpha = 100
+                self.shutter_direction = -1
+            elif self.shutter_alpha <= 0:
+                self.shutter_alpha = 0
+                self.shutter_direction = 1
+        else:
+            self.allow_move_left=True
+            self.allow_move_right=True
+            self.Super_PowerFlag=False
+            
+            
+        
