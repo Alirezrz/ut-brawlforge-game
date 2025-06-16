@@ -44,6 +44,7 @@ class Ninja:
         self.double_jump_rest_time=400
         self.jump_count = 0
         self.Allow_double_jump=True
+        self.AllowJump_flag=True
         
         
         
@@ -145,6 +146,7 @@ class Ninja:
             screen.blit(flipped_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
 
     def update_animation(self, shot_bullets):
+        
         current_time = pygame.time.get_ticks()
         if self.Super_PowerFlag:
             self.current_picture=self.SuperPower_pic
@@ -162,6 +164,7 @@ class Ninja:
             target_animation_state = 'throw'
         else:
             target_animation_state = 'running' if self.is_moving_horizontally else 'idle'
+            
 
         # Handle animation transition
         if target_animation_state != self.last_animation_state:
@@ -176,12 +179,15 @@ class Ninja:
             return
 
         if target_animation_state == 'jump_throw':
+            target_animation_state='jump'
+            
             if self.current_frame_index < len(self.jumpThrow_frames):
                 self.current_picture = self.jumpThrow_frames[self.current_frame_index]
                 if self.current_frame_index == 2 and not self.kunai_fired:
                     self.fire_kunai(shot_bullets)
                     self.kunai_fired = True
                 self.current_frame_index += 1
+            
                 
             else:
                 self.status = "Idle"
@@ -237,6 +243,7 @@ class Ninja:
 
         self.bullets.append(bullet)
         shot_bullets.append(bullet)
+        self.status='jump'
         
 
     def shoot(self, shot_bullets, Bullet):
@@ -324,7 +331,7 @@ class Ninja:
                     shot_bullets.remove(bullet)
 
     def jump(self):
-        if self.on_ground and self.current_platform!=None:
+        if self.on_ground and self.current_platform!=None and self.AllowJump_flag:
                 self.vertical_speed = self.jump_strenght*self.Super_cofficent
                 self.jump_count = 1
                 return
@@ -343,7 +350,6 @@ class Ninja:
         self.current_frame_index=1
         self.last_doubleJump=current_time
         self.Allow_double_jump=False
-        print("calling double jump")
     
 
     def gravity(self):
@@ -442,6 +448,7 @@ class Ninja:
             self.allow_move_left=False
             self.allow_move_right=False
             self.vertical_speed=0
+            self.AllowJump_flag=False
             
             self.shutter_alpha += self.shutter_direction * 10
             if self.shutter_alpha >= 100:
@@ -454,6 +461,7 @@ class Ninja:
             self.allow_move_left=True
             self.allow_move_right=True
             self.Super_PowerFlag=False
+            self.AllowJump_flag=True
             
             
         
