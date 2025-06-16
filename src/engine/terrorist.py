@@ -1,8 +1,8 @@
 import pygame
 import os
-
+import threading
 class Terrorist:
-    def __init__(self, x, y, screen_width, screen_height, Ninja, Robo, platforms, ninja):
+    def __init__(self, x, y, screen_width, screen_height, Ninja, Robo, platforms, ninja,screen,scroll):
         self.x_pos = x
         self.y_pos = y
         self.on_platform = False
@@ -25,20 +25,43 @@ class Terrorist:
         self.max_health = 100
         self.bullets = []
         self.platforms = platforms
+        self.game_screen=screen
+        self.explosion_pos=0
 
         self.target = ninja
         self.target_status = 'free'
+        self.status='alive'
 
         self.Walk_Range = 300
-        self.VisionRadious =400
+        self.VisionRadious = 400
         self.VisionHeight = 80
         self.walk_strength = 3
         self.walked_len = 0
+        
+        
+        self.exploding = False
+        self.explosion_start_time = 0
+        self.explosion_frame_duration = 40
 
+        self.currentFrame_index=0
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "terrorist")
         tmp = pygame.image.load(os.path.join(base_path, "walk", f"1_terrorist_1_Walk_000.png"))
         self.pic = pygame.transform.scale(tmp, (62, 118))
-
+        
+        
+        
+        self.EXP_frames=[]
+        for i in range(1,26):
+            if i <10:
+                exp_path=os.path.join(base_path, "ExplosionFrames", f"000{i}.png")
+            else:
+                exp_path=os.path.join(base_path, "ExplosionFrames", f"00{i}.png")
+                
+            self.EXP_frames.append(pygame.transform.scale(pygame.image.load(exp_path),(256,256)))
+                
+                
+            
+        self.scroll=scroll
         self.current_picture = self.pic
         self.current_frame_index = 0
         self.animation_speed = 100
@@ -46,12 +69,19 @@ class Terrorist:
         self.is_moving_horizontally = False
 
     def display(self, screen, offset):
-        display_picture = self.current_picture
-        if self.Look == 'right':
-            screen.blit(display_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
-        else:
-            flipped_picture = pygame.transform.flip(display_picture, True, False)
-            screen.blit(flipped_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
+        if self.status == 'exploded' and self.exploding:
+            # Draw explosion at saved position
+            frame = self.EXP_frames[self.current_frame_index]
+            x = self.explosion_pos[0] - frame.get_width() // 2 - offset[0]
+            y = self.explosion_pos[1] - frame.get_height() // 2 - offset[1]
+            screen.blit(frame, (x, y))
+        elif self.status != 'exploded':
+            display_picture = self.current_picture
+            if self.Look == 'right':
+                screen.blit(display_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
+            else:
+                flipped_picture = pygame.transform.flip(display_picture, True, False)
+                screen.blit(flipped_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
 
     def gravity(self):
         if not self.on_ground:
@@ -79,36 +109,40 @@ class Terrorist:
                         self.y_pos = platform.y_pos + platform.height
 
     def Walk(self):
-        next_x = self.x_pos + (self.walk_strength if self.Look == 'right' else -self.walk_strength)
-        foot_y = self.y_pos + self.height + 5
+        if self.status!='exploded':
+            next_x = self.x_pos + (self.walk_strength if self.Look == 'right' else -self.walk_strength)
+            foot_y = self.y_pos + self.height + 5
 
-        on_edge = True
-        for platform in self.platforms:
-            if platform.x_pos <= next_x <= platform.x_pos + platform.width:
-                if abs(platform.y_pos - foot_y) <= 10:
-                    on_edge = False
-                    break
+            on_edge = True
+            for platform in self.platforms:
+                if platform.x_pos <= next_x <= platform.x_pos + platform.width:
+                    if abs(platform.y_pos - foot_y) <= 10:
+                        on_edge = False
+                        break
 
-        if on_edge:
-            self.walked_len = 0
-            self.Look = 'left' if self.Look == 'right' else 'right'
+            if on_edge:
+                self.walked_len = 0
+                self.Look = 'left' if self.Look == 'right' else 'right'
 
-        if self.walked_len > self.Walk_Range:
-            self.walked_len = 0
-            self.Look = 'left' if self.Look == 'right' else 'right'
+            if self.walked_len > self.Walk_Range:
+                self.walked_len = 0
+                self.Look = 'left' if self.Look == 'right' else 'right'
 
-        if self.Look == 'right':
-            self.x_pos += self.walk_strength
-        else:
-            self.x_pos -= self.walk_strength
+            if self.Look == 'right':
+                self.x_pos += self.walk_strength
+            else:
+                self.x_pos -= self.walk_strength
 
-        self.walked_len += self.walk_strength
-        self.hitbox.topleft = (self.x_pos, self.y_pos)
+            self.walked_len += self.walk_strength
+            self.hitbox.topleft = (self.x_pos, self.y_pos)
 
     def Vision(self):
         dx = abs(self.target.x_pos - self.x_pos)
         dy = abs(self.target.y_pos - self.y_pos)
-
+        if dx < 20 and dy<80:
+            self.status = 'exploded'
+            self.explosion_pos=(self.x_pos,self.y_pos)
+            return
         if dx <= self.VisionRadious and dy <= self.VisionHeight:
             self.target_status = 'locked'
         else:
@@ -116,16 +150,30 @@ class Terrorist:
 
     def Attack(self):
         if self.target_status == 'locked':
-            if self.x_pos < self.target.x_pos:
-                self.x_pos += self.walk_strength + 10
+            if self.x_pos < self.target.x_pos :
+                self.x_pos += self.walk_strength + 5
                 self.Look = 'right'
             else:
-                self.x_pos -= self.walk_strength + 10
+                self.x_pos -= self.walk_strength + 5
                 self.Look = 'left'
             self.hitbox.topleft = (self.x_pos, self.y_pos)
 
     def Update(self):
-        self.on_ground = False
+        if self.status == 'exploded':
+            if not self.exploding:
+                self.exploding = True
+                self.explosion_start_time = pygame.time.get_ticks()
+                self.current_frame_index = 0
+                self.explosion_pos = (self.x_pos, self.y_pos+90)
+            else:
+                elapsed = pygame.time.get_ticks() - self.explosion_start_time
+                frame_index = elapsed // self.explosion_frame_duration
+                
+                if frame_index < len(self.EXP_frames):
+                    self.current_frame_index = frame_index
+                else:
+                    self.status = 'removed'
+            return  
         self.Vision()
 
         if self.target_status == 'locked':
@@ -135,3 +183,12 @@ class Terrorist:
 
         self.gravity()
         self.vertical_move()
+        
+        
+        
+        
+    
+   
+        
+        
+        
