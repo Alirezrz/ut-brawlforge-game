@@ -172,7 +172,7 @@ class Terrorist:
     def Walk(self):
     # Edge detection
         next_x = self.x_pos + (self.walk_strength if self.Look == 'right' else -self.walk_strength)
-        foot_y = self.y_pos + self.height + 5  # just below his feet
+        foot_y = self.y_pos + self.height + 5 
 
         on_edge = True
         for platform in self.platforms:
@@ -182,16 +182,14 @@ class Terrorist:
                     break
 
         if on_edge:
-        # Turn around if no ground ahead
             self.walked_len = 0
             self.Look = 'left' if self.Look == 'right' else 'right'
 
-    # Basic range-based direction flip
         if self.walked_len > self.Walk_Range:
             self.walked_len = 0
             self.Look = 'left' if self.Look == 'right' else 'right'
 
-    # Apply movement
+    # movement
         if self.Look == 'right':
             self.x_pos += self.walk_strength
         else:
