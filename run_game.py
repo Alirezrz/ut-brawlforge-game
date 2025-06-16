@@ -50,7 +50,7 @@ try:
 except (FileNotFoundError, pygame.error) as e:
     print(f"Error: Could not load asset: {e}")
     pygame.quit()
-    exit()
+    exit() 
 
 while True:
     menu = Menu(screen, background)

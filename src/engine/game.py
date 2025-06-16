@@ -11,6 +11,7 @@ from src.engine.input_handler import InputHandler
 from src.levels import level_1_data, load_level 
 from src.engine.Ninja import Ninja 
 from src.engine.menu import PauseMenu 
+from src.engine.terrorist import Terrorist
 
 class Game:
     def __init__(self,screen, hero_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture,health_bar_green,health_bar_red,hero_profile_picture, roboman_health_bar_frame,roboman_health_bar, sounds):
@@ -54,6 +55,10 @@ class Game:
                 354 - ghost_picture.get_height() - platform_height,
                     3, ghost_picture, ghost2_picture,screen_width,health_bar_green,health_bar_red))
         
+        
+        
+        self.Arman=Terrorist(player_start_pos['x'],player_start_pos['y'], screen_width, screen_height,self.ninja,self.Roboman,self.platforms)
+        
         self.shot_bullets = []
         self.explosions=[]
         self.bullet_class =Bullet  
@@ -62,7 +67,7 @@ class Game:
 
         self.scroll=[0,0]
 
-        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja)
+        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.Arman)
         
         self.shutter_strength = 0
         self.shutter_start_time = 0
@@ -143,6 +148,15 @@ class Game:
         self.ninja.jump_under_platform(self.platforms)
         self.ninja.update_animation(self.shot_bullets) 
         self.ninja.update_bullets(self.screen, self.shot_bullets)
+        
+        
+        self.Arman.Update()
+        self.Arman.platforms_collisions(self.platforms)
+        self.Arman.jump_under_platform(self.platforms)
+        
+        
+        
+        
         for platform in self.platforms:
             platform.update()
         

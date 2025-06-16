@@ -2,7 +2,7 @@ from config import screen_width, screen_height ,platform_height
 
 class Camera:
     
-    def __init__(self,screen,platforms,enemies,shot_bullets,hero,explosions,scroll,ninja):
+    def __init__(self,screen,platforms,enemies,shot_bullets,hero,explosions,scroll,ninja,Arman):
         self.screen=screen
         self.platforms=platforms
         self.enemies=enemies
@@ -11,6 +11,7 @@ class Camera:
         self.explosions=explosions
         self.scroll=scroll
         self.ninja=ninja
+        self.terrorist=Arman
         
         
         
@@ -29,9 +30,10 @@ class Camera:
         for bullet in self.shot_bullets:
             bullet.draw(self.screen,self.scroll)
 
-        self.hero.display(self.screen,self.scroll)
+        #self.hero.display(self.screen,self.scroll)
         
         self.ninja.display(self.screen, self.scroll)
+        self.terrorist.display(self.screen,self.scroll)
         
         # handeling explosions:
         for explosion in self.explosions[:]:

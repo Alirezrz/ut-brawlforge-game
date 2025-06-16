@@ -17,7 +17,7 @@ level_1_data = {
        
         
       
-        *[{'x': i * 64, 'y': 600} for i in range(11)]
+        *[{'x': i * 64, 'y': 600} for i in range(20)]
     ],
     'enemies': [
       
