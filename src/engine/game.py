@@ -57,7 +57,7 @@ class Game:
         
         self.scroll=[0,0]
         
-        self.terrorist=Terrorist(player_start_pos['x']-100,player_start_pos['y']+300, screen_width, screen_height,self.ninja,self.Roboman,self.platforms,self.ninja,self.screen,self.scroll)
+        self.terrorist=Terrorist(player_start_pos['x']+800,player_start_pos['y'], screen_width, screen_height,self.ninja,self.Roboman,self.platforms,self.ninja,self.screen,self.scroll)
         
         self.shot_bullets = []
         self.explosions=[]

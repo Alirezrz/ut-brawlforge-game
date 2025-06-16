@@ -92,13 +92,33 @@ class Terrorist:
         self.hitbox.topleft = (self.x_pos, self.y_pos)
 
     def platforms_collisions(self, platforms):
+        self.allow_move_left = True
+        self.allow_move_right = True
+    
         for platform in platforms:
-            if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
-                if (self.y_pos + self.height >= platform.y_pos) and (self.y_pos + self.height < platform.y_pos + platform.height + 10):
+            horizontal_overlap = (
+                self.x_pos + self.width > platform.x_pos and 
+                self.x_pos < platform.x_pos + platform.width
+            )
+        
+            if horizontal_overlap:
+                if (self.y_pos + self.height >= platform.y_pos) and \
+                    (self.y_pos + self.height < platform.y_pos + platform.height + 10) and \
+                    self.vertical_speed <= 0:
                     self.on_ground = True
                     self.vertical_speed = 0
                     self.y_pos = platform.y_pos - self.height
                     self.current_platform = platform
+            
+                if (self.y_pos + self.height > platform.y_pos) and \
+                (self.y_pos < platform.y_pos + platform.height):
+                    if abs(self.x_pos - (platform.x_pos + platform.width)) <= 10:
+                        self.allow_move_left = False
+                        self.x_pos = platform.x_pos + platform.width
+                
+                    if abs(self.x_pos + self.width - platform.x_pos) <= 10:
+                        self.allow_move_right = False
+                        self.x_pos = platform.x_pos - self.width
 
     def jump_under_platform(self, platforms):
         if self.vertical_speed > 0:
@@ -109,28 +129,36 @@ class Terrorist:
                         self.y_pos = platform.y_pos + platform.height
 
     def Walk(self):
-        if self.status!='exploded':
-            next_x = self.x_pos + (self.walk_strength if self.Look == 'right' else -self.walk_strength)
+        if self.status != 'exploded':
+            direction = self.walk_strength if self.Look == 'right' else -self.walk_strength
+            next_x = self.x_pos + direction
             foot_y = self.y_pos + self.height + 5
 
             on_edge = True
+            will_hit_side = False
+
             for platform in self.platforms:
                 if platform.x_pos <= next_x <= platform.x_pos + platform.width:
                     if abs(platform.y_pos - foot_y) <= 10:
                         on_edge = False
-                        break
 
-            if on_edge:
+                if (self.y_pos + self.height > platform.y_pos) and (self.y_pos < platform.y_pos + platform.height):
+                    if self.Look == 'right':
+                        if abs((self.x_pos + self.width + self.walk_strength) - platform.x_pos) <= 5:
+                            will_hit_side = True
+                    else:  
+                        if abs(self.x_pos - (platform.x_pos + platform.width + self.walk_strength)) <= 5:
+                            will_hit_side = True
+
+            if on_edge or will_hit_side or self.walked_len > self.Walk_Range:
                 self.walked_len = 0
                 self.Look = 'left' if self.Look == 'right' else 'right'
+                return  
 
-            if self.walked_len > self.Walk_Range:
-                self.walked_len = 0
-                self.Look = 'left' if self.Look == 'right' else 'right'
-
-            if self.Look == 'right':
+        # Move
+            if self.Look == 'right' and self.allow_move_right:
                 self.x_pos += self.walk_strength
-            else:
+            elif self.Look == 'left' and self.allow_move_left:
                 self.x_pos -= self.walk_strength
 
             self.walked_len += self.walk_strength
@@ -150,10 +178,10 @@ class Terrorist:
 
     def Attack(self):
         if self.target_status == 'locked':
-            if self.x_pos < self.target.x_pos :
+            if self.x_pos < self.target.x_pos and self.allow_move_right :
                 self.x_pos += self.walk_strength + 5
                 self.Look = 'right'
-            else:
+            elif self.allow_move_left:
                 self.x_pos -= self.walk_strength + 5
                 self.Look = 'left'
             self.hitbox.topleft = (self.x_pos, self.y_pos)
