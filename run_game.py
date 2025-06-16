@@ -28,6 +28,13 @@ try:
     ghost = pygame.transform.scale(ghost, (64, 64))
     ghost2 = pygame.image.load("src/assets/images/ghost2.png")
     ghost2 = pygame.transform.scale(ghost2, (64, 64))
+    platform_image_path = "src/assets/images/"
+    platform_images = {
+        'left': pygame.image.load(os.path.join(platform_image_path, "platform_left.png")).convert_alpha(),
+        'middle': pygame.image.load(os.path.join(platform_image_path, "platform_middle.png")).convert_alpha(),
+        'right': pygame.image.load(os.path.join(platform_image_path, "platform_right.png")).convert_alpha(),
+        'solid': pygame.image.load(os.path.join(platform_image_path, "platform_solid.png")).convert_alpha(),
+    }
     platform_tileset_picture = pygame.image.load("src/assets/images/platform.jpg")
     explode_picture = pygame.image.load("src/assets/images/explode.png")
     explode_picture = pygame.transform.scale(explode_picture, (explode_side_size, explode_side_size))
@@ -66,7 +73,8 @@ while True:
         }
         game = Game(
           screen, None, ghost, ghost2, 
-          platform_tileset_picture, background, explode_picture, 
+          platform_images, # <-- ارسال دیکشنری تصاویر
+          background, explode_picture, 
           health_bar_green, health_bar_red, hero_profile_picture,
           roboman_health_bar_frame,roboman_health_bar,
           game_sounds

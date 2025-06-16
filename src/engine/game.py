@@ -8,7 +8,7 @@ from src.engine.platform import Platform
 from src.engine.explosion import Explosion
 from src.engine.camera import Camera
 from src.engine.input_handler import InputHandler  
-from src.levels import level_1_data, load_level 
+from src.levels import level_1_data, load_level_data
 from src.engine.Ninja import Ninja 
 from src.engine.menu import PauseMenu 
 from src.engine.terrorist import Terrorist
@@ -34,11 +34,11 @@ class Game:
             trigger_shutter_callback=self.trigger_jetpack_shutter
         )
         self.ninja = Ninja(
-    player_start_pos['x'] + 100, player_start_pos['y'], 
-    screen_width, screen_height
-)
+            player_start_pos['x'] + 100, player_start_pos['y'], 
+            screen_width, screen_height
+        )
 
-        self.platforms = load_level(level_1_data, platform_image)
+        self.platforms = load_level_data(level_1_data, platform_image)
 
         self.screen_color=(60,100,150) 
         self.enemies = []
@@ -63,7 +63,7 @@ class Game:
         self.explosions=[]
         self.bullet_class =Bullet  
         self.game_active =True
-        self.platform_image = pygame.transform.scale(platform_image, (screen_width, platform_height))
+      #  self.platform_image = pygame.transform.scale(platform_image, (screen_width, platform_height))
 
         self.scroll=[0,0]
 
