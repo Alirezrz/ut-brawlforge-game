@@ -57,7 +57,7 @@ class Game:
         
         
         
-        self.Arman=Terrorist(player_start_pos['x'],player_start_pos['y'], screen_width, screen_height,self.ninja,self.Roboman,self.platforms)
+        self.terrorist=Terrorist(player_start_pos['x'],player_start_pos['y'], screen_width, screen_height,self.ninja,self.Roboman,self.platforms,self.ninja)
         
         self.shot_bullets = []
         self.explosions=[]
@@ -67,7 +67,7 @@ class Game:
 
         self.scroll=[0,0]
 
-        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.Arman)
+        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorist)
         
         self.shutter_strength = 0
         self.shutter_start_time = 0
@@ -150,9 +150,9 @@ class Game:
         self.ninja.update_bullets(self.screen, self.shot_bullets)
         
         
-        self.Arman.Update()
-        self.Arman.platforms_collisions(self.platforms)
-        self.Arman.jump_under_platform(self.platforms)
+        self.terrorist.Update()
+        self.terrorist.platforms_collisions(self.platforms)
+        self.terrorist.jump_under_platform(self.platforms)
         
         
         
