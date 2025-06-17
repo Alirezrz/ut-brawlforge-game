@@ -61,16 +61,26 @@ class Terrorist:
                 
             self.EXP_frames.append(pygame.transform.scale(pygame.image.load(exp_path),(256,256)))
             
-            
+        sizes=[65,61,59,52,49,51,53,57] 
         self.walk_frames=[]
         for i in range(8):
             path=os.path.join(base_path, "walk", f"1_terrorist_1_Walk_00{i}.png")
-            self.walk_frames.append(pygame.transform.scale(pygame.image.load(path),(62,118)))
-            
+            self.walk_frames.append(pygame.transform.scale(pygame.image.load(path),(sizes[i],118)))
+        sizes=[58,58,69,69,59,55] 
         self.run_frames=[]
         for i in range(6):
             path=os.path.join(base_path, "run", f"1_terrorist_1_Run_00{i}.png")
-            self.run_frames.append(pygame.transform.scale(pygame.image.load(path),(62,118)))
+            self.run_frames.append(pygame.transform.scale(pygame.image.load(path),(sizes[i],118)))
+            
+            
+            
+        self.dead_frames=[]
+        
+        for i in range (9):
+            path=os.path.join(base_path, "hurt", f"1_terrorist_1_Hurt_00{i}.png")
+            self.dead_frames.append(pygame.transform.scale(pygame.image.load(path),(62,118)))
+            
+            
             
                 
                 
@@ -89,7 +99,7 @@ class Terrorist:
             x = self.explosion_pos[0] - frame.get_width() // 2 - offset[0]
             y = self.explosion_pos[1] - frame.get_height() // 2 - offset[1]
             screen.blit(frame, (x, y))
-        elif self.status != 'exploded':
+        elif self.status != 'exploded' and self.status!='shot':
             display_picture = self.current_picture
             if self.Look == 'right':
                 screen.blit(display_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
@@ -203,7 +213,9 @@ class Terrorist:
                 self.Look = 'left'
             self.hitbox.topleft = (self.x_pos, self.y_pos)
 
-    def Update(self):
+    def Update(self,bullets):
+        
+            
         if self.status == 'exploded':
             if not self.exploding:
                 self.exploding = True
@@ -219,7 +231,15 @@ class Terrorist:
                     self.current_frame_index = frame_index
                 else:
                     self.status = 'removed'
-            return  
+            return 
+        
+        for bullet in bullets:
+            if bullet.hitbox.colliderect(self.hitbox):
+                self.status='shot'
+                print('shot')
+                print(self.status)
+        
+         
         self.Vision()
 
         if self.target_status == 'locked':
@@ -234,6 +254,18 @@ class Terrorist:
         
     def update_animation(self):
         current_time = pygame.time.get_ticks()
+        
+        if self.status=='shot':
+            print('here')
+            if current_time - self.last_frame_update_time >= self.animation_speed:
+                self.frame_index =self.frame_index = (self.frame_index + 1) % len(self.dead_frames)
+                self.current_picture = self.dead_frames[self.frame_index]
+                print(self.frame_index)
+                if self.frame_index==8:
+                    print('now')
+                    self.status='removed'
+                
+            
         if current_time - self.last_frame_update_time >= self.animation_speed:
             self.last_frame_update_time = current_time
 

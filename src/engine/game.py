@@ -58,8 +58,8 @@ class Game:
                     3, ghost_picture, ghost2_picture,screen_width,health_bar_green,health_bar_red))
         
         self.scroll=[0,0]
-        
-        self.terrorist=Terrorist(player_start_pos['x']+800,player_start_pos['y'], screen_width, screen_height,self.ninja,self.Roboman,self.platforms,self.ninja,self.screen,self.scroll)
+        self.terrorists=[]
+        self.terrorists.append(Terrorist(player_start_pos['x']+800,player_start_pos['y'], screen_width, screen_height,self.ninja,self.Roboman,self.platforms,self.ninja,self.screen,self.scroll))
         
         self.shot_bullets = []
         self.explosions=[]
@@ -69,7 +69,7 @@ class Game:
 
         self.gate=Gates(player_start_pos['x'],player_start_pos['y']-37,player_start_pos['x']+1400,player_start_pos['y']-357,self.ninja)
 
-        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorist,self.gate)
+        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorists[0],self.gate)
         
         self.shutter_strength = 0
         self.shutter_start_time = 0
@@ -154,11 +154,19 @@ class Game:
         self.ninja.update_animation(self.shot_bullets) 
         self.ninja.update_bullets(self.screen, self.shot_bullets)
         
-        
-        if self.terrorist and self.terrorist.status != 'removed':
-            self.terrorist.Update()
-            self.terrorist.platforms_collisions(self.platforms)
-            self.terrorist.jump_under_platform(self.platforms)
+        print(len(self.terrorists))
+        for i in range(len(self.terrorists)):
+            if self.terrorists[i] and self.terrorists[i].status != 'removed':
+                self.terrorists[i].Update(self.shot_bullets)
+                self.terrorists[i].platforms_collisions(self.platforms)
+                self.terrorists[i].jump_under_platform(self.platforms)
+            
+            elif self.terrorists[i].status=='dead':
+                self.terrorists.remove(self.terrorists[i])
+                print("removing")
+                
+            elif self.terrorists[i].status=='removed':
+                self.terrorists.remove(self.terrorists[i])
         
         
         
