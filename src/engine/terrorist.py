@@ -143,6 +143,7 @@ class Terrorist:
                         self.y_pos = platform.y_pos + platform.height
 
     def Walk(self):
+        
         if self.status != 'exploded':
             direction = self.walk_strength if self.Look == 'right' else -self.walk_strength
             next_x = self.x_pos + direction
@@ -189,6 +190,7 @@ class Terrorist:
             self.target_status = 'locked'
         else:
             self.target_status = 'free'
+            self.animation_status='walk'
 
     def Attack(self):
         if self.target_status == 'locked':
