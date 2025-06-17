@@ -464,4 +464,8 @@ class Ninja:
             self.AllowJump_flag=True
             
             
+    def Send_teleport_request(self,Gates):
+        Gates.recieve_request(self)
+            
+            
         

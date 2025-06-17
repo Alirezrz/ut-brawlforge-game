@@ -12,6 +12,8 @@ from src.levels import level_1_data, load_level_data
 from src.engine.Ninja import Ninja 
 from src.engine.menu import PauseMenu 
 from src.engine.terrorist import Terrorist
+from src.engine.teleportgate import Gates
+
 
 class Game:
     def __init__(self,screen, hero_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture,health_bar_green,health_bar_red,hero_profile_picture, roboman_health_bar_frame,roboman_health_bar, sounds):
@@ -65,9 +67,9 @@ class Game:
         self.game_active =True
       #  self.platform_image = pygame.transform.scale(platform_image, (screen_width, platform_height))
 
-        
+        self.gate=Gates(player_start_pos['x'],player_start_pos['y']-37,player_start_pos['x']+1400,player_start_pos['y']-357,self.ninja)
 
-        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorist)
+        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorist,self.gate)
         
         self.shutter_strength = 0
         self.shutter_start_time = 0
@@ -128,10 +130,13 @@ class Game:
             
         if keys[pygame.K_RCTRL]:
             self.ninja.shoot(self.shot_bullets, self.bullet_class)
-        
+        if keys[pygame.K_TAB]:
+            self.ninja.Send_teleport_request(self.gate)
+            self.gate.recieve_request(self.ninja)
              
             
     def update(self):
+        
         self.Roboman.is_on_ground()
         self.Roboman.gravity()
         self.Roboman.vertical_move()

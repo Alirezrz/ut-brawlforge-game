@@ -2,7 +2,7 @@ from config import screen_width, screen_height ,platform_height
 
 class Camera:
     
-    def __init__(self,screen,platforms,enemies,shot_bullets,hero,explosions,scroll,ninja,Arman):
+    def __init__(self,screen,platforms,enemies,shot_bullets,hero,explosions,scroll,ninja,Arman,Gate):
         self.screen=screen
         self.platforms=platforms
         self.enemies=enemies
@@ -12,6 +12,7 @@ class Camera:
         self.scroll=scroll
         self.ninja=ninja
         self.terrorist=Arman
+        self.Gate=Gate
         
         
         
@@ -23,7 +24,7 @@ class Camera:
         # Draw platforms
         for platform in self.platforms:
             platform.draw(self.screen,self.scroll)
-
+        self.Gate.display(self.screen,self.scroll)
         for enemy in self.enemies:
             enemy.display(self.screen,self.scroll)
 
@@ -39,6 +40,8 @@ class Camera:
         for explosion in self.explosions[:]:
             if not explosion.draw(self.screen,self.scroll):  # If expired, remove it
                 self.explosions.remove(explosion)
+                
+                
 
         
         

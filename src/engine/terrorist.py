@@ -1,6 +1,5 @@
 import pygame
 import os
-import threading
 class Terrorist:
     def __init__(self, x, y, screen_width, screen_height, Ninja, Robo, platforms, ninja,screen,scroll):
         self.x_pos = x
