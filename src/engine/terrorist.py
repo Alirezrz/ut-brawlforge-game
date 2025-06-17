@@ -31,6 +31,9 @@ class Terrorist:
         self.target = ninja
         self.target_status = 'free'
         self.status='alive'
+        self.animation_status='walk'
+        self.frame_index=0
+        
 
         self.Walk_Range = 300
         self.VisionRadious = 400
@@ -58,6 +61,18 @@ class Terrorist:
                 exp_path=os.path.join(base_path, "ExplosionFrames", f"00{i}.png")
                 
             self.EXP_frames.append(pygame.transform.scale(pygame.image.load(exp_path),(256,256)))
+            
+            
+        self.walk_frames=[]
+        for i in range(8):
+            path=os.path.join(base_path, "walk", f"1_terrorist_1_Walk_00{i}.png")
+            self.walk_frames.append(pygame.transform.scale(pygame.image.load(path),(62,118)))
+            
+        self.run_frames=[]
+        for i in range(6):
+            path=os.path.join(base_path, "run", f"1_terrorist_1_Run_00{i}.png")
+            self.run_frames.append(pygame.transform.scale(pygame.image.load(path),(62,118)))
+            
                 
                 
             
@@ -178,6 +193,7 @@ class Terrorist:
 
     def Attack(self):
         if self.target_status == 'locked':
+            self.animation_status='run'
             if self.x_pos < self.target.x_pos and self.allow_move_right :
                 self.x_pos += self.walk_strength + 5
                 self.Look = 'right'
@@ -191,6 +207,7 @@ class Terrorist:
             if not self.exploding:
                 self.exploding = True
                 self.explosion_start_time = pygame.time.get_ticks()
+                self.target.health-=30
                 self.current_frame_index = 0
                 self.explosion_pos = (self.x_pos, self.y_pos+90)
             else:
@@ -211,8 +228,24 @@ class Terrorist:
 
         self.gravity()
         self.vertical_move()
+        self.update_animation()
         
         
+    def update_animation(self):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_frame_update_time >= self.animation_speed:
+            self.last_frame_update_time = current_time
+
+            if self.animation_status == 'walk':
+                self.frame_index = (self.frame_index + 1) % len(self.walk_frames)
+                self.current_picture = self.walk_frames[self.frame_index]
+
+            elif self.animation_status == 'run':
+                self.frame_index = (self.frame_index + 1) % len(self.run_frames)
+                self.current_picture = self.run_frames[self.frame_index]
+            
+            
+            
         
         
     

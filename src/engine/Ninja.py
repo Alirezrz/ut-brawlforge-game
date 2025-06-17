@@ -134,7 +134,7 @@ class Ninja:
     def display(self, screen, offset):
         self.Update_SuperPower() 
         self.Super_Power_effect()
-           
+        #print(self.health)
         
         
     
