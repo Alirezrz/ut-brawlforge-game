@@ -50,7 +50,7 @@ class Terrorist:
         self.pic = pygame.transform.scale(tmp, (62, 118))
 
         self.EXP_frames = []
-        for i in range(1, 26):
+        for i in range(1, 31):
             exp_path = os.path.join(base_path, "ExplosionFrames", f"{i:04d}.png")
             self.EXP_frames.append(pygame.transform.scale(pygame.image.load(exp_path), (256, 256)))
 
@@ -207,7 +207,7 @@ class Terrorist:
                 self.explosion_start_time = pygame.time.get_ticks()
                 self.target.health -= 30
                 self.current_frame_index = 0
-                self.explosion_pos = (self.x_pos, self.y_pos + 90)
+                self.explosion_pos = (self.x_pos, self.y_pos + 50)
             else:
                 elapsed = pygame.time.get_ticks() - self.explosion_start_time
                 frame_index = elapsed // self.explosion_frame_duration

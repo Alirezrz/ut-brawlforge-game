@@ -163,7 +163,6 @@ class Game:
             
             elif self.terrorists[i].status=='dead':
                 self.terrorists.remove(self.terrorists[i])
-                print("removing")
                 
             elif self.terrorists[i].status=='removed':
                 self.terrorists.remove(self.terrorists[i])
