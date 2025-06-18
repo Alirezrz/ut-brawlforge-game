@@ -1,5 +1,6 @@
 import pygame
 import random
+import os
 from config import screen_width, screen_height, platform_height, FPS
 from src.engine.Roboman import Roboman
 from src.engine.bullet import Bullet
@@ -41,7 +42,6 @@ class Game:
         )
 
         self.platforms = load_level_data(level_1_data, platform_image)
-
         self.screen_color=(60,100,150) 
         self.enemies = []
         self.enemies.append(Enemy(
@@ -61,6 +61,9 @@ class Game:
         self.terrorists=[]
         self.terrorists.append(Terrorist(player_start_pos['x']+800,player_start_pos['y'], screen_width, screen_height,self.ninja,self.Roboman,self.platforms,self.ninja,self.screen,self.scroll))
         
+        self.base_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images")
+        self.background=pygame.image.load(os.path.join(self.base_path, "city.png"))
+        
         self.shot_bullets = []
         self.explosions=[]
         self.bullet_class =Bullet  
@@ -69,7 +72,7 @@ class Game:
 
         self.gate=Gates(player_start_pos['x'],player_start_pos['y']-37,player_start_pos['x']+1400,player_start_pos['y']-357,self.ninja)
 
-        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorists[0],self.gate)
+        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorists[0],self.gate,self.background)
         
         self.shutter_strength = 0
         self.shutter_start_time = 0

@@ -1,8 +1,9 @@
+import pygame
 from config import screen_width, screen_height ,platform_height
 
 class Camera:
     
-    def __init__(self,screen,platforms,enemies,shot_bullets,hero,explosions,scroll,ninja,Arman,Gate):
+    def __init__(self,screen,platforms,enemies,shot_bullets,hero,explosions,scroll,ninja,Arman,Gate,background):
         self.screen=screen
         self.platforms=platforms
         self.enemies=enemies
@@ -13,11 +14,12 @@ class Camera:
         self.ninja=ninja
         self.terrorist=Arman
         self.Gate=Gate
+        self.background = pygame.transform.scale(background, (screen_width, screen_height))
         
         
         
     def render(self):
-        
+        self.screen.blit(self.background, (0, 0))     
       
         
 
