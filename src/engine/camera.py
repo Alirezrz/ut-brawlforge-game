@@ -22,7 +22,8 @@ class Camera:
         
         
     def render(self):
-        self.drone.display(self.screen)
+        self.screen.blit(self.background,(0,0))
+        self.drone.display(self.screen,self.scroll)
         
 
         # Draw platforms

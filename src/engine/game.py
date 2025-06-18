@@ -72,7 +72,7 @@ class Game:
       #  self.platform_image = pygame.transform.scale(platform_image, (screen_width, platform_height))
 
         self.gate=Gates(player_start_pos['x'],player_start_pos['y']-37,player_start_pos['x']+1400,player_start_pos['y']-357,self.ninja)
-        self.drone=Drone(100,100)
+        self.drone=Drone(-400,40)
         self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorists[0],self.gate,self.background,self.drone)
         
         self.shutter_strength = 0

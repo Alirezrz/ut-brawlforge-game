@@ -11,7 +11,7 @@ class Drone:
         
         self.x_pos=x
         self.y_pos=y
-        self.horizentalmove_range=600
+        self.horizentalmove_range=400
         self.status='forward'
         self.prev_status='none'
         self.moved_len=0
@@ -75,16 +75,14 @@ class Drone:
             
             
             
-    def display(self,screen):
+    def display(self,screen,offset):
         self.Move()
         self.Update_animtion()
-        screen.blit(self.display_pic,(self.x_pos,self.y_pos))
+        screen.blit(self.display_pic,(self.x_pos- offset[0],self.y_pos - offset[1]))
         
         
         
     def Update_animtion(self):
-        print(self.status)
-        print(f"pre = {self.prev_status}")
         current_time=pygame.time.get_ticks()
         elapsed_time=current_time -  self.Last_animationUpdate 
         if elapsed_time>= self.animation_speed:
