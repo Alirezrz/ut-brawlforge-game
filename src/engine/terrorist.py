@@ -54,25 +54,27 @@ class Terrorist:
             exp_path = os.path.join(base_path, "ExplosionFrames", f"{i:04d}.png")
             self.EXP_frames.append(pygame.transform.scale(pygame.image.load(exp_path), (256, 256)))
 
-        sizes = [65, 61, 59, 52, 49, 51, 53, 57]
+        sizes = [61, 59, 56, 46, 49, 45, 43, 53]
         self.walk_frames = []
         for i in range(8):
-            path = os.path.join(base_path, "walk", f"1_terrorist_1_Walk_00{i}.png")
+            path = os.path.join(base_path, "walk", f"3_terrorist_3_Walk_00{i}.png")
             self.walk_frames.append(pygame.transform.scale(pygame.image.load(path), (sizes[i], 118)))
 
-        sizes = [58, 58, 69, 69, 59, 55]
+        sizes = [56,56,68,66,56,54]
         self.run_frames = []
         for i in range(6):
-            path = os.path.join(base_path, "run", f"1_terrorist_1_Run_00{i}.png")
+            path = os.path.join(base_path, "run", f"3_terrorist_3_Run_00{i}.png")
             self.run_frames.append(pygame.transform.scale(pygame.image.load(path), (sizes[i], 118)))
-        sizes=[53,57,69,81,62,56,77,131,285]
+        sizes=[53,52,66,79,57,52]
         self.dead_frames = []
         for i in range(9):
-            path = os.path.join(base_path, "hurt", f"1_terrorist_1_Hurt_00{i}.png")
-            if i==7:
-                self.dead_frames.append(pygame.transform.scale(pygame.image.load(path), (100, 90)))
+            path = os.path.join(base_path, "hurt", f"3_terrorist_3_Hurt_00{i}.png")
+            if i==6:
+                self.dead_frames.append(pygame.transform.scale(pygame.image.load(path), (100, 67)))
+            elif i==7:
+                self.dead_frames.append(pygame.transform.scale(pygame.image.load(path), (95, 90)))
             elif i==8:
-                self.dead_frames.append(pygame.transform.scale(pygame.image.load(path), (118, 49)))
+                self.dead_frames.append(pygame.transform.scale(pygame.image.load(path), (118, 46)))
             else:
                 self.dead_frames.append(pygame.transform.scale(pygame.image.load(path), (sizes[i], 118)))
 
@@ -98,7 +100,7 @@ class Terrorist:
                 screen.blit(flipped_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
 
     def gravity(self):
-        if not self.on_ground:
+        if not self.on_ground and self.status!='shot':
             self.vertical_speed -= self.gravity_strenght
 
     def vertical_move(self):
@@ -245,9 +247,12 @@ class Terrorist:
             if current_time - self.last_frame_update_time >= self.animation_speed:
                 self.last_frame_update_time = current_time
                 self.frame_index += 1
-                if self.frame_index==8:
-                    self.y_pos+=88
-                    print('+')
+                if self.frame_index == 6:
+                    self.y_pos += 51  # 118 - 67
+                elif self.frame_index == 7:
+                    self.y_pos += 80  # 118 - 90
+                elif self.frame_index == 8:
+                    self.y_pos += 95  
                 if self.frame_index >= len(self.dead_frames):
                     self.status = 'removed'
                 else:
