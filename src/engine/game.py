@@ -14,6 +14,7 @@ from src.engine.Ninja import Ninja
 from src.engine.menu import PauseMenu 
 from src.engine.terrorist import Terrorist
 from src.engine.teleportgate import Gates
+from src.engine.Drone import Drone
 
 
 class Game:
@@ -71,8 +72,8 @@ class Game:
       #  self.platform_image = pygame.transform.scale(platform_image, (screen_width, platform_height))
 
         self.gate=Gates(player_start_pos['x'],player_start_pos['y']-37,player_start_pos['x']+1400,player_start_pos['y']-357,self.ninja)
-
-        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorists[0],self.gate,self.background)
+        self.drone=Drone(100,100)
+        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorists[0],self.gate,self.background,self.drone)
         
         self.shutter_strength = 0
         self.shutter_start_time = 0

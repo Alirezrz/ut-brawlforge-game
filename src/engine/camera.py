@@ -3,7 +3,7 @@ from config import screen_width, screen_height ,platform_height
 import os 
 class Camera:
     
-    def __init__(self,screen,platforms,enemies,shot_bullets,hero,explosions,scroll,ninja,Arman,Gate,background):
+    def __init__(self,screen,platforms,enemies,shot_bullets,hero,explosions,scroll,ninja,Arman,Gate,background,drone):
         self.screen=screen
         self.platforms=platforms
         self.enemies=enemies
@@ -16,14 +16,13 @@ class Camera:
         self.Gate=Gate
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Back.png")
         self.background = pygame.transform.scale(background, (screen_width, screen_height))
-        self.test=pygame.transform.scale(pygame.image.load(base_path),(200,200))
+        self.test=pygame.transform.scale(pygame.image.load(base_path),(130,130))
+        self.drone=drone
         
         
         
     def render(self):
-        self.screen.blit(self.background, (0, 0))    
-        self.screen.blit(self.test,(100,100)) 
-      
+        self.drone.display(self.screen)
         
 
         # Draw platforms
