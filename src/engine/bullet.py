@@ -1,5 +1,8 @@
 import pygame
 
+
+
+
 class Bullet:
     def __init__(self, x, y, speed, direction, bullet_picture, screen_width):
         self.x_pos = x

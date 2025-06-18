@@ -235,7 +235,7 @@ class Ninja:
         bullet = Bullet(
         bullet_x,
         bullet_y,
-        15,
+        15*self.Super_cofficent,
         self.Look,
         self.Kunai,
         self.screen_width
