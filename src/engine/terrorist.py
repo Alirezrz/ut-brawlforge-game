@@ -27,7 +27,7 @@ class Terrorist:
         self.platforms = platforms
         self.game_screen = screen
         self.explosion_pos = 0
-
+        self.damage_radiuos=200
         self.target = ninja
         self.target_status = 'free'
         self.status = 'alive'
@@ -207,7 +207,10 @@ class Terrorist:
             if not self.exploding:
                 self.exploding = True
                 self.explosion_start_time = pygame.time.get_ticks()
-                self.target.health -= 30
+                dx = abs(self.target.x_pos - self.x_pos)
+                dy = abs(self.target.y_pos - self.y_pos)
+                if dx<self.damage_radiuos and dy<self.damage_radiuos:
+                    self.target.health -= 30
                 self.current_frame_index = 0
                 self.explosion_pos = (self.x_pos, self.y_pos + 50)
             else:
@@ -222,7 +225,7 @@ class Terrorist:
         if self.status == 'alive':
             for bullet in bullets:
                 if bullet.hitbox.colliderect(self.hitbox):
-                    self.status = 'shot'
+                    self.status = 'exploded'
                     bullets.remove(bullet)
                     self.frame_index = 0
                     self.last_frame_update_time = pygame.time.get_ticks()

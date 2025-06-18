@@ -146,7 +146,7 @@ class Ninja:
             screen.blit(flipped_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
 
     def update_animation(self, shot_bullets):
-        
+        print(self.health)
         current_time = pygame.time.get_ticks()
         if self.Super_PowerFlag:
             self.current_picture=self.SuperPower_pic
