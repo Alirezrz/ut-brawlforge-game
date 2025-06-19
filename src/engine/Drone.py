@@ -7,8 +7,9 @@ class Drone:
     
     def __init__(self,x,y,look,target):
         
-        
-        
+        self.health=100
+        self.Alive=True
+        self.death_frame_flag=False
         self.x_pos=x
         self.y_pos=y
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, 100, 53)
@@ -19,12 +20,16 @@ class Drone:
         self.speed=2
         self.look=look
         self.target=target
-        self.reload_duration=4000
+        self.reload_duration=7000
         self.last_shot=0
         self.aimed=False
         
         
         self.aim_teta=0
+        
+        
+        self.freez_durtation=5000
+        self.last_freezed=0   # برای چند تا پلیر باید هندل شن
         
         
         
@@ -72,6 +77,19 @@ class Drone:
                 )
                 
             )
+        heights=[50,49,47,47,50,38,38,39]  
+        self.death_frames=[]
+        for i in range(8):
+            self.death_frames.append(
+                pygame.transform.scale(
+                    pygame.image.load(
+                        os.path.join(base_path ,'Death', f"{i}.png")
+                    ),
+                    (100,heights[i])
+                )
+                
+            )
+            
             
         self.display_pic=self.Idle_frames[0] 
         self.animation_speed  = 15 
@@ -90,7 +108,7 @@ class Drone:
             
     def display(self,screen,offset):
         
-        if self.look=='right':
+        if self.look=='right' :
             screen.blit(self.display_pic,(self.x_pos- offset[0],self.y_pos - offset[1]))
         elif self.look=='left':
             screen.blit(pygame.transform.flip(self.display_pic,True,False),(self.x_pos- offset[0],self.y_pos - offset[1]))
@@ -104,7 +122,7 @@ class Drone:
     def Update_animtion(self):
         current_time=pygame.time.get_ticks()
         elapsed_time=current_time -  self.Last_animationUpdate 
-        if elapsed_time>= self.animation_speed:
+        if elapsed_time>= self.animation_speed and not self.death_frame_flag:
             if self.status=='idle':
                 self.frame_index= (elapsed_time)%len(self.Idle_frames)
                 self.display_pic=self.Idle_frames[self.frame_index]
@@ -127,6 +145,19 @@ class Drone:
                 self.frame_index= (elapsed_time)%len(self.Forward_frames)
                 self.display_pic=self.Forward_frames[self.frame_index]
                 self.Last_animationUpdate=current_time
+                
+            elif self.status=='dead':
+                self.animation_speed=100
+                self.frame_index= (elapsed_time)%len(self.death_frames)
+                self.display_pic=self.death_frames[self.frame_index]
+                self.Last_animationUpdate=current_time
+                if self.frame_index==7:
+                    self.death_frame_flag=True
+        
+        else:
+            self.display_pic=self.death_frames[7]
+                
+                
                 
                 
         
@@ -191,9 +222,8 @@ class Drone:
     
     def shoot(self):
         current_time=pygame.time.get_ticks()  
-        if current_time - self.last_shot>=self.reload_duration:
+        if current_time - self.last_shot>=self.reload_duration and self.target.y_pos > self.y_pos   :
             if self.aimed:
-                print(self.aim_teta)
                 self.bullets.append(
                     bullet(self.x_pos,self.y_pos,self.target.x_pos+60,self.target.y_pos+20,8)
                 )
@@ -202,7 +232,9 @@ class Drone:
             
             
             
-    def Update(self):
+    def Update(self,bullets_in_air):
+        self.update_alive()
+        self.update_freezing()
         self.Move()
         self.Update_animtion()
         self.Aim()
@@ -210,7 +242,29 @@ class Drone:
         for bullet in self.bullets:
             bullet.update()
             if bullet.hitbox.colliderect(self.target.hitbox):
-                print("hit")
+                self.target.freezed=True
+                self.last_freezed=pygame.time.get_ticks()
+                
+        for bullet in bullets_in_air:
+            if self.hitbox.colliderect(bullet.hitbox):
+                self.health-=50
+                bullets_in_air.remove(bullet)
+                
+                
+    def update_freezing(self):
+        current_time=pygame.time.get_ticks()
+        if self.target.freezed and current_time - self.last_freezed >= self.freez_durtation:
+            self.target.freezed=False 
+            
+            
+    def update_alive(self):
+        if self.health <= 0 :
+            self.status='dead'
+            
+            
+   
+        
+        
             
             
               

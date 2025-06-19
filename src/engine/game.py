@@ -116,15 +116,15 @@ class Game:
             self.Roboman.respawn() 
 
     # Ninja controls
-        if keys[pygame.K_LEFT]:
+        if keys[pygame.K_LEFT] and not self.ninja.freezed:
             self.ninja.move_left()
             self.ninja_moving = True
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_RIGHT] and not self.ninja.freezed:
             self.ninja.move_right()
             self.ninja_moving = True
-        if keys[pygame.K_UP]:
+        if keys[pygame.K_UP]and not self.ninja.freezed:
             self.ninja.jump()
-        if keys[pygame.K_RSHIFT]:
+        if keys[pygame.K_RSHIFT]and not self.ninja.freezed :
             if not self.ninja.Super_PowerFlag:  
                 self.trigger_shutter(strength=10, duration=1500)
             self.ninja.Activate_Super_Power()
@@ -132,9 +132,9 @@ class Game:
         if not self.ninja_moving:
             self.ninja.stop_horizontal_movement()
             
-        if keys[pygame.K_RCTRL]:
+        if keys[pygame.K_RCTRL]and not self.ninja.freezed:
             self.ninja.shoot(self.shot_bullets, self.bullet_class)
-        if keys[pygame.K_TAB]:
+        if keys[pygame.K_TAB]and not self.ninja.freezed:
             self.ninja.Send_teleport_request(self.gate)
             self.gate.recieve_request(self.ninja)
              
@@ -160,7 +160,7 @@ class Game:
         
         
         
-        self.drone.Update()
+        self.drone.Update(self.shot_bullets)
         
         for i in range(len(self.terrorists)):
             if self.terrorists[i] and self.terrorists[i].status != 'removed':
