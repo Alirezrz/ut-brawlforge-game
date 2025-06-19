@@ -306,6 +306,7 @@ class Roboman:
         if self.current_platform is not None and self.current_platform.moving:
             self.horizontal_auto_speed = 2.5 * self.current_platform.direction
             self.horizontal_move()
+            self.hitbox.topleft = (self.x_pos, self.y_pos)
 
     def move_right(self):
         if self.RunShoot and self.allow_move_right:

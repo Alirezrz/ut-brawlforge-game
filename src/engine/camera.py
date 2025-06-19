@@ -23,7 +23,7 @@ class Camera:
         
     def render(self):
         self.screen.blit(self.background,(0,0))
-        self.drone.display(self.screen,self.scroll)
+        
         
 
         # Draw platforms
@@ -36,7 +36,7 @@ class Camera:
         for bullet in self.shot_bullets:
             bullet.draw(self.screen,self.scroll)
 
-        #self.hero.display(self.screen,self.scroll)
+        self.hero.display(self.screen,self.scroll)
         
         self.ninja.display(self.screen, self.scroll)
         if self.terrorist and self.terrorist.status != 'removed':
@@ -45,6 +45,10 @@ class Camera:
         for explosion in self.explosions[:]:
             if not explosion.draw(self.screen,self.scroll):  # If expired, remove it
                 self.explosions.remove(explosion)
+                
+                
+                
+        self.drone.display(self.screen,self.scroll)
                 
                 
 

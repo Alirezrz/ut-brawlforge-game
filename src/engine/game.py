@@ -72,7 +72,7 @@ class Game:
       #  self.platform_image = pygame.transform.scale(platform_image, (screen_width, platform_height))
 
         self.gate=Gates(player_start_pos['x'],player_start_pos['y']-37,player_start_pos['x']+1400,player_start_pos['y']-357,self.ninja)
-        self.drone=Drone(-400,40)
+        self.drone=Drone(-400,40,'right',self.ninja)
         self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorists[0],self.gate,self.background,self.drone)
         
         self.shutter_strength = 0
@@ -158,7 +158,10 @@ class Game:
         self.ninja.update_animation(self.shot_bullets) 
         self.ninja.update_bullets(self.screen, self.shot_bullets)
         
-        print(len(self.terrorists))
+        
+        
+        self.drone.Update()
+        
         for i in range(len(self.terrorists)):
             if self.terrorists[i] and self.terrorists[i].status != 'removed':
                 self.terrorists[i].Update(self.shot_bullets)
@@ -215,8 +218,8 @@ class Game:
                     if bullet in self.Roboman.bullets: 
                         self.Roboman.bullets.remove(bullet)
                         
-        self.scroll[0] += (self.ninja.hitbox.centerx - screen_width / 2 - self.scroll[0]) / 15
-        self.scroll[1] += ((self.ninja.hitbox.centery - screen_height / 2 - self.scroll[1]) / 15 ) 
+        self.scroll[0] +=(((self.ninja.hitbox.centerx - screen_width / 2 - self.scroll[0]) +(self.Roboman.hitbox.centerx - screen_width / 2 - self.scroll[0])  ) /2 )/15
+        self.scroll[1] += ((((self.ninja.hitbox.centery - screen_height / 2 - self.scroll[1]) + (self.Roboman.hitbox.centery - screen_height / 2 - self.scroll[1]))/2)/ 15 ) 
                         
         current_time = pygame.time.get_ticks()
         if self.shutter_strength > 0:
