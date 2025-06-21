@@ -1,6 +1,6 @@
 import pygame
 import os
-
+import math 
 
 class Drone:
     
@@ -226,7 +226,7 @@ class Drone:
         if current_time - self.last_shot>=self.reload_duration and self.target.y_pos > self.y_pos   :
             if self.aimed:
                 self.bullets.append(
-                    bullet(self.x_pos,self.y_pos,self.target.x_pos+60,self.target.y_pos+20,8)
+                    laser(self.x_pos,self.y_pos,self.target.x_pos+30,self.target.y_pos+60,8)
                 )
                 self.last_shot=current_time
             
@@ -245,6 +245,7 @@ class Drone:
             bullet.update()
             if bullet.hitbox.colliderect(self.target.hitbox):
                 self.target.freezed=True
+                self.bullets.remove(bullet)
                 self.last_freezed=pygame.time.get_ticks()
                 
         for bullet in bullets_in_air:
@@ -292,7 +293,7 @@ class Drone:
                     
         
         
-class bullet:
+class laser:
     def __init__(self,x,y,target_x,target_y,speed):
         self.x_pos=x
         self.y_pos=y
@@ -301,14 +302,15 @@ class bullet:
         self.teta=(target_y-y)/(target_x - x)         #  یادت نره سایز رکت ها رو درست کنی
         self.speed=speed
         self.hitbox= self.hitbox = pygame.Rect(self.x_pos, self.y_pos, 20, 20)
-        
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Drone","test.png")
+        self.display_angle=math.degrees(self.teta)
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Drone","lazer.png")
         self.image=pygame.transform.scale(
             pygame.image.load(
                 path
             ),
-            (20,20)
+            (9,40)
         )
+        self.image=pygame.transform.rotate(self.image,self.display_angle)
         
         
         
