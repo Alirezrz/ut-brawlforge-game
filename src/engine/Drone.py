@@ -26,6 +26,8 @@ class Drone:
         self.aimed=False
         
         
+        
+        
         self.aim_teta=0
         
         
@@ -243,12 +245,15 @@ class Drone:
         self.shoot()
         for bullet in self.bullets:
             bullet.update()
+            if bullet.len_of_horizental_move > 3000:    # برای اینکه از اورهد اضافی جلوگیری بشه 
+                self.bullets.remove(bullet)
             if bullet.hitbox.colliderect(self.target.hitbox):
                 self.target.freezed=True
                 self.bullets.remove(bullet)
                 self.last_freezed=pygame.time.get_ticks()
                 
         for bullet in bullets_in_air:
+            
             if self.hitbox.colliderect(bullet.hitbox):
                 self.health-=50
                 bullets_in_air.remove(bullet)
@@ -301,6 +306,7 @@ class laser:
         self.target_y=target_y
         self.teta=(target_y-y)/(target_x - x)         #  یادت نره سایز رکت ها رو درست کنی
         self.speed=speed
+        self.len_of_horizental_move=0
         self.hitbox= self.hitbox = pygame.Rect(self.x_pos, self.y_pos, 20, 20)
         self.display_angle=math.degrees(self.teta)
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Drone","lazer.png")
@@ -322,7 +328,11 @@ class laser:
     def update(self):
         self.x_pos+=self.speed
         self.y_pos+=self.teta*(self.speed)
+        self.len_of_horizental_move+=self.speed
         self.hitbox.topleft=(self.x_pos,self.y_pos)
+        
+        
+        
         
         
         
