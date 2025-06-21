@@ -17,6 +17,7 @@ class Roboman:
         self.trigger_shutter_callback = trigger_shutter_callback
         self.horizontal_speed = 7  
         self.jump_strenght = 20 
+        self.freezed=False
 
         self.jump_sound = sounds.get('jump') if sounds else None
         self.shoot_sound = sounds.get('shoot') if sounds else None
