@@ -5,7 +5,7 @@ import os
 class Drone:
     
     
-    def __init__(self,x,y,look,target):
+    def __init__(self,x,y,look,targets):
         
         self.health=100
         self.Alive=True
@@ -19,7 +19,8 @@ class Drone:
         self.moved_len=0
         self.speed=2
         self.look=look
-        self.target=target
+        self.targets=targets
+        self.target=targets[0]
         self.reload_duration=7000
         self.last_shot=0
         self.aimed=False
@@ -233,6 +234,7 @@ class Drone:
             
             
     def Update(self,bullets_in_air):
+        self.update_targets()
         self.update_alive()
         self.update_freezing()
         self.Move()
@@ -260,6 +262,23 @@ class Drone:
     def update_alive(self):
         if self.health <= 0 :
             self.status='dead'
+            
+            
+    def update_targets(self):
+        min_index=0
+        distances=[]
+        for target in self.targets:
+            distances.append(((self.x_pos - target.x_pos)**2) + ((self.y_pos - target.y_pos)**2))
+            
+            
+        for i in range(len(distances)):
+            if distances[i] < distances[min_index]:
+                min_index=i
+                
+        self.target=self.targets[min_index]
+            
+            
+            
             
             
    
@@ -302,6 +321,10 @@ class bullet:
         self.x_pos+=self.speed
         self.y_pos+=self.teta*(self.speed)
         self.hitbox.topleft=(self.x_pos,self.y_pos)
+        
+        
+        
+
         
         
         

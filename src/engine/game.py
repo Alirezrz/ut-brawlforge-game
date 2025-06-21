@@ -72,7 +72,7 @@ class Game:
       #  self.platform_image = pygame.transform.scale(platform_image, (screen_width, platform_height))
 
         self.gate=Gates(player_start_pos['x'],player_start_pos['y']-37,player_start_pos['x']+1400,player_start_pos['y']-357,self.ninja)
-        self.drone=Drone(-400,40,'right',self.ninja)
+        self.drone=Drone(-400,40,'right',[self.ninja,self.Roboman])
         self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorists[0],self.gate,self.background,self.drone)
         
         self.shutter_strength = 0
@@ -100,19 +100,19 @@ class Game:
         self.ninja_moving = False
 
     # Roboman controls
-        if keys[pygame.K_d]:
+        if keys[pygame.K_d] and not self.Roboman.freezed:
             self.Roboman.move_right()
             self.Roboman.is_moving_horizontally = True 
-        if keys[pygame.K_a]:
+        if keys[pygame.K_a] and not self.Roboman.freezed:
             self.Roboman.move_left()
             self.Roboman.is_moving_horizontally = True 
-        if keys[pygame.K_SPACE]:
+        if keys[pygame.K_SPACE] and not self.Roboman.freezed:
             if keys[pygame.K_LSHIFT]:
                 self.Roboman.activate_jetpack()
             
             else:
                 self.Roboman.jump()
-        if keys[pygame.K_r]:
+        if keys[pygame.K_r] and not self.Roboman.freezed:
             self.Roboman.respawn() 
 
     # Ninja controls
