@@ -508,3 +508,7 @@ class Roboman:
                        self.y_pos > platform.y_pos:
                         self.vertical_speed = 0
                         self.y_pos = platform.y_pos + platform.height
+                        
+                        
+    def Send_teleport_request(self,Gates):
+        Gates.recieve_request(self)

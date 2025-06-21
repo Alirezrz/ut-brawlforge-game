@@ -114,6 +114,10 @@ class Game:
                 self.Roboman.jump()
         if keys[pygame.K_r] and not self.Roboman.freezed:
             self.Roboman.respawn() 
+            
+        if keys[pygame.K_t]:
+            self.Roboman.Send_teleport_request(self.gate)
+            self.gate.recieve_request(self.Roboman)
 
     # Ninja controls
         if keys[pygame.K_LEFT] and not self.ninja.freezed:
