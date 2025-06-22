@@ -3,7 +3,7 @@ from config import screen_width, screen_height ,platform_height
 import os 
 class Camera:
     
-    def __init__(self,screen,platforms,enemies,shot_bullets,hero,explosions,scroll,ninja,Arman,Gate,background,drone):
+    def __init__(self,screen,platforms,enemies,shot_bullets,hero,explosions,scroll,ninja,Arman,Gate,background,drone,pumpkin):
         self.screen=screen
         self.platforms=platforms
         self.enemies=enemies
@@ -18,6 +18,7 @@ class Camera:
         self.background = pygame.transform.scale(background, (screen_width, screen_height))
         self.test=pygame.transform.scale(pygame.image.load(base_path),(130,130))
         self.drone=drone
+        self.pumpkin=pumpkin
         
         
         
@@ -49,6 +50,8 @@ class Camera:
                 
                 
         self.drone.display(self.screen,self.scroll)
+        
+        self.pumpkin.Update(self.screen,self.scroll)
                 
                 
 

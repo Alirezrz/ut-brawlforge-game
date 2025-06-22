@@ -15,6 +15,7 @@ from src.engine.menu import PauseMenu
 from src.engine.terrorist import Terrorist
 from src.engine.teleportgate import Gates
 from src.engine.Drone import Drone
+from src.engine.pumpkin import Pumpkin
 
 
 class Game:
@@ -73,7 +74,8 @@ class Game:
 
         self.gate=Gates(player_start_pos['x'],player_start_pos['y']-37,player_start_pos['x']+1400,player_start_pos['y']-357,self.ninja)
         self.drone=Drone(-400,40,'right',[self.ninja,self.Roboman])
-        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorists[0],self.gate,self.background,self.drone)
+        self.pumpkin=Pumpkin(player_start_pos['x']+100,player_start_pos['y']-270,[self.ninja,self.Roboman])
+        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorists[0],self.gate,self.background,self.drone,self.pumpkin)
         
         self.shutter_strength = 0
         self.shutter_start_time = 0
@@ -224,7 +226,7 @@ class Game:
                         
         self.scroll[0] +=(((self.ninja.hitbox.centerx - screen_width / 2 - self.scroll[0]) +(self.Roboman.hitbox.centerx - screen_width / 2 - self.scroll[0])  ) /2 )/15
         self.scroll[1] += ((((self.ninja.hitbox.centery - screen_height / 2 - self.scroll[1]) + (self.Roboman.hitbox.centery - screen_height / 2 - self.scroll[1]))/2)/ 15 ) 
-                        
+        self.pumpkin.Update(self.screen,self.scroll)             
         current_time = pygame.time.get_ticks()
         if self.shutter_strength > 0:
             shttered_time = current_time - self.shutter_start_time
@@ -237,7 +239,7 @@ class Game:
                 self.shutter_strength = max(0, 10 - (10 * decay_factor)) 
             else:
                 self.shutter_strength = 0           
-        
+            
     def render_screen(self):
         self.screen.fill(self.screen_color)
         
