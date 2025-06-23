@@ -20,7 +20,7 @@ class Guard_Drone:
         
         self.idle_frames=[]
         
-        for i in range (4):
+        for i in range (8):
             self.idle_frames.append(
                 pygame.transform.scale(
                     pygame.image.load(
@@ -34,7 +34,7 @@ class Guard_Drone:
             
         self.display_frame=self.idle_frames[0]
         self.last_animation_update=0
-        self.animation_speed=100
+        self.animation_speed=25
         self.frame_index=0
         
         
