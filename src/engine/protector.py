@@ -9,7 +9,7 @@ class Guard_Drone:
         self.player=player
         self.x_pos=self.player.x_pos-40
         self.y_pos=self.player.y_pos-40
-        
+        self.status='idle'
         
         
         
@@ -25,6 +25,20 @@ class Guard_Drone:
                 pygame.transform.scale(
                     pygame.image.load(
                         os.path.join(base_path ,'idle', f"{i}.png")
+                    ),
+                    (50,35)
+                )
+                
+            )
+            
+            
+        self.walk_frames=[]
+        
+        for i in range (8):
+            self.walk_frames.append(
+                pygame.transform.scale(
+                    pygame.image.load(
+                        os.path.join(base_path ,'walk', f"{i}.png")
                     ),
                     (50,35)
                 )
@@ -58,9 +72,17 @@ class Guard_Drone:
         current_time=pygame.time.get_ticks()
         elapsed_time=current_time-self.last_animation_update
         if elapsed_time>self.animation_speed:
-            self.frame_index=(elapsed_time)%len(self.idle_frames)
-            self.display_frame=self.idle_frames[self.frame_index]
-            
+            if self.status=='idle':
+                self.frame_index=(elapsed_time)%len(self.idle_frames)
+                self.display_frame=self.idle_frames[self.frame_index]
+            elif self.status=='forward':
+                self.frame_index=(elapsed_time)%len(self.walk_frames)
+                self.display_frame=self.walk_frames[self.frame_index]
+            elif self.status=='backward':
+                self.frame_index=(elapsed_time)%len(self.walk_frames)
+                self.display_frame=pygame.transform.flip(self.walk_frames[self.frame_index],True,False)
+                
+                
             
             
             
@@ -74,8 +96,12 @@ class Guard_Drone:
     def update_pos(self):
         if self.player.x_pos > self.x_pos + 40:
             self.x_pos += self.player.horizontal_speed - 1
+            self.status='forward'
         elif self.x_pos > self.player.x_pos + 40:
             self.x_pos -= self.player.horizontal_speed - 1
+            self.status='backward'
+        else:
+            self.status='idle'
     
         target_y = self.player.y_pos - 40
         if abs(self.y_pos - target_y) > 2: 
