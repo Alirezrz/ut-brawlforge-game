@@ -2,7 +2,7 @@ import pygame
 import os
 from src.engine.bullet import Bullet
 from config import Ninja_width, Ninja_height
-
+from src.engine.protector import Guard_Drone
 class Ninja:
     def __init__(self, x, y, screen_width, screen_height):
         self.x_pos = x
@@ -130,11 +130,23 @@ class Ninja:
             self.jumpThrow_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
             
             
+            
+            
+            
+            
+        # Guard Drone:
+        self.drone=Guard_Drone(self)
+        
+        
+            
+            
         
 
     def display(self, screen, offset):
         self.Update_SuperPower() 
         self.Super_Power_effect()
+        self.drone.Update(screen,offset)
+        
         #print(self.health)
         
         

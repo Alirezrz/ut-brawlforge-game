@@ -18,6 +18,7 @@ from src.engine.Drone import Drone
 from src.engine.pumpkin import Pumpkin
 
 
+
 class Game:
     def __init__(self,screen, hero_picture,ghost_picture, ghost2_picture, platform_image,background,explosion_picture,health_bar_green,health_bar_red,hero_profile_picture, roboman_health_bar_frame,roboman_health_bar, sounds):
         self.screen = screen
@@ -71,7 +72,6 @@ class Game:
         self.bullet_class =Bullet  
         self.game_active =True
       #  self.platform_image = pygame.transform.scale(platform_image, (screen_width, platform_height))
-
         self.gate=Gates(player_start_pos['x'],player_start_pos['y']-37,player_start_pos['x']+1400,player_start_pos['y']-357,self.ninja)
         self.drone=Drone(-400,40,'right',[self.ninja,self.Roboman])
         self.pumpkin=Pumpkin(player_start_pos['x']+100,player_start_pos['y']-270,[self.ninja,self.Roboman])
