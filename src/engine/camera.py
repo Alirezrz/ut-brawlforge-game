@@ -39,7 +39,7 @@ class Camera:
 
         self.hero.display(self.screen,self.scroll)
         
-        self.ninja.display(self.screen, self.scroll)
+        self.ninja.display(self.screen, self.scroll,self.shot_bullets)
         if self.terrorist and self.terrorist.status != 'removed':
             self.terrorist.display(self.screen, self.scroll)
         # handeling explosions:

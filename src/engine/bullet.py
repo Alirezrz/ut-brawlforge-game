@@ -4,7 +4,8 @@ import pygame
 
 
 class Bullet:
-    def __init__(self, x, y, speed, direction, bullet_picture, screen_width):
+    def __init__(self, x, y, speed, direction, bullet_picture, screen_width,owner="unkown"):
+        self.owner=owner
         self.x_pos = x
         self.y_pos = y
         self.speed = speed

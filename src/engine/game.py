@@ -166,6 +166,7 @@ class Game:
         
         
         
+        
         self.drone.Update(self.shot_bullets)
         
         for i in range(len(self.terrorists)):

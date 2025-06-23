@@ -135,17 +135,17 @@ class Ninja:
             
             
         # Guard Drone:
-        self.drone=Guard_Drone(self)
+        self.drone=Guard_Drone(self,"Ninja")
         
         
             
             
         
 
-    def display(self, screen, offset):
+    def display(self, screen, offset,shot_bullets):
         self.Update_SuperPower() 
         self.Super_Power_effect()
-        self.drone.Update(screen,offset)
+        self.drone.Update(screen,offset,shot_bullets)
         
         #print(self.health)
         
@@ -250,7 +250,8 @@ class Ninja:
         15*self.Super_cofficent,
         self.Look,
         self.Kunai,
-        self.screen_width
+        self.screen_width,
+        "Ninja"
         )
 
         self.bullets.append(bullet)
