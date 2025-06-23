@@ -1,14 +1,14 @@
 import pygame
 import os
-
+from config import screen_width, screen_height
 
 
 
 class Guard_Drone:
     def __init__(self,player):
         self.player=player
-        self.x_pos=self.player.x_pos-40
-        self.y_pos=self.player.y_pos-40
+        self.x_pos=-(screen_width)
+        self.y_pos=-(screen_height)
         self.status='idle'
         
         
