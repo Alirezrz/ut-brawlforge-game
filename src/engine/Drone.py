@@ -34,8 +34,11 @@ class Drone:
         self.freez_durtation=5000
         self.last_freezed=0   # برای چند تا پلیر باید هندل شن
         
+        self.ALIVE=True
         
         
+        self.fall_velocity = 0
+        self.gravity = 0.5      
                 
         
         
@@ -109,15 +112,19 @@ class Drone:
             
             
             
-    def display(self,screen,offset):
-        
-        if self.look=='right' :
-            screen.blit(self.display_pic,(self.x_pos- offset[0],self.y_pos - offset[1]))
-        elif self.look=='left':
-            screen.blit(pygame.transform.flip(self.display_pic,True,False),(self.x_pos- offset[0],self.y_pos - offset[1]))
-            
-        for bullet in self.bullets:
-            bullet.display(screen,offset)
+    def display(self, screen, offset):
+        screen_width, screen_height = screen.get_size()
+        screen_x = self.x_pos - offset[0]
+        screen_y = self.y_pos - offset[1]
+
+        if 0 <= screen_x <= screen_width and 0 <= screen_y <= screen_height:
+            if self.look == 'right':
+                screen.blit(self.display_pic, (screen_x, screen_y))
+            elif self.look == 'left':
+                screen.blit(pygame.transform.flip(self.display_pic, True, False), (screen_x, screen_y))
+
+            for bullet in self.bullets:
+                bullet.display(screen, offset)
             
         
         
@@ -149,13 +156,15 @@ class Drone:
                 self.display_pic=self.Forward_frames[self.frame_index]
                 self.Last_animationUpdate=current_time
                 
-            elif self.status=='dead':
-                self.animation_speed=100
-                self.frame_index= (elapsed_time)%len(self.death_frames)
-                self.display_pic=self.death_frames[self.frame_index]
-                self.Last_animationUpdate=current_time
-                if self.frame_index==7:
-                    self.death_frame_flag=True
+            elif self.status == 'dead':
+                if current_time - self.Last_animationUpdate >= self.animation_speed and not self.death_frame_flag:
+                    if self.frame_index < len(self.death_frames) - 1:
+                        self.frame_index += 1
+                        self.display_pic = self.death_frames[self.frame_index]
+                        self.Last_animationUpdate = current_time
+                    else:
+                        self.death_frame_flag = True
+                        self.display_pic = self.death_frames[-1]
         
         else:
             self.display_pic=self.death_frames[7]
@@ -167,6 +176,15 @@ class Drone:
         
     def Move(self):
         current_time=pygame.time.get_ticks()
+        if not self.ALIVE:
+            self.fall_velocity += self.gravity
+            self.y_pos += self.fall_velocity
+            if self.prev_status == 'forward':
+                self.x_pos += 1
+            elif self.prev_status == 'backward':
+                self.x_pos -= 1
+            self.hitbox.topleft = (self.x_pos, self.y_pos)
+            return
         if self.status=='forward':
             if self.moved_len < self.horizentalmove_range:
                 self.x_pos+=self.speed
@@ -267,7 +285,9 @@ class Drone:
             
     def update_alive(self):
         if self.health <= 0 :
+            self.prev_status=self.status
             self.status='dead'
+            self.ALIVE=False
             
             
     def update_targets(self):
