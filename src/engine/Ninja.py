@@ -46,6 +46,13 @@ class Ninja:
         self.jump_count = 0
         self.Allow_double_jump=True
         self.AllowJump_flag=True
+                            
+        #drone attribute:                  # این مقدار ها برای تست هست بعدا باید تنظیم بشن
+        self.guard_drone_reload_duration=10000   # بعد از 20 ثانیه شارژ میشه
+        self.last_guard_call=0
+        self.guard_drone=[]
+        self.drone_duration=20000    # هر بار که صدا زده بشه 30 ثانیه باقی میمونه  
+        
         
         
         
@@ -135,7 +142,7 @@ class Ninja:
             
             
         # Guard Drone:
-        self.drone=Guard_Drone(self,"Ninja")
+        
         
         
             
@@ -145,7 +152,8 @@ class Ninja:
     def display(self, screen, offset,shot_bullets):
         self.Update_SuperPower() 
         self.Super_Power_effect()
-        self.drone.Update(screen,offset,shot_bullets)
+        for drone in self.guard_drone:
+            drone.Update(screen,offset,shot_bullets)
         
         #print(self.health)
         
@@ -456,6 +464,7 @@ class Ninja:
             
             
     def Super_Power_effect(self):
+        self.update_drone()
         current_time=pygame.time.get_ticks()
         if current_time - self.last_SPdisplay < self.SuperPower_pic_display_duratiom:
             self.allow_move_left=False
@@ -480,6 +489,25 @@ class Ninja:
     def Send_teleport_request(self,Gates):
         Gates.recieve_request(self)
         
+        
+        
+    def call_drone(self):
+        current_time=pygame.time.get_ticks()
+        if current_time - self.last_guard_call >= self.guard_drone_reload_duration:
+            self.guard_drone.append(Guard_Drone(self,"Ninja"))
+            self.last_guard_call=current_time
+            
+            
+    def update_drone(self):
+        if len(self.guard_drone) == 1:
+            current_time = pygame.time.get_ticks()
+            drone = self.guard_drone[0]
+            if current_time - self.last_guard_call >= self.drone_duration:
+                if drone.status != 'departing':
+                    drone.status = 'departing'
+            if drone.status == 'departing' and drone.is_off_screen_exit():
+                self.guard_drone.remove(drone)
+
         
         
         

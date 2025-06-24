@@ -68,6 +68,10 @@ class Guard_Drone:
                 self.smokes.remove(smoke)
 
     def update_pos(self):
+        if self.status == 'departing':
+            self.x_pos += 10  
+            self.y_pos -= 5  
+            return  
         if self.player.x_pos > self.x_pos + 40:
             self.x_pos += self.player.horizontal_speed - 1
             self.status = 'forward'
@@ -105,6 +109,10 @@ class Guard_Drone:
 
     def shoot(self, target):
         self.bullets.append(laser(self.x_pos, self.y_pos + 30, target))
+        
+        
+    def is_off_screen_exit(self):
+        return self.x_pos > screen_width or self.y_pos + 40 < 0
 
 
 class laser:
@@ -169,3 +177,6 @@ class Smoke:
             else:
                 self.status = 'dead'
             self.last_updt = current_time
+            
+            
+

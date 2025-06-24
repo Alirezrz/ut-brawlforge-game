@@ -143,6 +143,10 @@ class Game:
         if keys[pygame.K_TAB]and not self.ninja.freezed:
             self.ninja.Send_teleport_request(self.gate)
             self.gate.recieve_request(self.ninja)
+            
+        if keys[pygame.K_p]:
+            self.ninja.call_drone()
+            
              
             
     def update(self):
