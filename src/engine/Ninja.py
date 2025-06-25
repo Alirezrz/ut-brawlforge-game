@@ -46,6 +46,8 @@ class Ninja:
         self.jump_count = 0
         self.Allow_double_jump=True
         self.AllowJump_flag=True
+        self.last_jump_time = 0
+        self.jump_cooldown = 250
                             
         #drone attribute:                  # این مقدار ها برای تست هست بعدا باید تنظیم بشن
         self.guard_drone_reload_duration=10000   # بعد از 20 ثانیه شارژ میشه
@@ -352,17 +354,24 @@ class Ninja:
                     shot_bullets.remove(bullet)
 
     def jump(self):
-        if self.on_ground and self.current_platform!=None and self.AllowJump_flag:
-                self.vertical_speed = self.jump_strenght*self.Super_cofficent
-                self.jump_count = 1
-                return
-        elif self.Allow_double_jump:
+        current_time = pygame.time.get_ticks()
+
+        if current_time - self.last_jump_time < self.jump_cooldown:
+            return
+
+        if self.on_ground and self.jump_count == 0 and self.AllowJump_flag:
+            self.vertical_speed = self.jump_strenght * self.Super_cofficent
+            self.jump_count = 1
+            self.on_ground = False
+            self.current_platform = None
+            self.last_jump_time = current_time  
+            return
+
+        if not self.on_ground and self.jump_count == 1 and self.Allow_double_jump:
             self.double_jump()
-            
-       
-        self.on_ground = False
-        self.current_platform = None
-        
+            self.jump_count = 2
+            self.last_jump_time = current_time 
+
     def double_jump(self):
         current_time = pygame.time.get_ticks()
         self.vertical_speed = self.jump_strenght*self.Super_cofficent
