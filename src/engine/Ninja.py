@@ -84,6 +84,12 @@ class Ninja:
         
         
         
+        self.freezed_frame=pygame.transform.scale(
+            pygame.image.load(os.path.join(base_path,"freezed.png")),
+            (62,118)
+        )
+        
+        
         img_path = os.path.join(base_path, "SuperPower effect.png")
         self.SuperPower_pic=pygame.image.load(img_path )
         self.SuperPower_pic=pygame.transform.scale(self.SuperPower_pic,(100,118))
@@ -170,6 +176,9 @@ class Ninja:
 
     def update_animation(self, shot_bullets):
         current_time = pygame.time.get_ticks()
+        if self.freezed:
+            self.current_picture=self.freezed_frame
+            return
         if self.Super_PowerFlag:
             self.current_picture=self.SuperPower_pic
             print("here")
