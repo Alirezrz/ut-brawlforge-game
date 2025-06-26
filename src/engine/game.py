@@ -214,11 +214,10 @@ class Game:
         
         for bullet in self.shot_bullets:
             for platform in self.platforms:
-                platform_hitbox_for_bullets = platform.rect.inflate(-10, -platform.height // 2)
-                if bullet.hitbox.colliderect(platform_hitbox_for_bullets):
+                if bullet.hitbox.colliderect(platform):
                     if self.sounds and self.sounds.get('explosion'):
                         self.sounds['explosion'].play()
-                        
+                    #print("Collsion for bullt with the platforms") 
                     self.explosions.append(Explosion(bullet.x_pos, bullet.y_pos, self.explosion_picture))
                     
                     self.shutter_strength = 10  
