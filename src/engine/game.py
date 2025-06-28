@@ -16,6 +16,7 @@ from src.engine.terrorist import Terrorist
 from src.engine.teleportgate import Gates
 from src.engine.Drone import Drone
 from src.engine.pumpkin import Pumpkin
+from src.engine.gunman import Gunman
 
 
 
@@ -64,6 +65,10 @@ class Game:
         self.terrorists=[]
         self.terrorists.append(Terrorist(player_start_pos['x']+800,player_start_pos['y'], screen_width, screen_height,self.ninja,self.Roboman,self.platforms,self.ninja,self.screen,self.scroll))
         
+        
+        self.gunman=Gunman(player_start_pos['x']+800,player_start_pos['y'])
+        
+        
         self.base_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images")
         self.background=pygame.image.load(os.path.join(self.base_path, "city.png"))
         
@@ -75,7 +80,7 @@ class Game:
         self.gate=Gates(player_start_pos['x'],player_start_pos['y']-37,player_start_pos['x']+1400,player_start_pos['y']-357,self.ninja)
         self.drone=Drone(-400,40,'right',[self.ninja,self.Roboman])
         self.pumpkin=Pumpkin(player_start_pos['x']+100,player_start_pos['y']-270,[self.ninja,self.Roboman])
-        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorists[0],self.gate,self.background,self.drone,self.pumpkin)
+        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll,self.ninja,self.terrorists[0],self.gate,self.background,self.drone,self.pumpkin,self.gunman)
         
         self.shutter_strength = 0
         self.shutter_start_time = 0
@@ -169,6 +174,8 @@ class Game:
         self.ninja.update_bullets(self.screen, self.shot_bullets)
         
         
+        
+        self.gunman.Update()
         
         
         self.drone.Update(self.shot_bullets)
