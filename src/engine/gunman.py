@@ -36,7 +36,7 @@ class Gunman:
             
             
         self.display_frame=self.idle_frames[0]    
-        self.animation_speed=100
+        self.animation_speed=150
         self.last_animation_update=0
         self.frame_index=0 
             
@@ -44,7 +44,7 @@ class Gunman:
         
     def display(self,screen,offset):
         screen.blit(self.display_frame,(self.x_pos-offset[0],self.y_pos-offset[1]))
-        
+        print(self.frame_index)
         
         
     def update_animation(self):
@@ -53,6 +53,7 @@ class Gunman:
         if self.status=='idle':
             if elapsed_time >= self.animation_speed:
                 self.frame_index=elapsed_time%(len(self.idle_frames))
+                self.display_frame=self.idle_frames[self.frame_index]
                 self.last_animation_update=current_time
                 return
             
