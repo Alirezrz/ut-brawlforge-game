@@ -73,7 +73,7 @@ while True:
         }
         game = Game(
           screen, None, ghost, ghost2, 
-          platform_images, # <-- ارسال دیکشنری تصاویر
+          platform_images,
           background, explode_picture, 
           health_bar_green, health_bar_red, hero_profile_picture,
           roboman_health_bar_frame,roboman_health_bar,
