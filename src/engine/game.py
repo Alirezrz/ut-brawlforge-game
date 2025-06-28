@@ -66,7 +66,7 @@ class Game:
         self.terrorists.append(Terrorist(player_start_pos['x']+800,player_start_pos['y'], screen_width, screen_height,self.ninja,self.Roboman,self.platforms,self.ninja,self.screen,self.scroll))
         
         
-        self.gunman=Gunman(player_start_pos['x']+800,player_start_pos['y'])
+        self.gunman=Gunman(player_start_pos['x']+800,player_start_pos['y'],self.platforms)
         
         
         self.base_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images")
