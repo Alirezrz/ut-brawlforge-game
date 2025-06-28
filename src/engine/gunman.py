@@ -99,7 +99,7 @@ class Gunman:
         
         
     def Walk(self):
-        print(self.Look)
+        #print(self.Look)
         if self.status == 'exploded':
             return
 

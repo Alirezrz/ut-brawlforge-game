@@ -98,6 +98,7 @@ class Guard_Drone:
         for laser in self.bullets[:]:
             for bullet in shot_bullets[:]:
                 if laser.hitbox.colliderect(bullet.hitbox) and bullet.owner != self.owner:
+                    print("hit")
                     collision_x = (laser.x_pos + bullet.x_pos) // 2
                     collision_y = (laser.y_pos + bullet.y_pos) // 2
                     self.smokes.append(Smoke(collision_x, collision_y))
@@ -121,7 +122,7 @@ class laser:
         self.y_pos = y
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, 10, 10)
         self.target = target
-        self.speed = 15
+        self.speed = 17
         self.travel_distance = 0
         self.max_distance = 800  # Distance after which the laser is removed
 
