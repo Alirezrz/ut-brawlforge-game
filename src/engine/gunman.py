@@ -13,6 +13,8 @@ class Gunman:
         
         self.status='idle'
         self.Look='right'
+        self.last_idle=0
+        self.idle_duration=3000
         
         self.platforms=platforms
         #loading section:
@@ -33,7 +35,7 @@ class Gunman:
                 )
             )
             
-            
+        sizes=[51,50,67,74,64,53]
         self.walk_frames=[]
         for i in range(6):
             path=os.path.join(base_path , "walk" , f"{i}.png")
@@ -41,7 +43,7 @@ class Gunman:
             self.walk_frames.append(
                 pygame.transform.scale(
                     pygame.image.load(path),
-                    (53,114)
+                    (sizes[i],114)
                 )
             )
             
@@ -54,7 +56,7 @@ class Gunman:
         self.last_animation_update=0
         self.frame_index=0 
         
-        self.Walk_Range = 500
+        self.Walk_Range = 200
         self.VisionRadious = 400
         self.VisionHeight = 80
         self.walk_strength = 1
@@ -62,7 +64,8 @@ class Gunman:
         self.allow_move_right=True
         self.allow_move_left=True
             
-        
+        self.idle_start_time=0
+        self.idle_time=3000
         
     def display(self,screen,offset):
         if self.Look=='right':
@@ -99,49 +102,31 @@ class Gunman:
         
         
     def Walk(self):
-        #print(self.Look)
-        if self.status == 'exploded':
-            return
-
-        direction = self.walk_strength if self.Look == 'right' else -self.walk_strength
-        next_x = self.x_pos + direction
-        foot_x = next_x + self.width // 2
-        foot_y = self.y_pos + self.height + 1
-
-        on_platform = False
-        blocked_by_wall = False
-
-        for platform in self.platforms:
-            platform_top = platform.y_pos
-            platform_left = platform.x_pos
-            platform_right = platform.x_pos + platform.width
-
-            # Check for ground support
-            if platform_left <= foot_x <= platform_right:
-                if abs(foot_y - platform_top) <= 10:
-                    on_platform = True
-
-            # Check wall collision
-            if self.y_pos + self.height > platform.y_pos and self.y_pos < platform.y_pos + platform.height:
-                if self.Look == 'right':
-                    if self.x_pos + self.width <= platform.x_pos and abs((self.x_pos + self.width + self.walk_strength) - platform.x_pos) <= 5:
-                        blocked_by_wall = True
+        current_time = pygame.time.get_ticks()
+        if self.status=='idle':
+            elapsed_time=current_time - self.last_idle
+            if elapsed_time > self.idle_duration:
+                self.status='walk'
+        if self.status=='walk':
+            if self.walked_len <= self.Walk_Range:
+                if self.Look=='right':
+                    self.x_pos+=self.walk_strength
+                    self.walked_len+=self.walk_strength
+                else :
+                    self.x_pos-=self.walk_strength
+                    self.walked_len+=self.walk_strength
+            
+            else :
+                self.walked_len=0
+                self.status='idle'
+                self.last_idle=current_time
+                if self.Look=='right':
+                    self.Look='left'
                 else:
-                    if self.x_pos >= platform.x_pos + platform.width and abs(self.x_pos - (platform.x_pos + platform.width + self.walk_strength)) <= 5:
-                        blocked_by_wall = True
-
-        if not on_platform or blocked_by_wall or self.walked_len > self.Walk_Range:
-            self.walked_len = 0
-            self.Look = 'left' if self.Look == 'right' else 'right'
-            self.status = 'idle'
-            return
-
-        if self.Look == 'right' and self.allow_move_right:
-            self.x_pos += self.walk_strength
-        elif self.Look == 'left' and self.allow_move_left:
-            self.x_pos -= self.walk_strength
-
-        self.walked_len += self.walk_strength
+                    self.Look='right'
+                    
+                    
+                
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.display_frame.get_width(), self.display_frame.get_height())
-        self.status = 'walk'
+
 
