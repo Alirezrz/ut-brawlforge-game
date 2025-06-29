@@ -1,17 +1,18 @@
 import pygame
 import os
-
+import math
 
 class Gunman:
-    def __init__(self,x,y,platforms):
+    def __init__(self,x,y,platforms,targets):
         self.x_pos=x
         self.y_pos=y
                           # remember to update the sizes
         self.width=60                                               
         self.height=114
         self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.width,self.height)
-        
+        self.targets=targets
         self.status='idle'
+        self.prev_status='idle'
         self.Look='right'
         self.last_idle=0
         self.idle_duration=3000
@@ -46,16 +47,27 @@ class Gunman:
                     (sizes[i],114)
                 )
             )
+        sizes=[80,83,83]    
+        self.shoot_frames=[]
+        for i in range(3):
+            path=os.path.join(base_path , "shoot" , f"{i}.png")
+            
+            self.shoot_frames.append(
+                pygame.transform.scale(
+                    pygame.image.load(path),
+                    (sizes[i],114)
+                )
+            ) 
             
             
-            
+        
             
             
         self.display_frame=self.idle_frames[0]    
         self.animation_speed=150
         self.last_animation_update=0
         self.frame_index=0 
-        
+        self.shoot_frame_index=0
         self.Walk_Range = 200
         self.VisionRadious = 400
         self.VisionHeight = 80
@@ -66,6 +78,10 @@ class Gunman:
             
         self.idle_start_time=0
         self.idle_time=3000
+        
+        
+        self.last_shoot=0
+        self.reload_duration=2000
         
     def display(self,screen,offset):
         if self.Look=='right':
@@ -78,8 +94,17 @@ class Gunman:
     def update_animation(self):
         current_time = pygame.time.get_ticks()
         elapsed_time = current_time - self.last_animation_update
-
-        if self.status == 'idle':
+        if self.status=='shoot':
+            if elapsed_time >= self.animation_speed:
+                self.frame_index = self.shoot_frame_index
+                self.display_frame=self.shoot_frames[self.frame_index]
+                self.shoot_frame_index+=1
+                self.last_animation_update=current_time
+                if self.shoot_frame_index==3:
+                    #print("shot")
+                    self.status=self.prev_status
+                
+        elif self.status == 'idle':
             if elapsed_time >= self.animation_speed:
                 self.frame_index = (self.frame_index + 1) % len(self.idle_frames)
                 self.display_frame = self.idle_frames[self.frame_index]
@@ -96,6 +121,7 @@ class Gunman:
     def Update(self):
         self.update_animation()
         self.Walk()
+        self.vision()
         
         
         
@@ -103,6 +129,8 @@ class Gunman:
         
     def Walk(self):
         current_time = pygame.time.get_ticks()
+        if self.status=='shoot':
+            return
         if self.status=='idle':
             elapsed_time=current_time - self.last_idle
             if elapsed_time > self.idle_duration:
@@ -130,3 +158,30 @@ class Gunman:
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.display_frame.get_width(), self.display_frame.get_height())
 
 
+
+
+
+    def vision(self):
+        current_time = pygame.time.get_ticks()
+        elapsed_time=current_time-self.last_shoot
+        for target in self.targets:
+            dx = target.x_pos - self.x_pos
+            dy = target.y_pos - self.y_pos
+            distance = math.hypot(dx, dy)
+            if distance <= 500:
+                if target.x_pos > self.x_pos and self.Look=='right' and elapsed_time > self.reload_duration :
+                    self.prev_status=self.status
+                    self.last_shoot=current_time
+                    self.shoot_frame_index=0
+                    self.status='shoot'
+                    return
+                elif target.x_pos < self.x_pos and self.Look=='left'and elapsed_time > self.reload_duration :
+                    self.prev_status=self.status
+                    self.last_shoot=current_time
+                    self.shoot_frame_index=0
+                    self.status='shoot'
+                    return
+                
+                
+            
+            
