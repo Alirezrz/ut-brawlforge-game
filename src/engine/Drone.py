@@ -117,14 +117,13 @@ class Drone:
         screen_x = self.x_pos - offset[0]
         screen_y = self.y_pos - offset[1]
 
-        if 0 <= screen_x <= screen_width and 0 <= screen_y <= screen_height:
-            if self.look == 'right':
-                screen.blit(self.display_pic, (screen_x, screen_y))
-            elif self.look == 'left':
-                screen.blit(pygame.transform.flip(self.display_pic, True, False), (screen_x, screen_y))
+        if self.look == 'right':
+            screen.blit(self.display_pic, (screen_x, screen_y))
+        elif self.look == 'left':
+            screen.blit(pygame.transform.flip(self.display_pic, True, False), (screen_x, screen_y))
 
-            for bullet in self.bullets:
-                bullet.display(screen, offset)
+        for bullet in self.bullets:
+            bullet.display(screen, offset)
             
         
         
