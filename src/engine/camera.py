@@ -43,9 +43,9 @@ class Camera:
         self.hero.display(self.screen,self.scroll)
         
         self.ninja.display(self.screen, self.scroll,self.shot_bullets)
-        #if self.terrorist and self.terrorist.status != 'removed':
-            #self.terrorist.display(self.screen, self.scroll)
-        # handeling explosions:
+        if self.terrorist and self.terrorist.status != 'removed':
+            self.terrorist.display(self.screen, self.scroll)
+        #handeling explosions:
         self.gunman.display(self.screen,self.scroll)
         for explosion in self.explosions[:]:
             if not explosion.draw(self.screen,self.scroll):  # If expired, remove it
