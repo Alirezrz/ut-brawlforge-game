@@ -374,7 +374,6 @@ class Roboman:
                 15, 
                 self.Look, 
                 self.bullet_picture, 
-                self.screen_width ,
                 "Roboman"
             )
             self.bullets.append(bullet) 

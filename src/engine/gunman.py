@@ -1,7 +1,7 @@
 import pygame
 import os
 import math
-
+from src.engine.bullet import Bullet
 class Gunman:
     def __init__(self,x,y,platforms,targets):
         self.x_pos=x
@@ -21,7 +21,15 @@ class Gunman:
         #loading section:
         
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "gunman")
-
+        self.bullet_pic=pygame.transform.scale(
+            pygame.image.load(
+                os.path.join(
+                    base_path,"bullet.png"
+                )
+            ),
+            (23,5)
+            
+        )
         
         
         self.idle_frames=[]
@@ -60,7 +68,7 @@ class Gunman:
             ) 
             
             
-        
+        self.shot_bullets=[]
             
             
         self.display_frame=self.idle_frames[0]    
@@ -91,7 +99,7 @@ class Gunman:
             
         
         
-    def update_animation(self):
+    def update_animation(self,shot_bullets):
         current_time = pygame.time.get_ticks()
         elapsed_time = current_time - self.last_animation_update
         if self.status=='shoot':
@@ -100,6 +108,8 @@ class Gunman:
                 self.display_frame=self.shoot_frames[self.frame_index]
                 self.shoot_frame_index+=1
                 self.last_animation_update=current_time
+                if self.frame_index==1:
+                    self.shoot(shot_bullets)
                 if self.shoot_frame_index==3:
                     #print("shot")
                     self.status=self.prev_status
@@ -118,10 +128,12 @@ class Gunman:
 
             
             
-    def Update(self):
-        self.update_animation()
+    def Update(self,screen,offset,shot_bullets):
+        self.update_animation(shot_bullets)
         self.Walk()
         self.vision()
+        self.update_bullets(screen,offset,shot_bullets)
+        
         
         
         
@@ -181,6 +193,40 @@ class Gunman:
                     self.shoot_frame_index=0
                     self.status='shoot'
                     return
+                
+                
+    def shoot(self,shot_bullets):
+        x=0
+        
+        if self.Look=='right':
+            x=self.x_pos+self.display_frame.get_width()
+        else:
+            x=self.x_pos
+        self.shot_bullets.append(
+            Bullet(x,self.y_pos+50,8,self.Look,self.bullet_pic,'gunman')
+        )
+        shot_bullets.append(self.shot_bullets[len(self.shot_bullets)-1])
+        
+        
+        
+    def update_bullets(self,screen,offset,shot_bullets):
+        for bullet in self.shot_bullets:
+            bullet.update()
+            bullet.draw(screen,offset)
+            
+            
+            for hero in self.targets:
+                if bullet.hitbox.colliderect(hero.hitbox):
+                    hero.health-=20
+                    if bullet in  shot_bullets:
+                        self.shot_bullets.remove(bullet)
+                        shot_bullets.remove(bullet)
+                    
+                    
+            
+            
+            
+        
                 
                 
             

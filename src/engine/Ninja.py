@@ -269,7 +269,6 @@ class Ninja:
         15*self.Super_cofficent,
         self.Look,
         self.Kunai,
-        self.screen_width,
         "Ninja"
         )
 

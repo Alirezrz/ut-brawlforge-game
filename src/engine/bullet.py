@@ -4,7 +4,7 @@ import pygame
 
 
 class Bullet:
-    def __init__(self, x, y, speed, direction, bullet_picture, screen_width,owner="unkown"):
+    def __init__(self, x, y, speed, direction, bullet_picture,owner="unkown"):
         self.owner=owner
         self.x_pos = x
         self.y_pos = y
@@ -13,7 +13,6 @@ class Bullet:
         self.picture = bullet_picture
         self.width = bullet_picture.get_width()
         self.height = bullet_picture.get_height()
-        self.screen_width = screen_width
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
         
         
