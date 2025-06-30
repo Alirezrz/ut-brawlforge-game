@@ -165,7 +165,7 @@ class Roboman:
         self.gravity_strenght = gravity_strenght
         self.on_ground = False
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
-        self.health = 25
+        self.health = 100
         self.max_health = 100
         self.bullets = []
         
@@ -197,6 +197,7 @@ class Roboman:
         self.in_jump_animation = False
 
     def display(self, screen, offset):
+        print(self.health)
         self.roboman_health_bar = pygame.transform.scale(self.roboman_health_bar, (int(health_bar_lenght * (self.health / self.max_health)), profileSideSize-(2*roboman_health_bar_frame_thickness)))
         self.roboman_health_bar_frame = pygame.transform.scale(self.roboman_health_bar_frame, (health_bar_lenght + (2*roboman_health_bar_frame_thickness), profileSideSize))
         display_picture = self.current_picture

@@ -6,6 +6,7 @@ import pygame
 class Bullet:
     def __init__(self, x, y, speed, direction, bullet_picture,owner="unkown"):
         self.owner=owner
+        self.status='in game'
         self.x_pos = x
         self.y_pos = y
         self.speed = speed
