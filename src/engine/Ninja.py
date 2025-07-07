@@ -33,7 +33,12 @@ class Ninja:
         self.throwing_until = 0
         self.kunai_fired = False
         self.throw_flag=False
-
+        # Sword attack-related attributes
+        self.last_attack_time = 0
+        self.attack_cooldown = 500  # ms between sword attacks
+        self.attacking_until = 0
+        self.attack_hit_registered = False
+        self.attack_targets = []  # must be set externally (e.g., in Game)
         # Animation attributes
         self.status = "Idle"
         self.last_animation_state = 'idle'
@@ -146,6 +151,16 @@ class Ninja:
             
             
             
+        self.Attack_frames=[]
+        sizes = [77,75,80,132,136,149,149,146,115,105]
+        for i in range(0, 10):
+            img_path = os.path.join(base_path, "Attack", f"Attack__00{i}.png")
+            tmp = pygame.image.load(img_path)
+            self.Attack_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
+            
+            
+            
+            
             
             
             
@@ -248,7 +263,19 @@ class Ninja:
         elif target_animation_state == 'running':
             self.current_frame_index = (self.current_frame_index + 1) % len(self.run_frames)
             self.current_picture = self.run_frames[self.current_frame_index]
-
+                # Add in update_animation
+        elif target_animation_state == 'attack':
+            if self.current_frame_index < len(self.Attack_frames):
+                self.current_picture = self.Attack_frames[self.current_frame_index]
+                if self.current_frame_index == 3 and not self.attack_hit_registered:
+                    self.perform_attack()
+                    self.attack_hit_registered = True
+                self.current_frame_index += 1
+            else:
+                self.status = "Idle"
+                self.last_animation_state = "idle"
+                self.current_frame_index = 0
+   
         elif target_animation_state == 'idle':
             self.current_frame_index = (self.current_frame_index + 1) % len(self.idle_frames)
             self.current_picture = self.idle_frames[self.current_frame_index]
@@ -551,6 +578,47 @@ class Ninja:
 
         if not self.is_moving_horizontally:
             self.stop_horizontal_movement()
+                    # Add in handle_input
+        if keys[pygame.K_e]:
+            self.attack()
+            
+            
+    def attack(self):
+        current_time = pygame.time.get_ticks()
+        if self.status == "attack" and current_time < self.attacking_until:
+            return
+        if current_time - self.last_attack_time < self.attack_cooldown:
+            return
+
+        self.status = "attack"
+        self.current_frame_index = 0
+        self.attacking_until = current_time + (len(self.Attack_frames) * self.animation_speed)
+        self.last_attack_time = current_time
+        self.attack_hit_registered = False
+
+    def perform_attack(self):
+            sword_range = 60
+            sword_box = pygame.Rect(
+                self.hitbox.right, self.hitbox.top, sword_range, self.hitbox.height
+            ) if self.Look == 'right' else pygame.Rect(
+                self.hitbox.left - sword_range, self.hitbox.top, sword_range, self.hitbox.height
+            )
+
+            for enemy in self.attack_targets:
+                if sword_box.colliderect(enemy.hitbox):
+                    enemy.damage(25)
+
+
+
+
+            
+            
+            
+    
+            
+            
+            
+    
 
         
         
