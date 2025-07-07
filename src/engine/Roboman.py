@@ -513,3 +513,28 @@ class Roboman:
                         
     def Send_teleport_request(self,Gates):
         Gates.recieve_request(self)
+        
+        
+        
+    def handle_input(self, keys, gate, shot_bullets, bullet_class):
+        self.is_moving_horizontally = False
+        if self.freezed:
+            return
+
+        if keys[pygame.K_d]:
+            self.move_right()
+            self.is_moving_horizontally = True
+        if keys[pygame.K_a]:
+            self.move_left()
+            self.is_moving_horizontally = True
+        if keys[pygame.K_SPACE]:
+            if keys[pygame.K_LSHIFT]:
+                self.activate_jetpack()
+            else:
+                self.jump()
+        if keys[pygame.K_r]:
+            self.respawn()
+        if keys[pygame.K_t]:
+            self.Send_teleport_request(gate)
+        if keys[pygame.K_f]: # this one must change 
+            self.shoot(shot_bullets, bullet_class)

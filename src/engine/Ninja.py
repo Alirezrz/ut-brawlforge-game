@@ -524,6 +524,33 @@ class Ninja:
                     drone.status = 'departing'
             if drone.status == 'departing' and drone.is_off_screen_exit():
                 self.guard_drone.remove(drone)
+    def handle_input(self, keys, gate, shot_bullets, bullet_class, trigger_shutter=None):
+        self.is_moving_horizontally = False
+        if self.freezed:
+            return
+
+        if keys[pygame.K_LEFT]:
+            self.move_left()
+            self.is_moving_horizontally = True
+        if keys[pygame.K_RIGHT]:
+            self.move_right()
+            self.is_moving_horizontally = True
+        if keys[pygame.K_UP]:
+            self.jump()
+        if keys[pygame.K_RSHIFT]:
+            if not self.Super_PowerFlag:
+                if trigger_shutter:
+                    trigger_shutter(strength=10, duration=1500)
+            self.Activate_Super_Power()
+        if keys[pygame.K_RCTRL]:
+            self.shoot(shot_bullets, bullet_class)
+        if keys[pygame.K_TAB]:
+            self.Send_teleport_request(gate)
+        if keys[pygame.K_p]:
+            self.call_drone()
+
+        if not self.is_moving_horizontally:
+            self.stop_horizontal_movement()
 
         
         

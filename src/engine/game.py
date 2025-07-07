@@ -87,59 +87,15 @@ class Game:
     def handle_events(self, events):
         for event in events:
             if event.type == pygame.QUIT:
-                self.game_active = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    self.Roboman.shoot(self.shot_bullets, self.bullet_class)
+                pygame.quit()
+                exit()  # Or: sys.exit()
+            
 
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
+        self.Roboman.handle_input(keys, self.gate, self.shot_bullets, self.bullet_class)
+        self.ninja.handle_input(keys, self.gate, self.shot_bullets, self.bullet_class, self.trigger_shutter)
 
-        self.Roboman.is_moving_horizontally = False
-        self.ninja_moving = False
-
-        if keys[pygame.K_d] and not self.Roboman.freezed:
-            self.Roboman.move_right()
-            self.Roboman.is_moving_horizontally = True
-        if keys[pygame.K_a] and not self.Roboman.freezed:
-            self.Roboman.move_left()
-            self.Roboman.is_moving_horizontally = True
-        if keys[pygame.K_SPACE] and not self.Roboman.freezed:
-            if keys[pygame.K_LSHIFT]:
-                self.Roboman.activate_jetpack()
-            else:
-                self.Roboman.jump()
-        if keys[pygame.K_r] and not self.Roboman.freezed:
-            self.Roboman.respawn()
-
-        if keys[pygame.K_t]:
-            self.Roboman.Send_teleport_request(self.gate)
-            self.gate.recieve_request(self.Roboman)
-
-        if keys[pygame.K_LEFT] and not self.ninja.freezed:
-            self.ninja.move_left()
-            self.ninja_moving = True
-        if keys[pygame.K_RIGHT] and not self.ninja.freezed:
-            self.ninja.move_right()
-            self.ninja_moving = True
-        if keys[pygame.K_UP] and not self.ninja.freezed:
-            self.ninja.jump()
-        if keys[pygame.K_RSHIFT] and not self.ninja.freezed:
-            if not self.ninja.Super_PowerFlag:
-                self.trigger_shutter(strength=10, duration=1500)
-            self.ninja.Activate_Super_Power()
-
-        if not self.ninja_moving:
-            self.ninja.stop_horizontal_movement()
-
-        if keys[pygame.K_RCTRL] and not self.ninja.freezed:
-            self.ninja.shoot(self.shot_bullets, self.bullet_class)
-        if keys[pygame.K_TAB] and not self.ninja.freezed:
-            self.ninja.Send_teleport_request(self.gate)
-            self.gate.recieve_request(self.ninja)
-
-        if keys[pygame.K_p]:
-            self.ninja.call_drone()
 
     def update(self):
         self.Roboman.is_on_ground()
@@ -225,9 +181,8 @@ class Game:
     def run(self):
         while self.game_active:
             events = pygame.event.get()
-            self.handle_events(events)
             self.handle_inputs()
-
+            self.handle_events(events)
             for event in events:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     pause_menu = PauseMenu(self.screen, self.background)
