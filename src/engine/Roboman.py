@@ -1,7 +1,7 @@
 import pygame
 import os
 from config import roboman_jetpack_reload,roboman_reload_time, jump_strenght ,horizontal_speed,gravity_strenght,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
-
+from src.engine.protector import Guard_Drone
 class Roboman:
 
     def __init__(self, x, y,  roboman_health_bar_frame,roboman_health_bar, hero_profile_picture, screen_width, screen_height, sounds=None, trigger_shutter_callback=None):
@@ -63,7 +63,6 @@ class Roboman:
 
         self.shoot_frames = []
         self.Bullet_Class_ref = None
-        self.shot_bullets_ref = None
         for i in range(1, 5):
             try:
                 img_path = os.path.join(base_path, "Shoot", f"Shoot ({i}).png")
@@ -195,11 +194,23 @@ class Roboman:
         self.Last__Shooting_time=0
         self.frame_flag=False
         self.in_jump_animation = False
+        
+        # drone attributes:
+        self.guard_drone_reload_duration = 10000  # cooldown time (ms)
+        self.last_guard_call = 0
+        self.guard_drone = []
+        self.drone_duration = 20000
 
-    def display(self, screen, offset):
+    def display(self, screen, offset, shot_bullets):
         print(self.health)
-        self.roboman_health_bar = pygame.transform.scale(self.roboman_health_bar, (int(health_bar_lenght * (self.health / self.max_health)), profileSideSize-(2*roboman_health_bar_frame_thickness)))
-        self.roboman_health_bar_frame = pygame.transform.scale(self.roboman_health_bar_frame, (health_bar_lenght + (2*roboman_health_bar_frame_thickness), profileSideSize))
+        self.roboman_health_bar = pygame.transform.scale(
+            self.roboman_health_bar, 
+            (int(health_bar_lenght * (self.health / self.max_health)), profileSideSize - (2 * roboman_health_bar_frame_thickness))
+        )
+        self.roboman_health_bar_frame = pygame.transform.scale(
+            self.roboman_health_bar_frame, 
+            (health_bar_lenght + (2 * roboman_health_bar_frame_thickness), profileSideSize)
+        )
         display_picture = self.current_picture
 
         if self.Look == 'right':
@@ -208,8 +219,11 @@ class Roboman:
             flipped_picture = pygame.transform.flip(display_picture, True, False)
             screen.blit(flipped_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
 
+        for drone in self.guard_drone:
+            drone.Update(screen, offset, shot_bullets)
+
         screen.blit(self.roboman_health_bar_frame, (profileSideSize, 0))
-        screen.blit(self.roboman_health_bar, (profileSideSize+roboman_health_bar_frame_thickness, roboman_health_bar_frame_thickness))
+        screen.blit(self.roboman_health_bar, (profileSideSize + roboman_health_bar_frame_thickness, roboman_health_bar_frame_thickness))
         screen.blit(pygame.transform.scale(self.hero_profile_picture, (profileSideSize, profileSideSize)), (0, 0))
 
     def update_animation(self):
@@ -412,6 +426,7 @@ class Roboman:
         self.health = self.max_health
 
     def update_bullets(self, screen, shot_bullets):
+        self.update_drone()
         for bullet in self.bullets[:]:
             bullet.update()
             if bullet.is_off_screen(self.screen_width):
@@ -538,3 +553,22 @@ class Roboman:
             self.Send_teleport_request(gate)
         if keys[pygame.K_f]: # this one must change 
             self.shoot(shot_bullets, bullet_class)
+            
+        if keys[pygame.K_g]:
+            self.call_drone()
+            
+            
+    def call_drone(self):
+        current_time=pygame.time.get_ticks()
+        if current_time - self.last_guard_call >= self.guard_drone_reload_duration:
+            self.guard_drone.append(Guard_Drone(self,"Roboman"))
+            self.last_guard_call=current_time
+    def update_drone(self):
+        if len(self.guard_drone) == 1:
+            current_time = pygame.time.get_ticks()
+            drone = self.guard_drone[0]
+            if current_time - self.last_guard_call >= self.drone_duration:
+                if drone.status != 'departing':
+                    drone.status = 'departing'
+            if drone.status == 'departing' and drone.is_off_screen_exit():
+                self.guard_drone.remove(drone)
