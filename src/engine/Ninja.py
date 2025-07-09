@@ -3,8 +3,9 @@ import os
 from src.engine.bullet import Bullet
 from config import Ninja_width, Ninja_height
 from src.engine.protector import Guard_Drone
+## must be done -->  1- list of enemies for hit when attacking must be fixed 
 class Ninja:
-    def __init__(self, x, y, screen_width, screen_height):
+    def __init__(self, x, y, screen_width, screen_height,targets):
         self.x_pos = x
         self.y_pos = y
         self.on_platform = False
@@ -23,7 +24,6 @@ class Ninja:
         self.on_ground = False
         self.width = Ninja_width
         self.height = Ninja_height
-
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
         self.health = 63
         self.max_health = 100
@@ -35,10 +35,10 @@ class Ninja:
         self.throw_flag=False
         # Sword attack-related attributes
         self.last_attack_time = 0
-        self.attack_cooldown = 500  # ms between sword attacks
+        self.attack_cooldown = 500  
         self.attacking_until = 0
         self.attack_hit_registered = False
-        self.attack_targets = []  # must be set externally (e.g., in Game)
+        self.attack_targets = targets  
         # Animation attributes
         self.status = "Idle"
         self.last_animation_state = 'idle'
@@ -63,7 +63,10 @@ class Ninja:
         
         
         
-        
+        self.prev_status='unknown'
+        self.ATTACK=True
+        self.HIT_PER_ATTACK=0
+        self.MOVEWITHATTACKFLAG=True
 
         
         #Super power attributes:
@@ -152,7 +155,8 @@ class Ninja:
             
             
         self.Attack_frames=[]
-        sizes = [77,75,80,132,136,149,149,146,115,105]
+        sizes = [78,75,85,132,136,149,149,149,147,137]
+        self.with_sword_width= [77,75,80,73,95,108,107,105,115,105]
         for i in range(0, 10):
             img_path = os.path.join(base_path, "Attack", f"Attack__00{i}.png")
             tmp = pygame.image.load(img_path)
@@ -191,15 +195,19 @@ class Ninja:
 
     def update_animation(self, shot_bullets):
         current_time = pygame.time.get_ticks()
+
         if self.freezed:
-            self.current_picture=self.freezed_frame
+            self.current_picture = self.freezed_frame
             return
+
         if self.Super_PowerFlag:
-            self.current_picture=self.SuperPower_pic
-            print("here")
+            self.current_picture = self.SuperPower_pic
             return
+
         # Determine animation state
-        if not self.on_ground and self.current_platform is None:
+        if self.status == "attack":
+            target_animation_state = 'attack'
+        elif not self.on_ground and self.current_platform is None:
             if self.status == "jump_throw":
                 target_animation_state = 'jump_throw'
             elif self.status == "throw":
@@ -210,7 +218,6 @@ class Ninja:
             target_animation_state = 'throw'
         else:
             target_animation_state = 'running' if self.is_moving_horizontally else 'idle'
-            
 
         # Handle animation transition
         if target_animation_state != self.last_animation_state:
@@ -225,16 +232,13 @@ class Ninja:
             return
 
         if target_animation_state == 'jump_throw':
-            target_animation_state='jump'
-            
+            target_animation_state = 'jump'
             if self.current_frame_index < len(self.jumpThrow_frames):
                 self.current_picture = self.jumpThrow_frames[self.current_frame_index]
                 if self.current_frame_index == 2 and not self.kunai_fired:
                     self.fire_kunai(shot_bullets)
                     self.kunai_fired = True
                 self.current_frame_index += 1
-            
-                
             else:
                 self.status = "Idle"
                 self.last_animation_state = "jump"
@@ -252,35 +256,41 @@ class Ninja:
                     self.fire_kunai(shot_bullets)
                     self.kunai_fired = True
                 self.current_frame_index += 1
-                if self.current_frame_index==len(self.throw_frames)-1:
-                    self.allow_move_left=True
-                    self.allow_move_right=True
+                if self.current_frame_index == len(self.throw_frames) - 1:
+                    self.allow_move_left = True
+                    self.allow_move_right = True
             else:
                 self.status = "Idle"
                 self.last_animation_state = "idle"
                 self.current_frame_index = 0
 
-        elif target_animation_state == 'running':
-            self.current_frame_index = (self.current_frame_index + 1) % len(self.run_frames)
-            self.current_picture = self.run_frames[self.current_frame_index]
-                # Add in update_animation
         elif target_animation_state == 'attack':
             if self.current_frame_index < len(self.Attack_frames):
                 self.current_picture = self.Attack_frames[self.current_frame_index]
-                if self.current_frame_index == 3 and not self.attack_hit_registered:
-                    self.perform_attack()
-                    self.attack_hit_registered = True
+                self.hitbox = pygame.Rect(
+                    self.x_pos, self.y_pos,
+                    self.with_sword_width[self.current_frame_index], 118
+                )
                 self.current_frame_index += 1
             else:
                 self.status = "Idle"
                 self.last_animation_state = "idle"
                 self.current_frame_index = 0
-   
+                self.ATTACK = True
+                self.HIT_PER_ATTACK = 0
+                self.attack_hit_registered = False
+
+        elif target_animation_state == 'running':
+            self.current_frame_index = (self.current_frame_index + 1) % len(self.run_frames)
+            self.current_picture = self.run_frames[self.current_frame_index]
+
         elif target_animation_state == 'idle':
             self.current_frame_index = (self.current_frame_index + 1) % len(self.idle_frames)
             self.current_picture = self.idle_frames[self.current_frame_index]
 
         self.last_frame_update_time = current_time
+        self.update_attack()
+
 
     def fire_kunai(self, shot_bullets):
         bullet_x = self.x_pos + (self.width if self.Look == 'right' else -self.Kunai_pic.get_width())
@@ -582,31 +592,34 @@ class Ninja:
         if keys[pygame.K_e]:
             self.attack()
             
-            
+                
     def attack(self):
-        current_time = pygame.time.get_ticks()
-        if self.status == "attack" and current_time < self.attacking_until:
-            return
-        if current_time - self.last_attack_time < self.attack_cooldown:
-            return
+        print("attack")
+        if self.ATTACK:
+            self.prev_status = self.status
+            self.status = 'attack'
+            self.current_frame_index = 0
+            self.attack_hit_registered = False
+            self.ATTACK = False 
+            self.MOVEWITHATTACKFLAG=True
 
-        self.status = "attack"
-        self.current_frame_index = 0
-        self.attacking_until = current_time + (len(self.Attack_frames) * self.animation_speed)
-        self.last_attack_time = current_time
-        self.attack_hit_registered = False
+    def update_attack(self):
+     if self.status=='attack':
+        for t in self.attack_targets:
+            if self.hitbox.colliderect(t.hitbox):
+                if self.Look=='right' and self.x_pos < t.x_pos and self.HIT_PER_ATTACK==0:
+                    t.health-=50
+                    self.HIT_PER_ATTACK=1
+                    print('hit')
+                elif self.Look=='left' and self.x_pos > t.x_pos and self.HIT_PER_ATTACK==0:
+                    t.health-=50
+                    self.HIT_PER_ATTACK=1
+                    print('hit')
+                      
 
-    def perform_attack(self):
-            sword_range = 60
-            sword_box = pygame.Rect(
-                self.hitbox.right, self.hitbox.top, sword_range, self.hitbox.height
-            ) if self.Look == 'right' else pygame.Rect(
-                self.hitbox.left - sword_range, self.hitbox.top, sword_range, self.hitbox.height
-            )
+    
 
-            for enemy in self.attack_targets:
-                if sword_box.colliderect(enemy.hitbox):
-                    enemy.damage(25)
+
 
 
 

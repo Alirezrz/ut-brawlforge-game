@@ -41,7 +41,8 @@ class Game:
         )
         self.ninja = Ninja(
             player_start_pos['x'] + 100, player_start_pos['y'],
-            screen_width, screen_height
+            screen_width, screen_height,
+            [self.Roboman]
         )
 
         self.platforms = load_level_data(level_1_data, platform_image)

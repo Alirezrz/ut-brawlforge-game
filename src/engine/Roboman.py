@@ -202,7 +202,6 @@ class Roboman:
         self.drone_duration = 20000
 
     def display(self, screen, offset, shot_bullets):
-        print(self.health)
         self.roboman_health_bar = pygame.transform.scale(
             self.roboman_health_bar, 
             (int(health_bar_lenght * (self.health / self.max_health)), profileSideSize - (2 * roboman_health_bar_frame_thickness))
