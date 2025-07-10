@@ -163,6 +163,15 @@ class Ninja:
             self.Attack_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
             
             
+        self.JumpAttack_frames=[]
+        self.jumpattack_sizes=[(87,118),(86,118),(86,118),(136,118),(136,118),(198,200),(201,200),(202,200),(125,170),(136,118)]
+        for i in range(0, 10):
+            img_path = os.path.join(base_path, "JumpAttack", f"Jump_Attack__00{i}.png")
+            tmp = pygame.image.load(img_path)
+            self.JumpAttack_frames.append(pygame.transform.scale(tmp, self.jumpattack_sizes[i]))
+        
+            
+            
             
             
             
@@ -207,6 +216,8 @@ class Ninja:
         # Determine animation state
         if self.status == "attack":
             target_animation_state = 'attack'
+        if self.status == "jumpattack":
+            target_animation_state = 'jumpattack'
         elif not self.on_ground and self.current_platform is None:
             if self.status == "jump_throw":
                 target_animation_state = 'jump_throw'
@@ -218,7 +229,26 @@ class Ninja:
             target_animation_state = 'throw'
         else:
             target_animation_state = 'running' if self.is_moving_horizontally else 'idle'
-
+        
+        
+        if target_animation_state == 'jumpattack' and current_time - self.last_frame_update_time >=self.animation_speed-20:
+            if self.current_frame_index < len(self.JumpAttack_frames):
+                self.current_picture = self.JumpAttack_frames[self.current_frame_index]
+                self.hitbox = pygame.Rect(
+                    self.x_pos, self.y_pos,
+                    self.with_sword_width[self.current_frame_index], 118
+                )
+                if self.current_frame_index==3 and self.Look=='left':
+                    self.x_pos-=40
+                print(self.x_pos)
+                self.current_frame_index += 1
+            else:
+                self.status = "Idle"
+                self.last_animation_state = "idle"
+                self.current_frame_index = 0
+                self.ATTACK = True
+                self.HIT_PER_ATTACK = 0
+                self.attack_hit_registered = False
         # Handle animation transition
         if target_animation_state != self.last_animation_state:
             self.current_frame_index = 0
@@ -271,6 +301,9 @@ class Ninja:
                     self.x_pos, self.y_pos,
                     self.with_sword_width[self.current_frame_index], 118
                 )
+                if self.current_frame_index==3 and self.Look=='left':
+                    self.x_pos-=40
+                print(self.x_pos)
                 self.current_frame_index += 1
             else:
                 self.status = "Idle"
@@ -279,7 +312,7 @@ class Ninja:
                 self.ATTACK = True
                 self.HIT_PER_ATTACK = 0
                 self.attack_hit_registered = False
-
+        
         elif target_animation_state == 'running':
             self.current_frame_index = (self.current_frame_index + 1) % len(self.run_frames)
             self.current_picture = self.run_frames[self.current_frame_index]
@@ -367,7 +400,7 @@ class Ninja:
             self.horizontal_move()
 
     def move_right(self):
-        if self.allow_move_right and self.status not in ["throw"]:
+        if self.allow_move_right and self.status not in ["throw"] and self.status!='attack':
             self.x_pos += self.horizontal_speed*self.Super_cofficent
             self.is_moving_horizontally = True
             self.Look = 'right'
@@ -375,7 +408,7 @@ class Ninja:
             self.fall_from_platform()
 
     def move_left(self):
-        if self.allow_move_left  and self.status not in ["throw"]:
+        if self.allow_move_left  and self.status not in ["throw"] and self.status!='attack':
             self.x_pos -= self.horizontal_speed*self.Super_cofficent
             self.is_moving_horizontally = True
             self.Look = 'left'
@@ -506,7 +539,6 @@ class Ninja:
             self.last_SPdisplay=current_time
             self.Super_PowerFlag=True
             self.Kunai=self.Fired_kunai_pic
-            print("active")
             
     def Update_SuperPower(self):
         current_time=pygame.time.get_ticks()
@@ -594,27 +626,34 @@ class Ninja:
             
                 
     def attack(self):
-        print("attack")
-        if self.ATTACK:
+        if self.ATTACK and self.vertical_speed==0 and self.current_platform!=None:
             self.prev_status = self.status
             self.status = 'attack'
             self.current_frame_index = 0
             self.attack_hit_registered = False
             self.ATTACK = False 
             self.MOVEWITHATTACKFLAG=True
+            return
+        elif self.ATTACK:
+            self.prev_status = self.status
+            self.status = 'jumpattack'
+            self.current_frame_index = 0
+            self.attack_hit_registered = False
+            self.ATTACK = False 
+            self.MOVEWITHATTACKFLAG=True
+            return
+        
 
     def update_attack(self):
-     if self.status=='attack':
+     if self.status=='attack' or self.status=='jumpattack':
         for t in self.attack_targets:
             if self.hitbox.colliderect(t.hitbox):
                 if self.Look=='right' and self.x_pos < t.x_pos and self.HIT_PER_ATTACK==0:
                     t.health-=50
                     self.HIT_PER_ATTACK=1
-                    print('hit')
                 elif self.Look=='left' and self.x_pos > t.x_pos and self.HIT_PER_ATTACK==0:
                     t.health-=50
                     self.HIT_PER_ATTACK=1
-                    print('hit')
                       
 
     

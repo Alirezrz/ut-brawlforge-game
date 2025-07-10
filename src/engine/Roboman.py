@@ -2,6 +2,8 @@ import pygame
 import os
 from config import roboman_jetpack_reload,roboman_reload_time, jump_strenght ,horizontal_speed,gravity_strenght,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
 from src.engine.protector import Guard_Drone
+
+# bug : وقتی تیر انداز تیرش به تروریست بخوره روبات میمیره
 class Roboman:
 
     def __init__(self, x, y,  roboman_health_bar_frame,roboman_health_bar, hero_profile_picture, screen_width, screen_height, sounds=None, trigger_shutter_callback=None):
