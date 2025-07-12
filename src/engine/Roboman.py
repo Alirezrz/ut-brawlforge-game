@@ -433,7 +433,7 @@ class Roboman:
         self.vertical_speed = 0
         self.health = self.max_health
 
-    def update_bullets(self, screen, shot_bullets,platforms):
+    def update_bullets(self, screen, shot_bullets,platforms,targets):
         self.update_drone()
         for bullet in self.bullets[:]:
             bullet.update()
@@ -446,8 +446,19 @@ class Roboman:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
                     self.explosions.append(Explosion(bullet.x_pos,bullet.y_pos-65))
-                    self.bullets.remove(bullet)
-                    shot_bullets.remove(bullet)
+                    if bullet in self.bullets:
+                        self.bullets.remove(bullet)
+                    if bullet in shot_bullets:
+                        shot_bullets.remove(bullet)
+                        
+        for target in targets:
+            for bullet in self.bullets:
+                if target.hitbox.colliderect(bullet.hitbox):
+                    target.health-=20   # should be intialized ***** 
+                    if bullet in self.bullets:
+                        self.bullets.remove(bullet)
+                    if bullet in shot_bullets:
+                        shot_bullets.remove(bullet)
                     
                     
         

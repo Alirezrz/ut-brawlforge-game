@@ -429,7 +429,8 @@ class Ninja:
         self.y_pos = 250 - self.current_picture.get_height() - 20
         self.vertical_speed = 0
 
-    def update_bullets(self, screen, shot_bullets):
+    def update_bullets(self, screen, shot_bullets,platforms,targets):
+        self.update_drone()
         for bullet in self.bullets[:]:
             bullet.update()
             if bullet.is_off_screen(self.screen_width):
@@ -437,6 +438,22 @@ class Ninja:
                     self.bullets.remove(bullet)
                 if bullet in shot_bullets:
                     shot_bullets.remove(bullet)
+        for bullet in self.bullets:
+            for  platform in platforms:
+                if bullet.hitbox.colliderect(platform.rect):
+                    if bullet in self.bullets:
+                        self.bullets.remove(bullet)
+                    if bullet in shot_bullets:
+                        shot_bullets.remove(bullet)
+                        
+        for target in targets:
+            for bullet in self.bullets:
+                if target.hitbox.colliderect(bullet.hitbox):
+                    target.health-=20   # should be intialized ***** 
+                    if bullet in self.bullets:
+                        self.bullets.remove(bullet)
+                    if bullet in shot_bullets:
+                        shot_bullets.remove(bullet)
 
     def jump(self):
         current_time = pygame.time.get_ticks()

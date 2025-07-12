@@ -116,7 +116,7 @@ class Game:
         self.Roboman.move_with_platform()
         self.Roboman.jump_under_platform(self.platforms)
         self.Roboman.update_animation()
-        self.Roboman.update_bullets(self.screen, self.shot_bullets,self.platforms)
+        self.Roboman.update_bullets(self.screen, self.shot_bullets,self.platforms,[self.ninja])
 
         self.ninja.is_on_ground()
         self.ninja.gravity()
@@ -125,7 +125,7 @@ class Game:
         self.ninja.move_with_platform()
         self.ninja.jump_under_platform(self.platforms)
         self.ninja.update_animation(self.shot_bullets)
-        self.ninja.update_bullets(self.screen, self.shot_bullets)
+        self.ninja.update_bullets(self.screen, self.shot_bullets,self.platforms,[self.Roboman])
         
         for gunman in self.gunmans:
             gunman.Update(self.screen, self.scroll, self.shot_bullets)
