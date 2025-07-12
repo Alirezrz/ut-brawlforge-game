@@ -116,7 +116,7 @@ class Game:
         self.Roboman.move_with_platform()
         self.Roboman.jump_under_platform(self.platforms)
         self.Roboman.update_animation()
-        self.Roboman.update_bullets(self.screen, self.shot_bullets)
+        self.Roboman.update_bullets(self.screen, self.shot_bullets,self.platforms)
 
         self.ninja.is_on_ground()
         self.ninja.gravity()
@@ -146,15 +146,7 @@ class Game:
 
         
 
-        for bullet in self.shot_bullets[:]:
-            for platform in self.platforms:
-                if bullet.hitbox.colliderect(platform):
-                    if self.sounds and self.sounds.get('explosion'):
-                        self.sounds['explosion'].play()
-                    self.explosions.append(Explosion(bullet.x_pos, bullet.y_pos, self.explosion_picture))
-                    self.shutter_strength = 10
-                    self.shutter_start_time = pygame.time.get_ticks()
-                    self.remove_bullet(bullet)
+        
                     
                     
 

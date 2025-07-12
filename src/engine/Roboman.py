@@ -169,6 +169,7 @@ class Roboman:
         self.health = 100
         self.max_health = 100
         self.bullets = []
+        self.explosions=[]
         
         self.jetpack_reload_duration = roboman_jetpack_reload
         self.last_jetpack_fire=0
@@ -222,6 +223,12 @@ class Roboman:
 
         for drone in self.guard_drone:
             drone.Update(screen, offset, shot_bullets)
+            
+        for exp in self.explosions:
+            if not exp.Expired:
+                exp.display(screen,offset)
+            else:
+                self.explosions.remove(exp)
 
         screen.blit(self.roboman_health_bar_frame, (profileSideSize, 0))
         screen.blit(self.roboman_health_bar, (profileSideSize + roboman_health_bar_frame_thickness, roboman_health_bar_frame_thickness))
@@ -426,7 +433,7 @@ class Roboman:
         self.vertical_speed = 0
         self.health = self.max_health
 
-    def update_bullets(self, screen, shot_bullets):
+    def update_bullets(self, screen, shot_bullets,platforms):
         self.update_drone()
         for bullet in self.bullets[:]:
             bullet.update()
@@ -435,6 +442,19 @@ class Roboman:
                     self.bullets.remove(bullet)
                 if bullet in shot_bullets:
                     shot_bullets.remove(bullet)
+        for bullet in self.bullets:
+            for  platform in platforms:
+                if bullet.hitbox.colliderect(platform.rect):
+                    self.explosions.append(Explosion(bullet.x_pos,bullet.y_pos-65))
+                    self.bullets.remove(bullet)
+                    shot_bullets.remove(bullet)
+                    
+                    
+        
+                
+                                  
+                    
+
 
     def jump(self):
         if self.on_ground :
@@ -574,3 +594,54 @@ class Roboman:
                     drone.status = 'departing'
             if drone.status == 'departing' and drone.is_off_screen_exit():
                 self.guard_drone.remove(drone)
+
+
+
+
+
+
+#================================================
+
+class Explosion:
+    def __init__(self,x,y):
+        self.x_pos=x
+        self.y_pos=y
+        self.Expired=False
+        base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "RoboMan_pictures")
+        
+        self.images=[]
+        
+        for i in range (5):
+            self.images.append(
+                pygame.transform.scale(
+                pygame.image.load(
+                    os.path.join(base_path,"explosion",f"{i}.png")
+                ),
+                (12,150)
+            )
+            )
+        self.frame_index=-1
+        self.frame=self.images[0]
+        self.last_update=0
+        
+            
+            
+            
+    def display(self,screen,offset):
+        self.update()
+        screen.blit(self.frame,(self.x_pos-offset[0],self.y_pos-offset[1]))
+        
+    def update(self):
+        current_time=pygame.time.get_ticks()
+        elapsed_time=current_time-self.last_update
+        if elapsed_time>=60 and self.frame_index<4:
+            self.frame_index+=1
+            self.frame=self.images[self.frame_index]
+            self.last_update=current_time
+        elif elapsed_time>=60 and not self.frame_index<4:
+            self.Expired=True
+            
+        
+        
+        
+        
