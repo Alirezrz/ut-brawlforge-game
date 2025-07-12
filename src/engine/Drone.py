@@ -277,9 +277,11 @@ class Drone:
                 
                 
     def update_freezing(self):
-        current_time=pygame.time.get_ticks()
-        if self.target.freezed and current_time - self.last_freezed >= self.freez_durtation:
-            self.target.freezed=False 
+        current_time = pygame.time.get_ticks()
+        if self.target.freezed:
+            if current_time - self.last_freezed >= self.freez_durtation or not self.ALIVE:
+                self.target.freezed = False
+
             
             
     def update_alive(self):

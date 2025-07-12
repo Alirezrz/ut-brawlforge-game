@@ -47,18 +47,14 @@ class Game:
 
         self.platforms = load_level_data(level_1_data, platform_image)
         self.screen_color = (60, 100, 150)
-        self.enemies = [
-            Enemy(random.randint(0, screen_width - ghost_picture.get_width()), screen_height - ghost_picture.get_height() - platform_height, 3, ghost_picture, ghost2_picture, screen_width, health_bar_green, health_bar_red),
-            Enemy(random.randint(0, screen_width - ghost_picture.get_width()), 180 - ghost_picture.get_height() - platform_height, 3, ghost_picture, ghost2_picture, screen_width, health_bar_green, health_bar_red),
-            Enemy(random.randint(0, screen_width - ghost_picture.get_width()), 354 - ghost_picture.get_height() - platform_height, 3, ghost_picture, ghost2_picture, screen_width, health_bar_green, health_bar_red)
-        ]
 
         self.scroll = [0, 0]
         self.terrorists = [
             Terrorist(player_start_pos['x'] + 800, player_start_pos['y'], screen_width, screen_height, self.ninja, self.Roboman, self.platforms, self.ninja, self.screen, self.scroll)
         ]
-
-        self.gunman = Gunman(player_start_pos['x'] + 800, player_start_pos['y'], self.platforms, [self.ninja, self.Roboman])
+        
+        self.gunmans=[]
+        self.gunmans.append(Gunman(player_start_pos['x'] + 800, player_start_pos['y'], self.platforms, [self.ninja, self.Roboman]))
 
         self.base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images")
         self.background = pygame.image.load(os.path.join(self.base_path, "city.png"))
@@ -66,15 +62,28 @@ class Game:
         self.shot_bullets = []
         self.explosions = []
         self.bullet_class = Bullet
+        
         self.game_active = True
-        self.gate = Gates(player_start_pos['x'], player_start_pos['y'] - 37, player_start_pos['x'] + 1400, player_start_pos['y'] - 357, self.ninja)
-        self.drone = Drone(-400, 40, 'right', [self.ninja, self.Roboman])
-        self.pumpkin = Pumpkin(player_start_pos['x'] + 100, player_start_pos['y'] - 270, [self.ninja, self.Roboman])
-        self.camera = Camera(self.screen, self.platforms, self.enemies, self.shot_bullets, self.Roboman, self.explosions, self.scroll, self.ninja, self.terrorists[0], self.gate, self.background, self.drone, self.pumpkin, self.gunman)
+        
+        self.gates=[]
+        self.gates.append(Gates(player_start_pos['x'], player_start_pos['y'] - 37, player_start_pos['x'] + 1400, player_start_pos['y'] - 357, self.ninja))
+        
+        
+        self.drones=[]
+        self.drones.append(Drone(-400, 40, 'right', [self.ninja, self.Roboman]))
+        
+        self.Objects=[]
+        self.Objects.append(Pumpkin(player_start_pos['x'] + 100, player_start_pos['y'] - 270, [self.ninja, self.Roboman]))
+        
+        
+        self.camera = Camera(self.screen, self.platforms, self.shot_bullets, self.Roboman, self.explosions, self.scroll, self.ninja, self.terrorists[0], self.gates, self.background, self.drones, self.Objects, self.gunmans)
 
         self.shutter_strength = 0
         self.shutter_start_time = 0
         self.shutter_duration = 150
+        
+        
+        
         self.input_handler = InputHandler(self.Roboman, self.bullet_class, self.shot_bullets)
 
     def remove_bullet(self, bullet):
@@ -82,20 +91,21 @@ class Game:
             self.shot_bullets.remove(bullet)
         if bullet in self.Roboman.bullets:
             self.Roboman.bullets.remove(bullet)
-        if bullet in self.gunman.shot_bullets:
-            self.gunman.shot_bullets.remove(bullet)
+        for gunman in self.gunmans:
+            if bullet in gunman.shot_bullets:
+                gunman.shot_bullets.remove(bullet)
 
     def handle_events(self, events):
         for event in events:
             if event.type == pygame.QUIT:
                 pygame.quit()
-                exit()  # Or: sys.exit()
+                exit()  
             
 
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
-        self.Roboman.handle_input(keys, self.gate, self.shot_bullets, self.bullet_class)
-        self.ninja.handle_input(keys, self.gate, self.shot_bullets, self.bullet_class, self.trigger_shutter)
+        self.Roboman.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class)
+        self.ninja.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class, self.trigger_shutter)
 
 
     def update(self):
@@ -106,6 +116,7 @@ class Game:
         self.Roboman.move_with_platform()
         self.Roboman.jump_under_platform(self.platforms)
         self.Roboman.update_animation()
+        self.Roboman.update_bullets(self.screen, self.shot_bullets)
 
         self.ninja.is_on_ground()
         self.ninja.gravity()
@@ -115,9 +126,11 @@ class Game:
         self.ninja.jump_under_platform(self.platforms)
         self.ninja.update_animation(self.shot_bullets)
         self.ninja.update_bullets(self.screen, self.shot_bullets)
-
-        self.gunman.Update(self.screen, self.scroll, self.shot_bullets)
-        self.drone.Update(self.shot_bullets)
+        
+        for gunman in self.gunmans:
+            gunman.Update(self.screen, self.scroll, self.shot_bullets)
+        for drone in self.drones:
+            drone.Update(self.shot_bullets)
 
         for terrorist in self.terrorists[:]:
             if terrorist and terrorist.status != 'removed':
@@ -130,23 +143,8 @@ class Game:
         for platform in self.platforms:
             platform.update()
 
-        for enemy in self.enemies[:]:
-            ALIVE = True
-            for bullet in self.shot_bullets[:]:
-                if enemy.hitbox.colliderect(bullet.hitbox):
-                    if self.sounds and self.sounds.get('enemy_hit'):
-                        self.sounds['enemy_hit'].play()
-                    self.remove_bullet(bullet)
-                    ALIVE = False
-                    break
-            if ALIVE:
-                enemy.move()
-            else:
-                enemy.damage(20)
-                if enemy.condition == 'dead':
-                    self.enemies.remove(enemy)
 
-        self.Roboman.update_bullets(self.screen, self.shot_bullets)
+        
 
         for bullet in self.shot_bullets[:]:
             for platform in self.platforms:
@@ -157,11 +155,14 @@ class Game:
                     self.shutter_strength = 10
                     self.shutter_start_time = pygame.time.get_ticks()
                     self.remove_bullet(bullet)
+                    
+                    
 
         self.scroll[0] += (((self.ninja.hitbox.centerx - screen_width / 2 - self.scroll[0]) ) ) /15
         self.scroll[1] += (self.ninja.hitbox.centery - screen_height / 2 - self.scroll[1])  /15
 
-        self.pumpkin.Update(self.screen, self.scroll)
+        for obj in self.Objects:
+            obj.Update(self.screen, self.scroll)
 
         current_time = pygame.time.get_ticks()
         if self.shutter_strength > 0:

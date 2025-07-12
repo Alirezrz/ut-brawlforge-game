@@ -580,7 +580,8 @@ class Ninja:
             
             
     def Send_teleport_request(self,Gates):
-        Gates.recieve_request(self)
+        for Gate in Gates:
+            Gate.recieve_request(self)
         
         
         
