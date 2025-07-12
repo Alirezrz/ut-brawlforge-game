@@ -158,8 +158,8 @@ class Game:
                     self.shutter_start_time = pygame.time.get_ticks()
                     self.remove_bullet(bullet)
 
-        self.scroll[0] += (((self.ninja.hitbox.centerx - screen_width / 2 - self.scroll[0]) + (self.Roboman.hitbox.centerx - screen_width / 2 - self.scroll[0])) / 2) / 15
-        self.scroll[1] += (((self.ninja.hitbox.centery - screen_height / 2 - self.scroll[1]) + (self.Roboman.hitbox.centery - screen_height / 2 - self.scroll[1])) / 2) / 15
+        self.scroll[0] += (((self.ninja.hitbox.centerx - screen_width / 2 - self.scroll[0]) ) ) /15
+        self.scroll[1] += (self.ninja.hitbox.centery - screen_height / 2 - self.scroll[1])  /15
 
         self.pumpkin.Update(self.screen, self.scroll)
 
