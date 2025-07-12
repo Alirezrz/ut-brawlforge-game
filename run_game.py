@@ -37,6 +37,8 @@ try:
     }
     platform_tileset_picture = pygame.image.load("src/assets/images/platform.jpg")
     explode_picture = pygame.image.load("src/assets/images/explode.png")
+    ninja_health_bar_frame = pygame.image.load("src/assets/images/Ninja/Ninja_health_bar_frame.png")
+    ninja_health_bar = pygame.image.load("src/assets/images/Ninja/ninja_health_bar.png")
     explode_picture = pygame.transform.scale(explode_picture, (explode_side_size, explode_side_size))
     health_bar_green= pygame.image.load("src/assets/images/green_image.jpg")
     health_bar_green= pygame.transform.scale(health_bar_green, (enenmy_health_bar_width,enenmy_health_bar_height))
@@ -76,8 +78,9 @@ while True:
           platform_images,
           background, explode_picture, 
           health_bar_green, health_bar_red, hero_profile_picture,
-          roboman_health_bar_frame,roboman_health_bar,
-          game_sounds
+          roboman_health_bar_frame, roboman_health_bar,
+          game_sounds,
+          ninja_health_bar_frame, ninja_health_bar  # اضافه شد
         )
         result = game.run()
         if result == "menu":

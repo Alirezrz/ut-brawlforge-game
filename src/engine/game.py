@@ -20,7 +20,7 @@ from src.engine.gunman import Gunman
 
 
 class Game:
-    def __init__(self, screen, hero_picture, ghost_picture, ghost2_picture, platform_image, background, explosion_picture, health_bar_green, health_bar_red, hero_profile_picture, roboman_health_bar_frame, roboman_health_bar, sounds):
+    def __init__(self, screen, hero_picture, ghost_picture, ghost2_picture, platform_image, background, explosion_picture, health_bar_green, health_bar_red, hero_profile_picture, roboman_health_bar_frame, roboman_health_bar, sounds, ninja_health_bar_frame=None, ninja_health_bar=None):
         self.screen = screen
         self.background = background
         self.explosion_picture = explosion_picture
@@ -42,7 +42,8 @@ class Game:
         self.ninja = Ninja(
             player_start_pos['x'] + 100, player_start_pos['y'],
             screen_width, screen_height,
-            [self.Roboman]
+            [self.Roboman],
+            ninja_health_bar_frame, ninja_health_bar  # اضافه شد
         )
 
         self.platforms = load_level_data(level_1_data, platform_image)

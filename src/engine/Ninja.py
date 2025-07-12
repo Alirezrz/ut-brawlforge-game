@@ -1,14 +1,17 @@
 import pygame
 import os
 from src.engine.bullet import Bullet
-from config import Ninja_width, Ninja_height
+from config import Ninja_width, Ninja_height,profileSideSize, health_bar_lenght, roboman_health_bar_frame_thickness
 from src.engine.protector import Guard_Drone
 ## must be done -->  1- list of enemies for hit when attacking must be fixed 
 class Ninja:
-    def __init__(self, x, y, screen_width, screen_height,targets):
+    def __init__(self, x, y, screen_width, screen_height, targets, ninja_health_bar_frame=None, ninja_health_bar=None, hero_creation_index=2):
         self.x_pos = x
         self.y_pos = y
         self.on_platform = False
+        self.ninja_health_bar_frame = ninja_health_bar_frame
+        self.ninja_health_bar = ninja_health_bar
+        self.hero_creation_index = hero_creation_index  # دیفالت 2
         self.current_platform = None
         self.horizontal_auto_speed = 0
         self.freezed=False
@@ -184,7 +187,44 @@ class Ninja:
             
             
         
+    def display_health_bar(self, screen):
+        if not self.ninja_health_bar or not self.ninja_health_bar_frame:
+            return
+        health_bar = pygame.transform.scale(
+            self.ninja_health_bar,
+            (int(health_bar_lenght * (self.health / self.max_health)), profileSideSize - (2 * roboman_health_bar_frame_thickness))
+        )
+        health_bar_frame = pygame.transform.scale(
+            self.ninja_health_bar_frame,
+            (health_bar_lenght + (2 * roboman_health_bar_frame_thickness), profileSideSize)
+        )
+        # موقعیت health bar بر اساس hero_creation_index
+        if self.hero_creation_index == 1:  # بالا چپ
+            bar_x, bar_y = profileSideSize, 0
+            health_x, health_y = profileSideSize + roboman_health_bar_frame_thickness, roboman_health_bar_frame_thickness
+        elif self.hero_creation_index == 2:  # بالا راست
+            bar_x = self.screen_width - health_bar_lenght - (2 * roboman_health_bar_frame_thickness) - profileSideSize
+            bar_y = 0
+            health_x = bar_x + roboman_health_bar_frame_thickness
+            health_y = roboman_health_bar_frame_thickness
+        elif self.hero_creation_index == 3:  # پایین چپ
+            bar_x = profileSideSize
+            bar_y = self.screen_height - profileSideSize
+            health_x = bar_x + roboman_health_bar_frame_thickness
+            health_y = bar_y + roboman_health_bar_frame_thickness
+        elif self.hero_creation_index == 4:  # پایین راست
+            bar_x = self.screen_width - health_bar_lenght - (2 * roboman_health_bar_frame_thickness) - profileSideSize
+            bar_y = self.screen_height - profileSideSize
+            health_x = bar_x + roboman_health_bar_frame_thickness
+            health_y = bar_y + roboman_health_bar_frame_thickness
+        else:  # دیفالت بالا راست
+            bar_x = self.screen_width - health_bar_lenght - (2 * roboman_health_bar_frame_thickness) - profileSideSize
+            bar_y = 0
+            health_x = bar_x + roboman_health_bar_frame_thickness
+            health_y = roboman_health_bar_frame_thickness
 
+        screen.blit(health_bar_frame, (bar_x, bar_y))
+        screen.blit(health_bar, (health_x, health_y))
     def display(self, screen, offset,shot_bullets):
         self.Update_SuperPower() 
         self.Super_Power_effect()
@@ -202,6 +242,7 @@ class Ninja:
             flipped_picture = pygame.transform.flip(display_picture, True, False)
             screen.blit(flipped_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
 
+        self.display_health_bar(screen)
     def update_animation(self, shot_bullets):
         current_time = pygame.time.get_ticks()
 
