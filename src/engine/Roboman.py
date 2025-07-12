@@ -528,7 +528,8 @@ class Roboman:
                         
                         
     def Send_teleport_request(self,Gates):
-        Gates.recieve_request(self)
+        for gate in Gates:
+            gate.recieve_request(self)
         
         
         
