@@ -228,6 +228,7 @@ class Roboman:
         screen.blit(pygame.transform.scale(self.hero_profile_picture, (profileSideSize, profileSideSize)), (0, 0))
 
     def update_animation(self):
+        print(self.health)
         current_time = pygame.time.get_ticks()
         if self.jetpack_active and self.jetpack_frame:
             self.current_picture = self.jetpack_frame

@@ -1,8 +1,8 @@
 import pygame
 import os
-
+import math
 class Terrorist:
-    def __init__(self, x, y, screen_width, screen_height, Ninja, Robo, platforms, ninja, screen, scroll):
+    def __init__(self, x, y, screen_width, screen_height, targets, platforms, ninja, screen, scroll):
         self.x_pos = x
         self.y_pos = y
         self.on_platform = False
@@ -21,14 +21,15 @@ class Terrorist:
         self.width = 62
         self.height = 118
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
-        self.health = 63
+        self.health = 100
         self.max_health = 100
         self.bullets = []
         self.platforms = platforms
         self.game_screen = screen
         self.explosion_pos = 0
         self.damage_radiuos=200
-        self.target = ninja
+        self.targets = targets
+        self.target=self.targets[0]
         self.target_status = 'free'
         self.status = 'alive'
         self.animation_status = 'walk'
@@ -179,6 +180,7 @@ class Terrorist:
             self.hitbox.topleft = (self.x_pos, self.y_pos)
 
     def Vision(self):
+        self.update_taregts()
         dx = abs(self.target.x_pos - self.x_pos)
         dy = abs(self.target.y_pos - self.y_pos)
         if dx < 20 and dy < 80:
@@ -207,10 +209,12 @@ class Terrorist:
             if not self.exploding:
                 self.exploding = True
                 self.explosion_start_time = pygame.time.get_ticks()
-                dx = abs(self.target.x_pos - self.x_pos)
-                dy = abs(self.target.y_pos - self.y_pos)
-                if dx<self.damage_radiuos and dy<self.damage_radiuos:
-                    self.target.health -= 30
+                for target in self.targets:
+                    dx = abs(self.target.x_pos - self.x_pos)
+                    dy = abs(self.target.y_pos - self.y_pos)
+                    if dx<self.damage_radiuos and dy<self.damage_radiuos:
+                        target.health -= 30
+                        print(target.health)
                 self.current_frame_index = 0
                 self.explosion_pos = (self.x_pos, self.y_pos + 50)
             else:
@@ -269,3 +273,19 @@ class Terrorist:
             elif self.animation_status == 'run':
                 self.frame_index = (self.frame_index + 1) % len(self.run_frames)
                 self.current_picture = self.run_frames[self.frame_index]
+                
+    def update_taregts(self):
+        if self.target_status=='locked':
+            return
+        dist=[]
+        for t in self.targets:
+            dx=abs(self.x_pos - t.x_pos)
+            dy=abs(self.y_pos-t.y_pos)
+            dist.append(math.sqrt((dx**2)+(dy**2)))
+            
+        min_indx=0
+        for i in range(len(dist)) :
+            if dist[i]< dist[min_indx]:
+                min_indx=i
+                
+        self.target=self.targets[min_indx]

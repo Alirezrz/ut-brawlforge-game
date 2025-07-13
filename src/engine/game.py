@@ -50,7 +50,7 @@ class Game:
 
         self.scroll = [0, 0]
         self.terrorists = [
-            Terrorist(player_start_pos['x'] + 800, player_start_pos['y'], screen_width, screen_height, self.ninja, self.Roboman, self.platforms, self.ninja, self.screen, self.scroll)
+            Terrorist(player_start_pos['x'] + 800, player_start_pos['y'], screen_width, screen_height,[ self.ninja, self.Roboman], self.platforms, self.ninja, self.screen, self.scroll)
         ]
         
         self.gunmans=[]

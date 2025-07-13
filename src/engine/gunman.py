@@ -205,7 +205,10 @@ class Gunman:
         shot_bullets.append(bullet)
 
     def update_bullets(self, screen, offset, shot_bullets):
+        print(len(self.shot_bullets))
         for bullet in self.shot_bullets[:]:
+            if not bullet in shot_bullets:
+                self.shot_bullets.remove(bullet)
             if bullet.status!='removed':
                 bullet.update()
                 bullet.draw(screen, offset)
@@ -213,6 +216,7 @@ class Gunman:
                 for hero in self.targets:
                     if bullet.hitbox.colliderect(hero.hitbox):
                         hero.health -= 20
+                        print('here')
                         if bullet in shot_bullets:
                             self.shot_bullets.remove(bullet)
                             shot_bullets.remove(bullet)
