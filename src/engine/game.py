@@ -17,7 +17,7 @@ from src.engine.teleportgate import Gates
 from src.engine.Drone import Drone
 from src.engine.pumpkin import Pumpkin
 from src.engine.gunman import Gunman
-
+from src.engine.heatlh_box import PowerBox
 
 class Game:
     def __init__(self, screen, hero_picture, ghost_picture, ghost2_picture, platform_image, background, explosion_picture, health_bar_green, health_bar_red, hero_profile_picture, roboman_health_bar_frame, roboman_health_bar, sounds, ninja_health_bar_frame, ninja_health_bar,ninja_profile_picture):
@@ -76,7 +76,7 @@ class Game:
         
         self.Objects=[]
         self.Objects.append(Pumpkin(player_start_pos['x'] + 100, player_start_pos['y'] - 270, [self.ninja, self.Roboman]))
-        
+        self.Objects.append(PowerBox(player_start_pos['x']+700, player_start_pos['y']+65,[self.Roboman,self.ninja]))
         
         self.camera = Camera(self.screen, self.platforms, self.shot_bullets, self.Roboman, self.explosions, self.scroll, self.ninja, self.terrorists[0], self.gates, self.background, self.drones, self.Objects, self.gunmans)
 
