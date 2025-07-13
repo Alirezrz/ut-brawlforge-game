@@ -6,6 +6,10 @@ from src.engine.protector import Guard_Drone
 ## must be done -->  1- list of enemies for hit when attacking must be fixed 
 class Ninja:
     def __init__(self, x, y, screen_width, screen_height, targets, ninja_health_bar_frame=None, ninja_health_bar=None, hero_creation_index=2, ninja_profile_picture=None):
+        self.jump_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja jump.MP3"))
+        self.kunai_hit_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit.mp3"))
+        self.kunai_hit_platform_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit platofrm.mp3"))
+        self.throw_kunai_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "throw kunai.mp3"))
         self.x_pos = x
         self.y_pos = y
         self.on_platform = False
@@ -398,6 +402,7 @@ class Ninja:
         self.Kunai,
         "Ninja"
         )
+        self.throw_kunai_sound.play()
 
         self.bullets.append(bullet)
         shot_bullets.append(bullet)
@@ -491,6 +496,8 @@ class Ninja:
         for bullet in self.bullets:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
+                    self.kunai_hit_platform_sound.play()
+
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
                     if bullet in shot_bullets:
@@ -500,6 +507,7 @@ class Ninja:
             for bullet in self.bullets:
                 if target.hitbox.colliderect(bullet.hitbox):
                     target.health-=20   # should be intialized ***** 
+                    self.kunai_hit_sound.play()
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
                     if bullet in shot_bullets:
@@ -512,6 +520,7 @@ class Ninja:
             return
 
         if self.on_ground and self.jump_count == 0 and self.AllowJump_flag:
+            self.jump_sound.play()
             self.vertical_speed = self.jump_strenght * self.Super_cofficent
             self.jump_count = 1
             self.on_ground = False
@@ -527,6 +536,7 @@ class Ninja:
     def double_jump(self):
         current_time = pygame.time.get_ticks()
         self.vertical_speed = self.jump_strenght*self.Super_cofficent
+        self.jump_sound.play()
         self.on_ground = False
         self.current_platform = None
         self.current_frame_index=1
