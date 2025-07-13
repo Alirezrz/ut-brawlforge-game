@@ -129,7 +129,7 @@ class Game:
         self.ninja.update_bullets(self.screen, self.shot_bullets,self.platforms,[self.Roboman])
         
         for gunman in self.gunmans:
-            gunman.Update(self.screen, self.scroll, self.shot_bullets)
+            gunman.Update(self.screen, self.scroll, self.shot_bullets,self.platforms)
         for drone in self.drones:
             drone.Update(self.shot_bullets)
 

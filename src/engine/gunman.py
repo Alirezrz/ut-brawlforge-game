@@ -80,12 +80,19 @@ class Gunman:
         self.reload_duration = 2000
 
         self.death_start_y = None  # To store original y position at death start
+        self.smokes = []
 
     def display(self, screen, offset):
         if self.Look == 'right':
             screen.blit(self.display_frame, (self.x_pos - offset[0], self.y_pos - offset[1]))
         else:
             screen.blit(pygame.transform.flip(self.display_frame, True, False), (self.x_pos - offset[0], self.y_pos - offset[1]))
+
+        for s in self.smokes[:]:
+            if s.Expired:
+                self.smokes.remove(s)
+            else:
+                s.display(screen, offset)
 
     def update_animation(self, shot_bullets):
         current_time = pygame.time.get_ticks()
@@ -119,12 +126,10 @@ class Gunman:
                 if self.frame_index < len(self.death_frames):
                     self.display_frame = self.death_frames[self.frame_index]
 
-                    # Save original y position on first frame of death animation
                     if self.frame_index == 0:
                         self.death_start_y = self.y_pos
 
-                    # Keep bottom aligned by adjusting y_pos based on frame height
-                    original_height = 114  # normal idle height
+                    original_height = 114
                     current_height = self.death_sizes[self.frame_index][1]
                     height_diff = original_height - current_height
                     self.y_pos = self.death_start_y + height_diff
@@ -138,16 +143,16 @@ class Gunman:
         elif self.status == 'death':
             self.display_frame = self.death_frames[-1]
 
-    def Update(self, screen, offset, shot_bullets):
+    def Update(self, screen, offset, shot_bullets, platforms):
         self.update_animation(shot_bullets)
 
         if not self.ALIVE:
-            self.update_bullets(screen, offset, shot_bullets)
+            self.update_bullets(screen, offset, shot_bullets, platforms)
             return
 
         self.Walk()
         self.vision()
-        self.update_bullets(screen, offset, shot_bullets)
+        self.update_bullets(screen, offset, shot_bullets, platforms)
         self.update_health(shot_bullets)
 
     def Walk(self):
@@ -170,10 +175,7 @@ class Gunman:
                 self.walked_len = 0
                 self.status = 'idle'
                 self.last_idle = current_time
-                if self.Look == 'right':
-                    self.Look = 'left'
-                else:
-                    self.Look = 'right'
+                self.Look = 'left' if self.Look == 'right' else 'right'
 
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.display_frame.get_width(), self.display_frame.get_height())
 
@@ -200,26 +202,34 @@ class Gunman:
 
     def shoot(self, shot_bullets):
         x = self.x_pos + self.display_frame.get_width() if self.Look == 'right' else self.x_pos
-        bullet = Bullet(x, self.y_pos + 50, 8, self.Look, self.bullet_pic, 'gunman')
+        bullet = Bullet(x, self.y_pos + 50, 8, self.Look, self.bullet_pic, 'gunman',self.Look)
         self.shot_bullets.append(bullet)
         shot_bullets.append(bullet)
 
-    def update_bullets(self, screen, offset, shot_bullets):
-        print(len(self.shot_bullets))
+    def update_bullets(self, screen, offset, shot_bullets, platforms):
         for bullet in self.shot_bullets[:]:
-            if not bullet in shot_bullets:
+            if bullet not in shot_bullets:
                 self.shot_bullets.remove(bullet)
-            if bullet.status!='removed':
+            elif bullet.status != 'removed':
                 bullet.update()
                 bullet.draw(screen, offset)
 
                 for hero in self.targets:
                     if bullet.hitbox.colliderect(hero.hitbox):
                         hero.health -= 20
-                        print('here')
-                        if bullet in shot_bullets:
+                        if bullet in self.shot_bullets:
                             self.shot_bullets.remove(bullet)
+                        if bullet in shot_bullets:
                             shot_bullets.remove(bullet)
+
+        for bullet in self.shot_bullets[:]:
+            for platform in platforms:
+                if bullet.hitbox.colliderect(platform.rect):
+                    self.smokes.append(Smoke(bullet.hitbox.centerx, bullet.hitbox.centery-25,bullet.Look))
+                    if bullet in self.shot_bullets:
+                        self.shot_bullets.remove(bullet)
+                    if bullet in shot_bullets:
+                        shot_bullets.remove(bullet)
 
     def update_health(self, shot_bullets):
         for bullet in shot_bullets[:]:
@@ -233,3 +243,46 @@ class Gunman:
             self.ALIVE = False
             self.status = "in the way to hell"
             self.frame_index = 0
+
+
+# =============================================
+
+
+class Smoke:
+    def __init__(self, x, y,look):
+        self.x_pos = x
+        self.y_pos = y
+        self.Expired = False
+        base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "gunman")
+        self.Look=look
+        self.images = []
+        for i in range(8):
+            self.images.append(
+                pygame.transform.scale(
+                    pygame.image.load(
+                        os.path.join(base_path, "smoke", f"{i}.png")
+                    ),
+                    (35, 35)
+                )
+            )
+        self.frame_index = 0
+        self.frame = self.images[self.frame_index]
+        self.last_update = pygame.time.get_ticks()
+
+    def display(self, screen, offset):
+        self.update()
+        if self.Look=='right':
+            screen.blit(self.frame, (self.x_pos - offset[0], self.y_pos - offset[1]))
+        else:
+            screen.blit(pygame.transform.flip(self.frame,True,False), (self.x_pos - offset[0], self.y_pos - offset[1]))
+
+    def update(self):
+        current_time = pygame.time.get_ticks()
+        elapsed_time = current_time - self.last_update
+        if elapsed_time >= 40:
+            self.frame_index += 1
+            if self.frame_index < len(self.images):
+                self.frame = self.images[self.frame_index]
+                self.last_update = current_time
+            else:
+                self.Expired = True
