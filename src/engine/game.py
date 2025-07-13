@@ -20,7 +20,7 @@ from src.engine.gunman import Gunman
 
 
 class Game:
-    def __init__(self, screen, hero_picture, ghost_picture, ghost2_picture, platform_image, background, explosion_picture, health_bar_green, health_bar_red, hero_profile_picture, roboman_health_bar_frame, roboman_health_bar, sounds):
+    def __init__(self, screen, hero_picture, ghost_picture, ghost2_picture, platform_image, background, explosion_picture, health_bar_green, health_bar_red, hero_profile_picture, roboman_health_bar_frame, roboman_health_bar, sounds, ninja_health_bar_frame=None, ninja_health_bar=None):
         self.screen = screen
         self.background = background
         self.explosion_picture = explosion_picture
@@ -42,7 +42,8 @@ class Game:
         self.ninja = Ninja(
             player_start_pos['x'] + 100, player_start_pos['y'],
             screen_width, screen_height,
-            [self.Roboman]
+            [self.Roboman],
+            ninja_health_bar_frame, ninja_health_bar  # اضافه شد
         )
 
         self.platforms = load_level_data(level_1_data, platform_image)
@@ -116,7 +117,7 @@ class Game:
         self.Roboman.move_with_platform()
         self.Roboman.jump_under_platform(self.platforms)
         self.Roboman.update_animation()
-        self.Roboman.update_bullets(self.screen, self.shot_bullets)
+        self.Roboman.update_bullets(self.screen, self.shot_bullets,self.platforms,[self.ninja])
 
         self.ninja.is_on_ground()
         self.ninja.gravity()
@@ -125,7 +126,7 @@ class Game:
         self.ninja.move_with_platform()
         self.ninja.jump_under_platform(self.platforms)
         self.ninja.update_animation(self.shot_bullets)
-        self.ninja.update_bullets(self.screen, self.shot_bullets)
+        self.ninja.update_bullets(self.screen, self.shot_bullets,self.platforms,[self.Roboman])
         
         for gunman in self.gunmans:
             gunman.Update(self.screen, self.scroll, self.shot_bullets)
@@ -146,15 +147,7 @@ class Game:
 
         
 
-        for bullet in self.shot_bullets[:]:
-            for platform in self.platforms:
-                if bullet.hitbox.colliderect(platform):
-                    if self.sounds and self.sounds.get('explosion'):
-                        self.sounds['explosion'].play()
-                    self.explosions.append(Explosion(bullet.x_pos, bullet.y_pos, self.explosion_picture))
-                    self.shutter_strength = 10
-                    self.shutter_start_time = pygame.time.get_ticks()
-                    self.remove_bullet(bullet)
+        
                     
                     
 
