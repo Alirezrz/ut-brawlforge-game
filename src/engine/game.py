@@ -46,12 +46,13 @@ class Game:
             ninja_health_bar_frame, ninja_health_bar,ninja_profile_picture=ninja_profile_picture
         )
 
+
         self.platforms = load_level_data(level_1_data, platform_image)
         self.screen_color = (60, 100, 150)
 
         self.scroll = [0, 0]
         self.terrorists = [
-            Terrorist(player_start_pos['x'] + 800, player_start_pos['y'], screen_width, screen_height, self.ninja, self.Roboman, self.platforms, self.ninja, self.screen, self.scroll)
+            Terrorist(player_start_pos['x'] + 800, player_start_pos['y'], screen_width, screen_height,[ self.ninja, self.Roboman], self.platforms, self.ninja, self.screen, self.scroll)
         ]
         
         self.gunmans=[]
@@ -83,7 +84,10 @@ class Game:
         self.shutter_start_time = 0
         self.shutter_duration = 150
         
-        
+        self.ninja.attack_targets = [self.Roboman] 
+        self.ninja.attack_targets += self.terrorists  
+        self.ninja.attack_targets += self.gunmans
+        self.ninja.attack_targets += self.drones
         
         self.input_handler = InputHandler(self.Roboman, self.bullet_class, self.shot_bullets)
 
@@ -129,7 +133,7 @@ class Game:
         self.ninja.update_bullets(self.screen, self.shot_bullets,self.platforms,[self.Roboman])
         
         for gunman in self.gunmans:
-            gunman.Update(self.screen, self.scroll, self.shot_bullets)
+            gunman.Update(self.screen, self.scroll, self.shot_bullets,self.platforms)
         for drone in self.drones:
             drone.Update(self.shot_bullets)
 
