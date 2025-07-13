@@ -46,6 +46,7 @@ class Game:
             ninja_health_bar_frame, ninja_health_bar  # اضافه شد
         )
 
+
         self.platforms = load_level_data(level_1_data, platform_image)
         self.screen_color = (60, 100, 150)
 
@@ -83,7 +84,10 @@ class Game:
         self.shutter_start_time = 0
         self.shutter_duration = 150
         
-        
+        self.ninja.attack_targets = [self.Roboman] 
+        self.ninja.attack_targets += self.terrorists  
+        self.ninja.attack_targets += self.gunmans
+        self.ninja.attack_targets += self.drones
         
         self.input_handler = InputHandler(self.Roboman, self.bullet_class, self.shot_bullets)
 

@@ -84,8 +84,8 @@ class Ninja:
         self.shutter_overlay = pygame.Surface((self.screen_width, self.screen_height))
         self.shutter_alpha = 0
         self.shutter_direction = 1 
-        
-        
+    
+      
         
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Ninja")
 
