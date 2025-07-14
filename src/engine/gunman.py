@@ -20,6 +20,8 @@ class Gunman:
         self.ALIVE = True
         self.platforms = platforms
 
+        self.shoot_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "gunner", "gunner shoot.mp3"))
+
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "gunman")
         self.bullet_pic = pygame.transform.scale(
             pygame.image.load(os.path.join(base_path, "bullet.png")),
@@ -204,6 +206,7 @@ class Gunman:
         x = self.x_pos + self.display_frame.get_width() if self.Look == 'right' else self.x_pos
         bullet = Bullet(x, self.y_pos + 50, 8, self.Look, self.bullet_pic, 'gunman',self.Look)
         self.shot_bullets.append(bullet)
+        self.shoot_sound.play()
         shot_bullets.append(bullet)
 
     def update_bullets(self, screen, offset, shot_bullets, platforms):

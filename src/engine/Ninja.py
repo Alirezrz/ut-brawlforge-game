@@ -9,6 +9,8 @@ class Ninja:
         self.jump_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja jump.MP3"))
         self.kunai_hit_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit.mp3"))
         self.kunai_hit_platform_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit platofrm.mp3"))
+        self.melee_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "sword.mp3"))
+        self.melee_hit_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "sword hit.mp3"))
         self.throw_kunai_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "throw kunai.mp3"))
         self.x_pos = x
         self.y_pos = y
@@ -736,9 +738,13 @@ class Ninja:
                 if self.Look=='right' and self.x_pos < t.x_pos and self.HIT_PER_ATTACK==0:
                     t.health-=50
                     self.HIT_PER_ATTACK=1
+                    self.melee_hit_sound.play()
                 elif self.Look=='left' and self.x_pos > t.x_pos and self.HIT_PER_ATTACK==0:
                     t.health-=50
+                    self.melee_hit_sound.play()
                     self.HIT_PER_ATTACK=1
+            else:
+                self.melee_sound.play()        
                       
 
     

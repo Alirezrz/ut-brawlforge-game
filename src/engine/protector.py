@@ -15,6 +15,9 @@ class Guard_Drone:
         self.reload_duration = 1000
         self.last_shot = 0
 
+        self.shoot_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "protect drone", "protect drone shot.mp3"))
+        self.shot_hit_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "protect drone", "protect drone shot hit.mp3"))
+
         self.tracked_targets = []
         self.smokes = []
 
@@ -98,7 +101,7 @@ class Guard_Drone:
         for laser in self.bullets[:]:
             for bullet in shot_bullets[:]:
                 if laser.hitbox.colliderect(bullet.hitbox) and bullet.owner != self.owner:
-                    print("hit")
+                    self.shot_hit_sound.play()
                     collision_x = (laser.x_pos + bullet.x_pos) // 2
                     collision_y = (laser.y_pos + bullet.y_pos) // 2
                     self.smokes.append(Smoke(collision_x, collision_y))
@@ -110,6 +113,7 @@ class Guard_Drone:
 
     def shoot(self, target):
         self.bullets.append(laser(self.x_pos, self.y_pos + 30, target))
+        self.shoot_sound.play()
         
         
     def is_off_screen_exit(self):
