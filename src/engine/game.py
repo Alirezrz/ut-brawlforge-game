@@ -18,6 +18,7 @@ from src.engine.Drone import Drone
 from src.engine.pumpkin import Pumpkin
 from src.engine.gunman import Gunman
 from src.engine.heatlh_box import PowerBox
+from src.engine.NinjaGirl import NinjaGirl
 
 class Game:
     def __init__(self, screen, hero_picture, ghost_picture, ghost2_picture, platform_image, background, explosion_picture, health_bar_green, health_bar_red, hero_profile_picture, roboman_health_bar_frame, roboman_health_bar, sounds, ninja_health_bar_frame, ninja_health_bar,ninja_profile_picture):
@@ -39,7 +40,7 @@ class Game:
             },
             trigger_shutter_callback=self.trigger_jetpack_shutter
         )
-        self.ninja = Ninja(
+        self.ninja = NinjaGirl(
             player_start_pos['x'] + 100, player_start_pos['y'],
             screen_width, screen_height,
             [self.Roboman],
