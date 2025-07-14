@@ -21,7 +21,12 @@ class Roboman:
         self.freezed=False
 
         self.hero_creation_index = hero_creation_index  # اضافه شد
-
+        self.shot_hit_enemy_sound = pygame.mixer.Sound(
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_enemy.wav")
+)
+        self.shot_hit_platform_sound = pygame.mixer.Sound(
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_platoform.wav")
+)
         self.jump_sound = sounds.get('jump') if sounds else None
         self.shoot_sound = sounds.get('shoot') if sounds else None
         self.jetpack_sound = sounds.get('jetpack') if sounds else None
@@ -480,6 +485,8 @@ class Roboman:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
                     self.explosions.append(Explosion(bullet.x_pos,bullet.y_pos-65))
+                    if self.shot_hit_platform_sound:
+                        self.shot_hit_platform_sound.play()
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
                     if bullet in shot_bullets:
