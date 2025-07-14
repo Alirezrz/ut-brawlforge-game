@@ -98,11 +98,7 @@ class Ninja:
         tmp = pygame.image.load(os.path.join(base_path, "Idle", f"Idle__000.png"))
         self.current_picture = pygame.transform.scale(tmp, (62, 118))
         
-        self.archer=pygame.transform.scale(
-            pygame.image.load(os.path.join(base_path,"archer.png")),
-            (90,100)
-        )
-        
+
         
         self.freezed_frame=pygame.transform.scale(
             pygame.image.load(os.path.join(base_path,"freezed.png")),
@@ -244,7 +240,6 @@ class Ninja:
         
     def display(self, screen, offset,shot_bullets):
         self.Update_SuperPower() 
-        screen.blit(self.archer ,(self.x_pos,self.y_pos-100))
         self.Super_Power_effect()
         for drone in self.guard_drone:
             drone.Update(screen,offset,shot_bullets)

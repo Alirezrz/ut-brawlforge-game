@@ -1,6 +1,7 @@
 import pygame
 import os
 import math
+
 class Terrorist:
     def __init__(self, x, y, screen_width, screen_height, targets, platforms, ninja, screen, scroll):
         self.x_pos = x
@@ -27,9 +28,9 @@ class Terrorist:
         self.platforms = platforms
         self.game_screen = screen
         self.explosion_pos = 0
-        self.damage_radiuos=200
+        self.damage_radiuos = 200
         self.targets = targets
-        self.target=self.targets[0]
+        self.target = self.targets[0]
         self.target_status = 'free'
         self.status = 'alive'
         self.animation_status = 'walk'
@@ -50,31 +51,32 @@ class Terrorist:
         tmp = pygame.image.load(os.path.join(base_path, "walk", f"1_terrorist_1_Walk_000.png"))
         self.pic = pygame.transform.scale(tmp, (62, 118))
 
-        self.EXP_frames = []
-        for i in range(1, 31):
-            exp_path = os.path.join(base_path, "ExplosionFrames", f"{i:04d}.png")
-            self.EXP_frames.append(pygame.transform.scale(pygame.image.load(exp_path), (256, 256)))
+        self.EXP_frames = [
+            pygame.transform.scale(pygame.image.load(os.path.join(base_path, "ExplosionFrames", f"{i:04d}.png")), (256, 256))
+            for i in range(1, 31)
+        ]
 
         sizes = [61, 59, 56, 46, 49, 45, 43, 53]
-        self.walk_frames = []
-        for i in range(8):
-            path = os.path.join(base_path, "walk", f"3_terrorist_3_Walk_00{i}.png")
-            self.walk_frames.append(pygame.transform.scale(pygame.image.load(path), (sizes[i], 118)))
+        self.walk_frames = [
+            pygame.transform.scale(pygame.image.load(os.path.join(base_path, "walk", f"3_terrorist_3_Walk_00{i}.png")), (sizes[i], 118))
+            for i in range(8)
+        ]
 
-        sizes = [56,56,68,66,56,54]
-        self.run_frames = []
-        for i in range(6):
-            path = os.path.join(base_path, "run", f"3_terrorist_3_Run_00{i}.png")
-            self.run_frames.append(pygame.transform.scale(pygame.image.load(path), (sizes[i], 118)))
-        sizes=[53,52,66,79,57,52]
+        sizes = [56, 56, 68, 66, 56, 54]
+        self.run_frames = [
+            pygame.transform.scale(pygame.image.load(os.path.join(base_path, "run", f"3_terrorist_3_Run_00{i}.png")), (sizes[i], 118))
+            for i in range(6)
+        ]
+
+        sizes = [53, 52, 66, 79, 57, 52]
         self.dead_frames = []
         for i in range(9):
             path = os.path.join(base_path, "hurt", f"3_terrorist_3_Hurt_00{i}.png")
-            if i==6:
+            if i == 6:
                 self.dead_frames.append(pygame.transform.scale(pygame.image.load(path), (100, 67)))
-            elif i==7:
+            elif i == 7:
                 self.dead_frames.append(pygame.transform.scale(pygame.image.load(path), (95, 90)))
-            elif i==8:
+            elif i == 8:
                 self.dead_frames.append(pygame.transform.scale(pygame.image.load(path), (118, 46)))
             else:
                 self.dead_frames.append(pygame.transform.scale(pygame.image.load(path), (sizes[i], 118)))
@@ -101,7 +103,7 @@ class Terrorist:
                 screen.blit(flipped_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
 
     def gravity(self):
-        if not self.on_ground and self.status!='shot':
+        if not self.on_ground and self.status != 'shot':
             self.vertical_speed -= self.gravity_strenght
 
     def vertical_move(self):
@@ -112,24 +114,15 @@ class Terrorist:
         self.allow_move_left = True
         self.allow_move_right = True
         self.on_ground = False
-
         for platform in platforms:
-            horizontal_overlap = (
-                self.x_pos + self.width > platform.x_pos and 
-                self.x_pos < platform.x_pos + platform.width
-            )
-
+            horizontal_overlap = self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width
             if horizontal_overlap:
-                if (self.y_pos + self.height >= platform.y_pos) and \
-                    (self.y_pos + self.height < platform.y_pos + platform.height + 10) and \
-                    self.vertical_speed <= 0:
+                if (self.y_pos + self.height >= platform.y_pos) and (self.y_pos + self.height < platform.y_pos + platform.height + 10) and self.vertical_speed <= 0:
                     self.on_ground = True
                     self.vertical_speed = 0
                     self.y_pos = platform.y_pos - self.height
                     self.current_platform = platform
-
-                if (self.y_pos + self.height > platform.y_pos) and \
-                   (self.y_pos < platform.y_pos + platform.height):
+                if (self.y_pos + self.height > platform.y_pos) and (self.y_pos < platform.y_pos + platform.height):
                     if abs(self.x_pos - (platform.x_pos + platform.width)) <= 10:
                         self.allow_move_left = False
                         self.x_pos = platform.x_pos + platform.width
@@ -150,10 +143,8 @@ class Terrorist:
             direction = self.walk_strength if self.Look == 'right' else -self.walk_strength
             next_x = self.x_pos + direction
             foot_y = self.y_pos + self.height + 5
-
             on_edge = True
             will_hit_side = False
-
             for platform in self.platforms:
                 if platform.x_pos <= next_x <= platform.x_pos + platform.width:
                     if abs(platform.y_pos - foot_y) <= 10:
@@ -165,17 +156,14 @@ class Terrorist:
                     else:
                         if abs(self.x_pos - (platform.x_pos + platform.width + self.walk_strength)) <= 5:
                             will_hit_side = True
-
             if on_edge or will_hit_side or self.walked_len > self.Walk_Range:
                 self.walked_len = 0
                 self.Look = 'left' if self.Look == 'right' else 'right'
                 return
-
             if self.Look == 'right' and self.allow_move_right:
                 self.x_pos += self.walk_strength
             elif self.Look == 'left' and self.allow_move_left:
                 self.x_pos -= self.walk_strength
-
             self.walked_len += self.walk_strength
             self.hitbox.topleft = (self.x_pos, self.y_pos)
 
@@ -184,8 +172,7 @@ class Terrorist:
         dx = abs(self.target.x_pos - self.x_pos)
         dy = abs(self.target.y_pos - self.y_pos)
         if dx < 20 and dy < 80:
-            self.status = 'exploded'
-            self.explosion_pos = (self.x_pos, self.y_pos)
+            self.trigger_explosion()
             return
         if dx <= self.VisionRadious and dy <= self.VisionHeight:
             self.target_status = 'locked'
@@ -207,16 +194,7 @@ class Terrorist:
     def Update(self, bullets):
         if self.status == 'exploded':
             if not self.exploding:
-                self.exploding = True
-                self.explosion_start_time = pygame.time.get_ticks()
-                for target in self.targets:
-                    dx = abs(self.target.x_pos - self.x_pos)
-                    dy = abs(self.target.y_pos - self.y_pos)
-                    if dx<self.damage_radiuos and dy<self.damage_radiuos:
-                        target.health -= 30
-                        print(target.health)
-                self.current_frame_index = 0
-                self.explosion_pos = (self.x_pos, self.y_pos + 50)
+                self.start_explosion()
             else:
                 elapsed = pygame.time.get_ticks() - self.explosion_start_time
                 frame_index = elapsed // self.explosion_frame_duration
@@ -229,14 +207,13 @@ class Terrorist:
         if self.status == 'alive':
             for bullet in bullets:
                 if bullet.hitbox.colliderect(self.hitbox):
-                    self.status = 'exploded'
                     bullets.remove(bullet)
-                    self.frame_index = 0
-                    self.last_frame_update_time = pygame.time.get_ticks()
+                    self.health -= 30
+                    if self.health <= 0:
+                        self.trigger_explosion()
                     break
 
         self.Vision()
-
         if self.status == 'alive':
             if self.target_status == 'locked':
                 self.Attack()
@@ -247,24 +224,37 @@ class Terrorist:
 
         self.update_animation()
 
+    def trigger_explosion(self):
+        self.status = 'exploded'
+        self.explosion_pos = (self.x_pos, self.y_pos + 50)
+
+    def start_explosion(self):
+        self.exploding = True
+        self.explosion_start_time = pygame.time.get_ticks()
+        for target in self.targets:
+            dx = abs(self.x_pos - target.x_pos)
+            dy = abs(self.y_pos - target.y_pos)
+            if dx < self.damage_radiuos and dy < self.damage_radiuos:
+                target.health -= 30
+                print(target.health)
+        self.current_frame_index = 0
+
     def update_animation(self):
         current_time = pygame.time.get_ticks()
-
         if self.status == 'shot':
             if current_time - self.last_frame_update_time >= self.animation_speed:
                 self.last_frame_update_time = current_time
                 self.frame_index += 1
                 if self.frame_index == 6:
-                    self.y_pos += 51  # 118 - 67
+                    self.y_pos += 51
                 elif self.frame_index == 7:
-                    self.y_pos += 80  # 118 - 90
+                    self.y_pos += 80
                 elif self.frame_index == 8:
-                    self.y_pos += 95  
+                    self.y_pos += 95
                 if self.frame_index >= len(self.dead_frames):
                     self.status = 'removed'
                 else:
                     self.current_picture = self.dead_frames[self.frame_index]
-
         elif current_time - self.last_frame_update_time >= self.animation_speed:
             self.last_frame_update_time = current_time
             if self.animation_status == 'walk':
@@ -273,19 +263,11 @@ class Terrorist:
             elif self.animation_status == 'run':
                 self.frame_index = (self.frame_index + 1) % len(self.run_frames)
                 self.current_picture = self.run_frames[self.frame_index]
-                
+
     def update_taregts(self):
-        if self.target_status=='locked':
+        print(self.health)
+        if self.target_status == 'locked':
             return
-        dist=[]
-        for t in self.targets:
-            dx=abs(self.x_pos - t.x_pos)
-            dy=abs(self.y_pos-t.y_pos)
-            dist.append(math.sqrt((dx**2)+(dy**2)))
-            
-        min_indx=0
-        for i in range(len(dist)) :
-            if dist[i]< dist[min_indx]:
-                min_indx=i
-                
-        self.target=self.targets[min_indx]
+        dist = [math.sqrt((self.x_pos - t.x_pos)**2 + (self.y_pos - t.y_pos)**2) for t in self.targets]
+        min_index = dist.index(min(dist))
+        self.target = self.targets[min_index]

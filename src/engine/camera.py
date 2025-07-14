@@ -3,7 +3,7 @@ from config import screen_width, screen_height ,platform_height
 import os 
 class Camera:
     
-    def __init__(self,screen,platforms,shot_bullets,hero,explosions,scroll,ninja,Arman,Gates,background,drones,objects,gunamns):
+    def __init__(self,screen,platforms,shot_bullets,hero,explosions,scroll,ninja,Arman,Gates,background,drones,objects,gunamns,archer):
         self.screen=screen
         self.platforms=platforms
         self.shot_bullets=shot_bullets
@@ -19,7 +19,7 @@ class Camera:
         
         self.drones=drones
         self.objects=objects
-        
+        self.archer=archer
         
         self.gunmans=gunamns
         
@@ -47,6 +47,8 @@ class Camera:
         self.ninja.display(self.screen, self.scroll,self.shot_bullets)
         if self.terrorist and self.terrorist.status != 'removed':
             self.terrorist.display(self.screen, self.scroll)
+            
+        self.archer.display(self.screen,self.scroll)
         #handeling explosions:
         for gunman in self.gunmans:
             gunman.display(self.screen,self.scroll)
