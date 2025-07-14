@@ -130,8 +130,8 @@ class Game:
         self.ninja.update_animation(self.shot_bullets)
         self.ninja.update_bullets(self.screen, self.shot_bullets, self.platforms, [self.Roboman])
 
-        self.archer.update_animation()
-        self.archer.update_bullets( self.screen, self.shot_bullets, self.platforms, [self.Roboman,self.ninja]+self.gunmans+self.drones+self.terrorists)
+        self.archer.update_animation(self.shot_bullets)
+        self.archer.update_bullets( self.screen, self.shot_bullets, self.platforms, [self.Roboman,self.ninja]+self.gunmans+self.drones+self.terrorists,self.scroll)
 
         for gunman in self.gunmans:
             gunman.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)

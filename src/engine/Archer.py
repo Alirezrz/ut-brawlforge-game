@@ -1,6 +1,6 @@
 import os
 import pygame
-
+from src.engine.protector import Guard_Drone
 class Archer:
     def __init__(self, x, y,targets):
         self.x_pos = x
@@ -40,6 +40,13 @@ class Archer:
         self.shooting = False
         self.shot_triggered = False
 
+
+        self.guard_drone_reload_duration = 10000  # 10 seconds
+        self.last_guard_call = 0
+        self.guard_drone = []
+        self.drone_duration = 20000  # drone active time in ms
+
+
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Archer")
 
         self.idle_frames = [pygame.transform.scale(pygame.image.load(os.path.join(base_path,"idle",f"{i}.png")),(88,100)) for i in range(6)]
@@ -66,6 +73,9 @@ class Archer:
         else:
             flipped_picture = pygame.transform.flip(display_picture, True, False)
             screen.blit(flipped_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
+            
+            
+
 
     def attack(self, targets):
         if self.status == 'shot' or self.shooting:
@@ -76,7 +86,7 @@ class Archer:
         self.attack_triggered = False
         self.shooting = True  # Reuse this flag to lock input
 
-    def update_animation(self):
+    def update_animation(self,shot_bullets):
         speed = self.animation_speed if self.status != 'shot' else self.animation_speed - 50
         current_time = pygame.time.get_ticks()
         if not hasattr(self, 'last_status'):
@@ -106,7 +116,7 @@ class Archer:
             elif self.status == 'shot':
                 self.current_picture = self.shot_frames[self.current_frame_index % len(self.shot_frames)]
                 if self.current_frame_index == 11 and not self.shot_triggered:
-                    self.shoot_arrow()
+                    self.shoot_arrow(shot_bullets)
                     self.shot_triggered = True
                 if self.current_frame_index >= len(self.shot_frames) - 1:
                     self.status = 'idle'
@@ -135,12 +145,13 @@ class Archer:
                 print(f"Target hit! Health now: {target.health}")
 
 
-    def shoot_arrow(self):
+    def shoot_arrow(self,shot_bullets):
         arrow_x = self.x_pos + (self.width if self.Look == 'right' else -30)
         arrow_y = self.y_pos + self.height // 2
         direction = self.Look
         new_arrow = Arrow(arrow_x, arrow_y, direction, self.arrow_pic)
         self.bullets.append(new_arrow)
+        shot_bullets.append(new_arrow)
 
     def handle_input(self, keys):
         self.is_moving_horizontally = False
@@ -165,12 +176,20 @@ class Archer:
             self.current_frame_index = 0
             self.attack_triggered = False
             self.attack_targets = self.targets 
+            
+        if keys[pygame.K_o]:
+            self.call_drone()
+            print('called')
 
         if not self.is_moving_horizontally:
             self.stop_horizontal_movement()
 
-    def update_bullets(self, screen, global_bullet_list, platforms, targets):
+    def update_bullets(self, screen, global_bullet_list, platforms, targets,offset):
+        
         for arrow in self.bullets[:]:
+            if arrow not in global_bullet_list:
+                if arrow in self.bullets:
+                    self.bullets.remove(arrow)
             arrow.update()
 
             if arrow.is_off_screen(screen.get_width()):
@@ -196,6 +215,9 @@ class Archer:
                     if arrow in global_bullet_list:
                         global_bullet_list.remove(arrow)
                     break
+        for drone in self.guard_drone:
+            drone.Update(screen, offset, global_bullet_list)
+
 
 
 
@@ -300,6 +322,23 @@ class Archer:
 
     def is_on_ground(self):
         self.on_ground = bool(self.current_platform)
+        
+    def call_drone(self):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_guard_call >= self.guard_drone_reload_duration:
+            self.guard_drone.append(Guard_Drone(self, "Archer")) 
+            self.last_guard_call = current_time
+            
+            
+    def update_drone(self):
+        if len(self.guard_drone) == 1:
+            current_time = pygame.time.get_ticks()
+            drone = self.guard_drone[0]
+            if current_time - self.last_guard_call >= self.drone_duration:
+                if drone.status != 'departing':
+                    drone.status = 'departing'
+            if drone.status == 'departing' and drone.is_off_screen_exit():
+                self.guard_drone.remove(drone)
 
 
 class Arrow:
@@ -343,3 +382,5 @@ class Arrow:
 
     def is_off_screen(self, screen_width):
         return self.x_pos < -screen_width or self.x_pos > screen_width * 2
+    
+        
