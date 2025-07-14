@@ -21,42 +21,57 @@ level_1_data = {
             {'x': 11 * TILE_SIZE, 'y': 7 * TILE_SIZE},
         ],
         'moving': [
-             {'x': 600, 'y': 430, 'range': 100}
-        ]
+            {'x': 600, 'y': 430, 'range': 100, 'tiles': 4, 'direction': 1}          ]
     }
 }
 
+def _add_tiled_platform(platform_list, info, images, *, moving=False):
+
+    x_start, y = info['x'], info['y']
+    tile_count = info.get('tiles', 1)
+
+    extra_kwargs = {}
+    if moving:
+        extra_kwargs = {
+            'moving': True,
+            'move_range': info.get('range', 0),
+            'start_direction': info.get('direction', 1)
+        }
+
+    if tile_count == 1:
+        platform_list.append(
+            Platform(x_start, y, images['solid'], **extra_kwargs)
+        )
+        return
+
+    platform_list.append(
+        Platform(x_start, y, images['left'], **extra_kwargs)
+    )
+
+    for i in range(1, tile_count - 1):
+        xi = x_start + i * TILE_SIZE
+        platform_list.append(
+            Platform(xi, y, images['middle'], **extra_kwargs)
+        )
+
+    x_last = x_start + (tile_count - 1) * TILE_SIZE
+    platform_list.append(
+        Platform(x_last, y, images['right'], **extra_kwargs)
+    )
+
 def load_level_data(level_data, platform_images):
- 
     platforms = []
     platform_definitions = level_data['platforms']
 
-    for platform_info in platform_definitions.get('standard', []):
-        x_start = platform_info['x']
-        y = platform_info['y']
-        tile_count = platform_info['tiles']
+    for info in platform_definitions.get('standard', []):
+        _add_tiled_platform(platforms, info, platform_images, moving=False)
 
-        if tile_count == 1:
-            platforms.append(Platform(x_start, y, platform_images['solid']))
-        else:
-            platforms.append(Platform(x_start, y, platform_images['left']))
-            for i in range(1, tile_count - 1):
-                x = x_start + i * TILE_SIZE
-                platforms.append(Platform(x, y, platform_images['middle']))
-            platforms.append(Platform(x_start + (tile_count - 1) * TILE_SIZE, y, platform_images['right']))
-
-    for platform_info in platform_definitions.get('solid', []):
-        platforms.append(Platform(platform_info['x'], platform_info['y'], platform_images['solid']))
-
-    for platform_info in platform_definitions.get('moving', []):
-        moving_platform = Platform(
-            platform_info['x'],
-            platform_info['y'],
-            platform_images['solid'], 
-            moving=True,
-            move_range=platform_info.get('range', 0),
-            start_direction=platform_info.get('direction', 1)
+    for info in platform_definitions.get('solid', []):
+        platforms.append(
+            Platform(info['x'], info['y'], platform_images['solid'])
         )
-        platforms.append(moving_platform)
+
+    for info in platform_definitions.get('moving', []):
+        _add_tiled_platform(platforms, info, platform_images, moving=True)
 
     return platforms
