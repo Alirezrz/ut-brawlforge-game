@@ -197,6 +197,7 @@ class Terrorist:
         if self.status == 'exploded':
             if not self.exploding:
                 self.exploding = True
+                self.explotion_sound.play()
                 self.explosion_start_time = pygame.time.get_ticks()
                 for target in self.targets:
                     dx = abs(self.target.x_pos - self.x_pos)
