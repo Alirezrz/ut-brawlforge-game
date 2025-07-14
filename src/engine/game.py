@@ -44,7 +44,7 @@ class Game:
             player_start_pos['x'] + 100, player_start_pos['y'],
             screen_width, screen_height,
             [self.Roboman],
-            ninja_health_bar_frame, ninja_health_bar,ninja_profile_picture=ninja_profile_picture
+            ninja_health_bar_frame, ninja_health_bar
         )
 
 
