@@ -35,6 +35,8 @@ class Terrorist:
         self.animation_status = 'walk'
         self.frame_index = 0
 
+        self.explotion_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "terrorist", "terror exp.mp3"))
+
         self.Walk_Range = 300
         self.VisionRadious = 400
         self.VisionHeight = 80
@@ -207,6 +209,7 @@ class Terrorist:
     def Update(self, bullets):
         if self.status == 'exploded':
             if not self.exploding:
+                self.explotion_sound.play()
                 self.exploding = True
                 self.explosion_start_time = pygame.time.get_ticks()
                 for target in self.targets:
