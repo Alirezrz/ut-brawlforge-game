@@ -16,6 +16,8 @@ class Gates:
         self.GreenFalg_pic = pygame.transform.scale(pygame.image.load(os.path.join(self.base_path, "Switch (1).png")), (21, 75))
         self.RedFalg_pic = pygame.transform.scale(pygame.image.load(os.path.join(self.base_path, "Switch (2).png")), (21, 75))
 
+        self.sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "teleport", "teleport.mp3"))
+
         self.open_a = False
         self.open_b = False
         self.last_teleport_time = 0
@@ -56,10 +58,12 @@ class Gates:
             self.open_a = True
             self.open_b = True
             self.last_teleport_time = current_time
+            self.sound.play()
 
         elif near_b:
             target.x_pos = self.A_x
             target.y_pos = self.A_y + 57
             self.open_a = True
             self.open_b = True
+            self.sound.play()
             self.last_teleport_time = current_time
