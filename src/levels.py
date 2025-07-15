@@ -2,6 +2,10 @@ from src.engine.platform import Platform
 
 TILE_SIZE = 64
 
+
+
+
+
 level_1_data = {
     'player_start': {'x': 150, 'y': 400},
     'enemies': [
