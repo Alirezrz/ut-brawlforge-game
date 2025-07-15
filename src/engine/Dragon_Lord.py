@@ -74,10 +74,10 @@ class Dragon_Lord:
             if self.current_frame_index < len(self.attack_frames):
                 self.current_picture = self.attack_frames[self.current_frame_index]
                 if self.current_frame_index in [3, 7, 12]:
-                    if self.Look == 'right':
-                        self.x_pos += 10
-                    else:
-                        self.x_pos -= 10
+                    if self.Look == 'right' and self.allow_move_right:
+                        self.x_pos += 50
+                    elif self.allow_move_left:
+                        self.x_pos -= 50
                     self.hitbox.topleft = (self.x_pos, self.y_pos)
                 self.check_attack_collision()
                 self.current_frame_index += 1
@@ -88,9 +88,9 @@ class Dragon_Lord:
                 self.current_frame_index = 0
                 
             if self.current_frame_index==4 or self.current_frame_index==8  or self.current_frame_index==13 :
-                if self.Look=='right':
+                if self.Look=='right' and self.allow_move_right:
                     self.x_pos+=6
-                else:
+                elif self.allow_move_left:
                     self.x_pos-=6
             return
 
