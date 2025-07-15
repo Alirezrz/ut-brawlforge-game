@@ -184,7 +184,7 @@ class Ninja:
 
         self.dragonlord=pygame.transform.scale(
             pygame.image.load(base_path),
-            (114,150)
+            (137,180)
         )
     
         

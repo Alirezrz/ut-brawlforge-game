@@ -1,0 +1,250 @@
+import pygame
+import os
+class Dragon_Lord:
+    def __init__(self, x, y):
+        self.x_pos = x
+        self.y_pos = y
+        self.on_platform=False
+        self.current_platform =None
+        self.horizontal_auto_speed=0
+        self.allow_move_right=True
+        self.allow_move_left=True
+        self.Look = 'right'
+        self.horizontal_speed = 7
+        self.vertical_speed = 0
+        self.jump_strenght = 20
+        self.gravity_strenght = 1
+        self.on_ground = False
+        self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
+        self.health = 63
+        self.max_health=100
+        self.bullets = []
+        
+        
+        # Animation attributes
+        self.current_picture = self.idle_picture 
+        self.current_frame_index = 0
+        self.animation_speed = 100
+        self.last_frame_update_time = pygame.time.get_ticks()
+        self.is_moving_horizontally = False 
+        self.stat
+        
+        
+        #loadings ...:
+        base_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Dragon_Lord")
+        widths=[137,143,150,143]
+        self.idle_frames=[]
+        for i in range(4):
+            self.idle_frames.append(
+                pygame.transform.scale(
+                    pygame.image.load(
+                        os.path.join(base_path,"idle",f"{i}.png")
+                    ),
+                    (widths[i],180)
+                )
+            )
+        widths=[102,86,132,122,85,86,132,122]
+        self.walk_frames=[]
+        for i in range(8):
+            self.walk_frames.append(
+                pygame.transform.scale(
+                    pygame.image.load(
+                        os.path.join(base_path,"walk",f"{i}.png")
+                    ),
+                    (widths[i],180)
+                )
+            )
+        widths=[137,158,169,184,299,249,188,211,224,218,191,168,0,187,155,173]
+        self.attack_frames=[]
+        for i in range(16):
+          if i!=12:
+            self.walk_frames.append(
+                pygame.transform.scale(
+                    pygame.image.load(
+                        os.path.join(base_path,"walk",f"{i}.png")
+                    ),
+                    (widths[i],180)
+                )
+            )
+          else:
+            self.walk_frames.append(
+                pygame.transform.scale(
+                    pygame.image.load(
+                        os.path.join(base_path,"walk",f"{i}.png")
+                    ),
+                    (136,160)
+                )
+            )
+        
+        
+        
+        
+    
+    def display(self, screen ,offset):
+        pass
+        
+    def update_animation(self):
+        pass
+            
+            
+            
+    def stop_horizontal_movement(self):
+        self.is_moving_horizontally = False
+        
+        
+        
+        
+    def fall_from_platform(self):
+        if self.current_platform != None:
+            if self.x_pos + self.width  < self.current_platform.x_pos  or self.x_pos > self.current_platform.x_pos + self.current_platform.width  :
+                self.on_ground=False                
+                self.current_platform=None
+
+    def  move_with_platform(self):
+        if(self.current_platform != None):
+            if(self.current_platform.moving):
+                self.horizontal_auto_speed=2.5*self.current_platform.direction
+                self.horizontal_move()
+
+    def move_right(self):
+        
+        if self.allow_move_right:
+            self.x_pos += self.horizontal_speed
+            self.is_moving_horizontally = True
+            self.Look = 'right'
+            
+            
+        
+          
+            
+        
+            self.hitbox.topleft = (self.x_pos, self.y_pos)
+            self.fall_from_platform()
+        
+
+    def move_left(self):
+        #print(self.allow_move_left)
+        if self.allow_move_left:
+            self.x_pos -= self.horizontal_speed
+            self.is_moving_horizontally = True
+            self.Look = 'left'
+            # Removed screen boundary clamping for infinite world
+            self.hitbox.topleft = (self.x_pos, self.y_pos)
+            # self.clamp_to_screen() # Removed for infinite world
+            self.fall_from_platform()
+        
+        
+        
+        
+
+    # Removed clamp_to_screen method for infinite world
+    # def clamp_to_screen(self):
+    #     if self.x_pos < 0:
+    #         self.x_pos = 0
+    #     if self.x_pos > self.screen_width - self.width:
+    #         self.x_pos = self.screen_width - self.width
+    #     if self.y_pos < 0:
+    #         self.y_pos = 0
+    #     if self.y_pos > self.screen_height - self.height:
+    #         self.y_pos = self.screen_height - self.height
+
+    def shoot(self, shot_bullets, Bullet):
+        bullet = Bullet(self.x_pos + self.width // 2, self.y_pos + self.height // 2, 15, self.Look, self.bullet_picture , self.screen_width)
+        self.bullets.append(bullet)
+        shot_bullets.append(bullet)
+    def respawn(self):
+        self.current_platform=None
+        self.on_ground=False
+        self.x_pos=200
+        self.y_pos=250 - self.picture.get_height()-20
+        self.vertical_speed=0
+        
+    def update_bullets(self, screen,shot_bullets):
+        for bullet in self.bullets[:]:
+            bullet.update()
+            # The bullet drawing offset is handled by the camera in game.py now
+            # So, the bullet.draw(screen,[1,0]) line here is not needed.
+            # However, if you want to keep it, it should also use the camera scroll.
+            # For now, I'll assume bullets are drawn via the camera's render method.
+            
+            # Bullets are removed if they go far off screen to simulate infinite world
+            # but prevent an endless list of bullets.
+            if bullet.is_off_screen(self.screen_width):
+                if bullet in self.bullets:
+                    self.bullets.remove(bullet)
+                if bullet in shot_bullets:
+                    shot_bullets.remove(bullet)
+
+    def jump(self):
+        if self.on_ground:
+            self.vertical_speed = self.jump_strenght
+        self.on_ground=False 
+        self.current_platform=None 
+        
+        
+        
+        
+                    
+         
+
+    def gravity(self):
+        if not self.on_ground:
+            self.vertical_speed -= self.gravity_strenght
+
+    def is_on_ground(self):
+        if self.current_platform:
+            self.on_ground = True
+        elif(self.current_platform==None):
+            self.on_ground=False    
+        
+
+    def vertical_move(self):
+           
+        self.y_pos -= self.vertical_speed
+        self.hitbox.topleft = (self.x_pos,self.y_pos)     # hitbox of the hero should be updated
+        
+    def horizontal_move(self):
+            # self.clamp_to_screen() # Removed for infinite world
+            self.x_pos += self.horizontal_auto_speed 
+            self.horizontal_auto_speed=0
+  
+    
+    def platforms_collisions(self,platforms):
+        for platform in platforms:
+            if self.x_pos + self.width  > platform.x_pos  and self.x_pos < platform.x_pos + platform.width  :
+                if ((self.y_pos + self.height) >= platform.y_pos) and ((self.y_pos + self.height) < (platform.y_pos + platform.height)+10) :
+                   # if self.vertical_speed < 0:
+                  
+                    self.on_ground=True
+                    self.vertical_speed=0
+                    self.y_pos=platform.y_pos - self.height 
+                    self.current_platform=platform
+
+            if  self.x_pos + self.width  >= platform.x_pos  and self.x_pos <= platform.x_pos + platform.width  :
+                    
+                if ((self.y_pos + self.height) > platform.y_pos) and ((self.y_pos) < (platform.y_pos + platform.height)) :  
+                    
+                    if abs(self.x_pos-(platform.x_pos + platform.width )) <= 10:
+                        
+                        self.allow_move_left=False
+                        self.x_pos=platform.x_pos + platform.width 
+                    if abs(self.x_pos+self.width-(platform.x_pos )) <=10:
+                        
+                        self.allow_move_right=False     
+                        self.x_pos=platform.x_pos -self.width
+            else :
+                self.allow_move_left=True
+                self.allow_move_right=True
+
+    def jump_under_platform(self,platforms):
+        if(self.vertical_speed>0):
+            for platform in platforms :
+                if self.x_pos + self.width  > platform.x_pos  and self.x_pos < platform.x_pos + platform.width :
+                    if self.y_pos<= platform.y_pos + platform.height and self.y_pos  > platform.y_pos :
+                        self.vertical_speed=0
+                        self.y_pos=platform.y_pos + platform.height
+                        
+                        
+                        
+                        
+       
