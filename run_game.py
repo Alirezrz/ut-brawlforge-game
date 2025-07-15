@@ -80,8 +80,8 @@ while True:
           health_bar_green, health_bar_red, hero_profile_picture,
           roboman_health_bar_frame, roboman_health_bar,
           game_sounds,
-          ninja_health_bar_frame, ninja_health_bar  # اضافه شد
-        )
+          ninja_health_bar_frame, ninja_health_bar
+)
         result = game.run()
         if result == "menu":
             continue 

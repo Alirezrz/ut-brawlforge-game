@@ -24,8 +24,9 @@ class Drone:
         self.reload_duration=7000
         self.last_shot=0
         self.aimed=False
-        
-        
+
+        self.shoot_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "freeze drone", "freeze drone shoot.mp3"))     
+        self.shot_hit_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "freeze drone", "freezed.mp3"))     
         
         
         self.aim_teta=0
@@ -247,6 +248,7 @@ class Drone:
                 self.bullets.append(
                     laser(self.x_pos,self.y_pos,self.target.x_pos+30,self.target.y_pos+60,8)
                 )
+                self.shoot_sound.play()
                 self.last_shot=current_time
             
             
@@ -266,6 +268,7 @@ class Drone:
                 self.bullets.remove(bullet)
             if bullet.hitbox.colliderect(self.target.hitbox):
                 self.target.freezed=True
+                self.shot_hit_sound.play()
                 self.bullets.remove(bullet)
                 self.last_freezed=pygame.time.get_ticks()
                 
