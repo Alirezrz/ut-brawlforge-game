@@ -5,7 +5,7 @@ from config import Ninja_width, Ninja_height,profileSideSize, health_bar_lenght,
 from src.engine.protector import Guard_Drone
 ## must be done -->  1- list of enemies for hit when attacking must be fixed 
 class Ninja:
-    def __init__(self, x, y, screen_width, screen_height, targets, ninja_health_bar_frame=None, ninja_health_bar=None, hero_creation_index=2, ninja_profile_picture=None):
+    def __init__(self, x, y, screen_width, screen_height, targets, ninja_health_bar_frame=None, ninja_health_bar=None, hero_creation_index=2):
         self.jump_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja jump.MP3"))
         self.kunai_hit_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit.mp3"))
         self.kunai_hit_platform_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit platofrm.mp3"))
@@ -18,7 +18,7 @@ class Ninja:
         self.ninja_health_bar_frame = ninja_health_bar_frame
         self.ninja_health_bar = ninja_health_bar
         self.hero_creation_index = hero_creation_index  # دیفالت 2
-        self.ninja_profile_picture = ninja_profile_picture
+        self.ninja_profile_picture = pygame.image.load("src/assets/images/Ninja/ninja_profile.png")
         self.current_platform = None
         self.horizontal_auto_speed = 0
         self.freezed=False
@@ -91,7 +91,7 @@ class Ninja:
         self.shutter_overlay = pygame.Surface((self.screen_width, self.screen_height))
         self.shutter_alpha = 0
         self.shutter_direction = 1 
-    
+        self.is_first_time=True          
         
         
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Ninja")
@@ -204,6 +204,9 @@ class Ninja:
             health_x, health_y = profileSideSize + roboman_health_bar_frame_thickness, roboman_health_bar_frame_thickness
             profile_x, profile_y = 0, 0
         elif self.hero_creation_index == 2:
+            if self.is_first_time:
+                self.ninja_profile_picture = pygame.transform.flip(self.ninja_profile_picture, True, False)
+                self.is_first_time=False
             bar_x = self.screen_width - health_bar_lenght - (2 * roboman_health_bar_frame_thickness) - profileSideSize
             bar_y = 0
             health_x = bar_x + roboman_health_bar_frame_thickness
@@ -218,6 +221,9 @@ class Ninja:
             profile_x = 0
             profile_y = self.screen_height - profileSideSize
         elif self.hero_creation_index == 4:
+            if self.is_first_time:
+                self.ninja_profile_picture = pygame.transform.flip(self.ninja_profile_picture, True, False)
+                self.is_first_time=False
             bar_x = self.screen_width - health_bar_lenght - (2 * roboman_health_bar_frame_thickness) - profileSideSize
             bar_y = self.screen_height - scaled_frame_height
             health_x = bar_x + roboman_health_bar_frame_thickness

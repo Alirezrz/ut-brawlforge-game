@@ -22,7 +22,7 @@ from src.engine.NinjaGirl import NinjaGirl
 from src.engine.Archer import Archer
 
 class Game:
-    def __init__(self, screen, hero_picture, ghost_picture, ghost2_picture, platform_image, background, explosion_picture, health_bar_green, health_bar_red, hero_profile_picture, roboman_health_bar_frame, roboman_health_bar, sounds, ninja_health_bar_frame, ninja_health_bar,ninja_profile_picture):
+    def __init__(self, screen, hero_picture, ghost_picture, ghost2_picture, platform_image, background, explosion_picture, health_bar_green, health_bar_red, hero_profile_picture, roboman_health_bar_frame, roboman_health_bar, sounds, ninja_health_bar_frame, ninja_health_bar):
         self.screen = screen
         self.background = background
         self.explosion_picture = explosion_picture
