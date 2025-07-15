@@ -180,12 +180,8 @@ class Ninja:
             tmp = pygame.image.load(img_path)
             self.JumpAttack_frames.append(pygame.transform.scale(tmp, self.jumpattack_sizes[i]))
         
-        base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Dragon_Lord","idle",f"{0}.png")
 
-        self.dragonlord=pygame.transform.scale(
-            pygame.image.load(base_path),
-            (137,180)
-        )
+
     
         
     def display_health_bar(self, screen):
@@ -253,7 +249,6 @@ class Ninja:
     def display(self, screen, offset,shot_bullets):
         self.Update_SuperPower() 
         self.Super_Power_effect()
-        screen.blit(self.dragonlord,(self.x_pos-offset[0]+100,self.y_pos-offset[1]))
         for drone in self.guard_drone:
             drone.Update(screen,offset,shot_bullets)
         
