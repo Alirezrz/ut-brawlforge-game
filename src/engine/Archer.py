@@ -63,7 +63,7 @@ class Archer:
         
         self.current_picture = None
 
-    def display(self, screen, offset):
+    def display(self, screen, offset,shot_bullets):
         for arrow in self.bullets:
             arrow.update()
             arrow.draw(screen,offset)
@@ -73,6 +73,11 @@ class Archer:
         else:
             flipped_picture = pygame.transform.flip(display_picture, True, False)
             screen.blit(flipped_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
+            
+        for drone in self.guard_drone:
+            drone.Update(screen,offset,shot_bullets)
+        self.update_drone()
+            
             
             
 
@@ -142,7 +147,6 @@ class Archer:
         for target in self.targets:
             if hasattr(target, 'hitbox') and hitbox_range.colliderect(target.hitbox):
                 target.health -= 50
-                print(f"Target hit! Health now: {target.health}")
 
 
     def shoot_arrow(self,shot_bullets):
@@ -179,7 +183,6 @@ class Archer:
             
         if keys[pygame.K_o]:
             self.call_drone()
-            print('called')
 
         if not self.is_moving_horizontally:
             self.stop_horizontal_movement()
@@ -192,12 +195,7 @@ class Archer:
                     self.bullets.remove(arrow)
             arrow.update()
 
-            if arrow.is_off_screen(screen.get_width()):
-                if arrow in self.bullets:
-                    self.bullets.remove(arrow)
-                if arrow in global_bullet_list:
-                    global_bullet_list.remove(arrow)
-                continue
+
 
             for target in targets:
                 if hasattr(target, 'hitbox') and arrow.hitbox.colliderect(target.hitbox):
@@ -337,7 +335,7 @@ class Archer:
             if current_time - self.last_guard_call >= self.drone_duration:
                 if drone.status != 'departing':
                     drone.status = 'departing'
-            if drone.status == 'departing' and drone.is_off_screen_exit():
+            if drone.status == 'departing' and drone.departed_len>3000:
                 self.guard_drone.remove(drone)
 
 

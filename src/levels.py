@@ -7,8 +7,8 @@ TILE_SIZE = 64
 
 
 level_1_data = {
-    'player_start': {'x': 58*64, 'y': 400},
-    'enemies': [
+    'player_start': {'x': 58*64, 'y':400},
+    'enemies':[
 
     ],
     'platforms': {

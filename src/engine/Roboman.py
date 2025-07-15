@@ -430,12 +430,14 @@ class Roboman:
                 self.shooting_animation_start_time = pygame.time.get_ticks()
                 self.current_frame_index = 0 
 
-            bullet_start_x = self.x_pos + (self.width - 25 if self.Look == 'right' else -5)
+            bullet_offset_x = 10
             bullet_start_y = self.y_pos + 35
+
             if self.Look == 'right':
-                bullet_start_x -= 5
+                bullet_start_x = self.x_pos + self.width - bullet_offset_x
             else:
-                bullet_start_x += 5
+                bullet_start_x = self.x_pos - self.bullet_picture.get_width() + bullet_offset_x
+
             
             bullet = Bullet_Class(
                 bullet_start_x,
@@ -464,8 +466,9 @@ class Roboman:
             self.bullet_picture, 
             self.screen_width 
         )
-        self.bullets.append(bullet)
         shot_bullets.append(bullet)
+        self.bullets.append(bullet)
+
 
         self.JumpShoot = True
         self.shooting_animation_start_time = pygame.time.get_ticks()
@@ -480,15 +483,13 @@ class Roboman:
         self.health = self.max_health
 
     def update_bullets(self, screen, shot_bullets,platforms,targets):
+        for bullet in self.bullets:
+            if bullet not in shot_bullets:
+                self.bullets.remove(bullet)
         self.update_drone()
-        print(len(self.bullets))
         for bullet in self.bullets[:]:
             bullet.update()
-            if bullet.is_off_screen(self.screen_width):
-                if bullet in self.bullets:
-                    self.bullets.remove(bullet)
-                if bullet in shot_bullets:
-                    shot_bullets.remove(bullet)
+
         for bullet in self.bullets:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
@@ -655,7 +656,7 @@ class Roboman:
             if current_time - self.last_guard_call >= self.drone_duration:
                 if drone.status != 'departing':
                     drone.status = 'departing'
-            if drone.status == 'departing' and drone.is_off_screen_exit():
+            if drone.status == 'departing' and drone.departed_len>3000:
                 self.guard_drone.remove(drone)
 
 

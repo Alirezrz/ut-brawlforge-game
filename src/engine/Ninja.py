@@ -180,8 +180,12 @@ class Ninja:
             tmp = pygame.image.load(img_path)
             self.JumpAttack_frames.append(pygame.transform.scale(tmp, self.jumpattack_sizes[i]))
         
-            
-            
+        base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Dragon_Lord","idle",f"{0}.png")
+
+        self.dragonlord=pygame.transform.scale(
+            pygame.image.load(base_path),
+            (114,150)
+        )
     
         
     def display_health_bar(self, screen):
@@ -249,6 +253,7 @@ class Ninja:
     def display(self, screen, offset,shot_bullets):
         self.Update_SuperPower() 
         self.Super_Power_effect()
+        screen.blit(self.dragonlord,(self.x_pos-offset[0]+100,self.y_pos-offset[1]))
         for drone in self.guard_drone:
             drone.Update(screen,offset,shot_bullets)
         
@@ -496,11 +501,11 @@ class Ninja:
         self.update_drone()
         for bullet in self.bullets[:]:
             bullet.update()
-            if bullet.is_off_screen(self.screen_width):
-                if bullet in self.bullets:
-                    self.bullets.remove(bullet)
-                if bullet in shot_bullets:
-                    shot_bullets.remove(bullet)
+            
+        for bullet in self.bullets:
+            if bullet not in shot_bullets:
+                self.bullets.remove(bullet)
+
         for bullet in self.bullets:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
@@ -684,7 +689,7 @@ class Ninja:
             if current_time - self.last_guard_call >= self.drone_duration:
                 if drone.status != 'departing':
                     drone.status = 'departing'
-            if drone.status == 'departing' and drone.is_off_screen_exit():
+            if drone.status == 'departing' and drone.departed_len>3000:
                 self.guard_drone.remove(drone)
     def handle_input(self, keys, gate, shot_bullets, bullet_class, trigger_shutter=None):
         self.is_moving_horizontally = False

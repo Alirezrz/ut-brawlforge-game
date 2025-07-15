@@ -7,14 +7,15 @@ import math
 class Guard_Drone:
     def __init__(self, player, owner="unknown"):
         self.player = player
-        self.x_pos = -(screen_width)
-        self.y_pos = -(screen_height)
+        self.x_pos = self.player.x_pos
+        self.y_pos = self.player.y_pos-1000
         self.status = 'idle'
         self.owner = owner
         self.bullets = []
         self.reload_duration = 1000
         self.last_shot = 0
-
+        self.departing_len=1000
+        self.departed_len=0
         self.shoot_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "protect drone", "protect drone shot.mp3"))
         self.shot_hit_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "protect drone", "protect drone shot hit.mp3"))
 
@@ -73,6 +74,7 @@ class Guard_Drone:
     def update_pos(self):
         if self.status == 'departing':
             self.x_pos += 10  
+            self.departed_len+=10
             self.y_pos -= 5  
             return  
         if self.player.x_pos > self.x_pos + 40:
@@ -126,7 +128,7 @@ class laser:
         self.y_pos = y
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, 10, 10)
         self.target = target
-        self.speed = 17
+        self.speed = 30
         self.travel_distance = 0
         self.max_distance = 800  # Distance after which the laser is removed
 

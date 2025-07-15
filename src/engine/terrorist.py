@@ -91,6 +91,7 @@ class Terrorist:
         self.is_moving_horizontally = False
 
     def display(self, screen, offset):
+        print(f"hp={self.health}")
         if self.status == 'exploded' and self.exploding:
             frame = self.EXP_frames[self.current_frame_index]
             x = self.explosion_pos[0] - frame.get_width() // 2 - offset[0]
@@ -195,64 +196,80 @@ class Terrorist:
 
     def Update(self, bullets):
         if self.status == 'exploded':
-            if not self.exploding:
-                self.exploding = True
-                self.explotion_sound.play()
-                self.explosion_start_time = pygame.time.get_ticks()
-                for target in self.targets:
-                    dx = abs(self.target.x_pos - self.x_pos)
-                    dy = abs(self.target.y_pos - self.y_pos)
-                    if dx<self.damage_radiuos and dy<self.damage_radiuos:
-                        target.health -= 30
-                        print(target.health)
-                self.current_frame_index = 0
-                self.explosion_pos = (self.x_pos, self.y_pos + 50)
+            # Handle explosion animation frames
+            elapsed = pygame.time.get_ticks() - self.explosion_start_time
+            frame_index = elapsed // self.explosion_frame_duration
+            if frame_index < len(self.EXP_frames):
+                self.current_frame_index = frame_index
             else:
-                elapsed = pygame.time.get_ticks() - self.explosion_start_time
-                frame_index = elapsed // self.explosion_frame_duration
-                if frame_index < len(self.EXP_frames):
-                    self.current_frame_index = frame_index
-                else:
-                    self.status = 'removed'
+                self.status = 'removed'
             return
 
         if self.status == 'alive':
-            for bullet in bullets:
-                if bullet.hitbox.colliderect(self.hitbox):
-                    bullets.remove(bullet)
-                    self.health -= 30
-                    if self.health <= 0:
-                        self.trigger_explosion()
-                    break
+            # Check for bullet collisions
+            for projectile in bullets[:]:
+                if projectile.hitbox.colliderect(self.hitbox):
+                    if hasattr(projectile, "owner"):
+                        if projectile.owner in ["Ninja", "Roboman", "Archer"]:
+                            self.health -= 30
+                            if self.health <= 0:
+                                self.trigger_explosion()
+                            bullets.remove(projectile)
+                            break
+                    else:
+                        # fallback: if it lacks "owner" but still hits, treat it like a bullet
+                        self.health -= 30
+                        if self.health <= 0:
+                            self.trigger_explosion()
+                        bullets.remove(projectile)
+                        break
 
-        self.Vision()
-        if self.status == 'alive':
-            if self.target_status == 'locked':
-                self.Attack()
-            else:
-                self.Walk()
-            self.gravity()
-            self.vertical_move()
+            self.Vision()
+
+            if self.status == 'alive':  # Might have changed after Vision or bullet
+                if self.target_status == 'locked':
+                    self.Attack()
+                else:
+                    self.Walk()
+
+                self.gravity()
+                self.vertical_move()
+                self.platforms_collisions(self.platforms)
+                self.jump_under_platform(self.platforms)
 
         self.update_animation()
 
     def trigger_explosion(self):
         self.status = 'exploded'
-        self.explosion_pos = (self.x_pos, self.y_pos + 50)
-
-    def start_explosion(self):
         self.exploding = True
         self.explosion_start_time = pygame.time.get_ticks()
+        self.explotion_sound.play()
+
+        self.explosion_pos = (self.x_pos, self.y_pos + 50)
+        self.current_frame_index = 0
+
         for target in self.targets:
             dx = abs(self.x_pos - target.x_pos)
             dy = abs(self.y_pos - target.y_pos)
             if dx < self.damage_radiuos and dy < self.damage_radiuos:
                 target.health -= 30
-                print(target.health)
-        self.current_frame_index = 0
+                print(f"{target} damaged. New health: {target.health}")
+
+    def start_explosion(self):
+        self.exploding = True
+        self.explosion_start_time = pygame.time.get_ticks()
+        self.explotion_sound.play()
+
+        for target in self.targets:
+            dx = abs(self.x_pos - target.x_pos)
+            dy = abs(self.y_pos - target.y_pos)
+            if dx < self.damage_radiuos and dy < self.damage_radiuos:
+                target.health -= 30
+                print(f"{target} damaged. New health: {target.health}")
 
     def update_animation(self):
         current_time = pygame.time.get_ticks()
+
         if self.status == 'shot':
             if current_time - self.last_frame_update_time >= self.animation_speed:
                 self.last_frame_update_time = current_time
@@ -267,7 +284,8 @@ class Terrorist:
                     self.status = 'removed'
                 else:
                     self.current_picture = self.dead_frames[self.frame_index]
-        elif current_time - self.last_frame_update_time >= self.animation_speed:
+
+        elif self.status == 'alive' and current_time - self.last_frame_update_time >= self.animation_speed:
             self.last_frame_update_time = current_time
             if self.animation_status == 'walk':
                 self.frame_index = (self.frame_index + 1) % len(self.walk_frames)
@@ -275,6 +293,7 @@ class Terrorist:
             elif self.animation_status == 'run':
                 self.frame_index = (self.frame_index + 1) % len(self.run_frames)
                 self.current_picture = self.run_frames[self.frame_index]
+
 
     def update_taregts(self):
         print(self.health)
