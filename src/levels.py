@@ -67,9 +67,13 @@ def load_level_data(level_data, platform_images):
         _add_tiled_platform(platforms, info, platform_images, moving=False)
 
     for info in platform_definitions.get('solid', []):
-        platforms.append(
-            Platform(info['x'], info['y'], platform_images['solid'])
-        )
+        repeat = info.get('repeat', 1)
+        for i in range(repeat):
+            x = info['x'] + i * TILE_SIZE
+            y = info['y']
+            platforms.append(
+            Platform(x, y, platform_images['solid'])
+            )
 
     for info in platform_definitions.get('moving', []):
         _add_tiled_platform(platforms, info, platform_images, moving=True)

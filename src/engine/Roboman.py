@@ -227,6 +227,7 @@ class Roboman:
             health_x, health_y = profileSideSize + roboman_health_bar_frame_thickness, roboman_health_bar_frame_thickness
             profile_x, profile_y = 0, 0
         elif self.hero_creation_index == 2:  # بالا راست
+            self.hero_profile_picture = pygame.transform.flip(self.hero_profile_picture, True, False)
             bar_x = self.screen_width - health_bar_lenght - (2 * roboman_health_bar_frame_thickness) - profileSideSize
             bar_y = 0
             health_x = bar_x + roboman_health_bar_frame_thickness
@@ -241,6 +242,7 @@ class Roboman:
             profile_x = 0
             profile_y = self.screen_height - profileSideSize
         elif self.hero_creation_index == 4:  # پایین راست
+            self.hero_profile_picture = pygame.transform.flip(self.hero_profile_picture, True, False)
             bar_x = self.screen_width - health_bar_lenght - (2 * roboman_health_bar_frame_thickness) - profileSideSize
             bar_y = self.screen_height - profileSideSize
             health_x = bar_x + roboman_health_bar_frame_thickness
