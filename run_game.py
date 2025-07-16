@@ -50,7 +50,7 @@ try:
     shoot_sound = pygame.mixer.Sound(os.path.join(sound_path, "shoot.wav"))
     jump_sound = pygame.mixer.Sound(os.path.join(sound_path, "robot jump.MP3"))
     jetpack_sound = pygame.mixer.Sound(os.path.join(sound_path, "jetpack.wav"))
-    explosion_sound = pygame.mixer.Sound(os.path.join(sound_path, "shot_hit_platoform.wav"))
+    explosion_sound = pygame.mixer.Sound(os.path.join( sound_path, "shot_hit_platoform.mp3"))
     enemy_hit_sound = pygame.mixer.Sound(os.path.join(sound_path, "shot_hit_enemy.wav"))
 
     shoot_sound.set_volume(0.5)

@@ -26,7 +26,7 @@ class Roboman:
             os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_enemy.wav")
 )
         self.shot_hit_platform_sound = pygame.mixer.Sound(
-            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_platoform.wav")
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_platoform.mp3")
 )
         self.jump_sound = sounds.get('jump') if sounds else None
         self.shoot_sound = sounds.get('shoot') if sounds else None
