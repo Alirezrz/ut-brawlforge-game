@@ -21,6 +21,7 @@ from src.engine.heatlh_box import PowerBox
 from src.engine.NinjaGirl import NinjaGirl
 from src.engine.Archer import Archer
 from src.engine.Dragon_Lord import Dragon_Lord
+from src.engine.flyingdemon import FlyingDemon
 
 class Game:
     def __init__(self, screen, hero_picture, ghost_picture, ghost2_picture, platform_image, background, explosion_picture, health_bar_green, health_bar_red, hero_profile_picture, roboman_health_bar_frame, roboman_health_bar, sounds, ninja_health_bar_frame, ninja_health_bar):
@@ -85,7 +86,8 @@ class Game:
             PowerBox(player_start_pos['x'] + 700, player_start_pos['y'] + 65, [self.Roboman, self.ninja])
         ]
         self.dragonlord=Dragon_Lord(player_start_pos['x'] -200, player_start_pos['y']-62,self.ninja)
-        self.camera = Camera(self.screen, self.platforms, self.shot_bullets, self.Roboman, self.explosions, self.scroll, self.ninja, self.terrorists[0], self.gates, self.background, self.drones, self.Objects, self.gunmans,self.archer,self.dragonlord)
+        self.flyingdemon=FlyingDemon(player_start_pos['x'] - 800, player_start_pos['y']-18,self.ninja,'right')
+        self.camera = Camera(self.screen, self.platforms, self.shot_bullets, self.Roboman, self.explosions, self.scroll, self.ninja, self.terrorists[0], self.gates, self.background, self.drones, self.Objects, self.gunmans,self.archer,self.dragonlord,self.flyingdemon)
 
         self.shutter_strength = 0
         self.shutter_start_time = 0
