@@ -321,40 +321,49 @@ class Drone:
                     
                     
         
-        
 class laser:
-    def __init__(self,x,y,target_x,target_y,speed):
-        self.x_pos=x
-        self.y_pos=y
-        self.target_x=target_x
-        self.target_y=target_y
-        self.teta=(target_y-y)/(target_x - x)         #  یادت نره سایز رکت ها رو درست کنی
-        self.speed=speed
-        self.len_of_horizental_move=0
-        self.hitbox= self.hitbox = pygame.Rect(self.x_pos, self.y_pos, 20, 20)
-        self.display_angle=math.degrees(self.teta)
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Drone","lazer.png")
-        self.image=pygame.transform.scale(
-            pygame.image.load(
-                path
-            ),
-            (9,40)
-        )
-        self.image=pygame.transform.rotate(self.image,self.display_angle)
-        
-        
-        
-    def display(self,screen,offset):
-        screen.blit(self.image,(self.x_pos-offset[0],self.y_pos-offset[1])) 
-         
+    def __init__(self, x, y, target_x, target_y, speed):
+        self.x_pos = x
+        self.y_pos = y
+        self.target_x = target_x
+        self.target_y = target_y
+        self.teta = (target_y - y) / (target_x - x)
+        self.speed = speed
+        self.len_of_horizental_move = 0
+        self.frame_index = 0
+        self.last_frame_update_time = pygame.time.get_ticks()
+        self.animation_speed =30
 
+        # Load frames
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Drone", "lazer")
+        sizes = [21, 23, 21, 21, 22, 20]
+        self.frames = []
+        for i in range(6):
+            img = pygame.image.load(os.path.join(path, f"{i}.png"))
+            img = pygame.transform.scale(img, (sizes[i], 25))
+            angle = math.degrees(math.atan2((self.target_y - self.y_pos), (self.target_x - self.x_pos)))
+            rotated = pygame.transform.rotate(img, -angle)  # -angle to rotate clockwise correctly
+            self.frames.append(rotated)
+
+        self.image = self.frames[0]
+        self.hitbox = pygame.Rect(self.x_pos, self.y_pos, 20, 20)
+
+    def display(self, screen, offset):
+        self.update()
+        screen.blit(self.image, (self.x_pos - offset[0], self.y_pos - offset[1]))
 
     def update(self):
-        self.x_pos+=self.speed
-        self.y_pos+=self.teta*(self.speed)
-        self.len_of_horizental_move+=self.speed
-        self.hitbox.topleft=(self.x_pos,self.y_pos)
-        
+        self.x_pos += self.speed
+        self.y_pos += self.teta * self.speed
+        self.len_of_horizental_move += self.speed
+        self.hitbox.topleft = (self.x_pos, self.y_pos)
+
+        # Handle animation update
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_frame_update_time >= self.animation_speed:
+            self.frame_index = (self.frame_index + 1) % len(self.frames)
+            self.image = self.frames[self.frame_index]
+            self.last_frame_update_time = current_time
         
         
         
