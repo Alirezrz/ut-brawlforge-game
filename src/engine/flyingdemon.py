@@ -43,6 +43,7 @@ class FlyingDemon:
         self.reload_duration=2000
         self.attacking = False
         self.attack_frame_limit = len(self.attack_frames)
+        self.fireballs=[]
 
     def update_animation(self):
         current_time = pygame.time.get_ticks()
@@ -65,13 +66,26 @@ class FlyingDemon:
 
             self.current_frame = frames[self.frame_index]
             self.last_animation_update = current_time
+            if self.status=='attack' and self.frame_index==5 :
+                if self.Look=='right':
+                    self.fireballs.append(FireBall(self.x_pos+76,self.y_pos+43+10,self.Look))
+                else:
+                    self.fireballs.append(FireBall(self.x_pos-50,self.y_pos+43+10,self.Look))
 
     def display(self, screen, offset):
+
         self.update()
         img = self.current_frame
         if self.Look == 'right':
             img = pygame.transform.flip(img, True, False)
         screen.blit(img, (self.x_pos - offset[0], self.y_pos - offset[1]))
+        
+        for fire in self.fireballs:
+            fire.display(screen,offset)
+            if fire.hitbox.colliderect(self.target.hitbox):
+                self.target.health-=40
+                self.fireballs.remove(fire)
+            
 
     def follow_target(self):
         if self.attacking:
@@ -130,3 +144,45 @@ class FlyingDemon:
             self.attacking = True
             self.frame_index = 0
             self.last_attack = current_time
+
+
+
+class FireBall:
+    def __init__(self,x,y,look):
+        self.x_pos=x
+        self.y_pos=y
+        self.Look=look
+        self.speed=10
+        self.traveled_distance=0
+        
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "flyingdemon","fireball.png")
+        self.image=pygame.transform.scale(
+            pygame.image.load(path),
+            (60,30)
+        )
+        
+        self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.image.get_width(),self.image.get_height())
+        
+    def display(self,screen,offset):
+        self.update()
+        if self.Look=='right':
+            screen.blit(self.image,(self.x_pos-offset[0],self.y_pos-offset[1]))  
+            
+        else:
+            screen.blit(pygame.transform.flip(self.image,True,False),(self.x_pos-offset[0],self.y_pos-offset[1]))
+        
+        
+    def update(self):
+        if self.Look=='right':
+            self.x_pos+=self.speed
+            self.traveled_distance+=self.speed
+            
+        else:
+            self.x_pos-=self.speed
+            self.traveled_distance+=self.speed
+            
+        self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.image.get_width(),self.image.get_height())
+            
+        
+    
+        
