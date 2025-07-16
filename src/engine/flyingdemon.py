@@ -44,6 +44,7 @@ class FlyingDemon:
         self.attacking = False
         self.attack_frame_limit = len(self.attack_frames)
         self.fireballs=[]
+        self.explosions=[]
 
     def update_animation(self):
         current_time = pygame.time.get_ticks()
@@ -84,7 +85,17 @@ class FlyingDemon:
             fire.display(screen,offset)
             if fire.hitbox.colliderect(self.target.hitbox):
                 self.target.health-=40
+                if fire.Look=='right':
+                    self.explosions.append(Explosion(fire.x_pos-100,fire.y_pos-100))
+                else:
+                    self.explosions.append(Explosion(fire.x_pos-140,fire.y_pos-100))
                 self.fireballs.remove(fire)
+                
+        for exp in self.explosions[:]:
+            exp.display(screen, offset)
+            if exp.finished:
+                self.explosions.remove(exp)
+                
             
 
     def follow_target(self):
@@ -182,7 +193,40 @@ class FireBall:
             self.traveled_distance+=self.speed
             
         self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.image.get_width(),self.image.get_height())
-            
+        
+        
+class Explosion:
+    def __init__(self,x,y):
+        self.x_pos = x
+        self.y_pos = y
+
+        self.frames = []
+        for i in range(35):
+            self.frames.append(pygame.transform.scale(
+                pygame.image.load(
+                    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "flyingdemon", "explosion", f"img_{i}.png")
+                ),
+                (300, 300)
+            ))
+
+        self.frame_index = 0
+        self.animation_speed = 5  # milliseconds per frame
+        self.last_update = pygame.time.get_ticks()
+        self.finished = False
+
+    def display(self, screen, offset):
+        if not self.finished:
+            self.update_animation()
+            if self.frame_index < len(self.frames):
+                screen.blit(self.frames[self.frame_index], (self.x_pos - offset[0], self.y_pos - offset[1]))
+
+    def update_animation(self):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_update > self.animation_speed:
+            self.frame_index += 1
+            self.last_update = current_time
+            if self.frame_index >= len(self.frames):
+                self.finished = True
         
     
         
