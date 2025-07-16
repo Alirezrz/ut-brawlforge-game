@@ -505,8 +505,7 @@ class Roboman:
             for bullet in self.bullets:
                 if target.hitbox.colliderect(bullet.hitbox):
                     target.health-=20   # should be intialized ***** 
-                    if self.shot_hit_enemy_sound:
-                        self.shot_hit_enemy_sound.play()
+
 
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
