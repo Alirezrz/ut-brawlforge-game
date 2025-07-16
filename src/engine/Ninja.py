@@ -14,6 +14,7 @@ class Ninja:
         self.throw_kunai_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "throw kunai.mp3"))
         self.x_pos = x
         self.y_pos = y
+        self.hurt=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja hurt.mp3"))        
         self.on_platform = False
         self.ninja_health_bar_frame = ninja_health_bar_frame
         self.ninja_health_bar = ninja_health_bar
@@ -183,7 +184,9 @@ class Ninja:
 
 
     
-        
+    def hurt(self):
+        self.hurt.play()
+             
     def display_health_bar(self, screen):
 
         scaled_frame_height = profileSideSize
@@ -515,7 +518,6 @@ class Ninja:
             for bullet in self.bullets:
                 if target.hitbox.colliderect(bullet.hitbox):
                     target.health-=20   # should be intialized ***** 
-                    self.kunai_hit_sound.play()
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
                     if bullet in shot_bullets:
@@ -722,6 +724,7 @@ class Ninja:
         if self.ATTACK and self.vertical_speed==0 and self.current_platform!=None:
             self.prev_status = self.status
             self.status = 'attack'
+            self.melee_sound.play() 
             self.current_frame_index = 0
             self.attack_hit_registered = False
             self.ATTACK = False 
@@ -730,6 +733,7 @@ class Ninja:
         elif self.ATTACK:
             self.prev_status = self.status
             self.status = 'jumpattack'
+            self.melee_sound.play() 
             self.current_frame_index = 0
             self.attack_hit_registered = False
             self.ATTACK = False 
@@ -743,14 +747,12 @@ class Ninja:
             if self.hitbox.colliderect(t.hitbox):
                 if self.Look=='right' and self.x_pos < t.x_pos and self.HIT_PER_ATTACK==0:
                     t.health-=50
-                    self.HIT_PER_ATTACK=1
-                    self.melee_hit_sound.play()
+                    self.HIT_PER_ATTACK=1                   
                 elif self.Look=='left' and self.x_pos > t.x_pos and self.HIT_PER_ATTACK==0:
-                    t.health-=50
-                    self.melee_hit_sound.play()
+                    t.health-=50                    
                     self.HIT_PER_ATTACK=1
-            else:
-                self.melee_sound.play()        
+
+                       
                       
 
     

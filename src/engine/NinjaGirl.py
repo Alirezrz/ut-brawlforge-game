@@ -4,7 +4,11 @@ import pygame
 class NinjaGirl(Ninja):
     def __init__(self, x, y, screen_width, screen_height, attack_targets, health_bar_frame=None, health_bar=None):
         super().__init__(x, y, screen_width, screen_height, attack_targets, health_bar_frame, health_bar)
-        self.load_girl_sprites()  
+        self.load_girl_sprites()
+        self.hurt=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja girl", "ninjagirl hurt.mp3"))
+          
+    def hurt(self):
+        self.hurt.play()
 
     def load_girl_sprites(self):
         # Replace this with code that loads the girl's custom animations
