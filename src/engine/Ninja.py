@@ -300,7 +300,7 @@ class Ninja:
             self.kunai_fired = False
 
         # Frame timing control
-        speed = 50 if self.status=='attack' or self.status=='jumpattack' else self.animation_speed
+        speed = 50 if self.status=='attack' or self.status=='jumpattack' or self.status=='throw' or self.status=='jumpathrow' else self.animation_speed
         elapsed_time = current_time - self.last_frame_update_time
         if elapsed_time < speed:
             return
@@ -625,7 +625,7 @@ class Ninja:
                         
     def Activate_Super_Power(self):
         current_time=pygame.time.get_ticks()
-        if current_time-self.Super_lastActivation>=self.SuperPower_CoolDown:
+        if current_time-self.Super_lastActivation>=self.SuperPower_CoolDown and self.current_platform!=None and self.vertical_speed==0:
             self.Super_cofficent=2
             self.Super_lastActivation = current_time
             self.last_SPdisplay=current_time

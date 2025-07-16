@@ -2,7 +2,7 @@ import os
 import pygame
 from src.engine.protector import Guard_Drone
 class Archer:
-    def __init__(self, x, y,targets):
+    def __init__(self, x, y, targets):
         self.x_pos = x
         self.y_pos = y
         self.on_platform = False
@@ -21,7 +21,7 @@ class Archer:
         self.jump_cooldown = 250
         self.double_jump_allowed = True
 
-        self.targets=targets
+        self.targets = targets
 
         self.width = 88
         self.height = 100
@@ -33,51 +33,70 @@ class Archer:
         self.status = 'idle'
 
         self.current_frame_index = 0
-        self.animation_speed = 80  # slightly faster
+        self.animation_speed = 80
         self.last_frame_update_time = pygame.time.get_ticks()
         self.is_moving_horizontally = False
 
         self.shooting = False
         self.shot_triggered = False
 
-
-        self.guard_drone_reload_duration = 10000  # 10 seconds
+        self.guard_drone_reload_duration = 10000
         self.last_guard_call = 0
         self.guard_drone = []
-        self.drone_duration = 20000  # drone active time in ms
+        self.drone_duration = 20000
 
+        # Super Power Attributes
+        self.super_power_active = False
+        self.super_power_duration = 15000
+        self.super_power_cooldown = 10000
+        self.super_power_last_activation = -self.super_power_cooldown
+        self.super_power_pic_display_duration = 1500
+        self.super_power_display_start = 0
 
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Archer")
 
-        self.idle_frames = [pygame.transform.scale(pygame.image.load(os.path.join(base_path,"idle",f"{i}.png")),(88,100)) for i in range(6)]
-        sizes = [89,90,91,90,89,90,96,90]
-        self.run_frames = [pygame.transform.scale(pygame.image.load(os.path.join(base_path,"run",f"{i}.png")),(sizes[i],100)) for i in range(8)]
-        sizes = [91,93,88,90,94,89,88,90]
-        self.jump_frames = [pygame.transform.scale(pygame.image.load(os.path.join(base_path,"jump",f"{i}.png")),(sizes[i],100)) for i in range(8)]
-        sizes = [90,72,72,72,72,72,97,113,106,89,77,72,70]
-        self.shot_frames = [pygame.transform.scale(pygame.image.load(os.path.join(base_path,"shot",f"{i}.png")),(sizes[i],100)) for i in range(13)]
-        self.arrow_pic = pygame.transform.scale(pygame.image.load(os.path.join(base_path,"Arrow.png")),(30,2))
-        sizes = [78,60,132,62]      
-        self.attack_frames = [pygame.transform.scale(pygame.image.load(os.path.join(base_path,"attack",f"{i}.png")),(sizes[i],100)) for i in range(4)]
+        self.idle_frames = [pygame.transform.scale(pygame.image.load(os.path.join(base_path, "idle", f"{i}.png")), (88, 100)) for i in range(6)]
+        sizes = [89, 90, 91, 90, 89, 90, 96, 90]
+        self.run_frames = [pygame.transform.scale(pygame.image.load(os.path.join(base_path, "run", f"{i}.png")), (sizes[i], 100)) for i in range(8)]
+        sizes = [91, 93, 88, 90, 94, 89, 88, 90]
+        self.jump_frames = [pygame.transform.scale(pygame.image.load(os.path.join(base_path, "jump", f"{i}.png")), (sizes[i], 100)) for i in range(8)]
+        sizes = [90, 72, 72, 72, 72, 72, 97, 113, 106, 89, 77, 72, 70]
+        self.shot_frames = [pygame.transform.scale(pygame.image.load(os.path.join(base_path, "shot", f"{i}.png")), (sizes[i], 100)) for i in range(13)]
+        self.arrow_pic = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "Arrow.png")), (30, 2))
+        self.firedarrow_pic = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "fired arrow.png")), (30, 8))
 
+        sizes = [78, 60, 132, 62]
+        self.attack_frames = [pygame.transform.scale(pygame.image.load(os.path.join(base_path, "attack", f"{i}.png")), (sizes[i], 100)) for i in range(4)]
+
+        self.super_power_effect_picture = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "super power effect.png")), (88, 127))
         
         self.current_picture = None
 
-    def display(self, screen, offset,shot_bullets):
+
+    def display(self, screen, offset, shot_bullets):
+        self.update_super_power()  
+
         for arrow in self.bullets:
             arrow.update()
-            arrow.draw(screen,offset)
-        display_picture = self.current_picture or self.idle_frames[0]
+            arrow.draw(screen, offset)
+        y=self.y_pos
+        
+        if self.super_power_active and pygame.time.get_ticks() - self.super_power_display_start < self.super_power_pic_display_duration:
+            display_picture = self.super_power_effect_picture
+            y-=27
+        else:
+            display_picture = self.current_picture or self.idle_frames[0]
+
         if self.Look == 'right':
-            screen.blit(display_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
+            screen.blit(display_picture, (self.x_pos - offset[0], y - offset[1]))
         else:
             flipped_picture = pygame.transform.flip(display_picture, True, False)
-            screen.blit(flipped_picture, (self.x_pos - offset[0], self.y_pos - offset[1]))
-            
+            screen.blit(flipped_picture, (self.x_pos - offset[0], y - offset[1]))
+
         for drone in self.guard_drone:
-            drone.Update(screen,offset,shot_bullets)
+            drone.Update(screen, offset, shot_bullets)
+
         self.update_drone()
-            
             
             
 
@@ -148,14 +167,26 @@ class Archer:
             if hasattr(target, 'hitbox') and hitbox_range.colliderect(target.hitbox):
                 target.health -= 50
 
-
-    def shoot_arrow(self,shot_bullets):
+    def shoot_arrow(self, shot_bullets):
         arrow_x = self.x_pos + (self.width if self.Look == 'right' else -30)
         arrow_y = self.y_pos + self.height // 2
         direction = self.Look
-        new_arrow = Arrow(arrow_x, arrow_y, direction, self.arrow_pic)
+        arrow_image = self.firedarrow_pic if self.super_power_active else self.arrow_pic
+        damage = 35 if self.super_power_active else 25
+        new_arrow = Arrow(arrow_x, arrow_y, direction, arrow_image, damage)
         self.bullets.append(new_arrow)
         shot_bullets.append(new_arrow)
+        
+    def activate_super_power(self):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.super_power_last_activation >= self.super_power_cooldown:
+            self.super_power_active = True
+            self.super_power_last_activation = current_time
+            self.super_power_display_start = current_time
+    def update_super_power(self):
+        current_time = pygame.time.get_ticks()
+        if self.super_power_active and current_time - self.super_power_last_activation > self.super_power_duration:
+            self.super_power_active = False
 
     def handle_input(self, keys):
         self.is_moving_horizontally = False
@@ -179,10 +210,13 @@ class Archer:
             self.status = 'attack'
             self.current_frame_index = 0
             self.attack_triggered = False
-            self.attack_targets = self.targets 
-            
+            self.attack_targets = self.targets
+
         if keys[pygame.K_o]:
             self.call_drone()
+
+        if keys[pygame.K_l]:
+            self.activate_super_power()
 
         if not self.is_moving_horizontally:
             self.stop_horizontal_movement()
@@ -199,7 +233,7 @@ class Archer:
 
             for target in targets:
                 if hasattr(target, 'hitbox') and arrow.hitbox.colliderect(target.hitbox):
-                    target.health -= 30
+                    target.health -= arrow.damage
                     if arrow in self.bullets:
                         self.bullets.remove(arrow)
                     if arrow in global_bullet_list:
@@ -340,7 +374,7 @@ class Archer:
 
 
 class Arrow:
-    def __init__(self, x, y, direction, arrow_picture):
+    def __init__(self, x, y, direction, arrow_picture,damage):
         self.x_pos = x
         self.owner = 'Archer'
         self.y_pos = y
@@ -350,13 +384,14 @@ class Arrow:
         self.width = arrow_picture.get_width()
         self.height = arrow_picture.get_height()
         self.status = 'in game'
-
-        shrink = 8
+        self.damage=damage
+        
+       
         self.hitbox = pygame.Rect(
-            self.x_pos + shrink // 2,
-            self.y_pos + shrink // 2,
-            self.width - shrink,
-            self.height - shrink
+            self.x_pos  ,
+            self.y_pos ,
+            self.width,
+            self.height 
         )
 
     def update(self):
@@ -365,10 +400,9 @@ class Arrow:
         else:
             self.x_pos -= self.speed
 
-        shrink = 8
         self.hitbox.topleft = (
-            self.x_pos + shrink // 2,
-            self.y_pos + shrink // 2
+            self.x_pos ,
+            self.y_pos
         )
 
     def draw(self, screen, offset):

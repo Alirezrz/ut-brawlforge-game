@@ -264,7 +264,7 @@ class Drone:
         self.shoot()
         for bullet in self.bullets:
             bullet.update()
-            if bullet.len_of_horizental_move > 3000:    # برای اینکه از اورهد اضافی جلوگیری بشه 
+            if bullet.len_of_horizental_move > 20000:    # برای اینکه از اورهد اضافی جلوگیری بشه 
                 self.bullets.remove(bullet)
             if bullet.hitbox.colliderect(self.target.hitbox):
                 self.target.freezed=True
