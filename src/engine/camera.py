@@ -3,7 +3,7 @@ from config import screen_width, screen_height ,platform_height
 import os 
 class Camera:
     
-    def __init__(self,screen,platforms,shot_bullets,hero,explosions,scroll,ninja,Arman,Gates,background,drones,objects,gunamns,archer,dragonlord):
+    def __init__(self,screen,platforms,shot_bullets,hero,explosions,scroll,ninja,Arman,Gates,background,drones,objects,gunamns,archer,dragonlord,flyingdemon):
         self.screen=screen
         self.platforms=platforms
         self.shot_bullets=shot_bullets
@@ -20,7 +20,7 @@ class Camera:
         self.drones=drones
         self.objects=objects
         self.archer=archer
-        
+        self.flyingdemon=flyingdemon
         self.gunmans=gunamns
         self.dragonlord=dragonlord
         
@@ -51,6 +51,7 @@ class Camera:
         self.archer.display(self.screen,self.scroll,self.shot_bullets)
         
         self.dragonlord.display(self.screen,self.scroll)
+        self.flyingdemon.display(self.screen,self.scroll)
         #handeling explosions:
         for gunman in self.gunmans:
             gunman.display(self.screen,self.scroll)
