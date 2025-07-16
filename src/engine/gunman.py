@@ -20,7 +20,9 @@ class Gunman:
         self.ALIVE = True
         self.platforms = platforms
 
+
         self.shoot_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "gunner", "gunner shoot.mp3"))
+        self.hurt=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "gunner", "gunman hurt.mp3"))
 
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "gunman")
         self.bullet_pic = pygame.transform.scale(
@@ -84,6 +86,9 @@ class Gunman:
         self.death_start_y = None  # To store original y position at death start
         self.smokes = []
 
+    def hurt(self):
+        self.hurt.play()    
+    
     def display(self, screen, offset):
         if self.Look == 'right':
             screen.blit(self.display_frame, (self.x_pos - offset[0], self.y_pos - offset[1]))

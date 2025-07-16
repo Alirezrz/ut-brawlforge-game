@@ -193,7 +193,8 @@ class Terrorist:
                 self.x_pos -= self.walk_strength + 5
                 self.Look = 'left'
             self.hitbox.topleft = (self.x_pos, self.y_pos)
-
+    def hurt(self):
+        return
     def Update(self, bullets):
         if self.status == 'exploded':
             # Handle explosion animation frames

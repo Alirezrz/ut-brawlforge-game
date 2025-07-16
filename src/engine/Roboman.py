@@ -20,6 +20,8 @@ class Roboman:
         self.jump_strenght = 20 
         self.freezed=False
         self.is_first_time=True
+        self.hurt=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))
+
 
         self.hero_creation_index = hero_creation_index  # اضافه شد
         self.shot_hit_enemy_sound = pygame.mixer.Sound(
@@ -211,6 +213,9 @@ class Roboman:
         self.guard_drone = []
         self.drone_duration = 20000
 
+    def hurt(self):
+        self.hurt.play()
+        
     def display(self, screen, offset, shot_bullets):
         self.roboman_health_bar = pygame.transform.scale(
             self.roboman_health_bar, 
@@ -505,8 +510,7 @@ class Roboman:
             for bullet in self.bullets:
                 if target.hitbox.colliderect(bullet.hitbox):
                     target.health-=20   # should be intialized ***** 
-                    if self.shot_hit_enemy_sound:
-                        self.shot_hit_enemy_sound.play()
+
 
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
