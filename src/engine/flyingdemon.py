@@ -9,6 +9,7 @@ class FlyingDemon:
             pygame.transform.scale(pygame.image.load(os.path.join(base_path, "idle", f"{i}.png")), (w, 100))
             for i, w in enumerate([137, 97, 113, 117])
         ]
+        self.hurt=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "FlyingDemon", "hurt.mp3"))
 
         self.fly_frames=[
             pygame.transform.scale(pygame.image.load(os.path.join(base_path, "fly", f"{i}.png")), (w, 100))
@@ -46,6 +47,9 @@ class FlyingDemon:
         self.fireballs=[]
         self.explosions=[]
 
+    def hurt(self):
+        self.hurt.play() 
+ 
     def update_animation(self):
         current_time = pygame.time.get_ticks()
         if current_time - self.last_animation_update >= self.animation_speed:
