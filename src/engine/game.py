@@ -14,6 +14,7 @@ from src.engine.Ninja import Ninja
 from src.engine.menu import PauseMenu
 from src.engine.terrorist import Terrorist
 from src.engine.teleportgate import Gates
+from src.engine.bomb import Bomb
 from src.engine.Drone import Drone
 from src.engine.pumpkin import Pumpkin
 from src.engine.gunman import Gunman
@@ -51,6 +52,7 @@ class Game:
         )
 
 
+        self.bomb = Bomb(player_start_pos['x'] + 100, player_start_pos['y'] - 270, targets=[]) 
 
         self.platforms = load_level_data(level_1_data, platform_image)
         self.screen_color = (60, 100, 150)
@@ -87,7 +89,7 @@ class Game:
         ]
         self.dragonlord=Dragon_Lord(player_start_pos['x'] -200, player_start_pos['y']-62,self.ninja)
         self.flyingdemon=FlyingDemon(player_start_pos['x'] - 800, player_start_pos['y']-18,self.ninja,'right')
-        self.camera = Camera(self.screen, self.platforms, self.shot_bullets, self.Roboman, self.explosions, self.scroll, self.ninja, self.terrorists[0], self.gates, self.background, self.drones, self.Objects, self.gunmans,self.archer,self.dragonlord,self.flyingdemon)
+        self.camera = Camera(self.screen, self.platforms, self.shot_bullets, self.Roboman, self.explosions, self.scroll, self.ninja, self.terrorists[0], self.gates, self.background, self.drones, self.Objects, self.gunmans,self.archer,self.dragonlord,self.flyingdemon,self.bomb)
 
         self.shutter_strength = 0
         self.shutter_start_time = 0
@@ -177,6 +179,7 @@ class Game:
         self.screen.fill(self.screen_color)
 
     def run(self):
+
         while self.game_active:
             events = pygame.event.get()
             self.handle_inputs()

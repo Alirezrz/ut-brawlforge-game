@@ -255,7 +255,6 @@ class Ninja:
         for drone in self.guard_drone:
             drone.Update(screen,offset,shot_bullets)
         
-        #print(self.health)
         
         
     
