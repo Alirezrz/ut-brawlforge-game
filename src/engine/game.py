@@ -53,7 +53,7 @@ class Game:
         )
 
 
-        self.bomb = Bomb(player_start_pos['x'] + 100, player_start_pos['y'] - 270, targets=[self.ninja]) 
+        self.bomb = Bomb(player_start_pos['x'] + 100, player_start_pos['y'] - 500, targets=[self.ninja]) 
         self.defuse_kit=DefuseKit(player_start_pos['x'] + 100, player_start_pos['y'] - 270, targets=[self.ninja])
 
         self.platforms = load_level_data(level_1_data, platform_image)
