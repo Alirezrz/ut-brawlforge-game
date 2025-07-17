@@ -26,7 +26,7 @@ class Archer:
         self.width = 88
         self.height = 100
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
-        self.hurt=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "archer", "archer hurt.mp3"))     
+        self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "archer", "archer hurt.mp3"))     
         self.health = 63
         self.max_health = 100
         self.bullets = []
@@ -72,7 +72,7 @@ class Archer:
         
         self.current_picture = None
     def hurt(self):
-        self.hurt.play()
+        self.hurt_sound.play()
 
     def display(self, screen, offset, shot_bullets):
         self.update_super_power()  
