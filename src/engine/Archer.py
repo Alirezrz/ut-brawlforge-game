@@ -1,10 +1,15 @@
 import os
 import pygame
+from config import screen_width,screen_height,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
+
 from src.engine.protector import Guard_Drone
 class Archer:
-    def __init__(self, x, y, targets):
+    def __init__(self, x, y, targets,index=3):
+        self.hero_creation_index=index
         self.x_pos = x
         self.y_pos = y
+        self.screen_height=screen_height
+        self.screen_width=screen_width
         self.on_platform = False
         self.current_platform = None
         self.horizontal_auto_speed = 0
@@ -22,9 +27,12 @@ class Archer:
         self.double_jump_allowed = True
         self.has_defuse_kit=False
 
+        self.health_bar_frame =pygame.image.load("src/assets/images/Archer/health_bar_frame.png")
+        self.health_bar = pygame.image.load("src/assets/images/Archer/health_bar.png")
+
         self.health=100
         self.targets = targets
-
+        self.profile_picture = pygame.image.load("src/assets/images/Archer/profile.png")
         self.width = 88
         self.height = 100
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
@@ -77,6 +85,58 @@ class Archer:
         self.hurt_sound.play()
 
     def display(self, screen, offset, shot_bullets):
+        self.health_bar = pygame.transform.scale(
+            self.health_bar, 
+            (int(health_bar_lenght * (self.health / self.max_health)), profileSideSize - (2 * roboman_health_bar_frame_thickness))
+        )
+        self.health_bar_frame = pygame.transform.scale(
+            self.health_bar_frame, 
+            (health_bar_lenght + (2 * roboman_health_bar_frame_thickness), profileSideSize)
+        )
+        display_picture = self.current_picture
+
+        # موقعیت health bar و profile بر اساس hero_creation_index
+        if self.hero_creation_index == 1:  # بالا چپ
+            bar_x, bar_y = profileSideSize, 0
+            health_x, health_y = profileSideSize + roboman_health_bar_frame_thickness, roboman_health_bar_frame_thickness
+            profile_x, profile_y = 0, 0
+        elif self.hero_creation_index == 2:  # بالا راست
+            if self.is_first_time:
+                self.hero_profile_picture = pygame.transform.flip(self.hero_profile_picture, True, False)
+                self.is_first_time=False            
+            bar_x = self.screen_width - health_bar_lenght - (2 * roboman_health_bar_frame_thickness) - profileSideSize
+            bar_y = 0
+            health_x = bar_x + roboman_health_bar_frame_thickness
+            health_y = roboman_health_bar_frame_thickness
+            profile_x = self.screen_width - profileSideSize
+            profile_y = 0
+        elif self.hero_creation_index == 3:  # پایین چپ
+            bar_x = profileSideSize
+            bar_y = self.screen_height - profileSideSize
+            health_x = bar_x + roboman_health_bar_frame_thickness
+            health_y = bar_y + roboman_health_bar_frame_thickness
+            profile_x = 0
+            profile_y = self.screen_height - profileSideSize
+        elif self.hero_creation_index == 4:  # پایین راست
+            if self.is_first_time:
+                self.hero_profile_picture = pygame.transform.flip(self.hero_profile_picture, True, False)
+                self.is_first_time=False   
+            self.hero_profile_picture = pygame.transform.flip(self.hero_profile_picture, True, False)
+            bar_x = self.screen_width - health_bar_lenght - (2 * roboman_health_bar_frame_thickness) - profileSideSize
+            bar_y = self.screen_height - profileSideSize
+            health_x = bar_x + roboman_health_bar_frame_thickness
+            health_y = bar_y + roboman_health_bar_frame_thickness
+            profile_x = self.screen_width - profileSideSize
+            profile_y = self.screen_height - profileSideSize
+        else:  # دیفالت بالا چپ
+            bar_x, bar_y = profileSideSize, 0
+            health_x, health_y = profileSideSize + roboman_health_bar_frame_thickness, roboman_health_bar_frame_thickness
+            profile_x, profile_y = 0, 0
+
+        screen.blit(self.health_bar_frame, (bar_x, bar_y))
+        screen.blit(self.health_bar, (health_x, health_y))
+        screen.blit(pygame.transform.scale(self.profile_picture, (profileSideSize, profileSideSize)), (profile_x, profile_y))
+
         self.update_super_power()  
         for arrow in self.bullets:
             arrow.update()
