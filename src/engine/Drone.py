@@ -27,7 +27,7 @@ class Drone:
 
         self.shoot_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "freeze drone", "freeze drone shoot.mp3"))     
         self.shot_hit_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "freeze drone", "freezed.mp3"))     
-        self.hurt=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "freeze drone", "freeze drone hurt.mp3"))     
+        self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "freeze drone", "freeze drone hurt.mp3"))     
     
         
         self.aim_teta=0
@@ -113,7 +113,7 @@ class Drone:
             
             
     def hurt(self):
-        self.hurt.play()            
+        self.hurt_sound.play()            
             
     def display(self, screen, offset):
         screen_width, screen_height = screen.get_size()

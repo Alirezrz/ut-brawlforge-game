@@ -14,7 +14,7 @@ class Ninja:
         self.throw_kunai_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "throw kunai.mp3"))
         self.x_pos = x
         self.y_pos = y
-        self.hurt=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja hurt.mp3"))        
+        self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja hurt.mp3"))        
         self.on_platform = False
         self.ninja_health_bar_frame = ninja_health_bar_frame
         self.ninja_health_bar = ninja_health_bar
@@ -78,6 +78,8 @@ class Ninja:
         self.ATTACK=True
         self.HIT_PER_ATTACK=0
         self.MOVEWITHATTACKFLAG=True
+        self.has_defuse_kit=False
+
 
         
         #Super power attributes:
@@ -185,7 +187,7 @@ class Ninja:
 
     
     def hurt(self):
-        self.hurt.play()
+        self.hurt_sound.play()
              
     def display_health_bar(self, screen):
 
@@ -255,7 +257,6 @@ class Ninja:
         for drone in self.guard_drone:
             drone.Update(screen,offset,shot_bullets)
         
-        #print(self.health)
         
         
     
