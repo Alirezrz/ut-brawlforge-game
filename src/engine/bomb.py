@@ -53,3 +53,7 @@ class Bomb:
             if target.hitbox.colliderect(self.hitbox):
                 if target.has_defuse_kit:
                     self.bomb_defused() 
+
+    def handle_input(self,keys):
+        if keys[pygame.K_z]:
+            self.defuse_bomb()                
