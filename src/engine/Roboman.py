@@ -21,6 +21,7 @@ class Roboman:
         self.freezed=False
         self.is_first_time=True
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))
+        self.has_defuse_kit=False
 
 
         self.hero_creation_index = hero_creation_index  # اضافه شد

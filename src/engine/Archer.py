@@ -20,6 +20,7 @@ class Archer:
         self.last_jump_time = 0
         self.jump_cooldown = 250
         self.double_jump_allowed = True
+        self.has_defuse_kit=False
 
         self.targets = targets
 
