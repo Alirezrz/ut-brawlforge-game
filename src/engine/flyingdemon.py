@@ -21,11 +21,16 @@ class FlyingDemon:
             for i, w in enumerate([97,96,91,124,100,110,108,126])
         ]
 
+        self.death_frames=[
+            pygame.transform.scale(pygame.image.load(os.path.join(base_path, "death", f"{i}.png")), (w, 100))
+            for i, w in enumerate([103,111,111,109,102])
+        ]
+
         self.x_pos = x
         self.y_pos = y
         self.target = target
         self.Look = look
-
+        self.health=100
         self.status = 'idle'
         self.current_frame = self.idle_frames[0]
         self.frame_index = 0
@@ -38,7 +43,7 @@ class FlyingDemon:
         self.fly_speed = 2
         self.min_distance = 500
         self.detect_distance = 600
-        self.avoid_distance = 300  # if target gets closer than this, demon escapes
+        self.avoid_distance = 300
 
         self.last_attack=0
         self.reload_duration=2000
@@ -46,12 +51,19 @@ class FlyingDemon:
         self.attack_frame_limit = len(self.attack_frames)
         self.fireballs=[]
         self.explosions=[]
+        self.ALIVE=True
+        self.death_finished = False
 
     def hurt(self):
         self.hurt.play() 
  
     def update_animation(self):
         current_time = pygame.time.get_ticks()
+
+        if self.health <= 0:
+            self.ALIVE = False
+            self.status = 'death'
+
         if current_time - self.last_animation_update >= self.animation_speed:
             if self.status == 'idle':
                 frames = self.idle_frames
@@ -59,33 +71,38 @@ class FlyingDemon:
                 frames = self.fly_frames
             elif self.status == 'attack':
                 frames = self.attack_frames
-            
+            elif self.status == 'death':
+                frames = self.death_frames
+
             self.frame_index += 1
 
             if self.status == 'attack' and self.frame_index >= len(frames):
-                self.status = 'idle'  # Reset status after attack animation
+                self.status = 'idle'
                 self.attacking = False
                 self.frame_index = 0
+            elif self.status == 'death' and self.frame_index >= len(frames):
+                self.frame_index = len(frames) - 1
+                self.death_finished = True
             else:
                 self.frame_index = self.frame_index % len(frames)
 
             self.current_frame = frames[self.frame_index]
             self.last_animation_update = current_time
-            if self.status=='attack' and self.frame_index==5 :
+
+            if self.status=='attack' and self.frame_index==5:
                 if self.Look=='right':
                     self.fireballs.append(FireBall(self.x_pos+76,self.y_pos+43+10,self.Look))
                 else:
                     self.fireballs.append(FireBall(self.x_pos-50,self.y_pos+43+10,self.Look))
 
     def display(self, screen, offset):
-
         self.update()
         img = self.current_frame
         if self.Look == 'right':
             img = pygame.transform.flip(img, True, False)
         screen.blit(img, (self.x_pos - offset[0], self.y_pos - offset[1]))
-        
-        for fire in self.fireballs:
+
+        for fire in self.fireballs[:]:
             fire.display(screen,offset)
             if fire.hitbox.colliderect(self.target.hitbox):
                 self.target.health-=40
@@ -94,17 +111,15 @@ class FlyingDemon:
                 else:
                     self.explosions.append(Explosion(fire.x_pos-140,fire.y_pos-100))
                 self.fireballs.remove(fire)
-                
+
         for exp in self.explosions[:]:
             exp.display(screen, offset)
             if exp.finished:
                 self.explosions.remove(exp)
-                
-            
 
     def follow_target(self):
-        if self.attacking:
-            return  # Skip movement while attacking
+        if self.attacking or not self.ALIVE:
+            return
 
         dx = self.target.x_pos - self.x_pos
         dy = self.target.y_pos - self.y_pos
@@ -135,6 +150,10 @@ class FlyingDemon:
         self.hitbox.topleft = (self.x_pos, self.y_pos)
 
     def update(self):
+        if not self.ALIVE:
+            self.update_animation()
+            return
+
         self.attack()
 
         if not self.attacking:
@@ -161,7 +180,6 @@ class FlyingDemon:
             self.last_attack = current_time
 
 
-
 class FireBall:
     def __init__(self,x,y,look):
         self.x_pos=x
@@ -169,36 +187,40 @@ class FireBall:
         self.Look=look
         self.speed=10
         self.traveled_distance=0
-        
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "flyingdemon","fireball.png")
-        self.image=pygame.transform.scale(
-            pygame.image.load(path),
-            (60,30)
-        )
-        
+
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "flyingdemon","fireball")
+        self.frames=[
+            pygame.transform.scale(pygame.image.load(os.path.join(path, f"{i}.png")), (w, 30))
+            for i, w in enumerate([61,54,48,48])
+        ]
+        self.image=self.frames[0]
+        self.frame_index=-1
+
         self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.image.get_width(),self.image.get_height())
-        
+
     def display(self,screen,offset):
+        self.frame_index+=1
+        if self.frame_index==4:
+            self.frame_index=0
+        self.image=self.frames[self.frame_index]
+        self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.image.get_width(),self.image.get_height())
         self.update()
         if self.Look=='right':
             screen.blit(self.image,(self.x_pos-offset[0],self.y_pos-offset[1]))  
-            
         else:
             screen.blit(pygame.transform.flip(self.image,True,False),(self.x_pos-offset[0],self.y_pos-offset[1]))
-        
-        
+
     def update(self):
         if self.Look=='right':
             self.x_pos+=self.speed
             self.traveled_distance+=self.speed
-            
         else:
             self.x_pos-=self.speed
             self.traveled_distance+=self.speed
-            
+
         self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.image.get_width(),self.image.get_height())
-        
-        
+
+
 class Explosion:
     def __init__(self,x,y):
         self.x_pos = x
@@ -214,7 +236,7 @@ class Explosion:
             ))
 
         self.frame_index = 0
-        self.animation_speed = 5  # milliseconds per frame
+        self.animation_speed = 5
         self.last_update = pygame.time.get_ticks()
         self.finished = False
 
@@ -231,6 +253,3 @@ class Explosion:
             self.last_update = current_time
             if self.frame_index >= len(self.frames):
                 self.finished = True
-        
-    
-        
