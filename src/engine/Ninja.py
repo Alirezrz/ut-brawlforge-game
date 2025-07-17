@@ -518,6 +518,7 @@ class Ninja:
             for bullet in self.bullets:
                 if target.hitbox.colliderect(bullet.hitbox):
                     target.health-=20   # should be intialized ***** 
+                    target.hurt()
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
                     if bullet in shot_bullets:

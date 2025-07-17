@@ -225,6 +225,7 @@ class Gunman:
                 for hero in self.targets:
                     if bullet.hitbox.colliderect(hero.hitbox):
                         hero.health -= 20
+                        hero.hurt()                        
                         if bullet in self.shot_bullets:
                             self.shot_bullets.remove(bullet)
                         if bullet in shot_bullets:
@@ -240,12 +241,6 @@ class Gunman:
                         shot_bullets.remove(bullet)
 
     def update_health(self, shot_bullets):
-        for bullet in shot_bullets[:]:
-            if bullet.owner == 'Ninja' or bullet.owner == 'Roboman':
-                if bullet.hitbox.colliderect(self.hitbox):
-                    self.health -= 50
-                    if bullet in shot_bullets:
-                        shot_bullets.remove(bullet)
 
         if self.health <= 0 and self.ALIVE:
             self.ALIVE = False

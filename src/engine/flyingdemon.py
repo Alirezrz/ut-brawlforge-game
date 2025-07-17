@@ -106,6 +106,7 @@ class FlyingDemon:
             fire.display(screen,offset)
             if fire.hitbox.colliderect(self.target.hitbox):
                 self.target.health-=40
+                self.target.hurt()
                 if fire.Look=='right':
                     self.explosions.append(Explosion(fire.x_pos-100,fire.y_pos-100))
                 else:

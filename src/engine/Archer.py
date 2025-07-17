@@ -234,6 +234,7 @@ class Archer:
             for target in targets:
                 if hasattr(target, 'hitbox') and arrow.hitbox.colliderect(target.hitbox):
                     target.health -= arrow.damage
+                    target.hurt()
                     if arrow in self.bullets:
                         self.bullets.remove(arrow)
                     if arrow in global_bullet_list:
