@@ -121,8 +121,7 @@ class Game:
         self.Roboman.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class)
         self.ninja.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class, self.trigger_shutter)
         self.archer.handle_input(keys)
-        if keys[pygame.K_z]:
-            self.bomb.defuse_bomb()
+        self.bomb.handle_input(keys)
 
     def update(self):
         keys = pygame.key.get_pressed()
