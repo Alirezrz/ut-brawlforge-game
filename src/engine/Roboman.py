@@ -709,6 +709,10 @@ class Explosion:
         elif elapsed_time>=60 and not self.frame_index<4:
             self.Expired=True
             
+            
+            
+            
+            
         
         
         
