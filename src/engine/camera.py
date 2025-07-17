@@ -54,7 +54,8 @@ class Camera:
         self.archer.display(self.screen,self.scroll,self.shot_bullets)
         
         self.dragonlord.display(self.screen,self.scroll)
-        self.flyingdemon.display(self.screen,self.scroll)
+        if self.flyingdemon.ALIVE:
+            self.flyingdemon.display(self.screen,self.scroll)
         #handeling explosions:
         for gunman in self.gunmans:
             gunman.display(self.screen,self.scroll)

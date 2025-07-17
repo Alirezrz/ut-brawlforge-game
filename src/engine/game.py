@@ -90,14 +90,14 @@ class Game:
             PowerBox(player_start_pos['x'] + 700, player_start_pos['y'] + 65, [self.Roboman, self.ninja])
         ]
         self.dragonlord=Dragon_Lord(player_start_pos['x'] -200, player_start_pos['y']-62,self.ninja)
-        self.flyingdemon=FlyingDemon(player_start_pos['x'] - 800, player_start_pos['y']-18,self.ninja,'right')
-        self.camera = Camera(self.screen, self.platforms, self.shot_bullets, self.Roboman, self.explosions, self.scroll, self.ninja, self.terrorists[0], self.gates, self.background, self.drones, self.Objects, self.gunmans,self.archer,self.dragonlord,self.flyingdemon,self.bomb,self.defuse_kit)
 
         self.shutter_strength = 0
         self.shutter_start_time = 0
         self.shutter_duration = 150
-
-        self.ninja.attack_targets = [self.Roboman] + self.terrorists + self.gunmans + self.drones
+        self.flyingdemons=[]
+        self.flyingdemons.append(FlyingDemon(player_start_pos['x'] - 800, player_start_pos['y']-18,self.ninja,'right'))
+        self.ninja.attack_targets = [self.Roboman] + self.terrorists + self.gunmans + self.drones + self.flyingdemons
+        self.camera = Camera(self.screen, self.platforms, self.shot_bullets, self.Roboman, self.explosions, self.scroll, self.ninja, self.terrorists[0], self.gates, self.background, self.drones, self.Objects, self.gunmans,self.archer,self.dragonlord,self.flyingdemons[0],self.bomb,self.defuse_kit)
 
         self.input_handler = InputHandler(self.Roboman, self.bullet_class, self.shot_bullets)
 
@@ -126,6 +126,7 @@ class Game:
     def update(self):
         keys = pygame.key.get_pressed()
         self.dragonlord.Update(keys,self.platforms)
+        self.update_enemies()
         for character in [self.Roboman, self.ninja, self.archer]:
             character.is_on_ground()
             character.gravity()
@@ -138,7 +139,7 @@ class Game:
         self.Roboman.update_bullets( self.shot_bullets, self.platforms, [self.ninja])
 
         self.ninja.update_animation(self.shot_bullets)
-        self.ninja.update_bullets(self.screen, self.shot_bullets, self.platforms, [self.Roboman])
+        self.ninja.update_bullets(self.screen, self.shot_bullets, self.platforms, [self.Roboman]+self.flyingdemons)
 
         self.archer.update_animation(self.shot_bullets)
         self.archer.update_bullets( self.screen, self.shot_bullets, self.platforms, [self.Roboman,self.ninja]+self.gunmans+self.drones+self.terrorists,self.scroll)
@@ -215,3 +216,19 @@ class Game:
         self.shutter_strength = strength
         self.shutter_duration = duration
         self.shutter_start_time = pygame.time.get_ticks()
+        
+        
+    def update_enemies(self):
+        for flyingdemon in self.flyingdemons[:]:  # Use copy of the list to avoid skipping items
+            flyingdemon.update()  # Always call update first to let animations play
+
+            # Only mark for removal after death animation has completed
+            if flyingdemon.status == 'dying' and flyingdemon.death_finished:
+                self.flyingdemons.remove(flyingdemon)
+            
+        self.cleanup_dead_entities()
+                
+    def cleanup_dead_entities(self):
+        self.flyingdemons = [fd for fd in self.flyingdemons if fd.ALIVE or not fd.death_finished]
+        self.terrorists = [t for t in self.terrorists if t.status != 'removed']
+        # add similar cleanup for other enemies if needed

@@ -161,7 +161,12 @@ class Roboman:
         except FileNotFoundError:
             print(f"Error: Bullet.png not found at {bullet_image_path}. Using a placeholder.")
             self.bullet_picture = pygame.Surface((40, 40), pygame.SRCALPHA)
-
+        bullet_image_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "..", "assets", "images", "RoboMan_pictures", "especial bullet.png"
+        )
+        #self.especial_bullet=pygame.image.load(bullet_image_path).convert_alpha()
+        #self.especial_bullet=pygame.transform.scale(self.bullet_picture ,(32,10))
         self.picture = self.idle_frames[0] if self.idle_frames else pygame.Surface((70, 118))
         self.width = self.picture.get_width()
         self.height = self.picture.get_height()

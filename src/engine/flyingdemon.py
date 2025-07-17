@@ -61,8 +61,7 @@ class FlyingDemon:
         current_time = pygame.time.get_ticks()
 
         if self.health <= 0:
-            self.ALIVE = False
-            self.status = 'death'
+            self.status = 'dying'
 
         if current_time - self.last_animation_update >= self.animation_speed:
             if self.status == 'idle':
@@ -71,7 +70,7 @@ class FlyingDemon:
                 frames = self.fly_frames
             elif self.status == 'attack':
                 frames = self.attack_frames
-            elif self.status == 'death':
+            elif self.status == 'dying':
                 frames = self.death_frames
 
             self.frame_index += 1
@@ -80,7 +79,7 @@ class FlyingDemon:
                 self.status = 'idle'
                 self.attacking = False
                 self.frame_index = 0
-            elif self.status == 'death' and self.frame_index >= len(frames):
+            elif self.status == 'dying' and self.frame_index >= len(frames):
                 self.frame_index = len(frames) - 1
                 self.death_finished = True
             else:
@@ -94,6 +93,9 @@ class FlyingDemon:
                     self.fireballs.append(FireBall(self.x_pos+76,self.y_pos+43+10,self.Look))
                 else:
                     self.fireballs.append(FireBall(self.x_pos-50,self.y_pos+43+10,self.Look))
+                    
+            if self.status=='dying' and self.frame_index==4:
+                self.ALIVE=False
 
     def display(self, screen, offset):
         self.update()
