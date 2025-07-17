@@ -20,6 +20,7 @@ class Roboman:
         self.jump_strenght = 20 
         self.freezed=False
         self.is_first_time=True
+        self.has_defuse_kit=False
         self.hurt=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))
 
 

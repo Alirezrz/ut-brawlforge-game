@@ -78,6 +78,8 @@ class Ninja:
         self.ATTACK=True
         self.HIT_PER_ATTACK=0
         self.MOVEWITHATTACKFLAG=True
+        self.has_defuse_kit=False
+
 
         
         #Super power attributes:
