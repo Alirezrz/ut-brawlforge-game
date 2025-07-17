@@ -1,6 +1,8 @@
 import os
 import pygame
 from src.engine.protector import Guard_Drone
+from src.engine.bullet import Bullet
+
 class Archer:
     def __init__(self, x, y, targets):
         self.x_pos = x
@@ -374,6 +376,20 @@ class Archer:
                     drone.status = 'departing'
             if drone.status == 'departing' and drone.departed_len>3000:
                 self.guard_drone.remove(drone)
+                
+    def update(self,platforms,shot_bullets,targets,keys,gate,trigger_shutter=None):
+        self.is_on_ground()
+        self.gravity()
+        self.vertical_move()
+        self.platforms_collisions(platforms)
+        self.move_with_platform()
+        self.jump_under_platform(platforms)
+        self.update_animation()
+        self.update_bullets(shot_bullets,targets)
+        self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter=None)
+        self.update_drone()
+                
+    
 
 
 class Arrow:

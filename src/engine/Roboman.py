@@ -2,6 +2,8 @@ import pygame
 import os
 from config import roboman_jetpack_reload,roboman_reload_time, jump_strenght ,horizontal_speed,gravity_strenght,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
 from src.engine.protector import Guard_Drone
+from src.engine.bullet import Bullet
+
 
 # bug : وقتی تیر انداز تیرش به تروریست بخوره روبات میمیره
 class Roboman:
@@ -488,7 +490,7 @@ class Roboman:
         self.vertical_speed = 0
         self.health = self.max_health
 
-    def update_bullets(self, screen, shot_bullets,platforms,targets):
+    def update_bullets(self, shot_bullets,platforms,targets):
         for bullet in self.bullets:
             if bullet not in shot_bullets:
                 self.bullets.remove(bullet)
@@ -663,8 +665,20 @@ class Roboman:
                     drone.status = 'departing'
             if drone.status == 'departing' and drone.departed_len>3000:
                 self.guard_drone.remove(drone)
-
-
+                
+                
+    def update(self,platforms,shot_bullets,targets,keys,gate,trigger_shutter=None):
+        self.is_on_ground()
+        self.gravity()
+        self.vertical_move()
+        self.platforms_collisions(platforms)
+        self.move_with_platform()
+        self.jump_under_platform(platforms)
+        self.update_animation()
+        self.update_bullets(shot_bullets,targets)
+        self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter=None)
+        self.update_drone()
+        
 
 
 
@@ -709,6 +723,9 @@ class Explosion:
             self.last_update=current_time
         elif elapsed_time>=60 and not self.frame_index<4:
             self.Expired=True
+            
+            
+            
             
             
             

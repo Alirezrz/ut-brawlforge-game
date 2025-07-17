@@ -136,7 +136,7 @@ class Game:
             character.jump_under_platform(self.platforms)
 
         self.Roboman.update_animation()
-        self.Roboman.update_bullets(self.screen, self.shot_bullets, self.platforms, [self.ninja])
+        self.Roboman.update_bullets( self.shot_bullets, self.platforms, [self.ninja])
 
         self.ninja.update_animation(self.shot_bullets)
         self.ninja.update_bullets(self.screen, self.shot_bullets, self.platforms, [self.Roboman])
