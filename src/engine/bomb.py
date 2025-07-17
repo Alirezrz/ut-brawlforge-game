@@ -22,6 +22,7 @@ class Bomb:
         self.font = pygame.font.SysFont("Arial", 36)
         self.timer_finished = False
         self.start_time=pygame.time.get_ticks()
+        self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)        
 
 
     def display(self, screen,offset):
@@ -46,3 +47,8 @@ class Bomb:
     def bomb_defused(self):
         self.display_pic = self.bomb_off
         self.is_defused = True
+
+    def defuse_bomb(self):
+        for target in self.targets:
+            if target.hitbox.colliderect(self.hitbox):
+                self.bomb_defused() 
