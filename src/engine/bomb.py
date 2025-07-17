@@ -51,4 +51,5 @@ class Bomb:
     def defuse_bomb(self):
         for target in self.targets:
             if target.hitbox.colliderect(self.hitbox):
-                self.bomb_defused() 
+                if target.has_defuse_kit:
+                    self.bomb_defused() 
