@@ -5,6 +5,8 @@ class NinjaGirl(Ninja):
     def __init__(self, x, y, screen_width, screen_height, attack_targets, health_bar_frame=None, health_bar=None):
         super().__init__(x, y, screen_width, screen_height, attack_targets, health_bar_frame, health_bar)
         self.load_girl_sprites()
+        self.ninja_profile_picture = pygame.image.load("src/assets/images/NinjaGirl/profile.png")
+
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja girl", "ninjagirl hurt.mp3"))
           
     def hurt(self):
