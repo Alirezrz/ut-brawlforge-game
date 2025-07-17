@@ -269,7 +269,9 @@ class Terrorist:
 
     def update_animation(self):
         current_time = pygame.time.get_ticks()
-
+        # updating aliveness:
+        if self.health<=0:
+            self.trigger_explosion()
         if self.status == 'shot':
             if current_time - self.last_frame_update_time >= self.animation_speed:
                 self.last_frame_update_time = current_time
