@@ -171,4 +171,34 @@ def apply_targets_to_enemies(enemies, targets):
         f.target = targets[0] if targets else None  # یا یه منطق بهتر
     if enemies['dragonlord']:
         enemies['dragonlord'].target = targets[0]
+
+def build_objects(level_data, targets):
+    from src.engine.bomb import Bomb
+    from src.engine.defuse_kit import DefuseKit
+    from src.engine.teleportgate import Gates
+    from src.engine.pumpkin import Pumpkin
+    from src.engine.heatlh_box import PowerBox
+
+    objects = {
+        'bomb': None,
+        'defuse_kit': None,
+        'gates': [],
+        'misc': []
+    }
+
+    for obj in level_data.get('objects', []):
+        t = obj['type']
+        if t == 'bomb':
+            objects['bomb'] = Bomb(obj['x'], obj['y'], targets=targets)
+        elif t == 'defusekit':
+            objects['defuse_kit'] = DefuseKit(obj['x'], obj['y'], targets=targets)
+        elif t == 'teleportgate':
+            objects['gates'].append(Gates(obj['x1'], obj['y1'], obj['x2'], obj['y2'], targets[0]))
+        elif t == 'pumpkin':
+            objects['misc'].append(Pumpkin(obj['x'], obj['y'], targets))
+        elif t == 'powerbox':
+            objects['misc'].append(PowerBox(obj['x'], obj['y'], targets))
+
+    return objects
+
         
