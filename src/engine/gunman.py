@@ -241,6 +241,12 @@ class Gunman:
                         shot_bullets.remove(bullet)
 
     def update_health(self, shot_bullets):
+        for bullet in shot_bullets[:]:
+            if self.hitbox.colliderect(bullet.hitbox):
+                self.health -= 20
+                self.hurt()
+                if bullet in shot_bullets:
+                    shot_bullets.remove(bullet)
 
         if self.health <= 0 and self.ALIVE:
             self.ALIVE = False

@@ -132,44 +132,42 @@ class Drone:
         
         
     def Update_animtion(self):
-        current_time=pygame.time.get_ticks()
-        elapsed_time=current_time -  self.Last_animationUpdate 
-        if elapsed_time>= self.animation_speed and not self.death_frame_flag:
-            if self.status=='idle':
-                self.frame_index= (elapsed_time)%len(self.Idle_frames)
-                self.display_pic=self.Idle_frames[self.frame_index]
-                self.Last_animationUpdate=current_time
-            elif self.status=='forward' and self.look=='right':
-                self.frame_index= (elapsed_time)%len(self.Forward_frames)
-                self.display_pic=self.Forward_frames[self.frame_index]
-                self.Last_animationUpdate=current_time
-                
-            elif self.status=='forward' and self.look=='left':
-                self.frame_index= (elapsed_time)%len(self.Back_frames)
-                self.display_pic=self.Back_frames[self.frame_index]
-                self.Last_animationUpdate=current_time
-                
-            elif self.status=='backward' and self.look=='right':
-                self.frame_index= (elapsed_time)%len(self.Back_frames)
-                self.display_pic=self.Back_frames[self.frame_index]
-                self.Last_animationUpdate=current_time
-            elif self.status=='backward' and self.look=='left':
-                self.frame_index= (elapsed_time)%len(self.Forward_frames)
-                self.display_pic=self.Forward_frames[self.frame_index]
-                self.Last_animationUpdate=current_time
-                
-            elif self.status == 'dead':
-                if current_time - self.Last_animationUpdate >= self.animation_speed and not self.death_frame_flag:
-                    if self.frame_index < len(self.death_frames) - 1:
-                        self.frame_index += 1
-                        self.display_pic = self.death_frames[self.frame_index]
-                        self.Last_animationUpdate = current_time
-                    else:
-                        self.death_frame_flag = True
-                        self.display_pic = self.death_frames[-1]
-        
-        else:
-            self.display_pic=self.death_frames[7]
+        current_time = pygame.time.get_ticks()
+        elapsed_time = current_time - self.Last_animationUpdate
+
+        if self.status == 'dead':
+            if not self.death_frame_flag and elapsed_time >= self.animation_speed:
+                if self.frame_index < len(self.death_frames) - 1:
+                    self.frame_index += 1
+                    self.display_pic = self.death_frames[self.frame_index]
+                    self.Last_animationUpdate = current_time
+                else:
+                    self.death_frame_flag = True
+                    self.display_pic = self.death_frames[-1]
+            return
+
+        if elapsed_time >= self.animation_speed:
+            if self.status == 'idle':
+                self.frame_index = (self.frame_index + 1) % len(self.Idle_frames)
+                self.display_pic = self.Idle_frames[self.frame_index]
+
+            elif self.status == 'forward' and self.look == 'right':
+                self.frame_index = (self.frame_index + 1) % len(self.Forward_frames)
+                self.display_pic = self.Forward_frames[self.frame_index]
+
+            elif self.status == 'forward' and self.look == 'left':
+                self.frame_index = (self.frame_index + 1) % len(self.Back_frames)
+                self.display_pic = self.Back_frames[self.frame_index]
+
+            elif self.status == 'backward' and self.look == 'right':
+                self.frame_index = (self.frame_index + 1) % len(self.Back_frames)
+                self.display_pic = self.Back_frames[self.frame_index]
+
+            elif self.status == 'backward' and self.look == 'left':
+                self.frame_index = (self.frame_index + 1) % len(self.Forward_frames)
+                self.display_pic = self.Forward_frames[self.frame_index]
+
+            self.Last_animationUpdate = current_time
                 
                 
                 
