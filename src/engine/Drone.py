@@ -132,44 +132,42 @@ class Drone:
         
         
     def Update_animtion(self):
-        current_time=pygame.time.get_ticks()
-        elapsed_time=current_time -  self.Last_animationUpdate 
-        if elapsed_time>= self.animation_speed and not self.death_frame_flag:
-            if self.status=='idle':
-                self.frame_index= (elapsed_time)%len(self.Idle_frames)
-                self.display_pic=self.Idle_frames[self.frame_index]
-                self.Last_animationUpdate=current_time
-            elif self.status=='forward' and self.look=='right':
-                self.frame_index= (elapsed_time)%len(self.Forward_frames)
-                self.display_pic=self.Forward_frames[self.frame_index]
-                self.Last_animationUpdate=current_time
-                
-            elif self.status=='forward' and self.look=='left':
-                self.frame_index= (elapsed_time)%len(self.Back_frames)
-                self.display_pic=self.Back_frames[self.frame_index]
-                self.Last_animationUpdate=current_time
-                
-            elif self.status=='backward' and self.look=='right':
-                self.frame_index= (elapsed_time)%len(self.Back_frames)
-                self.display_pic=self.Back_frames[self.frame_index]
-                self.Last_animationUpdate=current_time
-            elif self.status=='backward' and self.look=='left':
-                self.frame_index= (elapsed_time)%len(self.Forward_frames)
-                self.display_pic=self.Forward_frames[self.frame_index]
-                self.Last_animationUpdate=current_time
-                
-            elif self.status == 'dead':
-                if current_time - self.Last_animationUpdate >= self.animation_speed and not self.death_frame_flag:
-                    if self.frame_index < len(self.death_frames) - 1:
-                        self.frame_index += 1
-                        self.display_pic = self.death_frames[self.frame_index]
-                        self.Last_animationUpdate = current_time
-                    else:
-                        self.death_frame_flag = True
-                        self.display_pic = self.death_frames[-1]
-        
-        else:
-            self.display_pic=self.death_frames[7]
+        current_time = pygame.time.get_ticks()
+        elapsed_time = current_time - self.Last_animationUpdate
+
+        if self.status == 'dead':
+            if not self.death_frame_flag and elapsed_time >= self.animation_speed:
+                if self.frame_index < len(self.death_frames) - 1:
+                    self.frame_index += 1
+                    self.display_pic = self.death_frames[self.frame_index]
+                    self.Last_animationUpdate = current_time
+                else:
+                    self.death_frame_flag = True
+                    self.display_pic = self.death_frames[-1]
+            return
+
+        if elapsed_time >= self.animation_speed:
+            if self.status == 'idle':
+                self.frame_index = (self.frame_index + 1) % len(self.Idle_frames)
+                self.display_pic = self.Idle_frames[self.frame_index]
+
+            elif self.status == 'forward' and self.look == 'right':
+                self.frame_index = (self.frame_index + 1) % len(self.Forward_frames)
+                self.display_pic = self.Forward_frames[self.frame_index]
+
+            elif self.status == 'forward' and self.look == 'left':
+                self.frame_index = (self.frame_index + 1) % len(self.Back_frames)
+                self.display_pic = self.Back_frames[self.frame_index]
+
+            elif self.status == 'backward' and self.look == 'right':
+                self.frame_index = (self.frame_index + 1) % len(self.Back_frames)
+                self.display_pic = self.Back_frames[self.frame_index]
+
+            elif self.status == 'backward' and self.look == 'left':
+                self.frame_index = (self.frame_index + 1) % len(self.Forward_frames)
+                self.display_pic = self.Forward_frames[self.frame_index]
+
+            self.Last_animationUpdate = current_time
                 
                 
                 
@@ -256,7 +254,7 @@ class Drone:
             
             
             
-    def Update(self,bullets_in_air):
+    def Update(self,screen,offset,shot_bullets,platforms):
         self.update_targets()
         self.update_alive()
         self.update_freezing()
@@ -279,11 +277,12 @@ class Drone:
                     self.bullets.remove(bullet)
                  self.last_freezed=pygame.time.get_ticks()
                 
-        for bullet in bullets_in_air:
+        for bullet in shot_bullets:
             
             if self.hitbox.colliderect(bullet.hitbox):
                 self.health-=50
-                bullets_in_air.remove(bullet)
+                shot_bullets.remove(bullet)
+        self.display(screen,offset)
                 
         for target in self.targets:
             if current_time-self.last_freezed>=self.freez_durtation:
@@ -317,6 +316,8 @@ class Drone:
                 min_index=i
                 
         self.target=self.targets[min_index]
+        
+    
             
             
             

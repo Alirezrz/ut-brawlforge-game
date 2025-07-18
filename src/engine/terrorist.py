@@ -91,7 +91,6 @@ class Terrorist:
         self.is_moving_horizontally = False
 
     def display(self, screen, offset):
-        print(f"hp={self.health}")
         if self.status == 'exploded' and self.exploding:
             frame = self.EXP_frames[self.current_frame_index]
             x = self.explosion_pos[0] - frame.get_width() // 2 - offset[0]
@@ -195,7 +194,7 @@ class Terrorist:
             self.hitbox.topleft = (self.x_pos, self.y_pos)
     def hurt(self):
         return
-    def Update(self, bullets):
+    def update(self, bullets):
         if self.status == 'exploded':
             # Handle explosion animation frames
             elapsed = pygame.time.get_ticks() - self.explosion_start_time
@@ -306,3 +305,9 @@ class Terrorist:
         dist = [math.sqrt((self.x_pos - t.x_pos)**2 + (self.y_pos - t.y_pos)**2) for t in self.targets]
         min_index = dist.index(min(dist))
         self.target = self.targets[min_index]
+        
+        
+    def Update(self,screen,scroll,shot_bullets,platforms):
+        self.platforms_collisions(self.platforms)
+        self.display(screen,scroll)
+        self.update(shot_bullets)

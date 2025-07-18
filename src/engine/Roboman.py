@@ -773,6 +773,8 @@ class Roboman:
         self.update_bullets(shot_bullets,targets)
         self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter=None)
         self.update_drone()
+        
+  
 
         
 

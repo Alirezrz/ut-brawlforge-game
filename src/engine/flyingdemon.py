@@ -98,7 +98,6 @@ class FlyingDemon:
                 self.ALIVE=False
 
     def display(self, screen, offset):
-        self.update()
         img = self.current_frame
         if self.Look == 'right':
             img = pygame.transform.flip(img, True, False)
@@ -152,7 +151,8 @@ class FlyingDemon:
 
         self.hitbox.topleft = (self.x_pos, self.y_pos)
 
-    def update(self):
+    def Update(self,screen,scroll,shot_bullets,platforms):
+        self.display(screen,scroll)
         if not self.ALIVE:
             self.update_animation()
             return
@@ -256,3 +256,7 @@ class Explosion:
             self.last_update = current_time
             if self.frame_index >= len(self.frames):
                 self.finished = True
+                
+                
+
+        

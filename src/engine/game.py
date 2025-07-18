@@ -32,7 +32,7 @@ class Game:
         self.explosion_picture = explosion_picture
         self.clock = pygame.time.Clock()
         self.sounds = sounds
-
+        
         player_start_pos = level_1_data['player_start']
         self.Roboman = Roboman(
             player_start_pos['x'], player_start_pos['y'],
@@ -98,7 +98,7 @@ class Game:
         self.flyingdemons.append(FlyingDemon(player_start_pos['x'] - 800, player_start_pos['y']-18,self.ninja,'right'))
         self.ninja.attack_targets = [self.Roboman] + self.terrorists + self.gunmans + self.drones + self.flyingdemons
         self.camera = Camera(self.screen, self.platforms, self.shot_bullets, self.Roboman, self.explosions, self.scroll, self.ninja, self.terrorists[0], self.gates, self.background, self.drones, self.Objects, self.gunmans,self.archer,self.dragonlord,self.flyingdemons[0],self.bomb,self.defuse_kit)
-
+        self.enemies = self.terrorists + self.gunmans + self.drones + self.flyingdemons
         self.input_handler = InputHandler(self.Roboman, self.bullet_class, self.shot_bullets)
 
     def remove_bullet(self, bullet):
@@ -147,13 +147,11 @@ class Game:
         for gunman in self.gunmans:
             gunman.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
         for drone in self.drones:
-            drone.Update(self.shot_bullets)
+            drone.Update(self.screen,self.scroll,self.shot_bullets,self.platforms)
 
         for terrorist in self.terrorists[:]:
             if terrorist and terrorist.status != 'removed':
-                terrorist.Update(self.shot_bullets)
-                terrorist.platforms_collisions(self.platforms)
-                terrorist.jump_under_platform(self.platforms)
+                terrorist.Update(self.screen,self.scroll,self.shot_bullets,self.platforms)
             else:
                 self.terrorists.remove(terrorist)
 
@@ -219,16 +217,16 @@ class Game:
         
         
     def update_enemies(self):
-        for flyingdemon in self.flyingdemons[:]:  # Use copy of the list to avoid skipping items
-            flyingdemon.update()  # Always call update first to let animations play
-
-            # Only mark for removal after death animation has completed
-            if flyingdemon.status == 'dying' and flyingdemon.death_finished:
-                self.flyingdemons.remove(flyingdemon)
-            
-        self.cleanup_dead_entities()
+        for enemy in self.enemies[:]:
+            if hasattr(enemy, 'Update'):
+                enemy.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
+            if hasattr(enemy, 'status') and enemy.status == 'removed':
+                self.enemies.remove(enemy)
                 
     def cleanup_dead_entities(self):
-        self.flyingdemons = [fd for fd in self.flyingdemons if fd.ALIVE or not fd.death_finished]
-        self.terrorists = [t for t in self.terrorists if t.status != 'removed']
-        # add similar cleanup for other enemies if needed
+        self.enemies = [e for e in self.enemies if not hasattr(e, 'death_finished') or not getattr(e, 'death_finished')]
+        self.terrorists = [e for e in self.enemies if isinstance(e, Terrorist)]
+        self.gunmans = [e for e in self.enemies if isinstance(e, Gunman)]
+        self.drones = [e for e in self.enemies if isinstance(e, Drone)]
+        self.flyingdemons = [e for e in self.enemies if isinstance(e, FlyingDemon)]
+

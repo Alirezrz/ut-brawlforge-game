@@ -66,7 +66,7 @@ class NinjaGirl(Ninja):
             tmp = pygame.image.load(img_path)
             self.jumpThrow_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
             
-            
+           
         self.Attack_frames=[]
         sizes = [70,70,76,118,121,130,129,127,124,118]
         self.with_sword_width= [70,70,76,69,84,94,92,91,99,91]
@@ -85,4 +85,10 @@ class NinjaGirl(Ninja):
         self.freezed_frame=pygame.transform.scale(
             pygame.image.load(os.path.join(base_path,"freezed.png")),
             (68,118)
+        )
+        
+        
+        self.SuperPower_pic=pygame.transform.scale(
+            pygame.image.load(os.path.join(base_path,"super power.png")),
+            (118,118)
         )
