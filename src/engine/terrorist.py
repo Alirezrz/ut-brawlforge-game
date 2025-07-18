@@ -35,6 +35,8 @@ class Terrorist:
         self.status = 'alive'
         self.animation_status = 'walk'
         self.frame_index = 0
+        self.health_bar_width=100
+        self.health_bar=pygame.image.load("src/assets/images/terrorist/health_bar.png")
 
         self.explotion_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "terrorist", "terror exp.mp3"))
 
@@ -90,7 +92,15 @@ class Terrorist:
         self.last_frame_update_time = pygame.time.get_ticks()
         self.is_moving_horizontally = False
 
+    def display_health_bar(self,screen,offset):
+        self.health_bar=pygame.transform.scale(self.health_bar, (self.health_bar_width*(self.health/self.max_health) , 5))
+        screen.blit(self.health_bar,(self.x_pos+(self.width/2)-(self.health_bar_width/2)   - offset[0] ,self.y_pos-20   - offset[1]))
+
+
+
+
     def display(self, screen, offset):
+        self.display_health_bar(screen,offset)
         if self.status == 'exploded' and self.exploding:
             frame = self.EXP_frames[self.current_frame_index]
             x = self.explosion_pos[0] - frame.get_width() // 2 - offset[0]
