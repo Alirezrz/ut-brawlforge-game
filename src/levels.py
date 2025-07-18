@@ -8,8 +8,20 @@ TILE_SIZE = 64
 
 level_1_data = {
     'player_start': {'x': 58*64, 'y':400},
-    'enemies':[
+    'enemies': [
+        {'type': 'terrorist', 'x': 58 * TILE_SIZE - 500, 'y': 400},
+        {'type': 'gunman', 'x': 58 * TILE_SIZE + 800, 'y': 400},
+        {'type': 'drone', 'x': -400, 'y': 40, 'direction': 'right'},
+        {'type': 'flyingdemon', 'x': 58 * TILE_SIZE - 800, 'y': 382, 'direction': 'right'},
+        {'type': 'dragonlord', 'x': 58 * TILE_SIZE - 200, 'y': 338}
+    ],
 
+    'objects': [
+        {'type': 'bomb', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 500},
+        {'type': 'defusekit', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
+        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 58 * TILE_SIZE + 1400, 'y2': 43},
+        {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
+        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465}
     ],
     'platforms': {
         'standard': [
