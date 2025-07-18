@@ -8,6 +8,7 @@ class Gunman:
         self.x_pos = x
         self.y_pos = y
         self.health = 100
+        self.max_health=100
         self.width = 60
         self.height = 114
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
@@ -64,6 +65,10 @@ class Gunman:
         self.shot_bullets = []
         self.death_animation_speed = 200
 
+        self.health_bar_width=100
+        self.health_bar=pygame.image.load("src/assets/images/gunman/health_bar.png")
+
+
         self.display_frame = self.idle_frames[0]
         self.animation_speed = 150
         self.last_animation_update = 0
@@ -88,8 +93,15 @@ class Gunman:
 
     def hurt(self):
         self.hurt_sound.play()    
-    
+
+
+    def display_health_bar(self,screen,offset):
+        self.health_bar=pygame.transform.scale(self.health_bar, (self.health_bar_width*(self.health/self.max_health) , 5))
+        screen.blit(self.health_bar,(self.x_pos+(self.width/2)-(self.health_bar_width/2)   - offset[0] ,self.y_pos-20   - offset[1]))
+
     def display(self, screen, offset):
+        self.display_health_bar(screen,offset)
+
         if self.Look == 'right':
             screen.blit(self.display_frame, (self.x_pos - offset[0], self.y_pos - offset[1]))
         else:
