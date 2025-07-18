@@ -80,11 +80,11 @@ class Game:
             Gates(player_start_pos['x'], player_start_pos['y'] - 37, player_start_pos['x'] + 1400, player_start_pos['y'] - 357, self.ninja)
         ]
 
-        self.drones = [
-            Drone(-400, 40, 'right', [self.ninja, self.Roboman])
-        ]
-        self.archer = Archer(player_start_pos['x'], player_start_pos['y'],[self.Roboman,self.ninja]+self.gunmans+self.terrorists+self.drones)
 
+        self.archer = Archer(player_start_pos['x'], player_start_pos['y'],[self.Roboman,self.ninja]+self.gunmans+self.terrorists)
+        self.drones = [
+            Drone(-400, 40, 'right', [self.ninja, self.Roboman,self.archer])
+        ]
         self.Objects = [
             Pumpkin(player_start_pos['x'] + 100, player_start_pos['y'] - 270, [self.ninja, self.Roboman]),
             PowerBox(player_start_pos['x'] + 700, player_start_pos['y'] + 65, [self.Roboman, self.ninja])
