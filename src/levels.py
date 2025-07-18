@@ -160,3 +160,15 @@ def build_enemies(level_data, screen, scroll, platforms):
         'dragonlord': dragonlord
     }
 
+def apply_targets_to_enemies(enemies, targets):
+    for e in enemies['terrorists']:
+        e.targets = targets
+    for g in enemies['gunmans']:
+        g.targets = targets
+    for d in enemies['drones']:
+        d.targets = targets
+    for f in enemies['flyingdemons']:
+        f.target = targets[0] if targets else None  # یا یه منطق بهتر
+    if enemies['dragonlord']:
+        enemies['dragonlord'].target = targets[0]
+        
