@@ -256,7 +256,7 @@ class Drone:
             
             
             
-    def Update(self,bullets_in_air):
+    def Update(self,screen,offset,shot_bullets,platforms):
         self.update_targets()
         self.update_alive()
         self.update_freezing()
@@ -274,11 +274,12 @@ class Drone:
                 self.bullets.remove(bullet)
                 self.last_freezed=pygame.time.get_ticks()
                 
-        for bullet in bullets_in_air:
+        for bullet in shot_bullets:
             
             if self.hitbox.colliderect(bullet.hitbox):
                 self.health-=50
-                bullets_in_air.remove(bullet)
+                shot_bullets.remove(bullet)
+        self.display(screen,offset)
                 
                 
     def update_freezing(self):
@@ -308,6 +309,8 @@ class Drone:
                 min_index=i
                 
         self.target=self.targets[min_index]
+        
+    
             
             
             

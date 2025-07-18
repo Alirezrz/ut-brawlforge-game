@@ -147,7 +147,7 @@ class Game:
         for gunman in self.gunmans:
             gunman.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
         for drone in self.drones:
-            drone.Update(self.shot_bullets)
+            drone.Update(self.screen,self.scroll,self.shot_bullets,self.platforms)
 
         for terrorist in self.terrorists[:]:
             if terrorist and terrorist.status != 'removed':
@@ -219,10 +219,9 @@ class Game:
         
         
     def update_enemies(self):
-        for flyingdemon in self.flyingdemons[:]:  # Use copy of the list to avoid skipping items
-            flyingdemon.update()  # Always call update first to let animations play
+        for flyingdemon in self.flyingdemons[:]:  
+            flyingdemon.Update(self.screen,self.scroll,self.shot_bullets,self.platforms)  
 
-            # Only mark for removal after death animation has completed
             if flyingdemon.status == 'dying' and flyingdemon.death_finished:
                 self.flyingdemons.remove(flyingdemon)
             

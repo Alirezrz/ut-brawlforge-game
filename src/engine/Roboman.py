@@ -175,8 +175,6 @@ class Roboman:
         os.path.dirname(os.path.abspath(__file__)),
         "..", "assets", "images", "RoboMan_pictures", "super power effect.png"
         )
-        self.super_power_effect=pygame.image.load(image_path).convert_alpha()
-        self.super_power_effect=pygame.transform.scale(self.super_power_effect ,(85,118))
         self.picture = self.idle_frames[0] if self.idle_frames else pygame.Surface((70, 118))
         self.width = self.picture.get_width()
         self.height = self.picture.get_height()
@@ -770,6 +768,8 @@ class Roboman:
         self.update_bullets(shot_bullets,targets)
         self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter=None)
         self.update_drone()
+        
+  
 
         
 
