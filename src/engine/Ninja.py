@@ -23,6 +23,7 @@ class Ninja:
         self.current_platform = None
         self.horizontal_auto_speed = 0
         self.freezed=False
+        self.last_freezed=0
         self.allow_move_right = True
         self.allow_move_left = True
         self.screen_width = screen_width

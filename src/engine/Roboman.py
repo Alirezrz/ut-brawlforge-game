@@ -21,6 +21,7 @@ class Roboman:
         self.horizontal_speed = 7  
         self.jump_strenght = 20 
         self.freezed=False
+        self.last_freezed=0
         self.is_first_time=True
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))
         self.has_defuse_kit=False
@@ -42,7 +43,7 @@ class Roboman:
         self.jetpack_sound = sounds.get('jetpack') if sounds else None
           
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "RoboMan_pictures")
-
+        self.freezed_img=pygame.transform.scale(pygame.image.load(os.path.join(base_path,"freezed.png")),(69,118))
         self.run_frames = []
         for i in range(1, 9):
             try:
@@ -238,6 +239,7 @@ class Roboman:
         self.hurt_sound.play()
         
     def display(self, screen, offset, shot_bullets):
+        
         self.roboman_health_bar = pygame.transform.scale(
             self.roboman_health_bar, 
             (int(health_bar_lenght * (self.health / self.max_health)), profileSideSize - (2 * roboman_health_bar_frame_thickness))
@@ -317,6 +319,9 @@ class Roboman:
         screen.blit(self.roboman_health_bar, (health_x, health_y))
         screen.blit(pygame.transform.scale(self.hero_profile_picture, (profileSideSize, profileSideSize)), (profile_x, profile_y))
     def update_animation(self):
+        if self.freezed:
+            self.current_picture=self.freezed_img
+            return
         current_time = pygame.time.get_ticks()
         if self.jetpack_active and self.jetpack_frame:
             self.current_picture = self.jetpack_frame

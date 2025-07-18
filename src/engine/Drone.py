@@ -264,21 +264,30 @@ class Drone:
         self.Update_animtion()
         self.Aim()
         self.shoot()
+        current_time=pygame.time.get_ticks()       
         for bullet in self.bullets:
             bullet.update()
             if bullet.len_of_horizental_move > 20000:    # برای اینکه از اورهد اضافی جلوگیری بشه 
                 self.bullets.remove(bullet)
-            if bullet.hitbox.colliderect(self.target.hitbox):
-                self.target.freezed=True
-                self.shot_hit_sound.play()
-                self.bullets.remove(bullet)
-                self.last_freezed=pygame.time.get_ticks()
+            for target in self.targets:
+            
+                if bullet.hitbox.colliderect(target.hitbox):
+                 target.freezed=True
+                 target.last_freezed=current_time
+                 self.shot_hit_sound.play()
+                 if bullet in self.bullets:
+                    self.bullets.remove(bullet)
+                 self.last_freezed=pygame.time.get_ticks()
                 
         for bullet in bullets_in_air:
             
             if self.hitbox.colliderect(bullet.hitbox):
                 self.health-=50
                 bullets_in_air.remove(bullet)
+                
+        for target in self.targets:
+            if current_time-self.last_freezed>=self.freez_durtation:
+                target.freezed=False
                 
                 
     def update_freezing(self):

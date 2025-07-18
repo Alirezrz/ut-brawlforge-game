@@ -43,7 +43,8 @@ class Archer:
         self.max_health = 100
         self.bullets = []
         self.status = 'idle'
-
+        self.freezed=False
+        self.last_freezed=0
         self.current_frame_index = 0
         self.animation_speed = 80
         self.last_frame_update_time = pygame.time.get_ticks()
@@ -76,7 +77,7 @@ class Archer:
         self.shot_frames = [pygame.transform.scale(pygame.image.load(os.path.join(base_path, "shot", f"{i}.png")), (sizes[i], 100)) for i in range(13)]
         self.arrow_pic = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "Arrow.png")), (30, 2))
         self.firedarrow_pic = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "fired arrow.png")), (30, 8))
-
+        self.freezed_img=pygame.transform.scale(pygame.image.load(os.path.join(base_path, "freezed.png")), (88, 100))
         sizes = [78, 60, 132, 62]
         self.attack_frames = [pygame.transform.scale(pygame.image.load(os.path.join(base_path, "attack", f"{i}.png")), (sizes[i], 100)) for i in range(4)]
 
@@ -175,6 +176,9 @@ class Archer:
         self.shooting = True  # Reuse this flag to lock input
 
     def update_animation(self,shot_bullets):
+        if self.freezed:
+            self.current_picture=self.freezed_img
+            return
         speed = self.animation_speed if self.status != 'shot' else self.animation_speed - 50
         current_time = pygame.time.get_ticks()
         if not hasattr(self, 'last_status'):
@@ -253,6 +257,8 @@ class Archer:
             self.super_power_active = False
 
     def handle_input(self, keys):
+        if self.freezed:
+            return
         self.is_moving_horizontally = False
 
         if keys[pygame.K_h] and self.status not in ('shot', 'attack'):
