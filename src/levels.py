@@ -8,8 +8,20 @@ TILE_SIZE = 64
 
 level_1_data = {
     'player_start': {'x': 58*64, 'y':400},
-    'enemies':[
+    'enemies': [
+        {'type': 'terrorist', 'x': 58 * TILE_SIZE - 500, 'y': 400},
+        {'type': 'gunman', 'x': 58 * TILE_SIZE + 800, 'y': 400},
+        {'type': 'drone', 'x': -400, 'y': 40, 'direction': 'right'},
+        {'type': 'flyingdemon', 'x': 58 * TILE_SIZE - 800, 'y': 382, 'direction': 'right'},
+        {'type': 'dragonlord', 'x': 58 * TILE_SIZE - 200, 'y': 338}
+    ],
 
+    'objects': [
+        {'type': 'bomb', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 500},
+        {'type': 'defusekit', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
+        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 58 * TILE_SIZE + 1400, 'y2': 43},
+        {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
+        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465}
     ],
     'platforms': {
         'standard': [
@@ -127,3 +139,78 @@ def load_level_data(level_data, platform_images):
         _add_tiled_platform(platforms, info, platform_images, moving=True)
 
     return platforms
+
+def build_enemies(level_data, screen, scroll, platforms):
+    from src.engine.terrorist import Terrorist
+    from src.engine.gunman import Gunman
+    from src.engine.Drone import Drone
+    from src.engine.flyingdemon import FlyingDemon
+    from src.engine.Dragon_Lord import Dragon_Lord
+
+    terrorists, gunmans, drones, flyingdemons = [], [], [], []
+    dragonlord = None
+
+    for enemy in level_data.get('enemies', []):
+        x, y = enemy['x'], enemy['y']
+        t = enemy['type']
+        if t == 'terrorist':
+            terrorists.append(Terrorist(x, y, 1280, 720, [], platforms, None, screen, scroll))
+        elif t == 'gunman':
+            gunmans.append(Gunman(x, y, platforms, []))
+        elif t == 'drone':
+            drones.append(Drone(x, y, enemy['direction'], []))
+        elif t == 'flyingdemon':
+            flyingdemons.append(FlyingDemon(x, y, None, enemy['direction']))
+        elif t == 'dragonlord':
+            dragonlord = Dragon_Lord(x, y, None)
+
+    return {
+        'terrorists': terrorists,
+        'gunmans': gunmans,
+        'drones': drones,
+        'flyingdemons': flyingdemons,
+        'dragonlord': dragonlord
+    }
+
+def apply_targets_to_enemies(enemies, targets):
+    for e in enemies['terrorists']:
+        e.targets = targets
+    for g in enemies['gunmans']:
+        g.targets = targets
+    for d in enemies['drones']:
+        d.targets = targets
+    for f in enemies['flyingdemons']:
+        f.target = targets[0] if targets else None  # یا یه منطق بهتر
+    if enemies['dragonlord']:
+        enemies['dragonlord'].target = targets[0]
+
+def build_objects(level_data, targets):
+    from src.engine.bomb import Bomb
+    from src.engine.defuse_kit import DefuseKit
+    from src.engine.teleportgate import Gates
+    from src.engine.pumpkin import Pumpkin
+    from src.engine.heatlh_box import PowerBox
+
+    objects = {
+        'bomb': None,
+        'defuse_kit': None,
+        'gates': [],
+        'misc': []
+    }
+
+    for obj in level_data.get('objects', []):
+        t = obj['type']
+        if t == 'bomb':
+            objects['bomb'] = Bomb(obj['x'], obj['y'], targets=targets)
+        elif t == 'defusekit':
+            objects['defuse_kit'] = DefuseKit(obj['x'], obj['y'], targets=targets)
+        elif t == 'teleportgate':
+            objects['gates'].append(Gates(obj['x1'], obj['y1'], obj['x2'], obj['y2'], targets[0]))
+        elif t == 'pumpkin':
+            objects['misc'].append(Pumpkin(obj['x'], obj['y'], targets))
+        elif t == 'powerbox':
+            objects['misc'].append(PowerBox(obj['x'], obj['y'], targets))
+
+    return objects
+
+        
