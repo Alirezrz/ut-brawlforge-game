@@ -127,3 +127,36 @@ def load_level_data(level_data, platform_images):
         _add_tiled_platform(platforms, info, platform_images, moving=True)
 
     return platforms
+
+def build_enemies(level_data, screen, scroll, platforms):
+    from src.engine.terrorist import Terrorist
+    from src.engine.gunman import Gunman
+    from src.engine.Drone import Drone
+    from src.engine.flyingdemon import FlyingDemon
+    from src.engine.Dragon_Lord import Dragon_Lord
+
+    terrorists, gunmans, drones, flyingdemons = [], [], [], []
+    dragonlord = None
+
+    for enemy in level_data.get('enemies', []):
+        x, y = enemy['x'], enemy['y']
+        t = enemy['type']
+        if t == 'terrorist':
+            terrorists.append(Terrorist(x, y, 1280, 720, [], platforms, None, screen, scroll))
+        elif t == 'gunman':
+            gunmans.append(Gunman(x, y, platforms, []))
+        elif t == 'drone':
+            drones.append(Drone(x, y, enemy['direction'], []))
+        elif t == 'flyingdemon':
+            flyingdemons.append(FlyingDemon(x, y, None, enemy['direction']))
+        elif t == 'dragonlord':
+            dragonlord = Dragon_Lord(x, y, None)
+
+    return {
+        'terrorists': terrorists,
+        'gunmans': gunmans,
+        'drones': drones,
+        'flyingdemons': flyingdemons,
+        'dragonlord': dragonlord
+    }
+
