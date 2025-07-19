@@ -76,12 +76,13 @@ class Game:
 
         self.game_active = True
 
-        self.gates = [
-            Gates(player_start_pos['x'], player_start_pos['y'] - 37, player_start_pos['x'] + 1400, player_start_pos['y'] - 357, self.ninja)
-        ]
+        
 
 
         self.archer = Archer(player_start_pos['x'], player_start_pos['y'],[self.Roboman,self.ninja]+self.gunmans+self.terrorists)
+        self.gates = [
+            Gates(player_start_pos['x'], player_start_pos['y'] - 37, player_start_pos['x'] + 1400, player_start_pos['y'] - 357, self.archer)
+        ]
         self.drones = [
             Drone(-400, 40, 'right', [self.ninja, self.Roboman,self.archer])
         ]
@@ -120,7 +121,7 @@ class Game:
         keys = pygame.key.get_pressed()
         self.Roboman.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class)
         self.ninja.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class, self.trigger_shutter)
-        self.archer.handle_input(keys)
+        self.archer.handle_input(keys,self.gates)
         self.bomb.handle_input(keys)
 
     def update(self):

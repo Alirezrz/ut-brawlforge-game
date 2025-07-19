@@ -256,7 +256,7 @@ class Archer:
         if self.super_power_active and current_time - self.super_power_last_activation > self.super_power_duration:
             self.super_power_active = False
 
-    def handle_input(self, keys):
+    def handle_input(self, keys,gates):
         if self.freezed:
             return
         self.is_moving_horizontally = False
@@ -287,6 +287,9 @@ class Archer:
 
         if keys[pygame.K_l]:
             self.activate_super_power()
+            
+        if keys[pygame.K_y]:
+            self.Send_teleport_request(gates)
 
         if not self.is_moving_horizontally:
             self.stop_horizontal_movement()
@@ -454,6 +457,11 @@ class Archer:
         self.update_bullets(shot_bullets,targets)
         self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter=None)
         self.update_drone()
+        
+        
+    def Send_teleport_request(self,Gates):
+        for Gate in Gates:
+            Gate.recieve_request(self)
                 
     
 
