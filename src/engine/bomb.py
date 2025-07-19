@@ -31,7 +31,7 @@ class Bomb:
         screen.blit(timer_text, (screen.get_width() // 2 - 80, 20))
         self.Update()
 
-    def Update(self):
+    def Update(self,screen,scroll):
         current_time=pygame.time.get_ticks()
 
         if self.timer > 0 and not self.is_defused:
