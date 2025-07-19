@@ -67,3 +67,5 @@ class Gates:
             self.open_b = True
             self.sound.play()
             self.last_teleport_time = current_time
+    def Update(self,screen,scroll):
+        return
