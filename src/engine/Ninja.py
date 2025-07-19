@@ -191,7 +191,8 @@ class Ninja:
         self.hurt_sound.play()
              
     def display_health_bar(self, screen):
-
+        if self.health<0:
+            self.health=0
         scaled_frame_height = profileSideSize
         health_bar_frame = pygame.transform.scale(
             self.ninja_health_bar_frame,
