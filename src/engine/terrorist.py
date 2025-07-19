@@ -30,7 +30,8 @@ class Terrorist:
         self.explosion_pos = 0
         self.damage_radiuos = 200
         self.targets = targets
-        self.target = self.targets[0]
+        if self.targets:
+            self.target = self.targets[0]
         self.target_status = 'free'
         self.status = 'alive'
         self.animation_status = 'walk'
