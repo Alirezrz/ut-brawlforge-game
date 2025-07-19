@@ -96,6 +96,8 @@ class Gunman:
 
 
     def display_health_bar(self,screen,offset):
+        if self.health<0:
+            self.health=0        
         self.health_bar=pygame.transform.scale(self.health_bar, (self.health_bar_width*(self.health/self.max_health) , 5))
         screen.blit(self.health_bar,(self.x_pos+(self.width/2)-(self.health_bar_width/2)   - offset[0] ,self.y_pos-20   - offset[1]))
 
