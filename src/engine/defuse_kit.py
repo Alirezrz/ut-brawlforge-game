@@ -27,14 +27,14 @@ class DefuseKit:
     def display(self,screen,offset):
         if not self.is_finded:
             screen.blit(self.pic,(self.x_pos-offset[0],self.y_pos-offset[1]))
-        self.update_status()    
+        self.Update()    
        
         
 
    
             
             
-    def update_status(self):
+    def Update(self,screen,scroll):
         for target in self.targets:
             if target.hitbox.colliderect(self.hitbox):
                 target.has_defuse_kit=True
