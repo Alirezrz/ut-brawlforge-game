@@ -27,7 +27,7 @@ class DefuseKit:
     def display(self,screen,offset):
         if not self.is_finded:
             screen.blit(self.pic,(self.x_pos-offset[0],self.y_pos-offset[1]))
-        self.Update()    
+        self.Update(screen,offset)    
        
         
 
