@@ -20,8 +20,8 @@ class Drone:
         self.speed=2
         self.look=look
         self.targets=targets
-        
-        self.target=targets[0]
+        if self.targets:
+            self.target=targets[0]
         self.reload_duration=7000
         self.last_shot=0
         self.aimed=False
