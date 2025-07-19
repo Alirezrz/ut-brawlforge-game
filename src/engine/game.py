@@ -29,6 +29,7 @@ class Game:
         self.explosions = []
         self.bullet_class = Bullet
         self.game_active = True
+
         self.shutter_strength = 0
         self.shutter_start_time = 0
         self.shutter_duration = 150
