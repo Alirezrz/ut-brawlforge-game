@@ -85,6 +85,8 @@ class Game:
 
         self.enemies = all_enemies
         self.input_handler = InputHandler(None, self.bullet_class, self.shot_bullets)
+        if self.enemies_dict.get('dragonlord'):
+            self.enemies_dict['dragonlord'].camera = self.camera
 
     def handle_events(self, events):
         for event in events:
