@@ -34,38 +34,29 @@ class Game:
         self.sounds = sounds
         
         player_start_pos = level_1_data['player_start']
-        self.Roboman = Roboman(
-            player_start_pos['x'], player_start_pos['y'],
-            roboman_health_bar_frame, roboman_health_bar, hero_profile_picture,
-            screen_width, screen_height,
-            sounds={
-                'jump': self.sounds.get('jump'),
-                'shoot': self.sounds.get('shoot'),
-                'jetpack': self.sounds.get('jetpack')
-            },
-            trigger_shutter_callback=self.trigger_jetpack_shutter
-        )
+
         self.ninja = Ninja(
             player_start_pos['x'] + 100, player_start_pos['y'],
             screen_width, screen_height,
-            [self.Roboman],
+            [],
             ninja_health_bar_frame, ninja_health_bar
         )
+        self.hero=self.ninja #در صورت انتخاب نینجا
 
 
-        self.bomb = Bomb(player_start_pos['x'] + 100, player_start_pos['y'] - 500, targets=[self.ninja]) 
-        self.defuse_kit=DefuseKit(player_start_pos['x'] + 100, player_start_pos['y'] - 270, targets=[self.ninja])
+        self.bomb = Bomb(player_start_pos['x'] + 100, player_start_pos['y'] - 500, targets=[self.hero]) 
+        self.defuse_kit=DefuseKit(player_start_pos['x'] + 100, player_start_pos['y'] - 270, targets=[self.hero])
 
         self.platforms = load_level_data(level_1_data, platform_image)
         self.screen_color = (60, 100, 150)
 
         self.scroll = [0, 0]
         self.terrorists = [
-            Terrorist(player_start_pos['x'] -500, player_start_pos['y'], screen_width, screen_height, [self.ninja, self.Roboman], self.platforms, self.ninja, self.screen, self.scroll)
+            Terrorist(player_start_pos['x'] -500, player_start_pos['y'], screen_width, screen_height, [self.hero ], self.platforms, self.ninja, self.screen, self.scroll)
         ]
 
         self.gunmans = [
-            Gunman(player_start_pos['x'] + 800, player_start_pos['y'], self.platforms, [self.ninja, self.Roboman])
+            Gunman(player_start_pos['x'] + 800, player_start_pos['y'], self.platforms, [self.hero])
         ]
         self.base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images")
         self.background = pygame.image.load(os.path.join(self.base_path, "city.png"))
@@ -81,15 +72,14 @@ class Game:
         ]
 
 
-        self.archer = Archer(player_start_pos['x'], player_start_pos['y'],[self.Roboman,self.ninja]+self.gunmans+self.terrorists)
         self.drones = [
-            Drone(-400, 40, 'right', [self.ninja, self.Roboman,self.archer])
+            Drone(-400, 40, 'right', [self.hero])
         ]
         self.Objects = [
-            Pumpkin(player_start_pos['x'] + 100, player_start_pos['y'] - 270, [self.ninja, self.Roboman]),
-            PowerBox(player_start_pos['x'] + 700, player_start_pos['y'] + 65, [self.Roboman, self.ninja])
+            Pumpkin(player_start_pos['x'] + 100, player_start_pos['y'] - 270, [self.hero]),
+            PowerBox(player_start_pos['x'] + 700, player_start_pos['y'] + 65, [self.hero])
         ]
-        self.dragonlord=Dragon_Lord(player_start_pos['x'] -200, player_start_pos['y']-62,self.ninja)
+        self.dragonlord=Dragon_Lord(player_start_pos['x'] -200, player_start_pos['y']-62,self.hero)
 
         self.shutter_strength = 0
         self.shutter_start_time = 0
@@ -135,14 +125,10 @@ class Game:
             character.move_with_platform()
             character.jump_under_platform(self.platforms)
 
-        self.Roboman.update_animation()
-        self.Roboman.update_bullets( self.shot_bullets, self.platforms, [self.ninja])
 
         self.ninja.update_animation(self.shot_bullets)
         self.ninja.update_bullets(self.screen, self.shot_bullets, self.platforms, [self.Roboman]+self.flyingdemons)
 
-        self.archer.update_animation(self.shot_bullets)
-        self.archer.update_bullets( self.screen, self.shot_bullets, self.platforms, [self.Roboman,self.ninja]+self.gunmans+self.drones+self.terrorists,self.scroll)
 
         for gunman in self.gunmans:
             gunman.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
