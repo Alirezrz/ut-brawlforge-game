@@ -37,7 +37,10 @@ class Dragon_Lord:
 
         self.attacking = False
         self.attack_hits = 0
-        self.prompt = f"Dragon Lord has {self.health} HP. Player is at ({self.target.x_pos}, {self.target.y_pos})."
+        if self.target:
+            self.prompt = f"Dragon Lord has {self.health} HP. Player is at ({self.target.x_pos}, {self.target.y_pos})."
+        else:
+            self.prompt = f"Dragon Lord has {self.health} HP. No target yet."       
         self.status = 'idle'
         self.current_picture = None
         self.current_frame_index = 0
@@ -231,7 +234,7 @@ class Dragon_Lord:
             self.prompt_type = "damage"
             self.last_damage_time = time.time()
 
-    def Update(self, keys, platforms):
+    def Update(self, screen, scroll, shot_bullets, platforms):
         self.update_animation()
         self.gravity()
         self.vertical_move()
