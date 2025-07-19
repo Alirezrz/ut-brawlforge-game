@@ -222,11 +222,11 @@ class Dragon_Lord:
         
 
     def check_attack_collision(self):
-        if self.hitbox.colliderect(self.target.hitbox):
-            if self.Look == 'right':
-                self.target.move_right(6)
-            else:
-                self.target.move_left(6)
+       # if self.hitbox.colliderect(self.target.hitbox):
+        #    if self.Look == 'right':
+         #       self.target.move_right(6)
+          #  else:
+           #     self.target.move_left(6)
 
         if self.hitbox.colliderect(self.target.hitbox) and self.attack_hits < 3 and ((self.current_frame_index >= 4 and self.current_frame_index <= 10) or (self.current_frame_index >= 13 and self.current_frame_index <= 15)):
             self.target.health -= 30

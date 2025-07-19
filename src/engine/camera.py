@@ -56,7 +56,6 @@ class Camera:
         if self.terrorist and self.terrorist.status != 'removed':
             self.terrorist.display(self.screen, self.scroll)
 
-        self.archer.display(self.screen, self.scroll, self.shot_bullets)
         self.dragonlord.display(self.screen, self.scroll)
 
         if self.flyingdemon.ALIVE:
