@@ -45,7 +45,7 @@ class Game:
             },
             trigger_shutter_callback=self.trigger_jetpack_shutter
         )
-        self.ninja = NinjaGirl(
+        self.ninja = Ninja(
             player_start_pos['x'] + 100, player_start_pos['y'],
             screen_width, screen_height,
             [self.Roboman],

@@ -88,6 +88,8 @@ class Archer:
         self.hurt_sound.play()
 
     def display(self, screen, offset, shot_bullets):
+        if self.health<0:
+            self.health=0
         self.health_bar = pygame.transform.scale(
             self.health_bar, 
             (int(health_bar_lenght * (self.health / self.max_health)), profileSideSize - (2 * roboman_health_bar_frame_thickness))

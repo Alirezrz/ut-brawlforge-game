@@ -239,6 +239,8 @@ class Roboman:
         self.hurt_sound.play()
         
     def display(self, screen, offset, shot_bullets):
+        if self.health<0:
+            self.health=0
         
         self.roboman_health_bar = pygame.transform.scale(
             self.roboman_health_bar, 
