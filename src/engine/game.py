@@ -43,19 +43,16 @@ class Game:
             ninja_health_bar_frame, ninja_health_bar
         )
 
-        # پلتفرم‌ها
         self.platforms = load_level_data(level_1_data, platform_image)
 
-        # دشمنان
         self.enemies_dict = build_enemies(level_1_data, self.screen, self.scroll, self.platforms)
         all_enemies = []
         for group in self.enemies_dict.values():
             if isinstance(group, list):
                 all_enemies.extend(group)
-            elif group:  # مثل dragonlord
+            elif group:  
                 all_enemies.append(group)
 
-        # اشیاء
         self.objects_dict = build_objects(level_1_data, [self.hero])
         self.objects = self.objects_dict['misc'] + \
                        ([self.objects_dict['bomb']] if self.objects_dict['bomb'] else []) + \
@@ -68,7 +65,7 @@ class Game:
         # اهداف حمله نینجا
         self.hero.attack_targets = all_enemies
 
-        # دوربین
+        
         self.camera = Camera(
             self.screen, self.platforms, self.shot_bullets, self.hero,
             self.explosions, self.scroll, self.hero,
@@ -77,7 +74,7 @@ class Game:
             self.enemies_dict['drones'],
             self.objects,
             self.enemies_dict['gunmans'],
-            None,  # archer حذف شد
+            None,  
             self.enemies_dict['dragonlord'],
             next(iter(self.enemies_dict['flyingdemons']), None),
             self.objects_dict['bomb'],
