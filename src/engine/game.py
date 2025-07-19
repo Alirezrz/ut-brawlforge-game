@@ -100,7 +100,7 @@ class Game:
         keys = pygame.key.get_pressed()
 
         if self.enemies_dict.get('dragonlord'):
-            self.enemies_dict['dragonlord'].Update(keys, self.platforms)
+            self.enemies_dict['dragonlord'].Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
 
         for character in [self.hero]:
             character.is_on_ground()
