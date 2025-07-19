@@ -94,6 +94,8 @@ class Game:
 
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
+        if self.objects_dict.get('bomb'):
+            self.objects_dict['bomb'].handle_input(keys)
         self.hero.handle_input(keys, self.objects_dict['gates'], self.shot_bullets, self.bullet_class, self.trigger_shutter)
 
     def update(self):
