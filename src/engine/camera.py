@@ -74,9 +74,10 @@ class Camera:
 
         for obj in self.objects:
             obj.Update(self.screen, self.scroll)
-
-        self.bomb.display(self.screen, self.scroll)
-        self.defuse_kit.display(self.screen, self.scroll)
+        if self.bomb:
+            self.bomb.display(self.screen, self.scroll)
+        if self.defuse_kit:   
+            self.defuse_kit.display(self.screen, self.scroll)
 
         # Check if spotlight effect should be active
         if self.spotlight_active:
