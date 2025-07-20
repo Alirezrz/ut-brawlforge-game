@@ -6,9 +6,6 @@ from src.engine.protector import Guard_Drone
 ## must be done -->  1- list of enemies for hit when attacking must be fixed 
 class Ninja:
     def __init__(self, x, y, screen_width, screen_height, targets, ninja_health_bar_frame=None, ninja_health_bar=None, hero_creation_index=2):
-        self.ALIVE=True
-        self.DEAD=False
-        
         self.jump_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja jump.MP3"))
         self.kunai_hit_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit.mp3"))
         self.kunai_hit_platform_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit platofrm.mp3"))
@@ -84,6 +81,9 @@ class Ninja:
         self.MOVEWITHATTACKFLAG=True
         self.has_defuse_kit=False
 
+
+
+        
 
         
         #Super power attributes:
@@ -186,13 +186,6 @@ class Ninja:
             img_path = os.path.join(base_path, "JumpAttack", f"Jump_Attack__00{i}.png")
             tmp = pygame.image.load(img_path)
             self.JumpAttack_frames.append(pygame.transform.scale(tmp, self.jumpattack_sizes[i]))
-            
-        self.death_frames=[]
-        self.death_sizes=[(63,118),(74,118),(127,113),(111,108),(140,100),(157,100),(152,90),(157,90),(160,90),(156,90)]
-        for i in range(0, 10):
-            img_path = os.path.join(base_path, "death", f"Dead__00{i}.png")
-            tmp = pygame.image.load(img_path)
-            self.death_frames.append(pygame.transform.scale(tmp, self.death_sizes[i]))
         
 
 
@@ -201,8 +194,7 @@ class Ninja:
         self.hurt_sound.play()
              
     def display_health_bar(self, screen):
-        if self.health<0:
-            self.health=0
+
         scaled_frame_height = profileSideSize
         health_bar_frame = pygame.transform.scale(
             self.ninja_health_bar_frame,
@@ -288,9 +280,6 @@ class Ninja:
         self.display_health_bar(screen)
     def update_animation(self, shot_bullets):
         current_time = pygame.time.get_ticks()
-        if self.DEAD:
-            self.current_picture=self.death_frames[9]
-            return
 
         if self.freezed:
             self.current_picture = self.freezed_frame
@@ -302,8 +291,6 @@ class Ninja:
 
         if self.status == "attack":
             target_animation_state = 'attack'
-        if self.status == "dead":
-            target_animation_state = 'dead'
         elif self.status == "jumpattack":
             target_animation_state = 'jumpattack'
         elif not self.on_ground and self.current_platform is None:
@@ -330,17 +317,8 @@ class Ninja:
             return
 
         self.last_frame_update_time = current_time
-        
-        if target_animation_state=='dead':
-            if self.current_frame_index < len(self.death_frames) and not self.DEAD:
-                self.current_picture = self.death_frames[self.current_frame_index]
-                self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.current_picture.get_width(), self.current_picture.get_height())
-                self.current_frame_index += 1
-                self.y_pos+=118-self.current_picture.get_height()
-                if self.current_frame_index==9:
-                    self.DEAD=True
 
-        elif target_animation_state == 'jumpattack':
+        if target_animation_state == 'jumpattack':
             if self.current_frame_index < len(self.JumpAttack_frames):
                 self.current_picture = self.JumpAttack_frames[self.current_frame_index]
                 frame_width = self.with_sword_width[self.current_frame_index]
@@ -486,17 +464,17 @@ class Ninja:
             self.horizontal_auto_speed = 2.5 * self.current_platform.direction
             self.horizontal_move()
 
-    def move_right(self):
+    def move_right(self,powerup=1):
         if self.allow_move_right and self.status not in ["throw"] and self.status!='attack':
-            self.x_pos += self.horizontal_speed*self.Super_cofficent
+            self.x_pos += self.horizontal_speed*self.Super_cofficent*powerup
             self.is_moving_horizontally = True
             self.Look = 'right'
             self.hitbox.topleft = (self.x_pos, self.y_pos)
             self.fall_from_platform()
 
-    def move_left(self):
+    def move_left(self,powerup=1):
         if self.allow_move_left  and self.status not in ["throw"] and self.status!='attack':
-            self.x_pos -= self.horizontal_speed*self.Super_cofficent
+            self.x_pos -= self.horizontal_speed*self.Super_cofficent*powerup
             self.is_moving_horizontally = True
             self.Look = 'left'
             self.hitbox.topleft = (self.x_pos, self.y_pos)
@@ -510,7 +488,6 @@ class Ninja:
         self.vertical_speed = 0
 
     def update_bullets(self, screen, shot_bullets,platforms,targets):
-        print(self.health)
         self.update_drone()
         for bullet in self.bullets[:]:
             bullet.update()
@@ -592,29 +569,29 @@ class Ninja:
      landed = False
     
      for platform in platforms:
-         if self.x_pos + self.width-10 > platform.x_pos and self.x_pos+10 < platform.x_pos + platform.width:
+         if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
              # Landing on top of platform
              if ((self.y_pos + self.height) >= platform.y_pos) and \
                 ((self.y_pos + self.height) < (platform.y_pos + platform.height) + 10) and \
-                self.vertical_speed < 0:  # Only land if moving downward
+                self.vertical_speed <= 0:  # Only land if moving downward
                 
                  self.on_ground = True
                  self.vertical_speed = 0
                  self.y_pos = platform.y_pos - self.height
                  self.current_platform = platform
                  landed = True
-         if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
+                
             # Side collisions (left/right of platform)
-             if ((self.y_pos + self.height) > platform.y_pos) and \
+             elif ((self.y_pos + self.height) > platform.y_pos) and \
                   (self.y_pos < platform.y_pos + platform.height):
                 
                 # Left side collision
-                 if abs(self.x_pos - (platform.x_pos + platform.width)) <= 20:
+                 if abs(self.x_pos - (platform.x_pos + platform.width)) <= 10:
                      self.allow_move_left = False
                      self.x_pos = platform.x_pos + platform.width
                 
                 # Right side collision
-                 elif abs(self.x_pos + self.width - platform.x_pos) <= 20:
+                 elif abs(self.x_pos + self.width - platform.x_pos) <= 10:
                      self.allow_move_right = False
                      self.x_pos = platform.x_pos - self.width
     
@@ -771,10 +748,6 @@ class Ninja:
                     
                     
     def update(self,platforms,shot_bullets,targets,keys,gate,trigger_shutter=None):
-        if self.health<=0:
-            self.status='dead'
-            self.ALIVE=False
-            
         self.is_on_ground()
         self.gravity()
         self.vertical_move()
