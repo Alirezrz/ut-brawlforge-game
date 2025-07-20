@@ -267,7 +267,6 @@ class Terrorist:
             if dx < self.damage_radiuos and dy < self.damage_radiuos:
                 target.health -= 30
                 target.hurt()
-                print(f"{target} damaged. New health: {target.health}")
 
     def start_explosion(self):
         self.exploding = True
@@ -279,7 +278,6 @@ class Terrorist:
             dy = abs(self.y_pos - target.y_pos)
             if dx < self.damage_radiuos and dy < self.damage_radiuos:
                 target.health -= 30
-                print(f"{target} damaged. New health: {target.health}")
 
     def update_animation(self):
         current_time = pygame.time.get_ticks()
@@ -312,7 +310,6 @@ class Terrorist:
 
 
     def update_taregts(self):
-        print(self.health)
         if self.target_status == 'locked':
             return
         dist = [math.sqrt((self.x_pos - t.x_pos)**2 + (self.y_pos - t.y_pos)**2) for t in self.targets]

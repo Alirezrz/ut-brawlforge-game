@@ -510,6 +510,7 @@ class Ninja:
         self.vertical_speed = 0
 
     def update_bullets(self, screen, shot_bullets,platforms,targets):
+        print(self.health)
         self.update_drone()
         for bullet in self.bullets[:]:
             bullet.update()
