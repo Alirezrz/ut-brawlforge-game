@@ -724,7 +724,7 @@ class Roboman:
         
         
         
-    def handle_input(self, keys, gate, shot_bullets, bullet_class):
+    def handle_input(self, keys, gate, shot_bullets, bullet_class,trigger_shutter):
         self.is_moving_horizontally = False
         if self.freezed:
             return

@@ -57,14 +57,14 @@ class Game_2:
             elif group:  
                 all_enemies.append(group)
 
-        self.objects_dict = build_objects(multiplayer_data, [self.hero])
+        self.objects_dict = build_objects(multiplayer_data, [self.hero,self.hero2])
         self.objects = self.objects_dict['misc'] + \
                        ([self.objects_dict['bomb']] if self.objects_dict['bomb'] else []) + \
                        ([self.objects_dict['defuse_kit']] if self.objects_dict['defuse_kit'] else []) + \
                        self.objects_dict['gates']
 
         # هدف‌گذاری دشمنان
-        apply_targets_to_enemies(self.enemies_dict, [self.hero])
+        apply_targets_to_enemies(self.enemies_dict, [self.hero,self.hero2])
 
         # اهداف حمله نینجا
         self.hero.attack_targets = all_enemies + [self.hero2]
@@ -102,6 +102,7 @@ class Game_2:
         if self.objects_dict.get('bomb'):
             self.objects_dict['bomb'].handle_input(keys)
         self.hero.handle_input(keys, self.objects_dict['gates'], self.shot_bullets, self.bullet_class, self.trigger_shutter)
+        self.hero2.handle_input(keys, self.objects_dict['gates'], self.shot_bullets, self.bullet_class, self.trigger_shutter)
 
     def update(self):
         keys = pygame.key.get_pressed()
