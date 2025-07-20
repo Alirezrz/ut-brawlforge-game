@@ -9,9 +9,9 @@ from src.engine.camera import Camera
 from src.engine.input_handler import InputHandler
 from src.engine.Ninja import Ninja
 from src.engine.menu import PauseMenu
-from src.levels import level_1_data, load_level_data, build_enemies, build_objects, apply_targets_to_enemies
+from src.levels import multiplayer_data, load_level_data, build_enemies, build_objects, apply_targets_to_enemies
 
-class Game:
+class Game_2:
     def __init__(self, screen, platform_image, background,
                  explosion_picture,
                    sounds,
@@ -34,7 +34,7 @@ class Game:
         self.shutter_start_time = 0
         self.shutter_duration = 150
 
-        player_start_pos = level_1_data['player_start']
+        player_start_pos = multiplayer_data['player_start']
 
         self.hero = Ninja(
             player_start_pos['x'], player_start_pos['y'],
@@ -42,9 +42,9 @@ class Game:
             [],  # لیست targets بعداً ست می‌شود
         )
 
-        self.platforms = load_level_data(level_1_data, platform_image)
+        self.platforms = load_level_data(multiplayer_data, platform_image)
 
-        self.enemies_dict = build_enemies(level_1_data, self.screen, self.scroll, self.platforms)
+        self.enemies_dict = build_enemies(multiplayer_data, self.screen, self.scroll, self.platforms)
         all_enemies = []
         for group in self.enemies_dict.values():
             if isinstance(group, list):
@@ -52,7 +52,7 @@ class Game:
             elif group:  
                 all_enemies.append(group)
 
-        self.objects_dict = build_objects(level_1_data, [self.hero])
+        self.objects_dict = build_objects(multiplayer_data, [self.hero])
         self.objects = self.objects_dict['misc'] + \
                        ([self.objects_dict['bomb']] if self.objects_dict['bomb'] else []) + \
                        ([self.objects_dict['defuse_kit']] if self.objects_dict['defuse_kit'] else []) + \
