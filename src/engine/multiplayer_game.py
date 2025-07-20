@@ -45,7 +45,7 @@ class Game_2:
         )
         self.hero2=Roboman(player2_start_pos['x'], player2_start_pos['y'],
             screen_width, screen_height,
-            [],2)
+            None,None,2)
 
         self.platforms = load_level_data(multiplayer_data, platform_image)
 
@@ -72,7 +72,7 @@ class Game_2:
 
         
         self.camera = Camera(
-            self.screen, self.platforms, self.shot_bullets, self.hero,
+            self.screen, self.platforms, self.shot_bullets, self.hero2,
             self.explosions, self.scroll, self.hero,
             next(iter(self.enemies_dict['terrorists']), None),
             self.objects_dict['gates'], self.background,
