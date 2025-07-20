@@ -619,7 +619,7 @@ class Ninja:
      landed = False
     
      for platform in platforms:
-         if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
+         if self.x_pos + self.width > platform.x_pos+15 and self.x_pos+15 < platform.x_pos + platform.width:
              # Landing on top of platform
              if ((self.y_pos + self.height) >= platform.y_pos) and \
                 ((self.y_pos + self.height) < (platform.y_pos + platform.height) + 10) and \
@@ -630,18 +630,19 @@ class Ninja:
                  self.y_pos = platform.y_pos - self.height
                  self.current_platform = platform
                  landed = True
-                
+         if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
+
             # Side collisions (left/right of platform)
-             elif ((self.y_pos + self.height) > platform.y_pos) and \
+             if ((self.y_pos + self.height) > platform.y_pos) and \
                   (self.y_pos < platform.y_pos + platform.height):
                 
                 # Left side collision
-                 if abs(self.x_pos - (platform.x_pos + platform.width)) <= 10:
+                 if abs(self.x_pos - (platform.x_pos + platform.width)) <= 15:
                      self.allow_move_left = False
                      self.x_pos = platform.x_pos + platform.width
                 
                 # Right side collision
-                 elif abs(self.x_pos + self.width - platform.x_pos) <= 10:
+                 elif abs(self.x_pos + self.width - platform.x_pos) <= 15:
                      self.allow_move_right = False
                      self.x_pos = platform.x_pos - self.width
     

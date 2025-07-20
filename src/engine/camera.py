@@ -58,9 +58,9 @@ class Camera:
 
         if self.dragonlord:
             self.dragonlord.display(self.screen, self.scroll)
-
-        if self.flyingdemon.ALIVE:
-            self.flyingdemon.display(self.screen, self.scroll)
+        if self.flyingdemon:
+            if self.flyingdemon.ALIVE:
+                self.flyingdemon.display(self.screen, self.scroll)
 
         for gunman in self.gunmans:
             gunman.display(self.screen, self.scroll)
