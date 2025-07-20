@@ -67,7 +67,8 @@ class Game_2:
         apply_targets_to_enemies(self.enemies_dict, [self.hero])
 
         # اهداف حمله نینجا
-        self.hero.attack_targets = all_enemies
+        self.hero.attack_targets = all_enemies + [self.hero2]
+        self.hero2.attack_targets = all_enemies + [self.hero]
 
         
         self.camera = Camera(
