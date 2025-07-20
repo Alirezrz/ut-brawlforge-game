@@ -680,26 +680,33 @@ class Roboman:
     
         for platform in platforms:
         # Landing detection
-            if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
-                if ((self.y_pos + self.height) >= platform.y_pos) and ((self.y_pos + self.height) < (platform.y_pos + platform.height) + 10):
-                    if self.vertical_speed <= 0:  # Only land if falling
-                        self.on_ground = True
-                        self.vertical_speed = 0
-                        self.y_pos = platform.y_pos - self.height
-                        self.current_platform = platform
-        
-        # Side collision detection
-            if self.x_pos + self.width >= platform.x_pos and self.x_pos <= platform.x_pos + platform.width:
-                if ((self.y_pos + self.height) > platform.y_pos) and (self.y_pos < platform.y_pos + platform.height):
-                # Left collision
-                    if abs(self.x_pos - (platform.x_pos + platform.width)) <= 10:
-                        self.allow_move_left = False
-                        self.x_pos = platform.x_pos + platform.width
-                # Right collision
-                    if abs(self.x_pos + self.width - platform.x_pos) <= 10:
-                        self.allow_move_right = False
-                        self.x_pos = platform.x_pos - self.width
+         if self.x_pos + self.width > platform.x_pos+15 and self.x_pos+15 < platform.x_pos + platform.width:
+             # Landing on top of platform
+             if ((self.y_pos + self.height) >= platform.y_pos) and \
+                ((self.y_pos + self.height) < (platform.y_pos + platform.height) + 10) and \
+                self.vertical_speed <= 0:  # Only land if moving downward
+                
+                 self.on_ground = True
+                 self.vertical_speed = 0
+                 self.y_pos = platform.y_pos - self.height
+                 self.current_platform = platform
+                 landed = True
+         if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
 
+            # Side collisions (left/right of platform)
+             if ((self.y_pos + self.height) > platform.y_pos) and \
+                  (self.y_pos < platform.y_pos + platform.height):
+                
+                # Left side collision
+                 if abs(self.x_pos - (platform.x_pos + platform.width)) <= 15:
+                     self.allow_move_left = False
+                     self.x_pos = platform.x_pos + platform.width
+                
+                # Right side collision
+                 elif abs(self.x_pos + self.width - platform.x_pos) <= 15:
+                     self.allow_move_right = False
+                     self.x_pos = platform.x_pos - self.width
+    
     def jump_under_platform(self, platforms):
         if self.vertical_speed > 0:
             for platform in platforms:
