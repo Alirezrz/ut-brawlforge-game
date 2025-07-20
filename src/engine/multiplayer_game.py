@@ -35,6 +35,7 @@ class Game_2:
         self.shutter_duration = 150
 
         player_start_pos = multiplayer_data['player_start']
+        player2_start_pos = multiplayer_data['player2_start']
 
         self.hero = Ninja(
             player_start_pos['x'], player_start_pos['y'],
