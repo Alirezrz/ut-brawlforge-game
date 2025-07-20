@@ -6,6 +6,12 @@ from src.engine.protector import Guard_Drone
 ## must be done -->  1- list of enemies for hit when attacking must be fixed 
 class Ninja:
     def __init__(self, x, y, screen_width, screen_height, targets, ninja_health_bar_frame=None, ninja_health_bar=None, hero_creation_index=2):
+        
+        self.ALIVE=True
+        self.DEAD=False
+        
+        
+        
         self.jump_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja jump.MP3"))
         self.kunai_hit_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit.mp3"))
         self.kunai_hit_platform_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit platofrm.mp3"))
@@ -186,6 +192,13 @@ class Ninja:
             img_path = os.path.join(base_path, "JumpAttack", f"Jump_Attack__00{i}.png")
             tmp = pygame.image.load(img_path)
             self.JumpAttack_frames.append(pygame.transform.scale(tmp, self.jumpattack_sizes[i]))
+            
+        self.death_frames=[]
+        self.death_sizes=[(63,118),(74,118),(127,113),(111,108),(140,100),(157,100),(152,90),(157,90),(160,90),(156,90)]
+        for i in range(0, 10):
+            img_path = os.path.join(base_path, "death", f"Dead__00{i}.png")
+            tmp = pygame.image.load(img_path)
+            self.death_frames.append(pygame.transform.scale(tmp, self.death_sizes[i]))
         
 
 
@@ -289,7 +302,10 @@ class Ninja:
             self.current_picture = self.SuperPower_pic
             return
 
-        if self.status == "attack":
+        if self.status=='dead':
+            target_animation_state='dead'
+        
+        elif self.status == "attack":
             target_animation_state = 'attack'
         elif self.status == "jumpattack":
             target_animation_state = 'jumpattack'
@@ -318,7 +334,16 @@ class Ninja:
 
         self.last_frame_update_time = current_time
 
-        if target_animation_state == 'jumpattack':
+        if target_animation_state=='dead':
+            if self.current_frame_index < len(self.death_frames):
+                self.current_picture = self.death_frames[self.current_frame_index]
+                self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.current_picture.get_width(), self.current_picture.get_height())
+                self.current_frame_index += 1
+                self.y_pos+=118-self.current_picture.get_height()
+                if self.current_frame_index==9:
+                    self.DEAD=True
+        
+        elif target_animation_state == 'jumpattack':
             if self.current_frame_index < len(self.JumpAttack_frames):
                 self.current_picture = self.JumpAttack_frames[self.current_frame_index]
                 frame_width = self.with_sword_width[self.current_frame_index]
@@ -748,6 +773,10 @@ class Ninja:
                     
                     
     def update(self,platforms,shot_bullets,targets,keys,gate,trigger_shutter=None):
+        if self.health<=0:
+            self.health=0
+            self.status='dead'
+            self.ALIVE=False
         self.is_on_ground()
         self.gravity()
         self.vertical_move()
