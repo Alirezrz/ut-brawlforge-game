@@ -110,7 +110,7 @@ class Game_2:
         if self.enemies_dict.get('dragonlord'):
             self.enemies_dict['dragonlord'].Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
 
-        for character in [self.hero]:
+        for character in [self.hero,self.hero2]:
             character.is_on_ground()
             character.gravity()
             character.vertical_move()
@@ -119,7 +119,9 @@ class Game_2:
             character.jump_under_platform(self.platforms)
 
         self.hero.update_animation(self.shot_bullets)
+        self.hero2.update_animation(self.shot_bullets)
         self.hero.update_bullets(self.screen, self.shot_bullets, self.platforms, self.enemies)
+        self.hero2.update_bullets(self.screen, self.shot_bullets, self.platforms, self.enemies)
 
         for enemy in self.enemies[:]:
             if hasattr(enemy, 'Update'):
