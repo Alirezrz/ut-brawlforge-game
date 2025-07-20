@@ -120,8 +120,8 @@ class Game_2:
 
         self.hero.update_animation(self.shot_bullets)
         self.hero2.update_animation(self.shot_bullets)
-        self.hero.update_bullets(self.screen, self.shot_bullets, self.platforms, self.enemies)
-        self.hero2.update_bullets(self.screen, self.shot_bullets, self.platforms, self.enemies)
+        self.hero.update_bullets(self.screen, self.shot_bullets, self.platforms, self.enemies+[self.hero2])
+        self.hero2.update_bullets(self.screen, self.shot_bullets, self.platforms, self.enemies+[self.hero])
 
         for enemy in self.enemies[:]:
             if hasattr(enemy, 'Update'):
