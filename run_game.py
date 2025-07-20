@@ -74,14 +74,11 @@ while True:
            "enemy_hit": enemy_hit_sound
         }
         game = Game(
-          screen, None, ghost, ghost2, 
+          screen,  
           platform_images,
           background, explode_picture, 
-          health_bar_green, health_bar_red, hero_profile_picture,
-          roboman_health_bar_frame, roboman_health_bar,
           game_sounds,
-          ninja_health_bar_frame, ninja_health_bar
-)
+        )
         result = game.run()
         if result == "menu":
             continue 

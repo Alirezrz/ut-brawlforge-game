@@ -12,10 +12,9 @@ from src.engine.menu import PauseMenu
 from src.levels import level_1_data, load_level_data, build_enemies, build_objects, apply_targets_to_enemies
 
 class Game:
-    def __init__(self, screen, hero_picture, ghost_picture, ghost2_picture, platform_image, background,
-                 explosion_picture, health_bar_green, health_bar_red, hero_profile_picture,
-                 roboman_health_bar_frame, roboman_health_bar, sounds,
-                 ninja_health_bar_frame, ninja_health_bar):
+    def __init__(self, screen, platform_image, background,
+                 explosion_picture,  sounds,
+           ):
 
         self.screen = screen
         self.background = background
@@ -40,7 +39,6 @@ class Game:
             player_start_pos['x'], player_start_pos['y'],
             screen_width, screen_height,
             [],  # لیست targets بعداً ست می‌شود
-            ninja_health_bar_frame, ninja_health_bar
         )
 
         self.platforms = load_level_data(level_1_data, platform_image)
