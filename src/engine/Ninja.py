@@ -5,7 +5,7 @@ from config import Ninja_width, Ninja_height,profileSideSize, health_bar_lenght,
 from src.engine.protector import Guard_Drone
 ## must be done -->  1- list of enemies for hit when attacking must be fixed 
 class Ninja:
-    def __init__(self, x, y, screen_width, screen_height, targets, ninja_health_bar=None, hero_creation_index=2):
+    def __init__(self, x, y, screen_width, screen_height, targets, hero_creation_index=2):
         
         self.ALIVE=True
         self.DEAD=False
