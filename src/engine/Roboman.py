@@ -38,9 +38,12 @@ class Roboman:
         self.shot_hit_platform_sound = pygame.mixer.Sound(
             os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_platoform.mp3")
 )
-        self.jump_sound = sounds.get('jump') if sounds else None
-        self.shoot_sound = sounds.get('shoot') if sounds else None
-        self.jetpack_sound = sounds.get('jetpack') if sounds else None
+        self.jump_sound = pygame.mixer.Sound(
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "robot jump.MP3"))
+        self.shoot_sound = pygame.mixer.Sound(
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shoot.wav"))
+        self.jetpack_sound = pygame.mixer.Sound(
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "jetpack.wav"))
           
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "RoboMan_pictures")
         self.freezed_img=pygame.transform.scale(pygame.image.load(os.path.join(base_path,"freezed.png")),(69,118))
