@@ -320,7 +320,7 @@ class Roboman:
         screen.blit(self.roboman_health_bar_frame, (bar_x, bar_y))
         screen.blit(self.roboman_health_bar, (health_x, health_y))
         screen.blit(pygame.transform.scale(self.hero_profile_picture, (profileSideSize, profileSideSize)), (profile_x, profile_y))
-    def update_animation(self):
+    def update_animation(self,shot_bullets):
         if self.freezed:
             self.current_picture=self.freezed_img
             return
