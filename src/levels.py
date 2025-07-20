@@ -8,7 +8,6 @@ TILE_SIZE = 64
 
 level_1_data = {
     'player_start': {'x': 58*64, 'y':400},
-    'player2_start': {'x': 54*64, 'y':400},
     'enemies': [
         {'type': 'terrorist', 'x': 58 * TILE_SIZE - 500, 'y': 400},
         {'type': 'gunman', 'x': 58 * TILE_SIZE + 800, 'y': 400},
@@ -87,6 +86,8 @@ level_1_data = {
 }
 multiplayer_data = {
     'player_start': {'x': 58*64, 'y':400},
+    'player2_start': {'x': 54*64, 'y':400},
+
     'enemies': [
        
     ],

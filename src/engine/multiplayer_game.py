@@ -8,6 +8,7 @@ from src.engine.explosion import Explosion
 from src.engine.camera import Camera
 from src.engine.input_handler import InputHandler
 from src.engine.Ninja import Ninja
+from src.engine.Roboman import Roboman
 from src.engine.menu import PauseMenu
 from src.levels import multiplayer_data, load_level_data, build_enemies, build_objects, apply_targets_to_enemies
 
@@ -40,8 +41,11 @@ class Game_2:
         self.hero = Ninja(
             player_start_pos['x'], player_start_pos['y'],
             screen_width, screen_height,
-            [],  # لیست targets بعداً ست می‌شود
+            [],1  # لیست targets بعداً ست می‌شود
         )
+        self.hero2=Roboman(player2_start_pos['x'], player2_start_pos['y'],
+            screen_width, screen_height,
+            [],2)
 
         self.platforms = load_level_data(multiplayer_data, platform_image)
 
