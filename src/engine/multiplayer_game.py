@@ -13,13 +13,11 @@ from src.engine.menu import PauseMenu
 from src.levels import multiplayer_data, load_level_data, build_enemies, build_objects, apply_targets_to_enemies
 
 class Game_2:
-    def __init__(self, screen, platform_image, background,
-                 explosion_picture                  
+    def __init__(self, screen, platform_image, background              
                 ):
 
         self.screen = screen
         self.background = background
-        self.explosion_picture = explosion_picture
         self.clock = pygame.time.Clock()
 
         self.screen_color = (60, 100, 150)

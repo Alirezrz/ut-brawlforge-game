@@ -29,10 +29,7 @@ try:
         'middle': pygame.image.load(os.path.join(platform_image_path, "platform_middle.png")).convert_alpha(),
         'right': pygame.image.load(os.path.join(platform_image_path, "platform_right.png")).convert_alpha(),
         'solid': pygame.image.load(os.path.join(platform_image_path, "platform_solid.png")).convert_alpha(),
-    }
-    explode_picture = pygame.image.load("src/assets/images/explode.png")
-    explode_picture = pygame.transform.scale(explode_picture, (explode_side_size, explode_side_size))
-   
+    }   
 
 except (FileNotFoundError, pygame.error) as e:
     print(f"Error: Could not load asset: {e}")
@@ -48,7 +45,7 @@ while True:
         game = Game_2(
           screen,  
           platform_images,
-          background, explode_picture, 
+          background
         )
         result = game.run()
         if result == "menu":
