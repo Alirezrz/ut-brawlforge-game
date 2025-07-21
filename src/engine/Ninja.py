@@ -5,8 +5,7 @@ from config import Ninja_width, Ninja_height,profileSideSize, health_bar_lenght,
 from src.engine.protector import Guard_Drone
 ## must be done -->  1- list of enemies for hit when attacking must be fixed 
 class Ninja:
-    def __init__(self, x, y, screen_width, screen_height, targets, hero_creation_index=2):
-        
+    def __init__(self, x, y, screen_width, screen_height, targets, ninja_health_bar_frame, ninja_health_bar, hero_creation_index=2):
         self.ALIVE=True
         self.DEAD=False
         
@@ -22,8 +21,11 @@ class Ninja:
         self.y_pos = y
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja hurt.mp3"))        
         self.on_platform = False
-        self.ninja_health_bar_frame = pygame.image.load("src/assets/images/Ninja/Ninja_health_bar_frame.png")
-        self.ninja_health_bar =pygame.image.load("src/assets/images/Ninja/Ninja_health_bar.png")
+        self.is_first_time=True
+        #self.ninja_health_bar_frame = pygame.image.load("src/assets/images/Ninja/Ninja_health_bar_frame.png")
+        # self.ninja_health_bar =pygame.image.load("src/assets/images/Ninja/Ninja_health_bar.png")
+        self.ninja_health_bar_frame = ninja_health_bar_frame
+        self.ninja_health_bar = ninja_health_bar
         self.hero_creation_index = hero_creation_index  # دیفالت 2
         self.ninja_profile_picture = pygame.image.load("src/assets/images/Ninja/ninja_profile.png")
         self.current_platform = None
@@ -202,9 +204,7 @@ class Ninja:
             
       
         
-        self.SUPER_POWER_FLAG=False
-        self.GUARD_DRONE_FLAG=False
-        self.DOUBLE_JUMP_FLAG=False
+
 
     
     def hurt(self):
@@ -290,14 +290,14 @@ class Ninja:
     def display(self, screen, offset, shot_bullets):
         self.Update_SuperPower() 
         self.Super_Power_effect()
+        if self.hero_creation_index == 2 or self.hero_creation_index == 4: # اگر hero_creation_index برای فلیپ کردن تنظیم شده
+            if self.is_first_time:
+                self.ninja_profile_picture = pygame.transform.flip(self.ninja_profile_picture, True, False)
+                self.is_first_time = False
         for drone in self.guard_drone:
             drone.Update(screen, offset, shot_bullets)
 
             drone.Update(screen,offset,shot_bullets)
-        
-        
-        
-    
         display_picture = self.current_picture
         display_x = self.x_pos
 
@@ -583,7 +583,7 @@ class Ninja:
             self.last_jump_time = current_time  
             return
 
-        if not self.on_ground and self.jump_count == 1 and self.Allow_double_jump and self.DOUBLE_JUMP_FLAG:
+        if not self.on_ground and self.jump_count == 1 and self.Allow_double_jump:
             self.double_jump()
             self.jump_count = 2
             self.last_jump_time = current_time 
@@ -673,7 +673,7 @@ class Ninja:
                         
     def Activate_Super_Power(self):
         current_time=pygame.time.get_ticks()
-        if current_time-self.Super_lastActivation>=self.SuperPower_CoolDown and self.current_platform!=None and self.vertical_speed==0 and self.SUPER_POWER_FLAG:
+        if current_time-self.Super_lastActivation>=self.SuperPower_CoolDown and self.current_platform!=None and self.vertical_speed==0:
             self.Super_cofficent=2
             self.Super_lastActivation = current_time
             self.last_SPdisplay=current_time
@@ -720,7 +720,7 @@ class Ninja:
         
     def call_drone(self):
         current_time=pygame.time.get_ticks()
-        if current_time - self.last_guard_call >= self.guard_drone_reload_duration and self.GUARD_DRONE_FLAG:
+        if current_time - self.last_guard_call >= self.guard_drone_reload_duration:
             self.guard_drone.append(Guard_Drone(self,"Ninja"))
             self.last_guard_call=current_time
             

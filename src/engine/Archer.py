@@ -6,7 +6,7 @@ from src.engine.protector import Guard_Drone
 from src.engine.bullet import Bullet
 
 class Archer:
-    def __init__(self, x, y, targets,index=3):
+    def __init__(self, x, y, screen_width, screen_height, targets, health_bar_frame, health_bar, index=3):
         self.hero_creation_index=index
         self.x_pos = x
         self.y_pos = y
@@ -29,8 +29,8 @@ class Archer:
         self.double_jump_allowed = True
         self.has_defuse_kit=False
 
-        self.health_bar_frame =pygame.image.load("src/assets/images/Archer/health_bar_frame.png")
-        self.health_bar = pygame.image.load("src/assets/images/Archer/health_bar.png")
+        self.health_bar_frame = health_bar_frame
+        self.health_bar = health_bar
 
         self.health=100
         self.targets = targets
@@ -39,7 +39,7 @@ class Archer:
         self.height = 100
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "archer", "archer hurt.mp3"))     
-        self.health = 63
+        
         self.max_health = 100
         self.bullets = []
         self.status = 'idle'
@@ -84,12 +84,6 @@ class Archer:
         self.super_power_effect_picture = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "super power effect.png")), (88, 127))
         
         self.current_picture = None
-        
-        self.SUPER_POWER_FLAG=False
-        self.GUARD_DRONE_FLAG=False
-        self.DOUBLE_JUMP_FLAG=False
-        
-        
     def hurt(self):
         self.hurt_sound.play()
 
@@ -255,7 +249,7 @@ class Archer:
         
     def activate_super_power(self):
         current_time = pygame.time.get_ticks()
-        if current_time - self.super_power_last_activation >= self.super_power_cooldown and self.SUPER_POWER_FLAG:
+        if current_time - self.super_power_last_activation >= self.super_power_cooldown:
             self.super_power_active = True
             self.super_power_last_activation = current_time
             self.super_power_display_start = current_time
@@ -378,7 +372,7 @@ class Archer:
             self.on_ground = False
             self.current_platform = None
             self.last_jump_time = current_time
-        elif self.jump_count == 1 and self.double_jump_allowed and self.DOUBLE_JUMP_FLAG:
+        elif self.jump_count == 1 and self.double_jump_allowed:
             self.vertical_speed = self.jump_strenght
             self.jump_count = 2
             self.double_jump_allowed = False
@@ -449,7 +443,7 @@ class Archer:
         
     def call_drone(self):
         current_time = pygame.time.get_ticks()
-        if current_time - self.last_guard_call >= self.guard_drone_reload_duration and self.GUARD_DRONE_FLAG:
+        if current_time - self.last_guard_call >= self.guard_drone_reload_duration:
             self.guard_drone.append(Guard_Drone(self, "Archer")) 
             self.last_guard_call = current_time
             
@@ -464,7 +458,7 @@ class Archer:
             if drone.status == 'departing' and drone.departed_len>3000:
                 self.guard_drone.remove(drone)
                 
-    def update(self,screen,platforms,shot_bullets,targets,keys,trigger_shutter=None):
+    def update(self,screen,platforms,shot_bullets,targets,keys,gates,scroll):
         self.is_on_ground()
         self.gravity()
         self.vertical_move()
@@ -472,8 +466,8 @@ class Archer:
         self.move_with_platform()
         self.jump_under_platform(platforms)
         self.update_animation(shot_bullets)
-        self.update_bullets(screen, shot_bullets, platforms, targets, trigger_shutter or [0, 0])
-        self.handle_input(keys)
+        self.update_bullets(screen, shot_bullets, platforms, targets, scroll)
+        self.handle_input(keys,gates)
         self.update_drone()
         
         
