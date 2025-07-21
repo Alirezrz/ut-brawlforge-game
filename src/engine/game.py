@@ -7,7 +7,7 @@ from src.engine.platform import Platform
 from src.engine.explosion import Explosion
 from src.engine.camera import Camera
 from src.engine.input_handler import InputHandler
-from src.levels import level_1_data, load_level_data
+from src.levels import get_level_data, load_platforms, load_enemies, load_objects, load_gates, apply_targets_to_enemies
 from src.engine.menu import PauseMenu
 from src.engine.defuse_kit import DefuseKit
 from src.engine.terrorist import Terrorist
@@ -25,62 +25,70 @@ from src.engine.NinjaGirl import NinjaGirl
 from src.engine.Archer import Archer
 
 class Game:
-    def __init__(self, screen, hero_picture, ghost_picture, ghost2_picture, platform_image, background, explosion_picture, health_bar_green, health_bar_red, hero_profile_picture, roboman_health_bar_frame, roboman_health_bar, sounds, ninja_health_bar_frame, ninja_health_bar, archer_health_bar_frame, archer_health_bar, main_character=None):
+    def __init__(self, screen, hero_picture, ghost_picture, ghost2_picture, platform_image, background, explosion_picture, health_bar_green, health_bar_red, hero_profile_picture, roboman_health_bar_frame, roboman_health_bar, sounds, ninja_health_bar_frame, ninja_health_bar, archer_health_bar_frame, archer_health_bar, main_character=None,selected_map='level_1'):
         self.screen = screen
         self.background = background
+        self.explosion_picture = explosion_picture
         self.clock = pygame.time.Clock()
         self.sounds = sounds
-        
-        self.main_character = main_character or Roboman(100, 100, roboman_health_bar_frame, roboman_health_bar, hero_profile_picture, screen_width, screen_height)
-        player_start_pos = level_1_data['player_start']
-        self.main_character.x_pos = player_start_pos['x']
-        self.main_character.y_pos = player_start_pos['y']
-        self.main_character.hitbox.topleft = (player_start_pos['x'], player_start_pos['y'])
-
-        self.bomb = Bomb(player_start_pos['x'] + 100, player_start_pos['y'] - 500, targets=[self.main_character]) 
-        self.defuse_kit = DefuseKit(player_start_pos['x'] + 100, player_start_pos['y'] - 270, targets=[self.main_character])
-
-        self.platforms = load_level_data(level_1_data, platform_image)
+        self.selected_map = selected_map
         self.screen_color = (60, 100, 150)
         self.scroll = [0, 0]
-        self.terrorists = [
-            Terrorist(player_start_pos['x'] - 500, player_start_pos['y'], screen_width, screen_height, [self.main_character], self.platforms, self.main_character, self.screen, self.scroll)
-        ]
+ 
+        level_data= get_level_data(self.selected_map)
+        player_start_pos = level_data['player_start']
+        self.main_character = main_character
+        if self.main_character is None:
+            self.main_character = Roboman(player_start_pos['x'], player_start_pos['y'], 
+                                          roboman_health_bar_frame, roboman_health_bar, hero_profile_picture, 
+                                          screen_width, screen_height, sounds=sounds)
+        else:
+            self.main_character.x_pos = player_start_pos['x']
+            self.main_character.y_pos = player_start_pos['y']
+            self.main_character.hitbox.topleft = (player_start_pos['x'], player_start_pos['y'])
 
-        self.gunmans = [
-            Gunman(player_start_pos['x'] + 800, player_start_pos['y'], self.platforms, [self.main_character])
-        ]
-        self.base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images")
-        self.background = pygame.image.load(os.path.join(self.base_path, "city.png"))
+
+        self.platforms = load_platforms(self.selected_map, platform_image)
+        all_players = [self.main_character]
+        enemies_data = load_enemies(self.selected_map, self.screen, self.scroll, self.platforms)
+        self.terrorists = enemies_data.get('terrorists', [])
+        self.gunmans = enemies_data.get('gunmans', [])
+        self.drones = enemies_data.get('drones', [])
+        self.flyingdemons = enemies_data.get('flyingdemons', [])
+        self.dragonlord = enemies_data.get('dragonlord') 
+        objects_data = load_objects(self.selected_map, all_players)
+        self.bomb = Bomb(player_start_pos['x'] + 100, player_start_pos['y'] - 500, targets=[self.main_character]) 
+        self.defuse_kit = DefuseKit(player_start_pos['x'] + 100, player_start_pos['y'] - 270, targets=[self.main_character])
+        self.gates = objects_data.get('gates', []) 
+        self.objects = objects_data.get('misc', []) + self.gates 
+        apply_targets_to_enemies(enemies_data, all_players)
+        all_enemies_list = []
+        for group in enemies_data.values():
+            if isinstance(group, list):
+                all_enemies_list.extend(group)
+            elif group:
+                all_enemies_list.append(group)
+        self.main_character.targets = all_enemies_list
+
+        # self.base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images")
 
         self.shot_bullets = []
         self.explosions = []
         self.bullet_class = Bullet
         self.game_active = True
-
-        self.gates = [
-            Gates(player_start_pos['x'], player_start_pos['y'] - 37, player_start_pos['x'] + 1400, player_start_pos['y'] - 357, self.main_character)
-        ]
-
-        self.drones = [
-            Drone(-400, 40, 'right', [self.main_character])
-        ]
-        self.objects = [
-            Pumpkin(player_start_pos['x'] + 100, player_start_pos['y'] - 270, [self.main_character]),
-            PowerBox(player_start_pos['x'] + 700, player_start_pos['y'] + 65, [self.main_character])
-        ]
-        self.dragonlord = Dragon_Lord(player_start_pos['x'] - 200, player_start_pos['y'] - 62, self.main_character)
-
         self.shutter_strength = 0
         self.shutter_start_time = 0
         self.shutter_duration = 150
-        self.flyingdemons = []
-        self.flyingdemons.append(FlyingDemon(player_start_pos['x'] - 800, player_start_pos['y'] - 18, self.main_character, 'right'))
-        self.camera = Camera(self.screen, self.platforms, self.shot_bullets, self.main_character, self.explosions, self.scroll, self.terrorists[0], self.gates, self.background, self.drones, self.objects, self.gunmans, self.dragonlord, self.flyingdemons[0], self.bomb, self.defuse_kit)
-        self.enemies = self.terrorists + self.gunmans + self.drones + self.flyingdemons + [self.dragonlord]
+        self.camera = Camera(self.screen, self.platforms, self.shot_bullets, self.main_character, self.explosions, self.scroll, 
+                             next(iter(self.terrorists), None), # terrorist
+                             self.gates, self.background, 
+                             self.drones, self.objects, self.gunmans, self.dragonlord, 
+                             next(iter(self.flyingdemons), None), # flyingdemon
+                             self.bomb, self.defuse_kit)
+        if self.dragonlord:
+            self.dragonlord.camera = self.camera
+        self.enemies = all_enemies_list
         self.input_handler = InputHandler(self.main_character, self.bullet_class, self.shot_bullets)
-        #print(f"[DEBUG] Loaded character: {type(self.main_character).__name__}")
-
     def remove_bullet(self, bullet):
         if bullet in self.shot_bullets:
             self.shot_bullets.remove(bullet)
@@ -99,15 +107,16 @@ class Game:
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
         if isinstance(self.main_character, Roboman):
-            self.main_character.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class)
+            self.main_character.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class,self.trigger_shutter)
         elif isinstance(self.main_character, Ninja) or isinstance(self.main_character, NinjaGirl):
-            self.main_character.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class)
+            self.main_character.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class,self.trigger_shutter)
         elif isinstance(self.main_character, Archer):
-            self.main_character.handle_input(keys)
+            self.main_character.handle_input(keys,self.gates)
 
     def update(self):
         keys = pygame.key.get_pressed()
-        self.dragonlord.Update(keys, self.platforms)
+        if self.dragonlord: 
+            self.dragonlord.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
         self.update_enemies()
         self.main_character.is_on_ground()
         self.main_character.gravity()
@@ -122,7 +131,7 @@ class Game:
         elif isinstance(self.main_character, Ninja) or isinstance(self.main_character, NinjaGirl):
             self.main_character.update(self.screen,self.platforms, self.shot_bullets, self.enemies, keys, self.gates)
         elif isinstance(self.main_character, Archer):
-            self.main_character.update(self.screen,self.platforms, self.shot_bullets, self.enemies, keys,self.scroll)
+            self.main_character.update(self.screen,self.platforms, self.shot_bullets, self.enemies, keys,self.gates,self.scroll)
 
 
         for gunman in self.gunmans:
@@ -144,7 +153,6 @@ class Game:
 
         for obj in self.objects:
             obj.Update(self.screen, self.scroll)
-
 
         current_time = pygame.time.get_ticks()
         if self.shutter_strength > 0:
@@ -196,7 +204,7 @@ class Game:
         for enemy in self.enemies[:]:
             if hasattr(enemy, 'Update'):
                 if isinstance(enemy, Dragon_Lord):
-                    enemy.Update(keys, self.platforms)
+                    enemy.Update(self.screen, self.scroll, self.shot_bullets,self.platforms)
                 else:
                     enemy.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
             if hasattr(enemy, 'status') and enemy.status == 'removed':

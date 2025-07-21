@@ -172,7 +172,7 @@ class MapCharacterMenu:
         self.title_font = pygame.font.Font(None, 60)
         self.characters = ["Roboman", "Ninja", "NinjaGirl", "Archer"]
         self.maps = ["level1", "level2", "level3", "level4"]
-        self.selected_character = None
+        self.selected_character =None
         self.selected_map = None
         self.char_button_width = 150
         self.char_button_height = 50
@@ -252,37 +252,47 @@ class MapCharacterMenu:
             text = self.font.render(button["text"], True, (255, 255, 255))
             text_rect = text.get_rect(center=(button["pos"][0] + button["size"][0] // 2, button["pos"][1] + button["size"][1] + 20))
             self.screen.blit(text, text_rect)
-     
+
+        confirm_enabled = self.selected_character is not None and self.selected_map is not None
+        confirm_color = (0, 200, 0) if confirm_enabled else (50, 50, 50)
         confirm_hovered = pygame.Rect(self.confirm_button["pos"], self.confirm_button["size"]).collidepoint(mouse_pos)
-        pygame.draw.rect(self.screen, (150, 150, 150) if confirm_hovered else (100, 100, 100), (*self.confirm_button["pos"], *self.confirm_button["size"]), border_radius=10)
+        if confirm_enabled and confirm_hovered:
+            confirm_color = (0,255 ,0)
+
+        pygame.draw.rect(self.screen, confirm_color, (*self.confirm_button["pos"], *self.confirm_button["size"]), border_radius=10)
         confirm_text = self.font.render(self.confirm_button["text"], True, (255, 255, 255))
         confirm_text_rect = confirm_text.get_rect(center=(self.confirm_button["pos"][0] + self.confirm_button["size"][0] // 2, self.confirm_button["pos"][1] + self.confirm_button["size"][1] // 2))
         self.screen.blit(confirm_text, confirm_text_rect)
 
         exit_hovered = pygame.Rect(self.exit_button["pos"], self.exit_button["size"]).collidepoint(mouse_pos)
-        pygame.draw.rect(self.screen, (150, 150, 150) if exit_hovered else (100, 100, 100), (*self.exit_button["pos"], *self.exit_button["size"]), border_radius=10)
+        exit_color = (150,150, 150) if exit_hovered else (100,100,100)
+        pygame.draw.rect(self.screen, exit_color, (*self.exit_button["pos"], *self.exit_button["size"]), border_radius=10)
         exit_text = self.font.render(self.exit_button["text"], True, (255, 255, 255))
         exit_text_rect = exit_text.get_rect(center=(self.exit_button["pos"][0] + self.exit_button["size"][0] // 2, self.exit_button["pos"][1] + self.exit_button["size"][1] // 2))
         self.screen.blit(exit_text, exit_text_rect)
 
-        if self.selected_character and self.selected_map:
-            selected_text = self.font.render(f"Selected: {self.selected_character}, {self.selected_map}", True, (255, 255, 255))
-            selected_rect = selected_text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() - 150))
-            self.screen.blit(selected_text, selected_rect)
+        selected_info_text = "Selected: "
+        if self.selected_character:
+            selected_info_text += f"Character: {self.selected_character}"
+        if self.selected_map:
+            selected_info_text += f", Map: {self.selected_map}"
+        selected_text_surface = self.font.render(selected_info_text, True, (255, 255, 255))
+        selected_rect = selected_text_surface.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() - 150))
+        self.screen.blit(selected_text_surface, selected_rect)
 
     def run(self):
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return "exit"
+                    return "exit",None,None
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = event.pos 
                     for button in self.char_buttons:
                         button_rect = pygame.Rect(button["pos"], button["size"])
                         if button_rect.collidepoint(mouse_pos):
-                            self.selected_character = button["text"]
-                            print(f"Selected character: {self.selected_character}")
                             self.sounds["click"].play()
+                            self.selected_character = button["text"] 
+                            print(f"Selected character: {self.selected_character}")
                     for button in self.map_buttons:
                         button_rect = pygame.Rect(button["pos"], button["size"])
                         if button_rect.collidepoint(mouse_pos):
@@ -292,11 +302,170 @@ class MapCharacterMenu:
                     confirm_rect = pygame.Rect(self.confirm_button["pos"], self.confirm_button["size"])
                     if confirm_rect.collidepoint(mouse_pos) and self.selected_character and self.selected_map:
                         print(f"Confirmed: {self.selected_character}, {self.selected_map}")
-                        self.sounds["click"].play()
-                        return self.selected_character, self.selected_map
+                        self.sounds["confirm"].play()
+                        return self.selected_character, self.selected_map, "single"
                     exit_rect = pygame.Rect(self.exit_button["pos"], self.exit_button["size"])
                     if exit_rect.collidepoint(mouse_pos):
-                        self.sounds["click"].play()
-                        return "exit"
+                        self.sounds["exit"].play()
+                        return "exit",None,None
+            self.draw()
+            pygame.display.flip()
+
+class MultiplayerMapCharacterMenu:
+    def __init__(self, screen, background, hero_profile_picture):
+        self.screen = screen
+        self.background = background
+        self.hero_profile_picture = hero_profile_picture 
+        self.font = pygame.font.Font(None, 30)
+        self.title_font = pygame.font.Font(None, 60)
+        self.characters = ["Roboman", "Ninja", "NinjaGirl", "Archer"]
+        self.maps = ["multiplayer_arena", "boss_fight"] 
+        self.selected_characters  = []
+        self.selected_map = None
+        self.char_button_width = 150
+        self.char_button_height = 50
+        self.map_button_width = 100
+        self.map_button_height = 100
+        self.button_spacing = 20
+
+        total_char_width = len(self.characters) * self.char_button_width + (len(self.characters) - 1) * self.button_spacing
+        start_x_char = (screen.get_width() - total_char_width) // 2
+        self.char_buttons = [
+            {
+                "text": char,
+                "pos": (start_x_char + i * (self.char_button_width + self.button_spacing), 330),
+                "size": (self.char_button_width, self.char_button_height),
+                "preview_pos": (start_x_char + i * (self.char_button_width + self.button_spacing) + self.char_button_width // 2 - 60, 200)
+            } for i, char in enumerate(self.characters)
+        ]
+        total_map_width = len(self.maps) * self.map_button_width + (len(self.maps) - 1) * self.button_spacing
+        start_x_map = (screen.get_width() - total_map_width) // 2
+        self.map_buttons = [
+            {
+                "text": map_name,
+                "pos": (start_x_map + i * (self.map_button_width + self.button_spacing), screen.get_height() - 400),
+                "size": (self.map_button_width, self.map_button_height),
+                "preview_image": self.load_map_preview(map_name)
+            } for i, map_name in enumerate(self.maps)
+        ]
+        
+        self.confirm_button = {"text": "Confirm", "pos": (screen.get_width() - 200, screen.get_height() - 100), "size": (150, 50)}
+        self.exit_button = {"text": "Exit", "pos": (50, screen.get_height() - 100), "size": (150, 50)}
+        self.char_previews = {
+            "Roboman": pygame.image.load("src/assets/images/RoboMan_pictures/intro.png").convert_alpha(),
+            "Ninja": pygame.image.load("src/assets/images/Ninja/intro.png").convert_alpha(),
+            "NinjaGirl": pygame.image.load("src/assets/images/NinjaGirl/intro.png").convert_alpha(),
+            "Archer": pygame.image.load("src/assets/images/Archer/intro.png").convert_alpha()
+        }
+        self.sounds ={
+            "click": pygame.mixer.Sound("src/assets/sounds/menu/click.wav"),
+            "confirm": pygame.mixer.Sound("src/assets/sounds/menu/confirm.mp3"),
+            "exit": pygame.mixer.Sound("src/assets/sounds/menu/confirm.mp3")
+        }
+        for sound in self.sounds.values():
+            sound.set_volume(0.5)
+
+    def load_map_preview(self, map_name):
+        try:
+            img_path = os.path.join("src", "assets", "images", "levels", f"{map_name}_preview.png")
+            img = pygame.image.load(img_path)
+            return pygame.transform.scale(img, (self.map_button_width, self.map_button_height))
+        except FileNotFoundError:
+            print(f"Warning: Preview image for {map_name} not found at {img_path}")
+            surface = pygame.Surface((self.map_button_width, self.map_button_height))
+            surface.fill((50, 50, 50))
+            return surface
+
+
+    def draw(self):
+        self.screen.blit(self.background, (0, 0))
+        title_text = self.title_font.render("Choose Two Characters and a Map", True, (255, 255, 255)) # متن عنوان چند نفره
+        title_rect = title_text.get_rect(center=(self.screen.get_width() // 2, 50))
+        self.screen.blit(title_text, title_rect)
+        
+        mouse_pos = pygame.mouse.get_pos()
+        for button in self.char_buttons:
+            is_hovered = pygame.Rect(button["pos"], button["size"]).collidepoint(mouse_pos)
+            color = (0, 255, 0) if button["text"] in self.selected_characters else (255,165,0) if is_hovered else (100, 100, 100)
+            pygame.draw.rect(self.screen, color, (*button["pos"], *button["size"]), border_radius=10)
+            text = self.font.render(button["text"], True, (255, 255, 255))
+            text_rect = text.get_rect(center=(button["pos"][0] + button["size"][0] // 2, button["pos"][1] + button["size"][1] // 2))
+            self.screen.blit(text, text_rect)
+            preview_img = pygame.transform.scale(self.char_previews[button["text"]], (120, 120))
+            self.screen.blit(preview_img, button["preview_pos"])
+
+
+        for button in self.map_buttons:
+            is_hovered = pygame.Rect(button["pos"], button["size"]).collidepoint(mouse_pos)
+            color = (0, 255, 0) if button["text"] == self.selected_map else (255,165,0) if is_hovered else (100, 100, 100)
+            pygame.draw.rect(self.screen, color, (*button["pos"], *button["size"]), border_radius=10)
+            self.screen.blit(button["preview_image"], button["pos"])
+            text = self.font.render(button["text"], True, (255, 255, 255))
+            text_rect = text.get_rect(center=(button["pos"][0] + button["size"][0] // 2, button["pos"][1] + button["size"][1] + 20))
+            self.screen.blit(text, text_rect)
+        confirm_enabled = len(self.selected_characters) == 2 and self.selected_map is not None
+        confirm_color = (0, 200, 0) if confirm_enabled else (50, 50, 50)
+        confirm_hovered = pygame.Rect(self.confirm_button["pos"], self.confirm_button["size"]).collidepoint(mouse_pos)
+        
+        if confirm_enabled and confirm_hovered:
+            confirm_color = (0, 255, 0)
+
+        pygame.draw.rect(self.screen, confirm_color, (*self.confirm_button["pos"], *self.confirm_button["size"]), border_radius=10)
+        confirm_text = self.font.render(self.confirm_button["text"], True, (255, 255, 255))
+        confirm_text_rect = confirm_text.get_rect(center=(self.confirm_button["pos"][0] + self.confirm_button["size"][0] // 2, self.confirm_button["pos"][1] + self.confirm_button["size"][1] // 2))
+        self.screen.blit(confirm_text, confirm_text_rect)
+
+        exit_hovered = pygame.Rect(self.exit_button["pos"], self.exit_button["size"]).collidepoint(mouse_pos)
+        exit_color = (150, 150, 150) if exit_hovered else (100, 100, 100)
+        pygame.draw.rect(self.screen, exit_color, (*self.exit_button["pos"], *self.exit_button["size"]), border_radius=10)
+        exit_text = self.font.render(self.exit_button["text"], True, (255, 255, 255))
+        exit_text_rect = exit_text.get_rect(center=(self.exit_button["pos"][0] + self.exit_button["size"][0] // 2, self.exit_button["pos"][1] + self.exit_button["size"][1] // 2))
+        self.screen.blit(exit_text, exit_text_rect)
+        selected_info_text = "Selected: "
+        if self.selected_characters:
+            selected_info_text += f"Players: {', '.join(self.selected_characters)}"
+        if self.selected_map:
+            selected_info_text += f", Map: {self.selected_map}"
+
+        selected_text_surface = self.font.render(selected_info_text, True, (255, 255, 255))
+        selected_rect = selected_text_surface.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() - 150))
+        self.screen.blit(selected_text_surface, selected_rect)
+    def run(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return "exit", None, None
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = event.pos
+                    
+                    for button in self.char_buttons:
+                        button_rect = pygame.Rect(button["pos"], button["size"])
+                        if button_rect.collidepoint(mouse_pos):
+                            self.sounds["click"].play()
+                            if button["text"] in self.selected_characters:
+                                self.selected_characters.remove(button["text"]) 
+                            elif len(self.selected_characters) < 2:
+                                self.selected_characters.append(button["text"]) 
+                            print(f"Selected characters: {self.selected_characters}")
+                    
+                    for button in self.map_buttons:
+                        button_rect = pygame.Rect(button["pos"], button["size"])
+                        if button_rect.collidepoint(mouse_pos):
+                            self.selected_map = button["text"]
+                            print(f"Selected map: {self.selected_map}")
+                            self.sounds["click"].play()
+                    
+                    
+                    confirm_rect = pygame.Rect(self.confirm_button["pos"], self.confirm_button["size"])
+                    if confirm_rect.collidepoint(mouse_pos) and len(self.selected_characters) == 2 and self.selected_map is not None:
+                        print(f"Confirmed: {self.selected_characters[0]}, {self.selected_characters[1]}, {self.selected_map}")
+                        self.sounds["confirm"].play()
+                        return self.selected_characters, self.selected_map, "multi" 
+                    
+                    
+                    exit_rect = pygame.Rect(self.exit_button["pos"], self.exit_button["size"])
+                    if exit_rect.collidepoint(mouse_pos):
+                        self.sounds["exit"].play()
+                        return "exit", None, None 
             self.draw()
             pygame.display.flip()
