@@ -9,6 +9,7 @@ from src.engine.camera import Camera
 from src.engine.input_handler import InputHandler
 from src.engine.Ninja import Ninja
 from src.engine.Roboman import Roboman
+from src.engine.menu import PauseMenu
 from src.engine.power_ups import Power_up
 from src.levels import multiplayer_data, load_level_data, build_enemies, build_objects, apply_targets_to_enemies
 
