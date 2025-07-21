@@ -1,9 +1,15 @@
 from src.engine.platform import Platform
-
+from src.engine.terrorist import Terrorist 
+from src.engine.gunman import Gunman
+from src.engine.Drone import Drone
+from src.engine.flyingdemon import FlyingDemon
+from src.engine.Dragon_Lord import Dragon_Lord
+from src.engine.bomb import Bomb
+from src.engine.defuse_kit import DefuseKit
+from src.engine.teleportgate import Gates
+from src.engine.pumpkin import Pumpkin
+from src.engine.heatlh_box import PowerBox
 TILE_SIZE = 64
-
-
-
 
 
 level_1_data = {
@@ -881,14 +887,26 @@ Boss_fight_level={
 ]
     }
 }
-levels = {
+levels_data_map= {
     'level_1': level_1_data,
     'level_2': level_2_data,
     'level_3': level_3_data,
-    'level_4': level_4_data
+    'level_4': level_4_data,
+    'multiplayer_arena': multiplayer_data,
+    'boss_fight': Boss_fight_level, 
 }
-def _add_tiled_platform(platform_list, info, images, *, moving=False):
+def get_level_data(map_name):
+    return levels_data_map.get(map_name, level_1_data)
 
+def get_start_position(map_name, player_index=1):
+    level_data = get_level_data(map_name)
+    if player_index == 1 and 'player_start' in level_data:
+        return level_data['player_start']
+    elif player_index == 2 and 'player2_start' in level_data:
+        return level_data['player2_start']
+    return {'x': 58 * TILE_SIZE, 'y': 400}
+
+def _add_tiled_platform(platform_list, info, images, *, moving=False):
     x_start, y = info['x'], info['y']
     tile_count = info.get('tiles', 1)
 
@@ -921,7 +939,8 @@ def _add_tiled_platform(platform_list, info, images, *, moving=False):
         Platform(x_last, y, images['right'], **extra_kwargs)
     )
 
-def load_level_data(level_data, platform_images):
+def load_platforms(map_name, platform_images):
+    level_data = get_level_data(map_name)
     platforms = []
     platform_definitions = level_data['platforms']
 
@@ -942,13 +961,8 @@ def load_level_data(level_data, platform_images):
 
     return platforms
 
-def build_enemies(level_data, screen, scroll, platforms):
-    from src.engine.terrorist import Terrorist
-    from src.engine.gunman import Gunman
-    from src.engine.Drone import Drone
-    from src.engine.flyingdemon import FlyingDemon
-    from src.engine.Dragon_Lord import Dragon_Lord
-
+def load_enemies(map_name, screen, scroll, platforms): 
+    level_data = get_level_data(map_name) 
     terrorists, gunmans, drones, flyingdemons = [], [], [], []
     dragonlord = None
 
@@ -973,26 +987,8 @@ def build_enemies(level_data, screen, scroll, platforms):
         'flyingdemons': flyingdemons,
         'dragonlord': dragonlord
     }
-
-def apply_targets_to_enemies(enemies, targets):
-    for e in enemies['terrorists']:
-        e.targets = targets
-    for g in enemies['gunmans']:
-        g.targets = targets
-    for d in enemies['drones']:
-        d.targets = targets
-    for f in enemies['flyingdemons']:
-        f.target = targets[0] if targets else None  # یا یه منطق بهتر
-    if enemies['dragonlord']:
-        enemies['dragonlord'].target = targets[0]
-
-def build_objects(level_data, targets):
-    from src.engine.bomb import Bomb
-    from src.engine.defuse_kit import DefuseKit
-    from src.engine.teleportgate import Gates
-    from src.engine.pumpkin import Pumpkin
-    from src.engine.heatlh_box import PowerBox
-
+def load_objects(map_name, targets): 
+    level_data = get_level_data(map_name)
     objects = {
         'bomb': None,
         'defuse_kit': None,
@@ -1014,5 +1010,33 @@ def build_objects(level_data, targets):
             objects['misc'].append(PowerBox(obj['x'], obj['y'], targets))
 
     return objects
+def load_gates(map_name, targets_for_gates=None): 
+    level_data = get_level_data(map_name)
+    gates_list = []
+    for obj in level_data.get('objects', []):
+        if obj['type'] == 'teleportgate':
+            target_char = targets_for_gates[0] if targets_for_gates else None
+            gates_list.append(Gates(obj['x1'], obj['y1'], obj['x2'], obj['y2'], target_char))
+    return gates_list
+
+def apply_targets_to_enemies(enemies, targets):
+    for e in enemies['terrorists']:
+        e.targets = targets
+    for g in enemies['gunmans']:
+        g.targets = targets
+    for d in enemies['drones']:
+        d.targets = targets
+    for f in enemies['flyingdemons']:
+        f.target = targets[0] if targets else None  # یا یه منطق بهتر
+    if enemies['dragonlord']:
+        enemies['dragonlord'].target = targets[0]
+
+levels = {
+    'level_1': level_1_data,
+    'level_2': level_2_data,
+    'level_3': level_3_data,
+    'level_4': level_4_data
+}
+
 
         

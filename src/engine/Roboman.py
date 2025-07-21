@@ -8,12 +8,12 @@ from src.engine.bullet import Bullet
 # bug : وقتی تیر انداز تیرش به تروریست بخوره روبات میمیره
 class Roboman:
 
-    def __init__(self, x, y, screen_width, screen_height, sounds=None, trigger_shutter_callback=None, hero_creation_index=1):
+    def __init__(self, x, y, roboman_health_bar_frame, roboman_health_bar, hero_profile_picture, screen_width, screen_height, sounds=None, trigger_shutter_callback=None, hero_creation_index=1):
         self.x_pos = x
         self.y_pos = y
-        self.hero_profile_picture = pygame.image.load("src/assets/images/RoboMan_pictures/hero_profile.png")
-        self.roboman_health_bar_frame = pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar_frame.png")
-        self.roboman_health_bar = pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar.png")
+        self.hero_profile_picture = hero_profile_picture 
+        self.roboman_health_bar_frame =roboman_health_bar_frame 
+        self.roboman_health_bar = roboman_health_bar
         self.on_platform = False
         self.current_platform = None
         self.status="idle"
@@ -25,13 +25,20 @@ class Roboman:
         self.is_first_time=True
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))
         self.has_defuse_kit=False
-
+        self.sounds = sounds
+        if sounds:
+            self.hurt_sound = sounds.get("roboman_hurt", pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))) 
+            self.shot_hit_enemy_sound = sounds.get("enemy_hit", pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_enemy.wav")))
+            self.shot_hit_platform_sound = sounds.get("explosion", pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_platoform.mp3")))
+            self.jump_sound = sounds.get("jump", pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "robot jump.MP3")))
+            self.shoot_sound = sounds.get("shoot", pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shoot.wav")))
+            self.jetpack_sound = sounds.get("jetpack", pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "jetpack.wav")))
 
         self.super_power_duration = 15000
         self.super_power_cooldown = 10000
         self.super_power_active=False
 
-        self.hero_creation_index = hero_creation_index  # اضافه شد
+        self.hero_creation_index = hero_creation_index 
         self.shot_hit_enemy_sound = pygame.mixer.Sound(
             os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_enemy.wav")
 )
@@ -227,14 +234,6 @@ class Roboman:
         self.guard_drone = []
         self.drone_duration = 20000
 
-
-
-        self.SUPER_POWER_FLAG=False
-        self.GUARD_DRONE_FLAG=False
-        self.DOUBLE_JUMP_FLAG=False
-        
-        
-        
     def hurt(self):
         self.hurt_sound.play()
         
@@ -293,7 +292,7 @@ class Roboman:
             bar_x, bar_y = profileSideSize, 0
             health_x, health_y = profileSideSize + roboman_health_bar_frame_thickness, roboman_health_bar_frame_thickness
             profile_x, profile_y = 0, 0
-        elif self.hero_creation_index == 2:  # Top right
+        elif self.hero_creation_index in [2,4]:  # Top right
             if self.is_first_time:
                 self.hero_profile_picture = pygame.transform.flip(self.hero_profile_picture, True, False)
                 self.is_first_time = False
@@ -310,10 +309,10 @@ class Roboman:
             health_y = bar_y + roboman_health_bar_frame_thickness
             profile_x = 0
             profile_y = self.screen_height - profileSideSize
-        elif self.hero_creation_index == 4:  # Bottom right
-            if self.is_first_time:
-                self.hero_profile_picture = pygame.transform.flip(self.hero_profile_picture, True, False)
-                self.is_first_time = False
+        # elif self.hero_creation_index == 4:  # Bottom right
+        #     if self.is_first_time:
+        #         self.hero_profile_picture = pygame.transform.flip(self.hero_profile_picture, True, False)
+        #         self.is_first_time = False
            # self.hero_profile_picture = pygame.transform.flip(self.hero_profile_picture, True, False)
             bar_x = self.screen_width - health_bar_lenght - (2 * roboman_health_bar_frame_thickness) - profileSideSize
             bar_y = self.screen_height - profileSideSize
@@ -520,7 +519,7 @@ class Roboman:
         if current_time - self.last_rocket_shot < self.rocket_reload_duration:
             return  # rocket still cooling down
 
-        if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active and self.SUPER_POWER_FLAG:
+        if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active:
             if self.shoot_sound:
                 self.shoot_sound.play()
 
@@ -593,7 +592,7 @@ class Roboman:
         self.vertical_speed = 0
         self.health = self.max_health
 
-    def update_bullets(self,screen, shot_bullets,platforms,targets):
+    def update_bullets(self, shot_bullets,platforms,targets):
         for bullet in self.bullets:
             if bullet not in shot_bullets:
                 self.bullets.remove(bullet)
@@ -648,7 +647,7 @@ class Roboman:
             
     def activate_jetpack(self):
         current_time = pygame.time.get_ticks()
-        if not self.on_ground and not self.jetpack_active and (current_time - self.last_jetpack_use_time >= self.jetpack_reload_duration) and self.DOUBLE_JUMP_FLAG:
+        if not self.on_ground and not self.jetpack_active and (current_time - self.last_jetpack_use_time >= self.jetpack_reload_duration):
             if self.jetpack_sound:
                 self.jetpack_sound.play()
             self.jetpack_active = True
@@ -768,7 +767,7 @@ class Roboman:
             
     def call_drone(self):
         current_time=pygame.time.get_ticks()
-        if current_time - self.last_guard_call >= self.guard_drone_reload_duration and self.GUARD_DRONE_FLAG:
+        if current_time - self.last_guard_call >= self.guard_drone_reload_duration:
             self.guard_drone.append(Guard_Drone(self,"Roboman"))
             self.last_guard_call=current_time
     def update_drone(self):
@@ -790,7 +789,7 @@ class Roboman:
         self.platforms_collisions(platforms)
         self.move_with_platform()
         self.jump_under_platform(platforms)
-        self.update_animation()
+        self.update_animation(shot_bullets)
         self.update_bullets(shot_bullets,platforms,targets)
         self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter=None)
         self.update_drone()
