@@ -88,6 +88,8 @@ class Archer:
         self.hurt_sound.play()
 
     def display(self, screen, offset, shot_bullets):
+        if self.health<0:
+            self.health=0
         self.health_bar = pygame.transform.scale(
             self.health_bar, 
             (int(health_bar_lenght * (self.health / self.max_health)), profileSideSize - (2 * roboman_health_bar_frame_thickness))
@@ -256,7 +258,7 @@ class Archer:
         if self.super_power_active and current_time - self.super_power_last_activation > self.super_power_duration:
             self.super_power_active = False
 
-    def handle_input(self, keys):
+    def handle_input(self, keys,gates):
         if self.freezed:
             return
         self.is_moving_horizontally = False
@@ -287,6 +289,9 @@ class Archer:
 
         if keys[pygame.K_l]:
             self.activate_super_power()
+            
+        if keys[pygame.K_y]:
+            self.Send_teleport_request(gates)
 
         if not self.is_moving_horizontally:
             self.stop_horizontal_movement()
@@ -391,23 +396,33 @@ class Archer:
         landed = False
 
         for platform in platforms:
-            if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
-                if (self.y_pos + self.height >= platform.y_pos) and \
-                   (self.y_pos + self.height < platform.y_pos + platform.height + 10) and self.vertical_speed <= 0:
-                    self.on_ground = True
-                    self.vertical_speed = 0
-                    self.y_pos = platform.y_pos - self.height
-                    self.current_platform = platform
-                    landed = True
+         if self.x_pos + self.width > platform.x_pos+15 and self.x_pos+15 < platform.x_pos + platform.width:
+             # Landing on top of platform
+             if ((self.y_pos + self.height) >= platform.y_pos) and \
+                ((self.y_pos + self.height) < (platform.y_pos + platform.height) + 10) and \
+                self.vertical_speed <= 0:  # Only land if moving downward
+                
+                 self.on_ground = True
+                 self.vertical_speed = 0
+                 self.y_pos = platform.y_pos - self.height
+                 self.current_platform = platform
+                 landed = True
+         if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
 
-                elif (self.y_pos + self.height > platform.y_pos) and (self.y_pos < platform.y_pos + platform.height):
-                    if abs(self.x_pos - (platform.x_pos + platform.width)) <= 10:
-                        self.allow_move_left = False
-                        self.x_pos = platform.x_pos + platform.width
-                    elif abs(self.x_pos + self.width - platform.x_pos) <= 10:
-                        self.allow_move_right = False
-                        self.x_pos = platform.x_pos - self.width
-
+            # Side collisions (left/right of platform)
+             if ((self.y_pos + self.height) > platform.y_pos) and \
+                  (self.y_pos < platform.y_pos + platform.height):
+                
+                # Left side collision
+                 if abs(self.x_pos - (platform.x_pos + platform.width)) <= 15:
+                     self.allow_move_left = False
+                     self.x_pos = platform.x_pos + platform.width
+                
+                # Right side collision
+                 elif abs(self.x_pos + self.width - platform.x_pos) <= 15:
+                     self.allow_move_right = False
+                     self.x_pos = platform.x_pos - self.width
+    
         if landed:
             self.on_ground = True
             self.jump_count = 0
@@ -454,6 +469,11 @@ class Archer:
         self.update_bullets(screen, shot_bullets, platforms, targets, trigger_shutter or [0, 0])
         self.handle_input(keys)
         self.update_drone()
+        
+        
+    def Send_teleport_request(self,Gates):
+        for Gate in Gates:
+            Gate.recieve_request(self)
                 
     
 

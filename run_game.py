@@ -6,6 +6,7 @@ from config import screen_width, screen_height, explode_side_size, enenmy_health
 from src.engine.game import Game
 from src.engine.menu import Menu, GameModeMenu, MapCharacterMenu
 from src.levels import levels
+from src.engine.multiplayer_game import Game_2
 from src.engine.Roboman import Roboman
 from src.engine.Ninja import Ninja
 from src.engine.NinjaGirl import NinjaGirl
@@ -124,6 +125,12 @@ while True:
                 game_sounds, ninja_health_bar_frame, ninja_health_bar,
                 archer_health_bar_frame, archer_health_bar,
                 main_character=main_character  # اضافه کردن کاراکتر به Game
+            )
+            game = Game_2(
+              screen,  
+              platform_images,
+              background, explode_picture, 
+              game_sounds,
             )
             result = game.run()
             if result == "menu":

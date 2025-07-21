@@ -30,11 +30,14 @@ class Terrorist:
         self.explosion_pos = 0
         self.damage_radiuos = 200
         self.targets = targets
-        self.target = self.targets[0]
+        if self.targets:
+            self.target = self.targets[0]
         self.target_status = 'free'
         self.status = 'alive'
         self.animation_status = 'walk'
         self.frame_index = 0
+        self.health_bar_width=100
+        self.health_bar=pygame.image.load("src/assets/images/terrorist/health_bar.png")
 
         self.explotion_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "terrorist", "terror exp.mp3"))
 
@@ -90,7 +93,17 @@ class Terrorist:
         self.last_frame_update_time = pygame.time.get_ticks()
         self.is_moving_horizontally = False
 
+    def display_health_bar(self,screen,offset):
+        if self.health<0:
+            self.health=0
+        self.health_bar=pygame.transform.scale(self.health_bar, (self.health_bar_width*(self.health/self.max_health) , 5))
+        screen.blit(self.health_bar,(self.x_pos+(self.width/2)-(self.health_bar_width/2)   - offset[0] ,self.y_pos-20   - offset[1]))
+
+
+
+
     def display(self, screen, offset):
+        self.display_health_bar(screen,offset)
         if self.status == 'exploded' and self.exploding:
             frame = self.EXP_frames[self.current_frame_index]
             x = self.explosion_pos[0] - frame.get_width() // 2 - offset[0]
@@ -254,7 +267,6 @@ class Terrorist:
             if dx < self.damage_radiuos and dy < self.damage_radiuos:
                 target.health -= 30
                 target.hurt()
-                print(f"{target} damaged. New health: {target.health}")
 
     def start_explosion(self):
         self.exploding = True
@@ -266,7 +278,6 @@ class Terrorist:
             dy = abs(self.y_pos - target.y_pos)
             if dx < self.damage_radiuos and dy < self.damage_radiuos:
                 target.health -= 30
-                print(f"{target} damaged. New health: {target.health}")
 
     def update_animation(self):
         current_time = pygame.time.get_ticks()
@@ -299,7 +310,6 @@ class Terrorist:
 
 
     def update_taregts(self):
-        print(self.health)
         if self.target_status == 'locked':
             return
         dist = [math.sqrt((self.x_pos - t.x_pos)**2 + (self.y_pos - t.y_pos)**2) for t in self.targets]

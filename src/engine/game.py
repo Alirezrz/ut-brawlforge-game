@@ -3,7 +3,6 @@ import random
 import os
 from config import screen_width, screen_height, platform_height, FPS
 from src.engine.bullet import Bullet
-from src.engine.enemy import Enemy
 from src.engine.platform import Platform
 from src.engine.explosion import Explosion
 from src.engine.camera import Camera
@@ -44,7 +43,6 @@ class Game:
 
         self.platforms = load_level_data(level_1_data, platform_image)
         self.screen_color = (60, 100, 150)
-
         self.scroll = [0, 0]
         self.terrorists = [
             Terrorist(player_start_pos['x'] - 500, player_start_pos['y'], screen_width, screen_height, [self.main_character], self.platforms, self.main_character, self.screen, self.scroll)
@@ -59,7 +57,6 @@ class Game:
         self.shot_bullets = []
         self.explosions = []
         self.bullet_class = Bullet
-
         self.game_active = True
 
         self.gates = [
@@ -188,11 +185,6 @@ class Game:
             self.camera.render()
             pygame.display.update()
             self.clock.tick(FPS)
-
-    def trigger_jetpack_shutter(self, strength=5, duration=150):
-        self.shutter_strength = strength
-        self.shutter_duration = duration
-        self.shutter_start_time = pygame.time.get_ticks()
 
     def trigger_shutter(self, strength=5, duration=100):
         self.shutter_strength = strength

@@ -84,6 +84,147 @@ level_1_data = {
 ]
     }
 }
+multiplayer_data = {
+    'player_start': {'x': 58*64, 'y':400},
+    'player2_start': {'x': 54*64, 'y':400},
+
+    'enemies': [
+       
+    ],
+
+    'objects': [
+
+        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 58 * TILE_SIZE + 1400, 'y2': 43},
+        {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
+        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465}
+    ],
+    'platforms': {
+        'standard': [
+            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
+            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
+            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
+            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
+            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
+            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
+            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
+            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
+            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
+            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
+            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
+            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
+            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
+
+
+
+
+
+
+
+
+
+        ],
+        'solid': [
+            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
+
+            
+            {'x': -25 * TILE_SIZE, 'y': 2* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 3* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 4* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 5* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 6* TILE_SIZE, 'repeat': 20},
+
+
+
+        ],
+        'moving': [
+            {'x': 55 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},            
+            {'x': 13 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},
+]
+    }
+}
+
+
+Boss_fight_level={
+    'player_start': {'x': 58*64, 'y':400},
+    'enemies': [
+        
+    ],
+
+    'objects': [
+        
+    ],
+    'platforms': {
+        'standard': [
+            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
+            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
+            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
+            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
+            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
+            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
+            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
+            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
+            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
+            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
+            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
+            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
+            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
+
+
+
+
+
+
+
+
+
+        ],
+        'solid': [
+            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
+
+            
+            
+
+
+
+        
+]
+    }
+}
+
 level_2_data = {
     'player_start': {'x': 58*64, 'y':400},
     'enemies': [
@@ -162,6 +303,147 @@ level_2_data = {
 ]
     }
 }
+multiplayer_data = {
+    'player_start': {'x': 58*64, 'y':400},
+    'player2_start': {'x': 54*64, 'y':400},
+
+    'enemies': [
+       
+    ],
+
+    'objects': [
+
+        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 58 * TILE_SIZE + 1400, 'y2': 43},
+        {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
+        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465}
+    ],
+    'platforms': {
+        'standard': [
+            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
+            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
+            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
+            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
+            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
+            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
+            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
+            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
+            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
+            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
+            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
+            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
+            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
+
+
+
+
+
+
+
+
+
+        ],
+        'solid': [
+            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
+
+            
+            {'x': -25 * TILE_SIZE, 'y': 2* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 3* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 4* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 5* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 6* TILE_SIZE, 'repeat': 20},
+
+
+
+        ],
+        'moving': [
+            {'x': 55 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},            
+            {'x': 13 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},
+]
+    }
+}
+
+
+Boss_fight_level={
+    'player_start': {'x': 58*64, 'y':400},
+    'enemies': [
+        
+    ],
+
+    'objects': [
+        
+    ],
+    'platforms': {
+        'standard': [
+            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
+            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
+            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
+            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
+            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
+            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
+            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
+            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
+            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
+            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
+            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
+            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
+            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
+
+
+
+
+
+
+
+
+
+        ],
+        'solid': [
+            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
+
+            
+            
+
+
+
+        
+]
+    }
+}
+
 level_3_data = {
     'player_start': {'x': 58*64, 'y':400},
     'enemies': [
@@ -240,6 +522,147 @@ level_3_data = {
 ]
     }
 }
+multiplayer_data = {
+    'player_start': {'x': 58*64, 'y':400},
+    'player2_start': {'x': 54*64, 'y':400},
+
+    'enemies': [
+       
+    ],
+
+    'objects': [
+
+        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 58 * TILE_SIZE + 1400, 'y2': 43},
+        {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
+        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465}
+    ],
+    'platforms': {
+        'standard': [
+            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
+            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
+            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
+            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
+            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
+            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
+            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
+            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
+            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
+            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
+            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
+            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
+            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
+
+
+
+
+
+
+
+
+
+        ],
+        'solid': [
+            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
+
+            
+            {'x': -25 * TILE_SIZE, 'y': 2* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 3* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 4* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 5* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 6* TILE_SIZE, 'repeat': 20},
+
+
+
+        ],
+        'moving': [
+            {'x': 55 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},            
+            {'x': 13 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},
+]
+    }
+}
+
+
+Boss_fight_level={
+    'player_start': {'x': 58*64, 'y':400},
+    'enemies': [
+        
+    ],
+
+    'objects': [
+        
+    ],
+    'platforms': {
+        'standard': [
+            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
+            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
+            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
+            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
+            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
+            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
+            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
+            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
+            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
+            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
+            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
+            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
+            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
+
+
+
+
+
+
+
+
+
+        ],
+        'solid': [
+            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
+
+            
+            
+
+
+
+        
+]
+    }
+}
+
 level_4_data = {
     'player_start': {'x': 58*64, 'y':400},
     'enemies': [
@@ -315,6 +738,146 @@ level_4_data = {
         'moving': [
             {'x': 55 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},            
             {'x': 13 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},
+]
+    }
+}
+multiplayer_data = {
+    'player_start': {'x': 58*64, 'y':400},
+    'player2_start': {'x': 54*64, 'y':400},
+
+    'enemies': [
+       
+    ],
+
+    'objects': [
+
+        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 58 * TILE_SIZE + 1400, 'y2': 43},
+        {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
+        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465}
+    ],
+    'platforms': {
+        'standard': [
+            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
+            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
+            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
+            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
+            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
+            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
+            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
+            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
+            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
+            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
+            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
+            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
+            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
+
+
+
+
+
+
+
+
+
+        ],
+        'solid': [
+            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
+
+            
+            {'x': -25 * TILE_SIZE, 'y': 2* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 3* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 4* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 5* TILE_SIZE, 'repeat': 20},
+            {'x': -25 * TILE_SIZE, 'y': 6* TILE_SIZE, 'repeat': 20},
+
+
+
+        ],
+        'moving': [
+            {'x': 55 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},            
+            {'x': 13 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},
+]
+    }
+}
+
+
+Boss_fight_level={
+    'player_start': {'x': 58*64, 'y':400},
+    'enemies': [
+        
+    ],
+
+    'objects': [
+        
+    ],
+    'platforms': {
+        'standard': [
+            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
+            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
+            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
+            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
+            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
+            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
+            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
+            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
+            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
+            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
+            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
+            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
+            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
+
+
+
+
+
+
+
+
+
+        ],
+        'solid': [
+            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
+
+            
+            
+
+
+
+        
 ]
     }
 }

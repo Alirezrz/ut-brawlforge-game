@@ -26,11 +26,18 @@ class FlyingDemon:
             for i, w in enumerate([103,111,111,109,102])
         ]
 
+
+
         self.x_pos = x
         self.y_pos = y
+        self.width=self.idle_frames[0].get_width()
         self.target = target
         self.Look = look
         self.health=100
+        self.max_health=100
+        self.health_bar_width=100
+        self.health_bar=pygame.image.load("src/assets/images/flyingdemon/health_bar.png")
+
         self.status = 'idle'
         self.current_frame = self.idle_frames[0]
         self.frame_index = 0
@@ -97,7 +104,15 @@ class FlyingDemon:
             if self.status=='dying' and self.frame_index==4:
                 self.ALIVE=False
 
+    def display_health_bar(self,screen,offset):
+        if self.health<0:
+            self.health=0
+        self.health_bar=pygame.transform.scale(self.health_bar, (self.health_bar_width*(self.health/self.max_health) , 5))
+        screen.blit(self.health_bar,(self.x_pos+(self.width/2)-(self.health_bar_width/2)   - offset[0] ,self.y_pos-20   - offset[1]))
+
+
     def display(self, screen, offset):
+        self.display_health_bar(screen,offset)
         img = self.current_frame
         if self.Look == 'right':
             img = pygame.transform.flip(img, True, False)
@@ -107,6 +122,7 @@ class FlyingDemon:
             fire.display(screen,offset)
             if fire.hitbox.colliderect(self.target.hitbox):
                 self.target.health-=40
+                print('here')
                 self.target.hurt()
                 if fire.Look=='right':
                     self.explosions.append(Explosion(fire.x_pos-100,fire.y_pos-100))

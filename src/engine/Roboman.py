@@ -8,12 +8,12 @@ from src.engine.bullet import Bullet
 # bug : وقتی تیر انداز تیرش به تروریست بخوره روبات میمیره
 class Roboman:
 
-    def __init__(self, x, y,  roboman_health_bar_frame,roboman_health_bar, hero_profile_picture, screen_width, screen_height, sounds=None, trigger_shutter_callback=None, hero_creation_index=1):
+    def __init__(self, x, y, screen_width, screen_height, sounds=None, trigger_shutter_callback=None, hero_creation_index=1):
         self.x_pos = x
         self.y_pos = y
-        self.hero_profile_picture = hero_profile_picture
-        self.roboman_health_bar_frame = roboman_health_bar_frame
-        self.roboman_health_bar = roboman_health_bar
+        self.hero_profile_picture = pygame.image.load("src/assets/images/RoboMan_pictures/hero_profile.png")
+        self.roboman_health_bar_frame = pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar_frame.png")
+        self.roboman_health_bar = pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar.png")
         self.on_platform = False
         self.current_platform = None
         self.status="idle"
@@ -38,9 +38,12 @@ class Roboman:
         self.shot_hit_platform_sound = pygame.mixer.Sound(
             os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_platoform.mp3")
 )
-        self.jump_sound = sounds.get('jump') if sounds else None
-        self.shoot_sound = sounds.get('shoot') if sounds else None
-        self.jetpack_sound = sounds.get('jetpack') if sounds else None
+        self.jump_sound = pygame.mixer.Sound(
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "robot jump.MP3"))
+        self.shoot_sound = pygame.mixer.Sound(
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shoot.wav"))
+        self.jetpack_sound = pygame.mixer.Sound(
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "jetpack.wav"))
           
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "RoboMan_pictures")
         self.freezed_img=pygame.transform.scale(pygame.image.load(os.path.join(base_path,"freezed.png")),(69,118))
@@ -228,6 +231,8 @@ class Roboman:
         self.hurt_sound.play()
         
     def display(self, screen, offset, shot_bullets):
+        if self.health<0:
+            self.health=0
         
         health_percentage = self.health / self.max_health
         health_bar_width = int(health_bar_lenght * health_percentage)
@@ -317,7 +322,7 @@ class Roboman:
         screen.blit(scaled_health_frame, (bar_x, bar_y))
         screen.blit(scaled_health_bar, (health_x, health_y))
         screen.blit(pygame.transform.scale(self.hero_profile_picture, (profileSideSize, profileSideSize)), (profile_x, profile_y))
-    def update_animation(self):
+    def update_animation(self,shot_bullets):
         if self.freezed:
             self.current_picture=self.freezed_img
             return
@@ -580,7 +585,7 @@ class Roboman:
         self.vertical_speed = 0
         self.health = self.max_health
 
-    def update_bullets(self, shot_bullets,platforms,targets):
+    def update_bullets(self,screen, shot_bullets,platforms,targets):
         for bullet in self.bullets:
             if bullet not in shot_bullets:
                 self.bullets.remove(bullet)
@@ -679,26 +684,33 @@ class Roboman:
     
         for platform in platforms:
         # Landing detection
-            if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
-                if ((self.y_pos + self.height) >= platform.y_pos) and ((self.y_pos + self.height) < (platform.y_pos + platform.height) + 10):
-                    if self.vertical_speed <= 0:  # Only land if falling
-                        self.on_ground = True
-                        self.vertical_speed = 0
-                        self.y_pos = platform.y_pos - self.height
-                        self.current_platform = platform
-        
-        # Side collision detection
-            if self.x_pos + self.width >= platform.x_pos and self.x_pos <= platform.x_pos + platform.width:
-                if ((self.y_pos + self.height) > platform.y_pos) and (self.y_pos < platform.y_pos + platform.height):
-                # Left collision
-                    if abs(self.x_pos - (platform.x_pos + platform.width)) <= 10:
-                        self.allow_move_left = False
-                        self.x_pos = platform.x_pos + platform.width
-                # Right collision
-                    if abs(self.x_pos + self.width - platform.x_pos) <= 10:
-                        self.allow_move_right = False
-                        self.x_pos = platform.x_pos - self.width
+         if self.x_pos + self.width > platform.x_pos+15 and self.x_pos+15 < platform.x_pos + platform.width:
+             # Landing on top of platform
+             if ((self.y_pos + self.height) >= platform.y_pos) and \
+                ((self.y_pos + self.height) < (platform.y_pos + platform.height) + 10) and \
+                self.vertical_speed <= 0:  # Only land if moving downward
+                
+                 self.on_ground = True
+                 self.vertical_speed = 0
+                 self.y_pos = platform.y_pos - self.height
+                 self.current_platform = platform
+                 landed = True
+         if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
 
+            # Side collisions (left/right of platform)
+             if ((self.y_pos + self.height) > platform.y_pos) and \
+                  (self.y_pos < platform.y_pos + platform.height):
+                
+                # Left side collision
+                 if abs(self.x_pos - (platform.x_pos + platform.width)) <= 15:
+                     self.allow_move_left = False
+                     self.x_pos = platform.x_pos + platform.width
+                
+                # Right side collision
+                 elif abs(self.x_pos + self.width - platform.x_pos) <= 15:
+                     self.allow_move_right = False
+                     self.x_pos = platform.x_pos - self.width
+    
     def jump_under_platform(self, platforms):
         if self.vertical_speed > 0:
             for platform in platforms:
@@ -716,7 +728,7 @@ class Roboman:
         
         
         
-    def handle_input(self, keys, gate, shot_bullets, bullet_class,trigger_shutter=None):
+    def handle_input(self, keys, gate, shot_bullets, bullet_class,trigger_shutter):
         self.is_moving_horizontally = False
         if self.freezed:
             return

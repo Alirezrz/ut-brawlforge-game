@@ -20,10 +20,16 @@ class Drone:
         self.speed=2
         self.look=look
         self.targets=targets
-        self.target=targets[0]
+        if self.targets:
+            self.target=targets[0]
         self.reload_duration=7000
         self.last_shot=0
         self.aimed=False
+        self.max_health=100
+
+        self.health_bar_width=100
+        self.health_bar=pygame.image.load("src/assets/images/Drone/health_bar.png")
+
 
         self.shoot_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "freeze drone", "freeze drone shoot.mp3"))     
         self.shot_hit_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "freeze drone", "freezed.mp3"))     
@@ -98,7 +104,8 @@ class Drone:
                 
             )
             
-            
+        self.width=self.Idle_frames[0].get_width()
+    
         self.display_pic=self.Idle_frames[0] 
         self.animation_speed  = 15 
         self.Last_animationUpdate=0
@@ -113,9 +120,17 @@ class Drone:
             
             
     def hurt(self):
-        self.hurt_sound.play()            
+        self.hurt_sound.play()      
+
+    def display_health_bar(self,screen,offset):
+        if self.health<0:
+            self.health=0
+        self.health_bar=pygame.transform.scale(self.health_bar, (self.health_bar_width*(self.health/self.max_health) , 5))
+        screen.blit(self.health_bar,(self.x_pos+(self.width/2)-(self.health_bar_width/2)   - offset[0] ,self.y_pos-20   - offset[1]))
+      
             
     def display(self, screen, offset):
+        self.display_health_bar(screen,offset)
         screen_width, screen_height = screen.get_size()
         screen_x = self.x_pos - offset[0]
         screen_y = self.y_pos - offset[1]
