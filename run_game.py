@@ -38,13 +38,9 @@ try:
     }
     platform_tileset_picture = pygame.image.load("src/assets/images/platform.jpg")
     explode_picture = pygame.image.load("src/assets/images/explode.png")
-    ninja_health_bar_frame = pygame.image.load("src/assets/images/Ninja/Ninja_health_bar_frame.png")
-    ninja_health_bar = pygame.image.load("src/assets/images/Ninja/ninja_health_bar.png")
     explode_picture = pygame.transform.scale(explode_picture, (explode_side_size, explode_side_size))
-    health_bar_green= pygame.image.load("src/assets/images/green_image.jpg")
-    health_bar_green= pygame.transform.scale(health_bar_green, (enenmy_health_bar_width,enenmy_health_bar_height))
-    health_bar_red=pygame.image.load("src/assets/images/red_image.jpg")
-    health_bar_red=pygame.transform.scale(health_bar_red, (enenmy_health_bar_width, enenmy_health_bar_height))
+   
+   
     roboman_health_bar_frame=pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar_frame.png")
     roboman_health_bar=pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar.png")
 
