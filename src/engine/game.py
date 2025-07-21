@@ -10,6 +10,7 @@ from src.engine.input_handler import InputHandler
 from src.engine.Ninja import Ninja
 from src.engine.menu import PauseMenu
 from src.levels import level_1_data, load_level_data, build_enemies, build_objects, apply_targets_to_enemies
+from src.engine.power_ups import Power_up
 
 class Game:
     def __init__(self, screen, platform_image, background,
@@ -52,6 +53,10 @@ class Game:
                        ([self.objects_dict['bomb']] if self.objects_dict['bomb'] else []) + \
                        ([self.objects_dict['defuse_kit']] if self.objects_dict['defuse_kit'] else []) + \
                        self.objects_dict['gates']
+                       
+        self.Power_ups=[]
+        self.Power_ups.append(Power_up(player_start_pos['x']-100, player_start_pos['y'],'double jump',[self.hero]))
+        self.objects+=self.Power_ups
 
         # هدف‌گذاری دشمنان
         apply_targets_to_enemies(self.enemies_dict, [self.hero])
@@ -94,7 +99,8 @@ class Game:
 
     def update(self):
         keys = pygame.key.get_pressed()
-
+        print(len(self.Power_ups))
+        print('here')
         if self.enemies_dict.get('dragonlord'):
             self.enemies_dict['dragonlord'].Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
 
@@ -123,6 +129,7 @@ class Game:
 
         for obj in self.objects:
             obj.Update(self.screen, self.scroll)
+
 
         current_time = pygame.time.get_ticks()
         if self.shutter_strength > 0:
