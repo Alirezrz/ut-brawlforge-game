@@ -24,21 +24,21 @@ class Power_up:
                 pygame.image.load(
                     os.path.join(base_path, "double jump.png")
                 ),
-                (40, 40)
+                (60, 60)
             )
         elif self.type == 'guard drone':
             self.pic = pygame.transform.scale(
                 pygame.image.load(
                     os.path.join(base_path, "guard drone.png")
                 ),
-                (40, 40)
+                (60, 60)
             )
         elif self.type == 'super power':
             self.pic = pygame.transform.scale(
                 pygame.image.load(
                     os.path.join(base_path, "super power.png")
                 ),
-                (40, 40)
+                (60, 60)
             )
 
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.pic.get_width(), self.pic.get_height())
@@ -50,12 +50,10 @@ class Power_up:
 
     def Update(self, screen, offset):
         if not self.USED:
-            # Smooth floating effect using cosine easing
             self.float_angle += self.float_speed
             target_y = self.base_y + math.cos(self.float_angle) * self.float_amplitude
-            self.y_pos += (target_y - self.y_pos) * 0.05  # smoother interpolation
+            self.y_pos += (target_y - self.y_pos) * 0.05  
 
-            # Update hitbox to follow floating position
             self.hitbox.topleft = (self.x_pos, self.y_pos)
 
             for target in self.targets:
