@@ -443,16 +443,16 @@ class Archer:
             if drone.status == 'departing' and drone.departed_len>3000:
                 self.guard_drone.remove(drone)
                 
-    def update(self,platforms,shot_bullets,targets,keys,gate,trigger_shutter=None):
+    def update(self,screen,platforms,shot_bullets,targets,keys,trigger_shutter=None):
         self.is_on_ground()
         self.gravity()
         self.vertical_move()
         self.platforms_collisions(platforms)
         self.move_with_platform()
         self.jump_under_platform(platforms)
-        self.update_animation()
-        self.update_bullets(shot_bullets,targets)
-        self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter=None)
+        self.update_animation(shot_bullets)
+        self.update_bullets(screen, shot_bullets, platforms, targets, trigger_shutter or [0, 0])
+        self.handle_input(keys)
         self.update_drone()
                 
     

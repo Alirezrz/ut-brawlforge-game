@@ -118,15 +118,7 @@ class Roboman:
             try:
                 img_path = os.path.join(base_path, "jump", f"Jump ({i}).png")
                 tmp = pygame.image.load(img_path)
-                if i == 1: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 2: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 3: self.Jump_frames.append(pygame.transform.scale(tmp,scale_numebrs[i-1]))
-                elif i == 4: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 5: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 6: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 7: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 8: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 9: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
             except FileNotFoundError:
                 print(f"Error: Roboman jump frame 'Jump ({i}).png' not found at {img_path}. Check path.")
                 self.jump_frames.append(pygame.Surface((70, 118)))
@@ -142,11 +134,7 @@ class Roboman:
             try:
                 img_path = os.path.join(base_path, "jump shoot", f"JumpShoot ({i}).png")
                 tmp = pygame.image.load(img_path)
-                if i == 1: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 2: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 3: self.JumpShoot_frames.append(pygame.transform.scale(tmp,scale_numebrs[i-1]))
-                elif i == 4: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 5: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
             except FileNotFoundError:
                 print(f"Error: Roboman jump shhot frame 'JumpShoot ({i}).png' not found at {img_path}. Check path.")
                 self.JumpShoot_frames.append(pygame.Surface((70, 118)))
@@ -176,6 +164,7 @@ class Roboman:
         os.path.dirname(os.path.abspath(__file__)),
         "..", "assets", "images", "RoboMan_pictures", "super power effect.png"
         )
+        self.super_power_effect = pygame.image.load(image_path).convert_alpha() if os.path.exists(image_path) else None
         self.picture = self.idle_frames[0] if self.idle_frames else pygame.Surface((70, 118))
         self.width = self.picture.get_width()
         self.height = self.picture.get_height()
@@ -240,14 +229,24 @@ class Roboman:
         
     def display(self, screen, offset, shot_bullets):
         
-        self.roboman_health_bar = pygame.transform.scale(
-            self.roboman_health_bar, 
-            (int(health_bar_lenght * (self.health / self.max_health)), profileSideSize - (2 * roboman_health_bar_frame_thickness))
+        health_percentage = self.health / self.max_health
+        health_bar_width = int(health_bar_lenght * health_percentage)
+        health_bar_height = profileSideSize - (2 * roboman_health_bar_frame_thickness)
+
+        # اطمینان از اینکه نوار سلامت از فریم خارج نشه
+        if health_bar_width > health_bar_lenght:
+            health_bar_width = health_bar_lenght
+
+        # تغییر اندازه نوار سلامت و فریم
+        scaled_health_bar = pygame.transform.scale(
+            self.roboman_health_bar,
+            (health_bar_width, health_bar_height)
         )
-        self.roboman_health_bar_frame = pygame.transform.scale(
-            self.roboman_health_bar_frame, 
+        scaled_health_frame = pygame.transform.scale(
+            self.roboman_health_bar_frame,
             (health_bar_lenght + (2 * roboman_health_bar_frame_thickness), profileSideSize)
         )
+
 
         # Determine main character image and vertical position
         display_picture = self.current_picture
@@ -302,7 +301,7 @@ class Roboman:
             if self.is_first_time:
                 self.hero_profile_picture = pygame.transform.flip(self.hero_profile_picture, True, False)
                 self.is_first_time = False
-            self.hero_profile_picture = pygame.transform.flip(self.hero_profile_picture, True, False)
+           # self.hero_profile_picture = pygame.transform.flip(self.hero_profile_picture, True, False)
             bar_x = self.screen_width - health_bar_lenght - (2 * roboman_health_bar_frame_thickness) - profileSideSize
             bar_y = self.screen_height - profileSideSize
             health_x = bar_x + roboman_health_bar_frame_thickness
@@ -315,8 +314,8 @@ class Roboman:
             profile_x, profile_y = 0, 0
 
         # Draw UI elements
-        screen.blit(self.roboman_health_bar_frame, (bar_x, bar_y))
-        screen.blit(self.roboman_health_bar, (health_x, health_y))
+        screen.blit(scaled_health_frame, (bar_x, bar_y))
+        screen.blit(scaled_health_bar, (health_x, health_y))
         screen.blit(pygame.transform.scale(self.hero_profile_picture, (profileSideSize, profileSideSize)), (profile_x, profile_y))
     def update_animation(self):
         if self.freezed:
@@ -601,11 +600,13 @@ class Roboman:
                         shot_bullets.remove(bullet)
                         
         for target in targets:
+          if target != self:
             for bullet in self.bullets:
                 if target.hitbox.colliderect(bullet.hitbox):
                     target.health-=20   # should be intialized ***** 
                     target.hurt()
-
+                    if self.shot_hit_enemy_sound:
+                        self.shot_hit_enemy_sound.playe()
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
                     if bullet in shot_bullets:
@@ -715,7 +716,7 @@ class Roboman:
         
         
         
-    def handle_input(self, keys, gate, shot_bullets, bullet_class):
+    def handle_input(self, keys, gate, shot_bullets, bullet_class,trigger_shutter=None):
         self.is_moving_horizontally = False
         if self.freezed:
             return
@@ -770,7 +771,7 @@ class Roboman:
         self.move_with_platform()
         self.jump_under_platform(platforms)
         self.update_animation()
-        self.update_bullets(shot_bullets,targets)
+        self.update_bullets(shot_bullets,platforms,targets)
         self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter=None)
         self.update_drone()
         

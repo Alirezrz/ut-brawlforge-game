@@ -744,15 +744,14 @@ class Ninja:
                     
                     
                     
-    def update(self,platforms,shot_bullets,targets,keys,gate,trigger_shutter=None):
-        self.is_on_ground()
+    def update(self,screen, platforms, shot_bullets, targets, keys, gate, trigger_shutter=None):
         self.gravity()
         self.vertical_move()
         self.platforms_collisions(platforms)
         self.move_with_platform()
         self.jump_under_platform(platforms)
-        self.update_animation()
-        self.update_bullets(shot_bullets,targets)
+        self.update_animation(shot_bullets)
+        self.update_bullets(screen, shot_bullets, platforms, targets)
         self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter=None)
         self.update_drone()
 

@@ -1,30 +1,28 @@
 import pygame
 from config import screen_width, screen_height ,platform_height
 import os 
+
 class Camera:
-    
-    def __init__(self,screen,platforms,shot_bullets,hero,explosions,scroll,ninja,Arman,Gates,background,drones,objects,gunamns,archer,dragonlord,flyingdemon,bomb,defuse_kit):
-        self.screen=screen
-        self.platforms=platforms
-        self.shot_bullets=shot_bullets
-        self.hero=hero
-        self.bomb=bomb
-        self.defuse_kit=defuse_kit
-        self.explosions=explosions
-        self.scroll=scroll
-        self.ninja=ninja
-        self.terrorist=Arman
-        self.Gates=Gates
+    def __init__(self, screen, platforms, shot_bullets, hero, explosions, scroll, terrorist, gates, background, drones, objects, gunmans, dragonlord, flyingdemon, bomb, defuse_kit):
+        self.screen = screen
+        self.platforms = platforms
+        self.shot_bullets = shot_bullets
+        self.hero = hero
+        self.bomb = bomb
+        self.defuse_kit = defuse_kit
+        self.explosions = explosions
+        self.scroll = scroll
+        self.terrorist = terrorist
+        self.gates = gates
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Back.png")
         self.background = pygame.transform.scale(background, (screen_width, screen_height))
-        self.test=pygame.transform.scale(pygame.image.load(base_path),(130,130))
+        self.test = pygame.transform.scale(pygame.image.load(base_path), (130, 130))
         
-        self.drones=drones
-        self.objects=objects
-        self.archer=archer
-        self.flyingdemon=flyingdemon
-        self.gunmans=gunamns
-        self.dragonlord=dragonlord
+        self.drones = drones
+        self.objects = objects
+        self.gunmans = gunmans
+        self.dragonlord = dragonlord
+        self.flyingdemon = flyingdemon
         
     def render(self):
         self.screen.blit(self.background,(0,0))
@@ -36,7 +34,7 @@ class Camera:
             platform.draw(self.screen,self.scroll)
         
         
-        for gate in self.Gates:
+        for gate in self.gates:
             gate.display(self.screen,self.scroll)
             
 
@@ -46,12 +44,9 @@ class Camera:
 
         self.hero.display(self.screen, self.scroll, self.shot_bullets)
 
-
-        self.ninja.display(self.screen, self.scroll,self.shot_bullets)
         if self.terrorist and self.terrorist.status != 'removed':
             self.terrorist.display(self.screen, self.scroll)
             
-        self.archer.display(self.screen,self.scroll,self.shot_bullets)
         
         self.dragonlord.display(self.screen,self.scroll)
         if self.flyingdemon.ALIVE:
