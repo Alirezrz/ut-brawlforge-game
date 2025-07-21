@@ -41,8 +41,7 @@ try:
     explode_picture = pygame.transform.scale(explode_picture, (explode_side_size, explode_side_size))
    
    
-    roboman_health_bar_frame=pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar_frame.png")
-    roboman_health_bar=pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar.png")
+  
 
     shoot_sound = pygame.mixer.Sound(os.path.join(sound_path, "shoot.wav"))
     jump_sound = pygame.mixer.Sound(os.path.join(sound_path, "robot jump.MP3"))
