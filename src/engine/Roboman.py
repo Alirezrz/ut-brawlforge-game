@@ -8,12 +8,12 @@ from src.engine.bullet import Bullet
 # bug : وقتی تیر انداز تیرش به تروریست بخوره روبات میمیره
 class Roboman:
 
-    def __init__(self, x, y, screen_width, screen_height, sounds=None, trigger_shutter_callback=None, hero_creation_index=1):
+    def __init__(self, x, y, roboman_health_bar_frame, roboman_health_bar, hero_profile_picture, screen_width, screen_height, sounds=None, trigger_shutter_callback=None, hero_creation_index=1):
         self.x_pos = x
         self.y_pos = y
-        self.hero_profile_picture = pygame.image.load("src/assets/images/RoboMan_pictures/hero_profile.png")
-        self.roboman_health_bar_frame = pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar_frame.png")
-        self.roboman_health_bar = pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar.png")
+        self.hero_profile_picture = hero_profile_picture 
+        self.roboman_health_bar_frame =roboman_health_bar_frame 
+        self.roboman_health_bar = roboman_health_bar
         self.on_platform = False
         self.current_platform = None
         self.status="idle"
@@ -25,13 +25,20 @@ class Roboman:
         self.is_first_time=True
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))
         self.has_defuse_kit=False
-
+        self.sounds = sounds
+        if sounds:
+            self.hurt_sound = sounds.get("roboman_hurt", pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))) 
+            self.shot_hit_enemy_sound = sounds.get("enemy_hit", pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_enemy.wav")))
+            self.shot_hit_platform_sound = sounds.get("explosion", pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_platoform.mp3")))
+            self.jump_sound = sounds.get("jump", pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "robot jump.MP3")))
+            self.shoot_sound = sounds.get("shoot", pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shoot.wav")))
+            self.jetpack_sound = sounds.get("jetpack", pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "jetpack.wav")))
 
         self.super_power_duration = 15000
         self.super_power_cooldown = 10000
         self.super_power_active=False
 
-        self.hero_creation_index = hero_creation_index  # اضافه شد
+        self.hero_creation_index = hero_creation_index 
         self.shot_hit_enemy_sound = pygame.mixer.Sound(
             os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_enemy.wav")
 )
@@ -585,7 +592,7 @@ class Roboman:
         self.vertical_speed = 0
         self.health = self.max_health
 
-    def update_bullets(self,screen, shot_bullets,platforms,targets):
+    def update_bullets(self, shot_bullets,platforms,targets):
         for bullet in self.bullets:
             if bullet not in shot_bullets:
                 self.bullets.remove(bullet)
@@ -782,7 +789,7 @@ class Roboman:
         self.platforms_collisions(platforms)
         self.move_with_platform()
         self.jump_under_platform(platforms)
-        self.update_animation()
+        self.update_animation(shot_bullets)
         self.update_bullets(shot_bullets,platforms,targets)
         self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter=None)
         self.update_drone()

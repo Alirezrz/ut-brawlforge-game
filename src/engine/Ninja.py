@@ -5,8 +5,7 @@ from config import Ninja_width, Ninja_height,profileSideSize, health_bar_lenght,
 from src.engine.protector import Guard_Drone
 ## must be done -->  1- list of enemies for hit when attacking must be fixed 
 class Ninja:
-    def __init__(self, x, y, screen_width, screen_height, targets, hero_creation_index=2):
-        
+    def __init__(self, x, y, screen_width, screen_height, targets, ninja_health_bar_frame, ninja_health_bar, hero_creation_index=2):
         self.ALIVE=True
         self.DEAD=False
         
@@ -22,8 +21,10 @@ class Ninja:
         self.y_pos = y
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja hurt.mp3"))        
         self.on_platform = False
-        self.ninja_health_bar_frame = pygame.image.load("src/assets/images/Ninja/Ninja_health_bar_frame.png")
-        self.ninja_health_bar =pygame.image.load("src/assets/images/Ninja/Ninja_health_bar.png")
+        #self.ninja_health_bar_frame = pygame.image.load("src/assets/images/Ninja/Ninja_health_bar_frame.png")
+        # self.ninja_health_bar =pygame.image.load("src/assets/images/Ninja/Ninja_health_bar.png")
+        self.ninja_health_bar_frame = ninja_health_bar_frame
+        self.ninja_health_bar = ninja_health_bar
         self.hero_creation_index = hero_creation_index  # دیفالت 2
         self.ninja_profile_picture = pygame.image.load("src/assets/images/Ninja/ninja_profile.png")
         self.current_platform = None

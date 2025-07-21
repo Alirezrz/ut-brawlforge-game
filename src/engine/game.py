@@ -78,10 +78,10 @@ class Game:
         self.flyingdemons = []
         self.flyingdemons.append(FlyingDemon(player_start_pos['x'] - 800, player_start_pos['y'] - 18, self.main_character, 'right'))
         self.camera = Camera(self.screen, self.platforms, self.shot_bullets, self.main_character, self.explosions, self.scroll, self.terrorists[0], self.gates, self.background, self.drones, self.objects, self.gunmans, self.dragonlord, self.flyingdemons[0], self.bomb, self.defuse_kit)
+        if self.dragonlord:
+            self.dragonlord.camera = self.camera
         self.enemies = self.terrorists + self.gunmans + self.drones + self.flyingdemons + [self.dragonlord]
         self.input_handler = InputHandler(self.main_character, self.bullet_class, self.shot_bullets)
-        #print(f"[DEBUG] Loaded character: {type(self.main_character).__name__}")
-
     def remove_bullet(self, bullet):
         if bullet in self.shot_bullets:
             self.shot_bullets.remove(bullet)
@@ -100,15 +100,16 @@ class Game:
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
         if isinstance(self.main_character, Roboman):
-            self.main_character.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class)
+            self.main_character.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class,self.trigger_shutter)
         elif isinstance(self.main_character, Ninja) or isinstance(self.main_character, NinjaGirl):
-            self.main_character.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class)
+            self.main_character.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class,self.trigger_shutter)
         elif isinstance(self.main_character, Archer):
-            self.main_character.handle_input(keys)
+            self.main_character.handle_input(keys,self.gates)
 
     def update(self):
         keys = pygame.key.get_pressed()
-        self.dragonlord.Update(keys, self.platforms)
+        if self.dragonlord: 
+            self.dragonlord.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
         self.update_enemies()
         self.main_character.is_on_ground()
         self.main_character.gravity()
@@ -123,7 +124,7 @@ class Game:
         elif isinstance(self.main_character, Ninja) or isinstance(self.main_character, NinjaGirl):
             self.main_character.update(self.screen,self.platforms, self.shot_bullets, self.enemies, keys, self.gates)
         elif isinstance(self.main_character, Archer):
-            self.main_character.update(self.screen,self.platforms, self.shot_bullets, self.enemies, keys,self.scroll)
+            self.main_character.update(self.screen,self.platforms, self.shot_bullets, self.enemies, keys,self.gates,self.scroll)
 
 
         for gunman in self.gunmans:
@@ -196,7 +197,7 @@ class Game:
         for enemy in self.enemies[:]:
             if hasattr(enemy, 'Update'):
                 if isinstance(enemy, Dragon_Lord):
-                    enemy.Update(keys, self.platforms)
+                    enemy.Update(self.screen, self.scroll, self.shot_bullets,self.platforms)
                 else:
                     enemy.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
             if hasattr(enemy, 'status') and enemy.status == 'removed':

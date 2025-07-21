@@ -94,8 +94,8 @@ while True:
                     player_start_pos['x'], player_start_pos['y'],
                     roboman_health_bar_frame, roboman_health_bar, hero_profile_picture,
                     screen_width, screen_height,
-                    sounds={'jump': jump_sound, 'shoot': shoot_sound, 'jetpack': jetpack_sound},
-                    trigger_shutter_callback=lambda s, d: game.trigger_jetpack_shutter(s, d)
+                    sounds=game_sounds,
+                    trigger_shutter_callback=lambda s, d: game.trigger_shutter(s, d)
                 )
             elif selected_char == "NinjaGirl":
                 main_character = NinjaGirl(
@@ -117,21 +117,26 @@ while True:
                     []
                 )
 
-            game = Game(
-                screen, hero_profile_picture, ghost, ghost2,
-                platform_images, background, explode_picture,
-                health_bar_green, health_bar_red, hero_profile_picture,
-                roboman_health_bar_frame, roboman_health_bar,
-                game_sounds, ninja_health_bar_frame, ninja_health_bar,
-                archer_health_bar_frame, archer_health_bar,
-                main_character=main_character  # اضافه کردن کاراکتر به Game
-            )
-            game = Game_2(
-              screen,  
-              platform_images,
-              background, explode_picture, 
-              game_sounds,
-            )
+            if mode == "single":
+                game = Game(
+                    screen, hero_profile_picture, ghost, ghost2,
+                    platform_images, background, explode_picture,
+                    health_bar_green, health_bar_red, hero_profile_picture,
+                    roboman_health_bar_frame, roboman_health_bar,
+                    game_sounds, ninja_health_bar_frame, ninja_health_bar,
+                    archer_health_bar_frame, archer_health_bar,
+                    main_character=main_character
+                )
+            elif mode == "multi":
+                game = Game_2(
+                    screen,  
+                    platform_images,
+                    background, explode_picture, 
+                    game_sounds,
+                    ninja_health_bar_frame, ninja_health_bar, 
+                    roboman_health_bar_frame, roboman_health_bar,
+                    hero_profile_picture 
+                )
             result = game.run()
             if result == "menu":
                 continue

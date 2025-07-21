@@ -14,8 +14,10 @@ from src.levels import multiplayer_data, load_level_data, build_enemies, build_o
 
 class Game_2:
     def __init__(self, screen, platform_image, background,
-                 explosion_picture,
-                   sounds,
+                explosion_picture,
+                sounds,ninja_health_bar_frame,ninja_health_bar,
+                roboman_health_bar_frame, roboman_health_bar,
+                hero_profile_picture
                 ):
 
         self.screen = screen
@@ -41,11 +43,14 @@ class Game_2:
         self.hero = Ninja(
             player_start_pos['x'], player_start_pos['y'],
             screen_width, screen_height,
-            [],1  # لیست targets بعداً ست می‌شود
+            [],
+            ninja_health_bar_frame, ninja_health_bar, #موقتا برای دیباگ
+            1  # لیست targets بعداً ست می‌شود
         )
         self.hero2=Roboman(player2_start_pos['x'], player2_start_pos['y'],
+            roboman_health_bar_frame, roboman_health_bar, hero_profile_picture, # اضافه کردن
             screen_width, screen_height,
-            None,None,2)
+            sounds, None, 2)
 
         self.platforms = load_level_data(multiplayer_data, platform_image)
 
@@ -78,9 +83,8 @@ class Game_2:
             self.objects_dict['gates'], self.background,
             self.enemies_dict['drones'],
             self.objects,
-            self.enemies_dict['gunmans'],
-            None,  
-            self.enemies_dict['dragonlord'],
+            self.enemies_dict['gunmans'],  
+            self.enemies_dict.get('dragonlord'),
             next(iter(self.enemies_dict['flyingdemons']), None),
             self.objects_dict['bomb'],
             self.objects_dict['defuse_kit']
