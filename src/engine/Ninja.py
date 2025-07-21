@@ -21,6 +21,7 @@ class Ninja:
         self.y_pos = y
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja hurt.mp3"))        
         self.on_platform = False
+        self.is_first_time=True
         #self.ninja_health_bar_frame = pygame.image.load("src/assets/images/Ninja/Ninja_health_bar_frame.png")
         # self.ninja_health_bar =pygame.image.load("src/assets/images/Ninja/Ninja_health_bar.png")
         self.ninja_health_bar_frame = ninja_health_bar_frame
@@ -289,14 +290,14 @@ class Ninja:
     def display(self, screen, offset, shot_bullets):
         self.Update_SuperPower() 
         self.Super_Power_effect()
+        if self.hero_creation_index == 2 or self.hero_creation_index == 4: # اگر hero_creation_index برای فلیپ کردن تنظیم شده
+            if self.is_first_time:
+                self.ninja_profile_picture = pygame.transform.flip(self.ninja_profile_picture, True, False)
+                self.is_first_time = False
         for drone in self.guard_drone:
             drone.Update(screen, offset, shot_bullets)
 
             drone.Update(screen,offset,shot_bullets)
-        
-        
-        
-    
         display_picture = self.current_picture
         display_x = self.x_pos
 

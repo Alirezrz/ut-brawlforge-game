@@ -6,7 +6,7 @@ from src.engine.protector import Guard_Drone
 from src.engine.bullet import Bullet
 
 class Archer:
-    def __init__(self, x, y, targets,index=3):
+    def __init__(self, x, y, screen_width, screen_height, targets, health_bar_frame, health_bar, index=3):
         self.hero_creation_index=index
         self.x_pos = x
         self.y_pos = y
@@ -29,8 +29,8 @@ class Archer:
         self.double_jump_allowed = True
         self.has_defuse_kit=False
 
-        self.health_bar_frame =pygame.image.load("src/assets/images/Archer/health_bar_frame.png")
-        self.health_bar = pygame.image.load("src/assets/images/Archer/health_bar.png")
+        self.health_bar_frame = health_bar_frame
+        self.health_bar = health_bar
 
         self.health=100
         self.targets = targets
@@ -39,7 +39,7 @@ class Archer:
         self.height = 100
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "archer", "archer hurt.mp3"))     
-        self.health = 63
+        
         self.max_health = 100
         self.bullets = []
         self.status = 'idle'
