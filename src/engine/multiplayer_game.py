@@ -14,15 +14,13 @@ from src.levels import multiplayer_data, load_level_data, build_enemies, build_o
 
 class Game_2:
     def __init__(self, screen, platform_image, background,
-                 explosion_picture,
-                   sounds,
+                 explosion_picture                  
                 ):
 
         self.screen = screen
         self.background = background
         self.explosion_picture = explosion_picture
         self.clock = pygame.time.Clock()
-        self.sounds = sounds
 
         self.screen_color = (60, 100, 150)
         self.scroll = [0, 0]

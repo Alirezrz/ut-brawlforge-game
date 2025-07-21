@@ -62,18 +62,11 @@ while True:
     menu_action = menu.run()
 
     if menu_action == "start":
-        game_sounds = {
-           "shoot": shoot_sound,
-           "jump": jump_sound,
-           "jetpack": jetpack_sound,
-           "explosion": explosion_sound,
-           "enemy_hit": enemy_hit_sound
-        }
+
         game = Game_2(
           screen,  
           platform_images,
           background, explode_picture, 
-          game_sounds,
         )
         result = game.run()
         if result == "menu":
