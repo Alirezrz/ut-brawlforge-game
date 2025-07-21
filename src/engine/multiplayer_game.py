@@ -10,19 +10,16 @@ from src.engine.input_handler import InputHandler
 from src.engine.Ninja import Ninja
 from src.engine.Roboman import Roboman
 from src.engine.menu import PauseMenu
+from src.engine.power_ups import Power_up
 from src.levels import multiplayer_data, load_level_data, build_enemies, build_objects, apply_targets_to_enemies
 
 class Game_2:
-    def __init__(self, screen, platform_image, background,
-                 explosion_picture,
-                   sounds,
+    def __init__(self, screen, platform_image, background              
                 ):
 
         self.screen = screen
         self.background = background
-        self.explosion_picture = explosion_picture
         self.clock = pygame.time.Clock()
-        self.sounds = sounds
 
         self.screen_color = (60, 100, 150)
         self.scroll = [0, 0]
@@ -48,7 +45,8 @@ class Game_2:
             None,None,2)
 
         self.platforms = load_level_data(multiplayer_data, platform_image)
-
+        self.power_ups=[]
+        self.power_ups.append(Power_up(player_start_pos['x']-100, player_start_pos['y'],'guard drone',[self.hero,self.hero2]))
         self.enemies_dict = build_enemies(multiplayer_data, self.screen, self.scroll, self.platforms)
         all_enemies = []
         for group in self.enemies_dict.values():
@@ -62,6 +60,7 @@ class Game_2:
                        ([self.objects_dict['bomb']] if self.objects_dict['bomb'] else []) + \
                        ([self.objects_dict['defuse_kit']] if self.objects_dict['defuse_kit'] else []) + \
                        self.objects_dict['gates']
+        self.objects+=self.power_ups
 
         # هدف‌گذاری دشمنان
         apply_targets_to_enemies(self.enemies_dict, [self.hero,self.hero2])

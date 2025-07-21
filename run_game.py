@@ -25,14 +25,8 @@ except FileNotFoundError:
     print("Warning: Icon image not found. Continuing without icon.")
 
 try:
-    sound_path = os.path.join("src", "assets", "sounds", "RoboMan")
     background = pygame.image.load("src/assets/images/BrawlhalaBackground.jpg")
     background = pygame.transform.scale(background, (screen_width, screen_height))
-    hero_profile_picture = pygame.image.load("src/assets/images/hero_profile.png") 
-    ghost = pygame.image.load("src/assets/images/ghost.png")
-    ghost = pygame.transform.scale(ghost, (64, 64))
-    ghost2 = pygame.image.load("src/assets/images/ghost2.png")
-    ghost2 = pygame.transform.scale(ghost2, (64, 64))
     platform_image_path = "src/assets/images/"
     platform_images = {
         'left': pygame.image.load(os.path.join(platform_image_path, "platform_left.png")).convert_alpha(),

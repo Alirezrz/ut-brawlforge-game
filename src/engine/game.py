@@ -28,7 +28,6 @@ class Game:
     def __init__(self, screen, hero_picture, ghost_picture, ghost2_picture, platform_image, background, explosion_picture, health_bar_green, health_bar_red, hero_profile_picture, roboman_health_bar_frame, roboman_health_bar, sounds, ninja_health_bar_frame, ninja_health_bar, archer_health_bar_frame, archer_health_bar, main_character=None):
         self.screen = screen
         self.background = background
-        self.explosion_picture = explosion_picture
         self.clock = pygame.time.Clock()
         self.sounds = sounds
         
@@ -145,6 +144,7 @@ class Game:
 
         for obj in self.objects:
             obj.Update(self.screen, self.scroll)
+
 
         current_time = pygame.time.get_ticks()
         if self.shutter_strength > 0:
