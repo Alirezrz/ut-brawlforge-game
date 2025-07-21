@@ -4,12 +4,13 @@ from config import screen_width, screen_height, platform_height
 import os
 
 class Camera:
-    def __init__(self, screen, platforms, shot_bullets, hero, explosions, scroll, terrorist, gates, background, drones, objects, gunmans, dragonlord, flyingdemon, bomb, defuse_kit):
+    def __init__(self, screen, platforms, shot_bullets, hero, explosions, scroll, terrorist, gates, background, drones, objects, gunmans, dragonlord, flyingdemon, bomb, defuse_kit,hero2=None):
         self.screen = screen
         self.platforms = platforms
         self.shot_bullets = shot_bullets
         self.hero = hero
         self.bomb = bomb
+        self.hero2=hero2
         self.defuse_kit = defuse_kit
         self.explosions = explosions
         self.scroll = scroll
@@ -51,21 +52,23 @@ class Camera:
         for gate in self.gates:
             gate.display(self.screen, self.scroll)
             
-        for gate in self.Gates:
-            gate.display(self.screen, self.scroll)
+        # for gate in self.Gates:
+        #     gate.display(self.screen, self.scroll)
 
         for bullet in self.shot_bullets:
             bullet.draw(self.screen, self.scroll)
 
         self.hero.display(self.screen, self.scroll, self.shot_bullets)
+        if self.hero2: 
+            self.hero2.display(self.screen, self.scroll, self.shot_bullets)
         if self.ninja:
             self.ninja.display(self.screen, self.scroll, self.shot_bullets)
 
         if self.terrorist and self.terrorist.status != 'removed':
             self.terrorist.display(self.screen, self.scroll)
-        
-        self.dragonlord.display(self.screen, self.scroll)
-        if self.flyingdemon.ALIVE:
+        if self.dragonlord:
+            self.dragonlord.display(self.screen, self.scroll)
+        if self.flyingdemon and self.flyingdemon.ALIVE:
             self.flyingdemon.display(self.screen, self.scroll)
         # handeling explosions:
         for gunman in self.gunmans:
@@ -79,31 +82,15 @@ class Camera:
             drone.display(self.screen, self.scroll)
         for obj in self.objects:
             obj.Update(self.screen, self.scroll)
-        self.bomb.display(self.screen, self.scroll)
-        self.defuse_kit.display(self.screen, self.scroll)
-        
-        if self.dragonlord:
-            self.dragonlord.display(self.screen, self.scroll)
-        if self.flyingdemon:
-            if self.flyingdemon.ALIVE:
-                self.flyingdemon.display(self.screen, self.scroll)
+        if self.bomb:
+            self.bomb.display(self.screen, self.scroll)
+        if self.defuse_kit:
+            self.defuse_kit.display(self.screen, self.scroll)
 
         for gunman in self.gunmans:
             gunman.display(self.screen, self.scroll)
 
-        for explosion in self.explosions[:]:
-            if not explosion.draw(self.screen, self.scroll):
-                self.explosions.remove(explosion)
 
-        for drone in self.drones:
-            drone.display(self.screen, self.scroll)
-
-        for obj in self.objects:
-            obj.Update(self.screen, self.scroll)
-        if self.bomb:
-            self.bomb.display(self.screen, self.scroll)
-        if self.defuse_kit:   
-            self.defuse_kit.display(self.screen, self.scroll)
 
         # Check if spotlight effect should be active
         if self.spotlight_active:
