@@ -25,10 +25,6 @@ try:
     background = pygame.image.load("src/assets/images/BrawlhalaBackground.jpg")
     background = pygame.transform.scale(background, (screen_width, screen_height))
     hero_profile_picture = pygame.image.load("src/assets/images/hero_profile.png") 
-    ghost = pygame.image.load("src/assets/images/ghost.png")
-    ghost = pygame.transform.scale(ghost, (64, 64))
-    ghost2 = pygame.image.load("src/assets/images/ghost2.png")
-    ghost2 = pygame.transform.scale(ghost2, (64, 64))
     platform_image_path = "src/assets/images/"
     platform_images = {
         'left': pygame.image.load(os.path.join(platform_image_path, "platform_left.png")).convert_alpha(),
@@ -36,7 +32,6 @@ try:
         'right': pygame.image.load(os.path.join(platform_image_path, "platform_right.png")).convert_alpha(),
         'solid': pygame.image.load(os.path.join(platform_image_path, "platform_solid.png")).convert_alpha(),
     }
-    platform_tileset_picture = pygame.image.load("src/assets/images/platform.jpg")
     explode_picture = pygame.image.load("src/assets/images/explode.png")
     explode_picture = pygame.transform.scale(explode_picture, (explode_side_size, explode_side_size))
    
