@@ -40,17 +40,6 @@ try:
     explode_picture = pygame.image.load("src/assets/images/explode.png")
     explode_picture = pygame.transform.scale(explode_picture, (explode_side_size, explode_side_size))
    
-   
-  
-
-    shoot_sound = pygame.mixer.Sound(os.path.join(sound_path, "shoot.wav"))
-    jump_sound = pygame.mixer.Sound(os.path.join(sound_path, "robot jump.MP3"))
-    jetpack_sound = pygame.mixer.Sound(os.path.join(sound_path, "jetpack.wav"))
-    explosion_sound = pygame.mixer.Sound(os.path.join( sound_path, "shot_hit_platoform.mp3"))
-    enemy_hit_sound = pygame.mixer.Sound(os.path.join(sound_path, "shot_hit_enemy.wav"))
-
-    shoot_sound.set_volume(0.5)
-    jump_sound.set_volume(0.7)
 
 except (FileNotFoundError, pygame.error) as e:
     print(f"Error: Could not load asset: {e}")
