@@ -1,25 +1,15 @@
 from src.engine.platform import Platform
-from src.engine.terrorist import Terrorist 
-from src.engine.gunman import Gunman
-from src.engine.Drone import Drone
-from src.engine.flyingdemon import FlyingDemon
-from src.engine.Dragon_Lord import Dragon_Lord
-from src.engine.bomb import Bomb
-from src.engine.defuse_kit import DefuseKit
-from src.engine.teleportgate import Gates
-from src.engine.pumpkin import Pumpkin
-from src.engine.heatlh_box import PowerBox
+
 TILE_SIZE = 64
+
+
+
 
 
 level_1_data = {
     'player_start': {'x': 58*64, 'y':400},
     'enemies': [
-        {'type': 'terrorist', 'x': 58 * TILE_SIZE - 500, 'y': 400},
-        {'type': 'gunman', 'x': 58 * TILE_SIZE + 800, 'y': 400},
-        {'type': 'drone', 'x': -400, 'y': 40, 'direction': 'right'},
         {'type': 'flyingdemon', 'x': 58 * TILE_SIZE - 800, 'y': 382, 'direction': 'right'},
-        {'type': 'dragonlord', 'x': 58 * TILE_SIZE - 200, 'y': 338}
     ],
 
     'objects': [
@@ -90,147 +80,6 @@ level_1_data = {
 ]
     }
 }
-multiplayer_data = {
-    'player_start': {'x': 58*64, 'y':400},
-    'player2_start': {'x': 54*64, 'y':400},
-
-    'enemies': [
-       
-    ],
-
-    'objects': [
-
-        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 58 * TILE_SIZE + 1400, 'y2': 43},
-        {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
-        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465}
-    ],
-    'platforms': {
-        'standard': [
-            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
-            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
-            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
-            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
-            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
-            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
-            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
-            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
-            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
-            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
-            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
-            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
-            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
-
-
-
-
-
-
-
-
-
-        ],
-        'solid': [
-            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
-
-            
-            {'x': -25 * TILE_SIZE, 'y': 2* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 3* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 4* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 5* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 6* TILE_SIZE, 'repeat': 20},
-
-
-
-        ],
-        'moving': [
-            {'x': 55 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},            
-            {'x': 13 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},
-]
-    }
-}
-
-
-Boss_fight_level={
-    'player_start': {'x': 58*64, 'y':400},
-    'enemies': [
-        
-    ],
-
-    'objects': [
-        
-    ],
-    'platforms': {
-        'standard': [
-            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
-            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
-            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
-            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
-            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
-            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
-            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
-            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
-            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
-            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
-            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
-            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
-            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
-
-
-
-
-
-
-
-
-
-        ],
-        'solid': [
-            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
-
-            
-            
-
-
-
-        
-]
-    }
-}
-
 level_2_data = {
     'player_start': {'x': 58*64, 'y':400},
     'enemies': [
@@ -309,147 +158,6 @@ level_2_data = {
 ]
     }
 }
-multiplayer_data = {
-    'player_start': {'x': 58*64, 'y':400},
-    'player2_start': {'x': 54*64, 'y':400},
-
-    'enemies': [
-       
-    ],
-
-    'objects': [
-
-        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 58 * TILE_SIZE + 1400, 'y2': 43},
-        {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
-        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465}
-    ],
-    'platforms': {
-        'standard': [
-            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
-            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
-            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
-            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
-            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
-            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
-            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
-            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
-            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
-            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
-            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
-            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
-            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
-
-
-
-
-
-
-
-
-
-        ],
-        'solid': [
-            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
-
-            
-            {'x': -25 * TILE_SIZE, 'y': 2* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 3* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 4* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 5* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 6* TILE_SIZE, 'repeat': 20},
-
-
-
-        ],
-        'moving': [
-            {'x': 55 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},            
-            {'x': 13 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},
-]
-    }
-}
-
-
-Boss_fight_level={
-    'player_start': {'x': 58*64, 'y':400},
-    'enemies': [
-        
-    ],
-
-    'objects': [
-        
-    ],
-    'platforms': {
-        'standard': [
-            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
-            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
-            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
-            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
-            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
-            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
-            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
-            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
-            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
-            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
-            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
-            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
-            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
-
-
-
-
-
-
-
-
-
-        ],
-        'solid': [
-            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
-
-            
-            
-
-
-
-        
-]
-    }
-}
-
 level_3_data = {
     'player_start': {'x': 58*64, 'y':400},
     'enemies': [
@@ -528,183 +236,27 @@ level_3_data = {
 ]
     }
 }
-multiplayer_data = {
-    'player_start': {'x': 58*64, 'y':400},
-    'player2_start': {'x': 54*64, 'y':400},
-
-    'enemies': [
-       
-    ],
-
-    'objects': [
-
-        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 58 * TILE_SIZE + 1400, 'y2': 43},
-        {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
-        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465}
-    ],
-    'platforms': {
-        'standard': [
-            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
-            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
-            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
-            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
-            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
-            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
-            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
-            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
-            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
-            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
-            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
-            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
-            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
-
-
-
-
-
-
-
-
-
-        ],
-        'solid': [
-            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
-
-            
-            {'x': -25 * TILE_SIZE, 'y': 2* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 3* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 4* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 5* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 6* TILE_SIZE, 'repeat': 20},
-
-
-
-        ],
-        'moving': [
-            {'x': 55 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},            
-            {'x': 13 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},
-]
-    }
-}
-
-
-Boss_fight_level={
-    'player_start': {'x': 58*64, 'y':400},
-    'enemies': [
-        
-    ],
-
-    'objects': [
-        
-    ],
-    'platforms': {
-        'standard': [
-            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
-            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
-            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
-            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
-            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
-            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
-            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
-            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
-            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
-            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
-            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
-            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
-            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
-
-
-
-
-
-
-
-
-
-        ],
-        'solid': [
-            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
-
-            
-            
-
-
-
-        
-]
-    }
-}
-
 level_4_data = {
-    'player_start': {'x': 58*64, 'y':400},
+    'player_start': {'x': 10*64, 'y':400},
     'enemies': [
-        {'type': 'terrorist', 'x': 58 * TILE_SIZE - 500, 'y': 400},
-        {'type': 'gunman', 'x': 58 * TILE_SIZE + 800, 'y': 400},
-        {'type': 'drone', 'x': -400, 'y': 40, 'direction': 'right'},
-        {'type': 'flyingdemon', 'x': 58 * TILE_SIZE - 800, 'y': 382, 'direction': 'right'},
-        {'type': 'dragonlord', 'x': 58 * TILE_SIZE - 200, 'y': 338}
+        {'type': 'terrorist', 'x': 6* TILE_SIZE, 'y': 1* TILE_SIZE},
+        {'type': 'dragonlord', 'x': 10*64+1500, 'y':400},
+        {'type': 'gunman', 'x': 28 * TILE_SIZE, 'y': 2* TILE_SIZE-115}
     ],
 
     'objects': [
-        {'type': 'bomb', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 500},
-        {'type': 'defusekit', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
-        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 58 * TILE_SIZE + 1400, 'y2': 43},
-        {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
-        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465}
+      {'type': 'powerbox', 'x': 9 * TILE_SIZE, 'y': 2* TILE_SIZE +15},
+      {'type': 'powerbox', 'x': 28 * TILE_SIZE+50, 'y': 1* TILE_SIZE +15}
     ],
     'platforms': {
         'standard': [
-            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
-            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
-            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
-            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
-            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
-            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
-            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
-            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
-            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
-            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
-            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
-            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
-            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
+            
+{'x': -19 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
+{'x': 5 * TILE_SIZE, 'y': 3* TILE_SIZE, 'tiles': 10},
+{'x': 1 * TILE_SIZE, 'y': 6* TILE_SIZE, 'tiles': 1},
+{'x': 40 * TILE_SIZE, 'y': 6* TILE_SIZE, 'tiles': 7},
 
-
+{'x': 28 * TILE_SIZE, 'y': 2* TILE_SIZE, 'tiles': 14},
 
 
 
@@ -714,39 +266,66 @@ level_4_data = {
 
         ],
         'solid': [
-            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
+            {'x': 41*TILE_SIZE, 'y': 7 * TILE_SIZE, 'repeat':6},
+            {'x': 41*TILE_SIZE, 'y': 8 * TILE_SIZE, 'repeat':6},
+            {'x': 40*TILE_SIZE, 'y':7 * TILE_SIZE, 'repeat':1},
+            {'x': 40*TILE_SIZE, 'y': 8 * TILE_SIZE, 'repeat':1},
+            {'x': 0, 'y': 2 * TILE_SIZE, 'repeat':1},
+            {'x': 0, 'y': 3 * TILE_SIZE, 'repeat':1},
+            {'x': 0, 'y': 4 * TILE_SIZE, 'repeat':1},
+            {'x': 0, 'y': 5 * TILE_SIZE, 'repeat':1},
+             {'x': 0, 'y': 6 * TILE_SIZE, 'repeat':1},
+            {'x': 0, 'y': 7 * TILE_SIZE, 'repeat':1},
+            {'x': 0, 'y': 8 * TILE_SIZE, 'repeat':1},
+            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':40},
+            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':40},
+            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':40},
+            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':40},
+            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':40},
+            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':40},
+            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':40},
+            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':40},
+            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':40},
+            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':40},
+            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':40},
+            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':40},
+            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':40},
+            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':40},
+            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':40},
+            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':40},
+            {'x': -19 * TILE_SIZE, 'y': 2* TILE_SIZE, 'repeat': 20},
+            {'x': -19 * TILE_SIZE, 'y': 3* TILE_SIZE, 'repeat': 20},
+            {'x': -19 * TILE_SIZE, 'y': 4* TILE_SIZE, 'repeat': 20},
+            {'x': -19 * TILE_SIZE, 'y': 5* TILE_SIZE, 'repeat': 20},
+            {'x': -19 * TILE_SIZE, 'y': 6* TILE_SIZE, 'repeat': 20},
+{'x': -19 * TILE_SIZE, 'y': 7* TILE_SIZE, 'repeat': 20},
+
+{'x': -19 * TILE_SIZE, 'y': 8* TILE_SIZE, 'repeat': 20},
+
+{'x': -19 * TILE_SIZE, 'y': 9* TILE_SIZE, 'repeat': 20},
+{'x': -19 * TILE_SIZE, 'y': 10* TILE_SIZE, 'repeat': 20},
+{'x': -19 * TILE_SIZE, 'y': 11* TILE_SIZE, 'repeat': 20},
+{'x': -19 * TILE_SIZE, 'y': 12* TILE_SIZE, 'repeat': 20},
+{'x': -19 * TILE_SIZE, 'y': 13* TILE_SIZE, 'repeat': 20},
+{'x': -19 * TILE_SIZE, 'y': 14* TILE_SIZE, 'repeat': 20},
+{'x': -19 * TILE_SIZE, 'y': 15* TILE_SIZE, 'repeat': 20},
+{'x': -19 * TILE_SIZE, 'y': 16* TILE_SIZE, 'repeat': 20},
+{'x': -19 * TILE_SIZE, 'y': 17* TILE_SIZE, 'repeat': 20},
+
 
             
-            {'x': -25 * TILE_SIZE, 'y': 2* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 3* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 4* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 5* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 6* TILE_SIZE, 'repeat': 20},
+          
 
 
 
         ],
         'moving': [
-            {'x': 55 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},            
-            {'x': 13 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},
+            
 ]
     }
 }
+
+
 multiplayer_data = {
     'player_start': {'x': 58*64, 'y':400},
     'player2_start': {'x': 54*64, 'y':400},
@@ -827,6 +406,7 @@ multiplayer_data = {
 Boss_fight_level={
     'player_start': {'x': 58*64, 'y':400},
     'enemies': [
+        {'type': 'dragonlord', 'x': 58 * TILE_SIZE - 200, 'y': 338}
         
     ],
 
@@ -835,21 +415,7 @@ Boss_fight_level={
     ],
     'platforms': {
         'standard': [
-            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
-            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
-            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
-            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
-            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
-            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
-            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
-            {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
-            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
-            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
-            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
-            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
-            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
+          
 
 
 
@@ -861,6 +427,9 @@ Boss_fight_level={
 
         ],
         'solid': [
+            {'x': 0, 'y': 6 * TILE_SIZE, 'repeat':1},
+            {'x': 0, 'y': 7 * TILE_SIZE, 'repeat':1},
+            {'x': 0, 'y': 8 * TILE_SIZE, 'repeat':1},
             {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
             {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
             {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
@@ -887,26 +456,8 @@ Boss_fight_level={
 ]
     }
 }
-levels_data_map= {
-    'level_1': level_1_data,
-    'level_2': level_2_data,
-    'level_3': level_3_data,
-    'level_4': level_4_data,
-    'multiplayer_arena': multiplayer_data,
-    'boss_fight': Boss_fight_level, 
-}
-def get_level_data(map_name):
-    return levels_data_map.get(map_name, level_1_data)
-
-def get_start_position(map_name, player_index=1):
-    level_data = get_level_data(map_name)
-    if player_index == 1 and 'player_start' in level_data:
-        return level_data['player_start']
-    elif player_index == 2 and 'player2_start' in level_data:
-        return level_data['player2_start']
-    return {'x': 58 * TILE_SIZE, 'y': 400}
-
 def _add_tiled_platform(platform_list, info, images, *, moving=False):
+
     x_start, y = info['x'], info['y']
     tile_count = info.get('tiles', 1)
 
@@ -939,8 +490,7 @@ def _add_tiled_platform(platform_list, info, images, *, moving=False):
         Platform(x_last, y, images['right'], **extra_kwargs)
     )
 
-def load_platforms(map_name, platform_images):
-    level_data = get_level_data(map_name)
+def load_level_data(level_data, platform_images):
     platforms = []
     platform_definitions = level_data['platforms']
 
@@ -961,8 +511,13 @@ def load_platforms(map_name, platform_images):
 
     return platforms
 
-def load_enemies(map_name, screen, scroll, platforms): 
-    level_data = get_level_data(map_name) 
+def build_enemies(level_data, screen, scroll, platforms):
+    from src.engine.terrorist import Terrorist
+    from src.engine.gunman import Gunman
+    from src.engine.Drone import Drone
+    from src.engine.flyingdemon import FlyingDemon
+    from src.engine.Dragon_Lord import Dragon_Lord
+
     terrorists, gunmans, drones, flyingdemons = [], [], [], []
     dragonlord = None
 
@@ -987,8 +542,26 @@ def load_enemies(map_name, screen, scroll, platforms):
         'flyingdemons': flyingdemons,
         'dragonlord': dragonlord
     }
-def load_objects(map_name, targets): 
-    level_data = get_level_data(map_name)
+
+def apply_targets_to_enemies(enemies, targets):
+    for e in enemies['terrorists']:
+        e.targets = targets
+    for g in enemies['gunmans']:
+        g.targets = targets
+    for d in enemies['drones']:
+        d.targets = targets
+    for f in enemies['flyingdemons']:
+        f.target = targets[0] if targets else None  # یا یه منطق بهتر
+    if enemies['dragonlord']:
+        enemies['dragonlord'].target = targets[0]
+
+def build_objects(level_data, targets):
+    from src.engine.bomb import Bomb
+    from src.engine.defuse_kit import DefuseKit
+    from src.engine.teleportgate import Gates
+    from src.engine.pumpkin import Pumpkin
+    from src.engine.heatlh_box import PowerBox
+
     objects = {
         'bomb': None,
         'defuse_kit': None,
@@ -1010,33 +583,5 @@ def load_objects(map_name, targets):
             objects['misc'].append(PowerBox(obj['x'], obj['y'], targets))
 
     return objects
-def load_gates(map_name, targets_for_gates=None): 
-    level_data = get_level_data(map_name)
-    gates_list = []
-    for obj in level_data.get('objects', []):
-        if obj['type'] == 'teleportgate':
-            target_char = targets_for_gates[0] if targets_for_gates else None
-            gates_list.append(Gates(obj['x1'], obj['y1'], obj['x2'], obj['y2'], target_char))
-    return gates_list
-
-def apply_targets_to_enemies(enemies, targets):
-    for e in enemies['terrorists']:
-        e.targets = targets
-    for g in enemies['gunmans']:
-        g.targets = targets
-    for d in enemies['drones']:
-        d.targets = targets
-    for f in enemies['flyingdemons']:
-        f.target = targets[0] if targets else None  # یا یه منطق بهتر
-    if enemies['dragonlord']:
-        enemies['dragonlord'].target = targets[0]
-
-levels = {
-    'level_1': level_1_data,
-    'level_2': level_2_data,
-    'level_3': level_3_data,
-    'level_4': level_4_data
-}
-
 
         

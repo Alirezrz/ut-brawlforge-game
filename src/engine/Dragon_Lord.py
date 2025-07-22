@@ -3,8 +3,8 @@ import os
 from openai import OpenAI
 import threading
 import time
+from config import screen_height,screen_width,bossProfileSideSize,boss_healthBar_thickness
 from src.engine.flyingdemon import FlyingDemon
-
 
 client = OpenAI(
     api_key="tpsg-2pMQn399nKMGRcOpaBXAentWTdEPkbA",
@@ -21,12 +21,15 @@ class Dragon_Lord:
         self.height = 180
         self.flyingdemons=[]
         self.target = target
-
+        self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "boss", "boss hurt.mp3"))        
         self.on_platform = False
         self.current_platform = None
         self.horizontal_auto_speed = 0
         self.allow_move_right = True
         self.allow_move_left = True
+        self.last_dialog = ""
+        self.last_dialog_time = 0  
+        self.dialog_display_duration = 5000 
         self.Look = 'right'
         self.horizontal_speed = 4
         self.vertical_speed = 0
@@ -39,14 +42,23 @@ class Dragon_Lord:
 
         self.attacking = False
         self.attack_hits = 0
+        self.previous_center = (self.x_pos + self.width // 2, self.y_pos + self.height)
         if self.target:
             self.prompt = f"Dragon Lord has {self.health} HP. Player is at ({self.target.x_pos}, {self.target.y_pos})."
         else:
-            self.prompt = f"Dragon Lord has {self.health} HP. No target yet."       
+            self.prompt = f"Dragon Lord has {self.health} HP. No target yet."
         self.status = 'idle'
         self.current_picture = None
         self.current_frame_index = 0
         self.animation_speed = 150
+        self.profile_picture = pygame.image.load("src/assets/images/Dragon_Lord/profile.png")
+        self.profile_picture=pygame.transform.scale(self.profile_picture, (bossProfileSideSize, bossProfileSideSize))
+        self.health_bar_frame=pygame.image.load("src/assets/images/Dragon_Lord/health_bar_frame.png")
+        self.health_bar=pygame.image.load("src/assets/images/Dragon_Lord/health_bar.png")
+        self.health_bar_frame=pygame.transform.scale(self.health_bar_frame, (screen_width-bossProfileSideSize, bossProfileSideSize))
+        self.max_health=self.health
+        self.dialog_frame=pygame.image.load("src/assets/images/Dragon_Lord/dialog_frame.png")
+        self.dialog_frame=pygame.transform.scale(self.dialog_frame, (screen_width-bossProfileSideSize, 115))
         self.last_frame_update_time = pygame.time.get_ticks()
         self.is_moving_horizontally = False
 
@@ -54,7 +66,6 @@ class Dragon_Lord:
         self.last_attack_time = 0
         self.last_damage_time = 0
         self.prompt_type = "idle"
-        #self.start_dialog_loop()
         self.idle_frames = [
             pygame.transform.scale(pygame.image.load(os.path.join(base_path, "idle", f"{i}.png")), (w, 180))
             for i, w in enumerate([137, 143, 150, 143])
@@ -69,19 +80,31 @@ class Dragon_Lord:
             pygame.transform.scale(pygame.image.load(os.path.join(base_path, "attack", f"{i}.png")), (w, 180))
             for i, w in enumerate([137,158,169,184,299,249,188,211,224,218,191,168,136,187,155,173])
         ]
-
+        sizes=[(137,180),(165,187),(164,189),(159,190),(190,180),(178,170),(397,360),(425,530),(512,530),(515,540),(505,540),(582,530),(550,530),(518,530),(425,530),(347,530),(273,530),(279,530),(243,530),(243,530),(265,530),(220,360),(203,360),(157,360),(122,540),(118,540),(118,540),(132,540),(180,54)]
+        self.death_frames=[]
+        for i in range(29):
+            self.death_frames.append(
+                pygame.transform.scale(
+                    pygame.image.load(
+                        os.path.join(
+                            base_path,"death",f"{i}.png"
+                        )
+                    ),
+                    sizes[i]
+                )
+            )
         self.current_picture = self.idle_frames[0]
         self.camera=None
-
-        #self.start_dialog_loop()
+        self.is_dying = False
         self.number_of_spotlight_activation=0
+        self.start_dialog_loop()
     def get_prompt(self):
         if self.prompt_type == "attack":
-            return f"Dragon Lord is unleashing a blazing punch at the player at ({self.target.x_pos}, {self.target.y_pos})."
+            return f"Dragon Lord is unleashing a blazing punch at the player at ({self.target.x_pos}, {self.target.y_pos}).  (maximum number of words = 8)"
         elif self.prompt_type == "damage":
-            return f"Dragon Lord landed a fiery hit! Player health is now {self.target.health}."
+            return f"Dragon Lord landed a fiery hit! Player health is now {self.target.health}. (maximum number of words = 8)"
         else:
-            return f"Dragon Lord has {self.health} HP. Player is at ({self.target.x_pos}, {self.target.y_pos})."
+            return f"Dragon Lord has {self.health} HP. Player is at ({self.target.x_pos}, {self.target.y_pos}). (maximum number of words = 8)"
     def say_dialog_loop(self):
         while self.keep_talking:
             try:
@@ -101,11 +124,12 @@ class Dragon_Lord:
                     max_tokens=50,
                     temperature=0.7
                 )
+                self.last_dialog = response.choices[0].message.content.strip()
                 print("Dragon Lord says:", response.choices[0].message.content.strip())
+                self.last_dialog_time = pygame.time.get_ticks()
             except Exception as e:
                 print(f"[Error getting dialog: {e}]")
-
-            time.sleep(8)
+                time.sleep(15)
             self.prompt_type = "idle"  
 
     def start_dialog_loop(self):
@@ -117,21 +141,53 @@ class Dragon_Lord:
         self.keep_talking = False
 
     def display(self, screen, offset):
-        print(self.health)
+        if self.health < 0:
+            self.health=0
+        self.health_bar=pygame.transform.scale(self.health_bar, ((self.health/self.max_health)*(screen_width-bossProfileSideSize-2*boss_healthBar_thickness), bossProfileSideSize-2*boss_healthBar_thickness+26))
+        screen.blit(self.profile_picture,(0,screen_height-bossProfileSideSize))
+        screen.blit(self.health_bar_frame,(bossProfileSideSize,screen_height-bossProfileSideSize))
+        screen.blit(self.health_bar,(bossProfileSideSize+boss_healthBar_thickness,screen_height-bossProfileSideSize+boss_healthBar_thickness-13))        
         image = self.current_picture
         if self.Look == 'left':
             image = pygame.transform.flip(image, True, False)
         screen.blit(image, (self.x_pos - offset[0], self.y_pos - offset[1]))
-        
+
+        current_time = pygame.time.get_ticks()
+        if self.last_dialog and (current_time - self.last_dialog_time < self.dialog_display_duration):
+            font = pygame.font.SysFont("arial", 20, bold=True)
+            text_surface = font.render(self.last_dialog, True, (0, 0, 0))  
+            text_rect = text_surface.get_rect()
+            text_rect.midbottom = ((boss_healthBar_thickness*2)-60+bossProfileSideSize + (screen_width - bossProfileSideSize) // 2, screen_height - bossProfileSideSize - 55)
+            screen.blit(self.dialog_frame,(bossProfileSideSize-35,screen_height - bossProfileSideSize -120))
+            screen.blit(text_surface, text_rect)
+
         for kid in self.flyingdemons:
             kid.display(screen,offset)
 
     def update_animation(self):
+        if self.status=='dead':
+            self.current_picture==self.death_frames[28]
+            return
         current_time = pygame.time.get_ticks()
         if current_time - self.last_frame_update_time < self.animation_speed:
             return
 
         self.last_frame_update_time = current_time
+
+        if self.status=='dying':
+            if self.current_frame_index < len(self.death_frames):
+                current_image = self.death_frames[self.current_frame_index]
+                new_width, new_height = current_image.get_size()
+                self.x_pos = self.previous_center[0] - new_width // 2
+                self.y_pos = self.previous_center[1] - new_height
+                self.width, self.height = new_width, new_height
+                self.current_picture = current_image
+                self.current_frame_index += 1
+                if self.current_frame_index==29:
+                    self.status=='dead'
+            else:
+                self.current_picture = self.death_frames[-1]
+            return
 
         if self.status == 'attack':
             if self.current_frame_index < len(self.attack_frames):
@@ -160,7 +216,7 @@ class Dragon_Lord:
         self.current_picture = frames[self.current_frame_index]
 
     def move_right(self):
-        if self.allow_move_right and not self.attacking:
+        if self.allow_move_right and not self.attacking and not self.is_dying:
             self.x_pos += self.horizontal_speed
             self.Look = 'right'
             self.status = 'walk'
@@ -169,7 +225,7 @@ class Dragon_Lord:
             self.fall_from_platform()
 
     def move_left(self):
-        if self.allow_move_left and not self.attacking:
+        if self.allow_move_left and not self.attacking and not self.is_dying:
             self.x_pos -= self.horizontal_speed
             self.Look = 'left'
             self.status = 'walk'
@@ -246,7 +302,15 @@ class Dragon_Lord:
         self.vertical_move()
         self.horizontal_move()
         self.platforms_collisions(platforms)
+        if self.health <= 0 and not self.is_dying:
+            self.die()
+            return
         self.AI_behavior()
+        
+        for kid in self.flyingdemons:
+            if kid.death_finished:
+                self.flyingdemons.remove(kid)
+            
 
     def AI_behavior(self):
         if self.number_of_spotlight_activation==0:
@@ -270,11 +334,11 @@ class Dragon_Lord:
         distance_x = abs(self.target.x_pos - self.x_pos)
         distance_y = abs(self.target.y_pos - self.y_pos)
 
-        if distance_x <= 90 and distance_y < 200:
+        if distance_x <= 90 and distance_y < 200 and not self.is_dying:
             self.attack()
-        elif self.target.x_pos > self.x_pos:
+        elif self.target.x_pos > self.x_pos and not self.is_dying:
             self.move_right()
-        elif self.target.x_pos < self.x_pos:
+        elif self.target.x_pos < self.x_pos and not self.is_dying:
             self.move_left()
             
             
@@ -302,3 +366,21 @@ class Dragon_Lord:
             200
         )
         self.camera.screen.blit(self.spotlight_surface, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
+        
+        
+    def die(self):
+        if self.status == 'dying' or self.status=='dead':
+            return  
+
+        self.status = 'dying'
+        self.current_frame_index = 0
+        self.attacking = False
+        self.is_dying = True
+        self.keep_talking = False
+        self.previous_center = (self.x_pos + self.width // 2, self.y_pos + self.height)
+        
+    def hurt(self):
+        self.hurt_sound.play()
+
+    
+    

@@ -256,7 +256,7 @@ class Gunman:
 
     def update_health(self, shot_bullets):
         for bullet in shot_bullets[:]:
-            if self.hitbox.colliderect(bullet.hitbox):
+            if self.hitbox.colliderect(bullet.hitbox) and bullet.owner!='gunman':
                 self.health -= 20
                 self.hurt()
                 if bullet in shot_bullets:

@@ -6,7 +6,7 @@ from src.engine.protector import Guard_Drone
 from src.engine.bullet import Bullet
 
 class Archer:
-    def __init__(self, x, y, screen_width, screen_height, targets, health_bar_frame, health_bar, index=3):
+    def __init__(self, x, y, targets,index=3):
         self.hero_creation_index=index
         self.x_pos = x
         self.y_pos = y
@@ -28,9 +28,13 @@ class Archer:
         self.jump_cooldown = 250
         self.double_jump_allowed = True
         self.has_defuse_kit=False
-
-        self.health_bar_frame = health_bar_frame
-        self.health_bar = health_bar
+        self.jump_sound= pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "Archer", "jump.MP3"))
+        self.shoot_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "Archer", "shoot.mp3"))
+        self.melee_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "Archer", "melee.mp3"))
+        self.DEAD=False
+        self.ALIVE=True
+        self.health_bar_frame =pygame.image.load("src/assets/images/Archer/health_bar_frame.png")
+        self.health_bar = pygame.image.load("src/assets/images/Archer/health_bar.png")
 
         self.health=100
         self.targets = targets
@@ -39,7 +43,7 @@ class Archer:
         self.height = 100
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "archer", "archer hurt.mp3"))     
-        
+        self.health = 63
         self.max_health = 100
         self.bullets = []
         self.status = 'idle'
@@ -57,7 +61,7 @@ class Archer:
         self.last_guard_call = 0
         self.guard_drone = []
         self.drone_duration = 20000
-
+        self.HIT_COUNTER=0
         # Super Power Attributes
         self.super_power_active = False
         self.super_power_duration = 15000
@@ -82,15 +86,20 @@ class Archer:
         self.attack_frames = [pygame.transform.scale(pygame.image.load(os.path.join(base_path, "attack", f"{i}.png")), (sizes[i], 100)) for i in range(4)]
 
         self.super_power_effect_picture = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "super power effect.png")), (88, 127))
+        sizes=[(98,100),(102,100),(150,43)]
+        self.death_frames=[pygame.transform.scale(pygame.image.load(os.path.join(base_path, "death", f"{i}.png")), sizes[i]) for i in range(3)]
         
         self.current_picture = None
-        
         
         self.SUPER_POWER_FLAG=False
         self.GUARD_DRONE_FLAG=False
         self.DOUBLE_JUMP_FLAG=False
+        
+        
     def hurt(self):
         self.hurt_sound.play()
+        if self.health <= 0:
+            self.die()
 
     def display(self, screen, offset, shot_bullets):
         if self.health<0:
@@ -168,6 +177,7 @@ class Archer:
         for drone in self.guard_drone:
             drone.Update(screen, offset, shot_bullets)
 
+
         self.update_drone()
             
             
@@ -180,12 +190,45 @@ class Archer:
         self.status = 'attack'
         self.current_frame_index = 0
         self.attack_triggered = False
+        self.melee_sound.play()
         self.shooting = True  # Reuse this flag to lock input
-
-    def update_animation(self,shot_bullets):
-        if self.freezed:
-            self.current_picture=self.freezed_img
+        self.HIT_PER_ATTACK=0
+        self.HIT_COUNTER=0
+        
+    def update_animation(self, shot_bullets=None):
+        if hasattr(self, 'DEAD') and self.DEAD:
+            self.vertical_speed -= self.gravity_strenght
+            self.y_pos -= self.vertical_speed
+            self.hitbox.topleft = (self.x_pos, self.y_pos)
+            self.current_picture = self.death_frames[-1]
             return
+
+        current_time = pygame.time.get_ticks()
+
+        if hasattr(self, 'ALIVE') and not self.ALIVE and self.status == 'dead':
+            if self.current_frame_index < len(self.death_frames):
+                self.current_picture = self.death_frames[self.current_frame_index]
+                new_width, new_height = self.current_picture.get_size()
+                if self.current_frame_index == 0:
+                    self.previous_center = (self.x_pos + self.width // 2, self.y_pos + self.height)
+                self.x_pos = self.previous_center[0] - new_width // 2
+                self.y_pos = self.previous_center[1] - new_height
+                self.hitbox = pygame.Rect(self.x_pos, self.y_pos, new_width, new_height)
+
+                if current_time - self.last_frame_update_time > self.animation_speed * 2:
+                    self.current_frame_index += 1
+                    self.last_frame_update_time = current_time
+            else:
+                self.current_picture = self.death_frames[-1]
+                self.DEAD = True
+
+            
+            return
+
+        if self.freezed:
+            self.current_picture = self.freezed_img
+            return
+
         speed = self.animation_speed if self.status != 'shot' else self.animation_speed - 50
         current_time = pygame.time.get_ticks()
         if not hasattr(self, 'last_status'):
@@ -222,25 +265,35 @@ class Archer:
                     self.shooting = False
                     self.shot_triggered = False
             elif self.status == 'attack':
+                if self.current_frame_index == 0:
+                    self.damaged_targets = set()
+
                 self.current_picture = self.attack_frames[self.current_frame_index % len(self.attack_frames)]
-                if self.current_frame_index == 2 and not getattr(self, 'attack_triggered', False):
-                    self.damage_nearby_targets()
-                    self.attack_triggered = True
+
+                self.damage_nearby_targets()
+                self.melee_sound.play()
                 if self.current_frame_index >= len(self.attack_frames) - 1:
                     self.status = 'idle'
                     self.shooting = False
 
             self.current_frame_index += 1
-
+            self.update_attack()
+            if self.status=='attack':
+                for target in self.targets:
+                    if target.hitbox.colliderect(self.hitbox) and self.HIT_COUNTER==0:
+                        target.health-=30
+                        target.hurt()
+                        self.HIT_COUNTER+=1
+                        print('hit')
+                        
+                        
+        self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.current_picture.get_width(),self.current_picture.get_height())
     def damage_nearby_targets(self):
-        hitbox_range = pygame.Rect(
-            self.x_pos - 40 if self.Look == 'left' else self.x_pos + self.width,
-            self.y_pos,
-            50, 100
-        )
+        
         for target in self.targets:
-            if hasattr(target, 'hitbox') and hitbox_range.colliderect(target.hitbox):
+            if hasattr(target, 'hitbox') and self.hitbox.colliderect(target.hitbox):
                 target.health -= 50
+                target.hurt()
 
     def shoot_arrow(self, shot_bullets):
         arrow_x = self.x_pos + (self.width if self.Look == 'right' else -30)
@@ -249,6 +302,7 @@ class Archer:
         arrow_image = self.firedarrow_pic if self.super_power_active else self.arrow_pic
         damage = 35 if self.super_power_active else 25
         new_arrow = Arrow(arrow_x, arrow_y, direction, arrow_image, damage)
+        self.shoot_sound.play()
         self.bullets.append(new_arrow)
         shot_bullets.append(new_arrow)
         
@@ -263,45 +317,77 @@ class Archer:
         if self.super_power_active and current_time - self.super_power_last_activation > self.super_power_duration:
             self.super_power_active = False
 
-    def handle_input(self, keys,gates):
+    def handle_input(self, keys,gates,shot_bullets,bullet_class,trigger_shutter):
+        if self.DEAD:
+            return
         if self.freezed:
             return
         self.is_moving_horizontally = False
+        if self.hero_creation_index==1:
+            if keys[pygame.K_a] and self.status not in ('shot', 'attack'):
+                self.move_left()
+                self.is_moving_horizontally = True
+            if keys[pygame.K_d] and self.status not in ('shot', 'attack'):
+                self.move_right()
+                self.is_moving_horizontally = True
+            if keys[pygame.K_w]:
+                self.jump()
 
-        if keys[pygame.K_h] and self.status not in ('shot', 'attack'):
-            self.move_left()
-            self.is_moving_horizontally = True
-        if keys[pygame.K_k] and self.status not in ('shot', 'attack'):
-            self.move_right()
-            self.is_moving_horizontally = True
-        if keys[pygame.K_u]:
-            self.jump()
+            if keys[pygame.K_f] and not self.shooting and self.status != 'attack':
+                self.shooting = True
+                self.status = 'shot'
+                self.current_frame_index = 0
+                self.shot_triggered = False
 
-        if keys[pygame.K_j] and not self.shooting and self.status != 'attack':
-            self.shooting = True
-            self.status = 'shot'
-            self.current_frame_index = 0
-            self.shot_triggered = False
+            if keys[pygame.K_e] and self.status not in ('attack', 'shot'):
+                self.status = 'attack'
+                self.current_frame_index = 0
+                self.attack_triggered = False
+                self.attack_targets = self.targets
 
-        if keys[pygame.K_i] and self.status not in ('attack', 'shot'):
-            self.status = 'attack'
-            self.current_frame_index = 0
-            self.attack_triggered = False
-            self.attack_targets = self.targets
+            if keys[pygame.K_q]:
+                self.call_drone()
 
-        if keys[pygame.K_o]:
-            self.call_drone()
+            if keys[pygame.K_LCTRL]:
+                self.activate_super_power()
+                
+            if keys[pygame.K_TAB]:
+                self.Send_teleport_request(gates)
+        if self.hero_creation_index==2:
+            if keys[pygame.K_LEFT] and self.status not in ('shot', 'attack'):
+                self.move_left()
+                self.is_moving_horizontally = True
+            if keys[pygame.K_RIGHT] and self.status not in ('shot', 'attack'):
+                self.move_right()
+                self.is_moving_horizontally = True
+            if keys[pygame.K_UP]:
+                self.jump()
 
-        if keys[pygame.K_l]:
-            self.activate_super_power()
-            
-        if keys[pygame.K_y]:
-            self.Send_teleport_request(gates)
+            if keys[pygame.K_RCTRL] and not self.shooting and self.status != 'attack':
+                self.shooting = True
+                self.status = 'shot'
+                self.current_frame_index = 0
+                self.shot_triggered = False
+
+            if keys[pygame.K_RALT] and self.status not in ('attack', 'shot'):
+                self.status = 'attack'
+                self.current_frame_index = 0
+                self.attack_triggered = False
+                self.attack_targets = self.targets
+
+            if keys[pygame.K_SLASH]:
+                self.call_drone()
+
+            if keys[pygame.K_RSHIFT]:
+                self.activate_super_power()
+                
+            if keys[pygame.K_RETURN]:
+                self.Send_teleport_request(gates)
 
         if not self.is_moving_horizontally:
             self.stop_horizontal_movement()
 
-    def update_bullets(self, screen, global_bullet_list, platforms, targets,offset):
+    def update_bullets(self, screen, global_bullet_list, platforms, targets):
         
         for arrow in self.bullets[:]:
             if arrow not in global_bullet_list:
@@ -328,8 +414,7 @@ class Archer:
                     if arrow in global_bullet_list:
                         global_bullet_list.remove(arrow)
                     break
-        for drone in self.guard_drone:
-            drone.Update(screen, offset, global_bullet_list)
+
 
 
 
@@ -372,12 +457,14 @@ class Archer:
             return
 
         if self.on_ground:
+            self.jump_sound.play()
             self.vertical_speed = self.jump_strenght
             self.jump_count = 1
             self.on_ground = False
             self.current_platform = None
             self.last_jump_time = current_time
         elif self.jump_count == 1 and self.double_jump_allowed and self.DOUBLE_JUMP_FLAG:
+            self.jump_sound.play()
             self.vertical_speed = self.jump_strenght
             self.jump_count = 2
             self.double_jump_allowed = False
@@ -463,22 +550,49 @@ class Archer:
             if drone.status == 'departing' and drone.departed_len>3000:
                 self.guard_drone.remove(drone)
                 
-    def update(self,screen,platforms,shot_bullets,targets,keys,gates,scroll):
+    def update(self,platforms,shot_bullets,targets,keys,gate,trigger_shutter=None):
         self.is_on_ground()
-        self.gravity()
         self.vertical_move()
         self.platforms_collisions(platforms)
         self.move_with_platform()
         self.jump_under_platform(platforms)
-        self.update_animation(shot_bullets)
-        self.update_bullets(screen, shot_bullets, platforms, targets, scroll)
-        self.handle_input(keys,gates)
+        self.update_animation()
+        self.update_bullets(shot_bullets,targets)
+        self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter=None)
         self.update_drone()
-        
+        self.update_attack()
+
+    def update_attack(self):
+     if self.status=='attack' or self.status=='jumpattack':
+        for t in self.attack_targets:
+            if self.hitbox.colliderect(t.hitbox):
+                if self.Look=='right' and self.x_pos < t.x_pos and self.HIT_PER_ATTACK==0:
+                    t.health-=50
+                    self.HIT_PER_ATTACK=1                   
+                elif self.Look=='left' and self.x_pos > t.x_pos and self.HIT_PER_ATTACK==0:
+                    t.health-=50                    
+                    self.HIT_PER_ATTACK=1
         
     def Send_teleport_request(self,Gates):
         for Gate in Gates:
             Gate.recieve_request(self)
+            
+    def die(self):
+        if hasattr(self, 'DEAD') and self.DEAD:
+            return
+
+        self.ALIVE = False
+        self.DEAD = False  # will become True when animation finishes
+        self.status = 'dead'
+        self.current_frame_index = 0
+        self.vertical_speed = 0
+        self.on_ground = True
+        self.allow_move_left = False
+        self.allow_move_right = False
+        self.AllowJump_flag = False if hasattr(self, 'AllowJump_flag') else None
+        self.previous_center = (self.x_pos + self.width // 2, self.y_pos + self.height)
+        self.y_pos+=60
+        
                 
     
 

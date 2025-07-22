@@ -5,7 +5,8 @@ from config import Ninja_width, Ninja_height,profileSideSize, health_bar_lenght,
 from src.engine.protector import Guard_Drone
 ## must be done -->  1- list of enemies for hit when attacking must be fixed 
 class Ninja:
-    def __init__(self, x, y, screen_width, screen_height, targets, ninja_health_bar_frame, ninja_health_bar, hero_creation_index=2):
+    def __init__(self, x, y, screen_width, screen_height, targets, hero_creation_index=2):
+        
         self.ALIVE=True
         self.DEAD=False
         
@@ -21,11 +22,8 @@ class Ninja:
         self.y_pos = y
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja hurt.mp3"))        
         self.on_platform = False
-        self.is_first_time=True
-        #self.ninja_health_bar_frame = pygame.image.load("src/assets/images/Ninja/Ninja_health_bar_frame.png")
-        # self.ninja_health_bar =pygame.image.load("src/assets/images/Ninja/Ninja_health_bar.png")
-        self.ninja_health_bar_frame = ninja_health_bar_frame
-        self.ninja_health_bar = ninja_health_bar
+        self.ninja_health_bar_frame = pygame.image.load("src/assets/images/Ninja/Ninja_health_bar_frame.png")
+        self.ninja_health_bar =pygame.image.load("src/assets/images/Ninja/Ninja_health_bar.png")
         self.hero_creation_index = hero_creation_index  # دیفالت 2
         self.ninja_profile_picture = pygame.image.load("src/assets/images/Ninja/ninja_profile.png")
         self.current_platform = None
@@ -202,11 +200,14 @@ class Ninja:
             tmp = pygame.image.load(img_path)
             self.death_frames.append(pygame.transform.scale(tmp, self.death_sizes[i]))
             
+      
+        
         self.SUPER_POWER_FLAG=False
         self.GUARD_DRONE_FLAG=False
         self.DOUBLE_JUMP_FLAG=False
         
-
+        
+        self.DEAD=False
 
     
     def hurt(self):
@@ -214,8 +215,9 @@ class Ninja:
         if self.health <= 0:
             self.die()
     def die(self):
+        if self.DEAD:
+            return
         self.ALIVE = False
-        self.DEAD = True
         self.status = 'dead'
         self.current_frame_index = 0
         self.last_animation_state = 'death'
@@ -225,6 +227,7 @@ class Ninja:
         self.allow_move_left = False
         self.allow_move_right = False
         self.y_pos+=30        
+        self.previous_center = (self.x_pos + self.width // 2, self.y_pos + self.height)
              
     def display_health_bar(self, screen):
         if self.health<0:
@@ -292,14 +295,14 @@ class Ninja:
     def display(self, screen, offset, shot_bullets):
         self.Update_SuperPower() 
         self.Super_Power_effect()
-        if self.hero_creation_index == 2 or self.hero_creation_index == 4: # اگر hero_creation_index برای فلیپ کردن تنظیم شده
-            if self.is_first_time:
-                self.ninja_profile_picture = pygame.transform.flip(self.ninja_profile_picture, True, False)
-                self.is_first_time = False
         for drone in self.guard_drone:
             drone.Update(screen, offset, shot_bullets)
 
             drone.Update(screen,offset,shot_bullets)
+        
+        
+        
+    
         display_picture = self.current_picture
         display_x = self.x_pos
 
@@ -313,23 +316,27 @@ class Ninja:
 
         self.display_health_bar(screen)
     def update_animation(self, shot_bullets):
+        if self.DEAD:
+            self.current_picture=self.death_frames[9]
+            self.y_pos=self.y_pos+118-self.current_picture.get_height()
         current_time = pygame.time.get_ticks()
 
         if not self.ALIVE:
             if self.current_frame_index < len(self.death_frames):
                 self.current_picture = self.death_frames[self.current_frame_index]
-                self.hitbox = pygame.Rect(
-                    self.x_pos, self.y_pos,
-                    self.death_frames[self.current_frame_index].get_width(),
-                    self.death_frames[self.current_frame_index].get_height()
-                )
+                new_width, new_height = self.current_picture.get_size()
+                if self.current_frame_index == 0:
+                    self.previous_center = (self.x_pos + self.width // 2, self.y_pos + self.height)
+                self.x_pos = self.previous_center[0] - new_width // 2
+                self.y_pos = self.previous_center[1] - new_height
+                self.hitbox = pygame.Rect(self.x_pos, self.y_pos, new_width, new_height)
+
                 if current_time - self.last_frame_update_time > self.frame_duration:
                     self.current_frame_index += 1
                     self.last_frame_update_time = current_time
-                    self.gravity()
             else:
                 self.current_picture = self.death_frames[-1]
-                self.gravity()
+                self.DEAD = True  
             return
 
         if self.freezed:
@@ -743,32 +750,58 @@ class Ninja:
         self.is_moving_horizontally = False
         if self.freezed:
             return
+        if self.hero_creation_index==1:
+            if keys[pygame.K_e]:
+                self.attack()  
+            if keys[pygame.K_a]:
+                self.move_left()
+                self.is_moving_horizontally = True
+            if keys[pygame.K_d]:
+                self.move_right()
+                self.is_moving_horizontally = True
+            if keys[pygame.K_w]:
+                self.jump()
+            if keys[pygame.K_f]:
+                self.shoot(shot_bullets, bullet_class)
+            if keys[pygame.K_q]:
+                self.call_drone()
 
-        if keys[pygame.K_LEFT]:
-            self.move_left()
-            self.is_moving_horizontally = True
-        if keys[pygame.K_RIGHT]:
-            self.move_right()
-            self.is_moving_horizontally = True
-        if keys[pygame.K_UP]:
-            self.jump()
-        if keys[pygame.K_RSHIFT]:
-            if not self.Super_PowerFlag:
-                if trigger_shutter:
-                    trigger_shutter(strength=10, duration=1500)
-            self.Activate_Super_Power()
-        if keys[pygame.K_RCTRL]:
-            self.shoot(shot_bullets, bullet_class)
-        if keys[pygame.K_TAB]:
-            self.Send_teleport_request(gate)
-        if keys[pygame.K_p]:
-            self.call_drone()
+            if keys[pygame.K_LCTRL]:
+                if not self.Super_PowerFlag:
+                    if trigger_shutter:
+                        trigger_shutter(strength=10, duration=1500)
+                self.Activate_Super_Power()
+                
+            if keys[pygame.K_TAB]:
+                self.Send_teleport_request(gate)
+
+        if self.hero_creation_index==2:
+            if keys[pygame.K_RALT]:
+                self.attack()            
+            if keys[pygame.K_LEFT]:
+                self.move_left()
+                self.is_moving_horizontally = True
+            if keys[pygame.K_RIGHT]:
+                self.move_right()
+                self.is_moving_horizontally = True
+            if keys[pygame.K_UP]:
+                self.jump()
+            if keys[pygame.K_RSHIFT]:
+                if not self.Super_PowerFlag:
+                    if trigger_shutter:
+                        trigger_shutter(strength=10, duration=1500)
+                self.Activate_Super_Power()
+            if keys[pygame.K_RCTRL]:
+                self.shoot(shot_bullets, bullet_class)
+            if keys[pygame.K_RETURN]:
+                self.Send_teleport_request(gate)
+            if keys[pygame.K_SLASH]:
+                self.call_drone()
 
         if not self.is_moving_horizontally:
             self.stop_horizontal_movement()
                     # Add in handle_input
-        if keys[pygame.K_e]:
-            self.attack()
+
             
                 
     def attack(self):
@@ -805,10 +838,13 @@ class Ninja:
                     
                     
                     
-    def update(self,screen, platforms, shot_bullets, targets, keys, gate, trigger_shutter=None):
+    def update(self, platforms, shot_bullets, targets, keys, gate, trigger_shutter=None):
         if not self.ALIVE:
             self.update_animation(shot_bullets)
             return
+        
+        self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.current_picture.get_width(),self.current_picture.get_height())
+
         self.is_on_ground()
         self.gravity()
         self.vertical_move()
@@ -816,9 +852,10 @@ class Ninja:
         self.move_with_platform()
         self.jump_under_platform(platforms)
         self.update_animation(shot_bullets)
-        self.update_bullets(screen, shot_bullets, platforms, targets)
-        self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter=None)
+        self.update_bullets(shot_bullets, targets)
+        self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter)
         self.update_drone()
+
 
                        
                       

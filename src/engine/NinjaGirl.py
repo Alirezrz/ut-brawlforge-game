@@ -2,20 +2,22 @@ from src.engine.Ninja import Ninja
 import os
 import pygame
 class NinjaGirl(Ninja):
-    def __init__(self, x, y, screen_width, screen_height, attack_targets, ninja_health_bar_frame, ninja_health_bar, hero_creation_index=2):
-        super().__init__(x, y, screen_width, screen_height, attack_targets, ninja_health_bar_frame, ninja_health_bar, hero_creation_index)
+    def __init__(self, x, y, screen_width, screen_height, attack_targets,hero_creation_index):
+        super().__init__(x, y, screen_width, screen_height, attack_targets,hero_creation_index)
         self.load_girl_sprites()
-        self.ninja_health_bar=ninja_health_bar
-        self.ninja_health_bar_frame =ninja_health_bar_frame
+        self.hero_creation_index=hero_creation_index
+        self.ninja_health_bar=pygame.image.load("src/assets/images/NinjaGirl/health_bar.png")
+        self.ninja_health_bar_frame =pygame.image.load("src/assets/images/NinjaGirl/health_bar_frame.png")
         self.ninja_profile_picture = pygame.image.load("src/assets/images/NinjaGirl/profile.png")
-        self.is_first_time=True
+
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja girl", "ninjagirl hurt.mp3"))
           
     def hurt(self):
         self.hurt_sound.play()
+        if self.health <= 0:
+            self.die()
 
     def load_girl_sprites(self):
-        # Replace this with code that loads the girl's custom animations
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "NinjaGirl")
         # Load Idle frames
         self.idle_frames = []
@@ -94,3 +96,15 @@ class NinjaGirl(Ninja):
             pygame.image.load(os.path.join(base_path,"super power.png")),
             (118,118)
         )
+        
+        sizes=[(70,118),(83,118),(93,108),(102,90),(104,70),(118,78),(118,73),(118,78),(118,78),(118,79)]
+        self.death_frames=[]
+        for i in range(10):
+            self.death_frames.append(
+                pygame.transform.scale(
+                    pygame.image.load(
+                        os.path.join(base_path,'death',f"Dead__00{i}.png")
+                    ),
+                    sizes[i]
+                )
+            )

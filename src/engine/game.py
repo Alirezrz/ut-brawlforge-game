@@ -1,102 +1,114 @@
 import pygame
 import random
 import os
-from config import screen_width, screen_height, platform_height, FPS
+from config import screen_width, screen_height, FPS
 from src.engine.bullet import Bullet
 from src.engine.platform import Platform
 from src.engine.explosion import Explosion
 from src.engine.camera import Camera
 from src.engine.input_handler import InputHandler
-from src.levels import get_level_data, load_platforms, load_enemies, load_objects, load_gates, apply_targets_to_enemies
-from src.engine.menu import PauseMenu
-from src.engine.defuse_kit import DefuseKit
-from src.engine.terrorist import Terrorist
-from src.engine.teleportgate import Gates
-from src.engine.bomb import Bomb
-from src.engine.Drone import Drone
-from src.engine.pumpkin import Pumpkin
-from src.engine.gunman import Gunman
-from src.engine.heatlh_box import PowerBox
-from src.engine.Dragon_Lord import Dragon_Lord
-from src.engine.flyingdemon import FlyingDemon
-from src.engine.Roboman import Roboman
 from src.engine.Ninja import Ninja
+from src.engine.Roboman import Roboman
 from src.engine.NinjaGirl import NinjaGirl
 from src.engine.Archer import Archer
+from src.engine.menu import PauseMenu
+from src.levels import level_1_data,level_2_data,level_3_data,level_4_data, load_level_data, build_enemies, build_objects, apply_targets_to_enemies,Boss_fight_level
+from src.engine.power_ups import Power_up
 
 class Game:
-    def __init__(self, screen, hero_picture, ghost_picture, ghost2_picture, platform_image, background, explosion_picture, health_bar_green, health_bar_red, hero_profile_picture, roboman_health_bar_frame, roboman_health_bar, sounds, ninja_health_bar_frame, ninja_health_bar, archer_health_bar_frame, archer_health_bar, main_character=None,selected_map='level_1'):
+    def __init__(self, screen, platform_image, background,selected_char,selected_map
+           ):
         self.screen = screen
         self.background = background
-        self.explosion_picture = explosion_picture
         self.clock = pygame.time.Clock()
-        self.sounds = sounds
-        self.selected_map = selected_map
         self.screen_color = (60, 100, 150)
         self.scroll = [0, 0]
- 
-        level_data= get_level_data(self.selected_map)
-        player_start_pos = level_data['player_start']
-        self.main_character = main_character
-        if self.main_character is None:
-            self.main_character = Roboman(player_start_pos['x'], player_start_pos['y'], 
-                                          roboman_health_bar_frame, roboman_health_bar, hero_profile_picture, 
-                                          screen_width, screen_height, sounds=sounds)
-        else:
-            self.main_character.x_pos = player_start_pos['x']
-            self.main_character.y_pos = player_start_pos['y']
-            self.main_character.hitbox.topleft = (player_start_pos['x'], player_start_pos['y'])
-
-
-        self.platforms = load_platforms(self.selected_map, platform_image)
-        all_players = [self.main_character]
-        enemies_data = load_enemies(self.selected_map, self.screen, self.scroll, self.platforms)
-        self.terrorists = enemies_data.get('terrorists', [])
-        self.gunmans = enemies_data.get('gunmans', [])
-        self.drones = enemies_data.get('drones', [])
-        self.flyingdemons = enemies_data.get('flyingdemons', [])
-        self.dragonlord = enemies_data.get('dragonlord') 
-        objects_data = load_objects(self.selected_map, all_players)
-        self.bomb = Bomb(player_start_pos['x'] + 100, player_start_pos['y'] - 500, targets=[self.main_character]) 
-        self.defuse_kit = DefuseKit(player_start_pos['x'] + 100, player_start_pos['y'] - 270, targets=[self.main_character])
-        self.gates = objects_data.get('gates', []) 
-        self.objects = objects_data.get('misc', []) + self.gates 
-        apply_targets_to_enemies(enemies_data, all_players)
-        all_enemies_list = []
-        for group in enemies_data.values():
-            if isinstance(group, list):
-                all_enemies_list.extend(group)
-            elif group:
-                all_enemies_list.append(group)
-        self.main_character.targets = all_enemies_list
-
-        # self.base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images")
-
         self.shot_bullets = []
         self.explosions = []
         self.bullet_class = Bullet
         self.game_active = True
+        if selected_map=="level1":
+            self.map=level_1_data
+        if selected_map=="level2":
+            self.map=level_2_data
+        if selected_map=="level3":
+            self.map=level_3_data
+        if selected_map=="level4":
+            self.map=level_4_data        
         self.shutter_strength = 0
         self.shutter_start_time = 0
         self.shutter_duration = 150
-        self.camera = Camera(self.screen, self.platforms, self.shot_bullets, self.main_character, self.explosions, self.scroll, 
-                             next(iter(self.terrorists), None), # terrorist
-                             self.gates, self.background, 
-                             self.drones, self.objects, self.gunmans, self.dragonlord, 
-                             next(iter(self.flyingdemons), None), # flyingdemon
-                             self.bomb, self.defuse_kit)
-        if self.dragonlord:
-            self.dragonlord.camera = self.camera
-        self.enemies = all_enemies_list
-        self.input_handler = InputHandler(self.main_character, self.bullet_class, self.shot_bullets)
-    def remove_bullet(self, bullet):
-        if bullet in self.shot_bullets:
-            self.shot_bullets.remove(bullet)
-        if bullet in self.main_character.bullets:
-            self.main_character.bullets.remove(bullet)
-        for gunman in self.gunmans:
-            if bullet in gunman.shot_bullets:
-                gunman.shot_bullets.remove(bullet)
+
+        player_start_pos = self.map['player_start']
+        if selected_char == "Ninja":
+            self.hero = Ninja(
+                player_start_pos['x'], player_start_pos['y'],
+                screen_width, screen_height,
+                [],1  # لیست targets بعداً ست می‌شود
+            )
+        elif selected_char == "Archer":
+            self.hero=Archer(player_start_pos['x'], player_start_pos['y'],
+            [],1)
+
+        elif selected_char == "NinjaGirl": 
+            self.hero=NinjaGirl(
+                player_start_pos['x'], player_start_pos['y'],
+                screen_width, screen_height,
+                [],1
+            ) 
+
+        else:
+            self.hero=Roboman(
+                player_start_pos['x'], player_start_pos['y'],
+                screen_width, screen_height,1
+            )
+
+        self.platforms = load_level_data(self.map, platform_image)
+
+        self.enemies_dict = build_enemies(self.map, self.screen, self.scroll, self.platforms)
+        all_enemies = []
+        for group in self.enemies_dict.values():
+            if isinstance(group, list):
+                all_enemies.extend(group)
+            elif group:  
+                all_enemies.append(group)
+
+        self.objects_dict = build_objects(self.map, [self.hero])
+        self.objects = self.objects_dict['misc'] + \
+                       ([self.objects_dict['bomb']] if self.objects_dict['bomb'] else []) + \
+                       ([self.objects_dict['defuse_kit']] if self.objects_dict['defuse_kit'] else []) + \
+                       self.objects_dict['gates']
+                       
+        self.Power_ups=[]
+        self.Power_ups.append(Power_up(player_start_pos['x']-100, player_start_pos['y'],'double jump',[self.hero]))
+        self.objects+=self.Power_ups
+
+        # هدف‌گذاری دشمنان
+        apply_targets_to_enemies(self.enemies_dict, [self.hero])
+
+        # اهداف حمله نینجا
+        self.hero.attack_targets = all_enemies
+
+        
+        self.camera = Camera(
+            self.screen, self.platforms, self.shot_bullets, self.hero,
+            self.explosions, self.scroll, self.hero,
+            next(iter(self.enemies_dict['terrorists']), None),
+            self.objects_dict['gates'], self.background,
+            self.enemies_dict['drones'],
+            self.objects,
+            self.enemies_dict['gunmans'],
+            None,  
+            self.enemies_dict['dragonlord'],
+            next(iter(self.enemies_dict['flyingdemons']), None),
+            self.objects_dict['bomb'],
+            self.objects_dict['defuse_kit']
+        )
+
+        self.enemies = all_enemies
+        self.input_handler = InputHandler(None, self.bullet_class, self.shot_bullets)
+        if self.enemies_dict.get('dragonlord'):
+            self.enemies_dict['dragonlord'].camera = self.camera
 
     def handle_events(self, events):
         for event in events:
@@ -106,53 +118,41 @@ class Game:
 
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
-        if isinstance(self.main_character, Roboman):
-            self.main_character.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class,self.trigger_shutter)
-        elif isinstance(self.main_character, Ninja) or isinstance(self.main_character, NinjaGirl):
-            self.main_character.handle_input(keys, self.gates, self.shot_bullets, self.bullet_class,self.trigger_shutter)
-        elif isinstance(self.main_character, Archer):
-            self.main_character.handle_input(keys,self.gates)
+        if self.objects_dict.get('bomb'):
+            self.objects_dict['bomb'].handle_input(keys)
+        self.hero.handle_input(keys, self.objects_dict['gates'], self.shot_bullets, self.bullet_class, self.trigger_shutter)
 
     def update(self):
         keys = pygame.key.get_pressed()
-        if self.dragonlord: 
-            self.dragonlord.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
-        self.update_enemies()
-        self.main_character.is_on_ground()
-        self.main_character.gravity()
-        self.main_character.vertical_move()
-        self.main_character.platforms_collisions(self.platforms)
-        self.main_character.move_with_platform()
-        self.main_character.jump_under_platform(self.platforms)
+        if self.enemies_dict.get('dragonlord'):
+            self.enemies_dict['dragonlord'].Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
 
-        # فراخوانی update بر اساس کاراکتر
-        if isinstance(self.main_character, Roboman):
-            self.main_character.update(self.platforms, self.shot_bullets, self.enemies, keys, self.gates)
-        elif isinstance(self.main_character, Ninja) or isinstance(self.main_character, NinjaGirl):
-            self.main_character.update(self.screen,self.platforms, self.shot_bullets, self.enemies, keys, self.gates)
-        elif isinstance(self.main_character, Archer):
-            self.main_character.update(self.screen,self.platforms, self.shot_bullets, self.enemies, keys,self.gates,self.scroll)
+        for character in [self.hero]:
+            character.is_on_ground()
+            character.gravity()
+            character.vertical_move()
+            character.platforms_collisions(self.platforms)
+            character.move_with_platform()
+            character.jump_under_platform(self.platforms)
 
+        self.hero.update_animation(self.shot_bullets)
+        self.hero.update_bullets(self.screen, self.shot_bullets, self.platforms, self.enemies)
 
-        for gunman in self.gunmans:
-            gunman.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
-        for drone in self.drones:
-            drone.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
-
-        for terrorist in self.terrorists[:]:
-            if terrorist and terrorist.status != 'removed':
-                terrorist.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
-            else:
-                self.terrorists.remove(terrorist)
+        for enemy in self.enemies[:]:
+            if hasattr(enemy, 'Update'):
+                enemy.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
+            if hasattr(enemy, 'status') and enemy.status == 'removed':
+                self.enemies.remove(enemy)
 
         for platform in self.platforms:
             platform.update()
 
-        self.scroll[0] += ((self.main_character.hitbox.centerx - screen_width / 2 - self.scroll[0])) / 15
-        self.scroll[1] += (self.main_character.hitbox.centery - screen_height / 2 - self.scroll[1]) / 15
+        self.scroll[0] += ((self.hero.hitbox.centerx - screen_width / 2 - self.scroll[0])) / 15
+        self.scroll[1] += (self.hero.hitbox.centery - screen_height / 2 - self.scroll[1]) / 15
 
         for obj in self.objects:
             obj.Update(self.screen, self.scroll)
+
 
         current_time = pygame.time.get_ticks()
         if self.shutter_strength > 0:
@@ -198,21 +198,3 @@ class Game:
         self.shutter_strength = strength
         self.shutter_duration = duration
         self.shutter_start_time = pygame.time.get_ticks()
-        
-    def update_enemies(self):
-        keys = pygame.key.get_pressed()
-        for enemy in self.enemies[:]:
-            if hasattr(enemy, 'Update'):
-                if isinstance(enemy, Dragon_Lord):
-                    enemy.Update(self.screen, self.scroll, self.shot_bullets,self.platforms)
-                else:
-                    enemy.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
-            if hasattr(enemy, 'status') and enemy.status == 'removed':
-                self.enemies.remove(enemy)
-                
-    def cleanup_dead_entities(self):
-        self.enemies = [e for e in self.enemies if not hasattr(e, 'death_finished') or not getattr(e, 'death_finished')]
-        self.terrorists = [e for e in self.enemies if isinstance(e, Terrorist)]
-        self.gunmans = [e for e in self.enemies if isinstance(e, Gunman)]
-        self.drones = [e for e in self.enemies if isinstance(e, Drone)]
-        self.flyingdemons = [e for e in self.enemies if isinstance(e, FlyingDemon)]
