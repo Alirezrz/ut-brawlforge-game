@@ -202,7 +202,9 @@ class Ninja:
             tmp = pygame.image.load(img_path)
             self.death_frames.append(pygame.transform.scale(tmp, self.death_sizes[i]))
             
-      
+        self.SUPER_POWER_FLAG=False
+        self.GUARD_DRONE_FLAG=False
+        self.DOUBLE_JUMP_FLAG=False
         
 
 
@@ -583,7 +585,7 @@ class Ninja:
             self.last_jump_time = current_time  
             return
 
-        if not self.on_ground and self.jump_count == 1 and self.Allow_double_jump:
+        if not self.on_ground and self.jump_count == 1 and self.Allow_double_jump and self.DOUBLE_JUMP_FLAG:
             self.double_jump()
             self.jump_count = 2
             self.last_jump_time = current_time 
@@ -673,7 +675,7 @@ class Ninja:
                         
     def Activate_Super_Power(self):
         current_time=pygame.time.get_ticks()
-        if current_time-self.Super_lastActivation>=self.SuperPower_CoolDown and self.current_platform!=None and self.vertical_speed==0:
+        if current_time-self.Super_lastActivation>=self.SuperPower_CoolDown and self.current_platform!=None and self.vertical_speed==0 and self.SUPER_POWER_FLAG:
             self.Super_cofficent=2
             self.Super_lastActivation = current_time
             self.last_SPdisplay=current_time
@@ -720,7 +722,7 @@ class Ninja:
         
     def call_drone(self):
         current_time=pygame.time.get_ticks()
-        if current_time - self.last_guard_call >= self.guard_drone_reload_duration:
+        if current_time - self.last_guard_call >= self.guard_drone_reload_duration and self.GUARD_DRONE_FLAG:
             self.guard_drone.append(Guard_Drone(self,"Ninja"))
             self.last_guard_call=current_time
             

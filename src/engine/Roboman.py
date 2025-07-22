@@ -233,7 +233,9 @@ class Roboman:
         self.last_guard_call = 0
         self.guard_drone = []
         self.drone_duration = 20000
-
+        self.SUPER_POWER_FLAG=False
+        self.GUARD_DRONE_FLAG=False
+        self.DOUBLE_JUMP_FLAG=False
     def hurt(self):
         self.hurt_sound.play()
         
@@ -519,7 +521,7 @@ class Roboman:
         if current_time - self.last_rocket_shot < self.rocket_reload_duration:
             return  # rocket still cooling down
 
-        if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active:
+        if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active and self.SUPER_POWER_FLAG:
             if self.shoot_sound:
                 self.shoot_sound.play()
 
@@ -647,7 +649,7 @@ class Roboman:
             
     def activate_jetpack(self):
         current_time = pygame.time.get_ticks()
-        if not self.on_ground and not self.jetpack_active and (current_time - self.last_jetpack_use_time >= self.jetpack_reload_duration):
+        if not self.on_ground and not self.jetpack_active and (current_time - self.last_jetpack_use_time >= self.jetpack_reload_duration) and self.DOUBLE_JUMP_FLAG:
             if self.jetpack_sound:
                 self.jetpack_sound.play()
             self.jetpack_active = True
@@ -767,7 +769,7 @@ class Roboman:
             
     def call_drone(self):
         current_time=pygame.time.get_ticks()
-        if current_time - self.last_guard_call >= self.guard_drone_reload_duration:
+        if current_time - self.last_guard_call >= self.guard_drone_reload_duration and self.GUARD_DRONE_FLAG:
             self.guard_drone.append(Guard_Drone(self,"Roboman"))
             self.last_guard_call=current_time
     def update_drone(self):
