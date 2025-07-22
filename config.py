@@ -5,13 +5,14 @@ info = pygame.display.Info()
 
 screen_width = info.current_w
 screen_height = info.current_h
-
+bossProfileSideSize=200
 profileSideSize=100
 jump_strenght=22
 gravity_strenght=1
 horizontal_speed=8
 health_bar_lenght=276
 roboman_health_bar_frame_thickness=24
+boss_healthBar_thickness=35
 roboman_reload_time=400
 roboman_jetpack_reload=3000 
 
