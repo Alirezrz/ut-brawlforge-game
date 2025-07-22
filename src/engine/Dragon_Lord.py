@@ -3,6 +3,8 @@ import os
 from openai import OpenAI
 import threading
 import time
+from src.engine.flyingdemon import FlyingDemon
+
 
 client = OpenAI(
     api_key="tpsg-2pMQn399nKMGRcOpaBXAentWTdEPkbA",
@@ -17,7 +19,7 @@ class Dragon_Lord:
         self.y_pos = y
         self.width = 150
         self.height = 180
-
+        self.flyingdemons=[]
         self.target = target
 
         self.on_platform = False
@@ -32,7 +34,7 @@ class Dragon_Lord:
         self.gravity_strenght = 1
         self.on_ground = False
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
-        self.health = 63
+        self.health =1000
         self.max_health = 100
 
         self.attacking = False
@@ -72,6 +74,7 @@ class Dragon_Lord:
         self.camera=None
 
         #self.start_dialog_loop()
+        self.number_of_spotlight_activation=0
     def get_prompt(self):
         if self.prompt_type == "attack":
             return f"Dragon Lord is unleashing a blazing punch at the player at ({self.target.x_pos}, {self.target.y_pos})."
@@ -114,10 +117,14 @@ class Dragon_Lord:
         self.keep_talking = False
 
     def display(self, screen, offset):
+        print(self.health)
         image = self.current_picture
         if self.Look == 'left':
             image = pygame.transform.flip(image, True, False)
         screen.blit(image, (self.x_pos - offset[0], self.y_pos - offset[1]))
+        
+        for kid in self.flyingdemons:
+            kid.display(screen,offset)
 
     def update_animation(self):
         current_time = pygame.time.get_ticks()
@@ -218,7 +225,6 @@ class Dragon_Lord:
         self.attack_hits = 0
         self.prompt_type = "attack"
         self.last_attack_time = time.time()
-        self.camera.activate_spotlight()
         
 
     def check_attack_collision(self):
@@ -243,6 +249,21 @@ class Dragon_Lord:
         self.AI_behavior()
 
     def AI_behavior(self):
+        if self.number_of_spotlight_activation==0:
+            self.camera.activate_spotlight()
+            self.number_of_spotlight_activation+=1
+            
+        if self.health<=500 and self.number_of_spotlight_activation<2:
+            self.camera.activate_spotlight()
+            self.number_of_spotlight_activation+=1
+            self.flyingdemons.append(FlyingDemon(self.x_pos+40,self.y_pos+30,self.target,self.Look))
+            self.flyingdemons.append(FlyingDemon(self.x_pos-100,self.y_pos+30,self.target,self.Look))
+            self.target.attack_targets+=self.flyingdemons
+            
+        for enemy in self.flyingdemons:
+            if hasattr(enemy, 'status') and enemy.status == 'removed':
+                self.flyingdemons.remove(enemy)
+            
         if self.attacking:
             return
 
@@ -258,4 +279,26 @@ class Dragon_Lord:
             
             
     def Active_spot_light_effect(self):
-        self.camera.activate_spotlight()
+        if not hasattr(self, 'spotlight_alpha'):
+            self.spotlight_alpha = 0
+            self.spotlight_max_alpha = 180
+            self.spotlight_fade_speed = 5
+            self.spotlight_active = True
+            self.spotlight_surface = pygame.Surface((800, 600), pygame.SRCALPHA)
+
+        if not self.spotlight_active:
+            self.spotlight_alpha = 0
+            self.spotlight_active = True
+
+        if self.spotlight_alpha < self.spotlight_max_alpha:
+            self.spotlight_alpha += self.spotlight_fade_speed
+
+        self.spotlight_surface.fill((0, 0, 0, 0))  
+        pygame.draw.circle(
+            self.spotlight_surface,
+            (0, 0, 0, self.spotlight_alpha),
+            (int(self.target.x_pos - self.camera.scroll[0] + self.target.width // 2),
+            int(self.target.y_pos - self.camera.scroll[1] + self.target.height // 2)),
+            200
+        )
+        self.camera.screen.blit(self.spotlight_surface, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
