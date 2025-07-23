@@ -37,7 +37,7 @@ level_1_data = {
         {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 62 * TILE_SIZE , 'y2':1*TILE_SIZE-150},
         {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 150, 'y': 400 - 270-130},
         #{'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465},
-        {'type': 'power ups', 'x': -20 * TILE_SIZE + 200, 'y': 400 - 200, 'subtype': 'double jump'},
+        {'type': 'power ups', 'x': -20 * TILE_SIZE + 200, 'y': TILE_SIZE - 200, 'subtype': 'double jump'},
         {'type': 'power ups', 'x': 60 * TILE_SIZE + 200, 'y': 400 - 200, 'subtype': 'super power'},
         {'type': 'power ups', 'x':  7* TILE_SIZE + 200, 'y': -9*TILE_SIZE - 200, 'subtype': 'guard drone'}
     ],
