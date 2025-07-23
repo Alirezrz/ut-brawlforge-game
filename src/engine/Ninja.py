@@ -745,7 +745,7 @@ class Ninja:
                     drone.status = 'departing'
             if drone.status == 'departing' and drone.departed_len>3000:
                 self.guard_drone.remove(drone)
-    def handle_input(self, keys, gate, shot_bullets, bullet_class, trigger_shutter=None):
+    def handle_input(self, keys, gate, shot_bullets, bullet_class,trigger_shutter, mouse_bottons):
         if not self.ALIVE:
             return
 
@@ -753,7 +753,7 @@ class Ninja:
         if self.freezed:
             return
         if self.hero_creation_index==1:
-            if keys[pygame.K_e]:
+            if mouse_bottons[2]:
                 self.attack()  
             if keys[pygame.K_a]:
                 self.move_left()
@@ -763,12 +763,12 @@ class Ninja:
                 self.is_moving_horizontally = True
             if keys[pygame.K_w]:
                 self.jump()
-            if keys[pygame.K_f]:
+            if mouse_bottons[0]:
                 self.shoot(shot_bullets, bullet_class)
-            if keys[pygame.K_q]:
+            if keys[pygame.K_g]:
                 self.call_drone()
 
-            if keys[pygame.K_LCTRL]:
+            if keys[pygame.K_LSHIFT]:
                 if not self.Super_PowerFlag:
                     if trigger_shutter:
                         trigger_shutter(strength=10, duration=1500)

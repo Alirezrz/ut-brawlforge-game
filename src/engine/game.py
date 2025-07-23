@@ -129,12 +129,16 @@ class Game:
 
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
+        mouse_bottons=pygame.mouse.get_pressed()
         if self.objects_dict.get('bomb'):
             self.objects_dict['bomb'].handle_input(keys)
-        self.hero.handle_input(keys, self.objects_dict['gates'], self.shot_bullets, self.bullet_class, self.trigger_shutter)
+        self.hero.handle_input(keys, self.objects_dict['gates'], self.shot_bullets, self.bullet_class, self.trigger_shutter,mouse_bottons)
 
     def update(self):
+        if self.hero.y_pos>64*50:
+            self.hero.health=0        
         keys = pygame.key.get_pressed()
+        
         if self.enemies_dict.get('dragonlord'):
             self.enemies_dict['dragonlord'].Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
 
