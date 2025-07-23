@@ -14,8 +14,10 @@ level_1_data = {
         {'type': 'drone', 'x': -400, 'y': 40, 'direction': 'right'},
         {'type': 'terrorist', 'x': 46 * TILE_SIZE , 'y': 400},
         {'type': 'gunman', 'x': 40 * TILE_SIZE , 'y': 400},
-        {'type': 'gunman', 'x': 25 * TILE_SIZE + 800, 'y': 400},
+        {'type': 'gunman', 'x': 25 * TILE_SIZE , 'y': 400},
         {'type': 'terrorist', 'x': 15 * TILE_SIZE , 'y': 400},
+        {'type': 'gunman', 'x': 49 * TILE_SIZE , 'y': -1*TILE_SIZE-110},
+        {'type': 'terrorist', 'x': 53 * TILE_SIZE , 'y': -1*TILE_SIZE-110},        
 
     ],
 
