@@ -844,7 +844,8 @@ class Ninja:
             return
         
         self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.current_picture.get_width(),self.current_picture.get_height())
-        
+        if self.y_pos>7000:
+            self.health=0
         self.is_on_ground()
         self.gravity()
         self.vertical_move()
