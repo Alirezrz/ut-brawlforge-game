@@ -1,4 +1,5 @@
 from src.engine.platform import Platform
+from src.engine.power_ups import Power_up
 
 TILE_SIZE = 64
 
@@ -19,7 +20,10 @@ level_1_data = {
         {'type': 'defusekit', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
         {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 58 * TILE_SIZE + 1400, 'y2': 43},
         {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
-        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465}
+        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465},
+        {'type': 'power ups', 'x': 58 * TILE_SIZE + 200, 'y': 400 - 200, 'subtype': 'double jump'},
+        {'type': 'power ups', 'x': 60 * TILE_SIZE + 200, 'y': 400 - 200, 'subtype': 'super power'},
+        {'type': 'power ups', 'x':  63* TILE_SIZE + 200, 'y': 400 - 200, 'subtype': 'guard drone'}
     ],
     'platforms': {
         'standard': [
@@ -568,7 +572,8 @@ def build_objects(level_data, targets):
         'bomb': None,
         'defuse_kit': None,
         'gates': [],
-        'misc': []
+        'misc': [],
+        'power ups':[]
     }
 
     for obj in level_data.get('objects', []):
@@ -583,7 +588,21 @@ def build_objects(level_data, targets):
             objects['misc'].append(Pumpkin(obj['x'], obj['y'], targets))
         elif t == 'powerbox':
             objects['misc'].append(PowerBox(obj['x'], obj['y'], targets))
+        for obj in level_data.get('objects', []):
+                t = obj['type']
+                if t == 'bomb':
+                    objects['bomb'] = Bomb(obj['x'], obj['y'], targets=targets)
+                elif t == 'defusekit':
+                    objects['defuse_kit'] = DefuseKit(obj['x'], obj['y'], targets=targets)
+                elif t == 'teleportgate':
+                    objects['gates'].append(Gates(obj['x1'], obj['y1'], obj['x2'], obj['y2'], targets[0]))
+                elif t == 'pumpkin':
+                    objects['misc'].append(Pumpkin(obj['x'], obj['y'], targets))
+                elif t == 'powerbox':
+                    objects['misc'].append(PowerBox(obj['x'], obj['y'], targets))
+                elif t == 'power ups':
+                    objects['power ups'].append(Power_up(obj['x'], obj['y'], obj['subtype'], targets))
 
-    return objects
+        return objects
 
         

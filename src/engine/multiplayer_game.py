@@ -16,13 +16,10 @@ from src.engine.power_ups import Power_up
 from src.levels import multiplayer_data, load_level_data, build_enemies, build_objects, apply_targets_to_enemies
 
 class Game_2:
-    def __init__(self, screen, platform_image, background              
-               ,selected_char,selected_char2):
-
+    def __init__(self, screen, platform_image, background, selected_char, selected_char2):
         self.screen = screen
         self.background = background
         self.clock = pygame.time.Clock()
-
         self.screen_color = (60, 100, 150)
         self.scroll = [0, 0]
         self.shot_bullets = []
@@ -37,77 +34,33 @@ class Game_2:
         player_start_pos = multiplayer_data['player_start']
         player2_start_pos = multiplayer_data['player2_start']
 
-        if selected_char == "Ninja":
-            self.hero = Ninja(
-                player_start_pos['x'], player_start_pos['y'],
-                screen_width, screen_height,
-                [], 1 # لیست targets بعداً ست می‌شود
-            )
-        elif selected_char == "Archer":
-            self.hero=Archer(player_start_pos['x'], player_start_pos['y'],
-            [],1)
-
-        elif selected_char == "NinjaGirl": 
-            self.hero=NinjaGirl(
-                player_start_pos['x'], player_start_pos['y'],
-                screen_width, screen_height,
-                [],1
-            ) 
-
-        else:
-            self.hero=Roboman(
-                player_start_pos['x'], player_start_pos['y'],
-                screen_width, screen_height,1
-            )
-        if selected_char2 == "Ninja":
-            self.hero2 = Ninja(
-                player_start_pos['x'], player_start_pos['y'],
-                screen_width, screen_height,
-                [],2  # لیست targets بعداً ست می‌شود
-            )
-        elif selected_char2 == "Archer":
-            self.hero2=Archer(player_start_pos['x'], player_start_pos['y'],
-            [],2)
-
-        elif selected_char2 == "NinjaGirl": 
-            self.hero2=NinjaGirl(
-                player_start_pos['x'], player_start_pos['y'],
-                screen_width, screen_height,
-                [],2
-            ) 
-
-        else:
-            self.hero2=Roboman(
-                player_start_pos['x'], player_start_pos['y'],
-                screen_width, screen_height,2
-            )
+        self.hero = self.create_hero(selected_char, player_start_pos, 1)
+        self.hero2 = self.create_hero(selected_char2, player2_start_pos, 2)
 
         self.platforms = load_level_data(multiplayer_data, platform_image)
-        self.power_ups=[]
-        self.power_ups.append(Power_up(player_start_pos['x']-100, player_start_pos['y'],'guard drone',[self.hero,self.hero2]))
+        self.power_ups = [Power_up(player_start_pos['x']-100, player_start_pos['y'], 'guard drone', [self.hero, self.hero2])]
+
         self.enemies_dict = build_enemies(multiplayer_data, self.screen, self.scroll, self.platforms)
-        all_enemies = []
-        for group in self.enemies_dict.values():
-            if isinstance(group, list):
-                all_enemies.extend(group)
-            elif group:  
-                all_enemies.append(group)
+        all_enemies = [enemy for group in self.enemies_dict.values() if group for enemy in (group if isinstance(group, list) else [group])]
 
-        self.objects_dict = build_objects(multiplayer_data, [self.hero,self.hero2])
+        self.objects_dict = build_objects(multiplayer_data, [self.hero, self.hero2])
+
         self.objects = self.objects_dict['misc'] + \
-                       ([self.objects_dict['bomb']] if self.objects_dict['bomb'] else []) + \
-                       ([self.objects_dict['defuse_kit']] if self.objects_dict['defuse_kit'] else []) + \
-                       self.objects_dict['gates']
-        self.objects+=self.power_ups
+                    ([self.objects_dict['bomb']] if self.objects_dict['bomb'] else []) + \
+                    ([self.objects_dict['defuse_kit']] if self.objects_dict['defuse_kit'] else []) + \
+                    self.objects_dict['gates'] + \
+                    self.objects_dict.get('power ups', [])
 
-        # هدف‌گذاری دشمنان
-        apply_targets_to_enemies(self.enemies_dict, [self.hero,self.hero2])
+        for obj in self.objects:
+            if isinstance(obj, Power_up):
+                obj.targets = [self.hero, self.hero2]
 
-        # اهداف حمله نینجا
+
+        apply_targets_to_enemies(self.enemies_dict, [self.hero, self.hero2])
+
         self.hero.attack_targets = all_enemies + [self.hero2]
         self.hero2.attack_targets = all_enemies + [self.hero]
 
-        
         self.camera = Camera(
             self.screen, self.platforms, self.shot_bullets, self.hero2,
             self.explosions, self.scroll, self.hero,
@@ -116,7 +69,7 @@ class Game_2:
             self.enemies_dict['drones'],
             self.objects,
             self.enemies_dict['gunmans'],
-            None,  
+            None,
             self.enemies_dict['dragonlord'],
             next(iter(self.enemies_dict['flyingdemons']), None),
             self.objects_dict['bomb'],
@@ -127,6 +80,16 @@ class Game_2:
         self.input_handler = InputHandler(None, self.bullet_class, self.shot_bullets)
         if self.enemies_dict.get('dragonlord'):
             self.enemies_dict['dragonlord'].camera = self.camera
+
+    def create_hero(self, char_name, start_pos, player_id):
+        if char_name == "Ninja":
+            return Ninja(start_pos['x'], start_pos['y'], screen_width, screen_height, [], player_id)
+        elif char_name == "Archer":
+            return Archer(start_pos['x'], start_pos['y'], [], player_id)
+        elif char_name == "NinjaGirl":
+            return NinjaGirl(start_pos['x'], start_pos['y'], screen_width, screen_height, [], player_id)
+        else:
+            return Roboman(start_pos['x'], start_pos['y'], screen_width, screen_height, player_id)
 
     def handle_events(self, events):
         for event in events:
@@ -142,28 +105,23 @@ class Game_2:
         self.hero2.handle_input(keys, self.objects_dict['gates'], self.shot_bullets, self.bullet_class, self.trigger_shutter)
 
     def update(self):
-        keys = pygame.key.get_pressed()
-
         if self.enemies_dict.get('dragonlord'):
             self.enemies_dict['dragonlord'].Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
 
-        for character in [self.hero,self.hero2]:
+        for character in [self.hero, self.hero2]:
             character.is_on_ground()
             character.gravity()
             character.vertical_move()
             character.platforms_collisions(self.platforms)
             character.move_with_platform()
             character.jump_under_platform(self.platforms)
-
-        self.hero.update_animation(self.shot_bullets)
-        self.hero2.update_animation(self.shot_bullets)
-        self.hero.update_bullets(self.screen, self.shot_bullets, self.platforms, self.enemies+[self.hero2])
-        self.hero2.update_bullets(self.screen, self.shot_bullets, self.platforms, self.enemies+[self.hero])
+            character.update_animation(self.shot_bullets)
+            character.update_bullets(self.screen, self.shot_bullets, self.platforms, self.enemies + [self.hero, self.hero2][character == self.hero])
 
         for enemy in self.enemies[:]:
             if hasattr(enemy, 'Update'):
                 enemy.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
-            if hasattr(enemy, 'status') and enemy.status == 'removed':
+            if getattr(enemy, 'status', '') == 'removed':
                 self.enemies.remove(enemy)
 
         for platform in self.platforms:
@@ -180,14 +138,14 @@ class Game_2:
 
         current_time = pygame.time.get_ticks()
         if self.shutter_strength > 0:
-            shuttered_time = current_time - self.shutter_start_time
-            if shuttered_time < self.shutter_duration:
+            elapsed = current_time - self.shutter_start_time
+            if elapsed < self.shutter_duration:
                 shake_x = random.randint(-int(self.shutter_strength), int(self.shutter_strength))
                 shake_y = random.randint(-int(self.shutter_strength), int(self.shutter_strength))
                 self.camera.scroll[0] += shake_x
                 self.camera.scroll[1] += shake_y
-                decay_factor = shuttered_time / self.shutter_duration
-                self.shutter_strength = max(0, 10 - (10 * decay_factor))
+                decay = elapsed / self.shutter_duration
+                self.shutter_strength = max(0, 10 - (10 * decay))
             else:
                 self.shutter_strength = 0
 

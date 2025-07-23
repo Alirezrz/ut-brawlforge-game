@@ -75,22 +75,15 @@ class Game:
 
         self.objects_dict = build_objects(self.map, [self.hero])
         self.objects = self.objects_dict['misc'] + \
-                       ([self.objects_dict['bomb']] if self.objects_dict['bomb'] else []) + \
-                       ([self.objects_dict['defuse_kit']] if self.objects_dict['defuse_kit'] else []) + \
-                       self.objects_dict['gates']
-        self.Power_ups=[]
-        if selected_map=="level1":
-            self.Power_ups.append(Power_up(player_start_pos['x']-100, player_start_pos['y'],'double jump',[self.hero]))
-            self.objects+=self.Power_ups
-        if selected_map=="level2":
-            self.Power_ups.append(Power_up(player_start_pos['x']-100, player_start_pos['y'],'double jump',[self.hero]))
-            self.objects+=self.Power_ups
-        if selected_map=="level3":
-            self.Power_ups.append(Power_up(player_start_pos['x']-100, player_start_pos['y'],'double jump',[self.hero]))
-            self.objects+=self.Power_ups
-        if selected_map=="level4":
-            self.Power_ups.append(Power_up(player_start_pos['x']-100, player_start_pos['y'],'double jump',[self.hero]))
-            self.objects+=self.Power_ups                
+                    ([self.objects_dict['bomb']] if self.objects_dict['bomb'] else []) + \
+                    ([self.objects_dict['defuse_kit']] if self.objects_dict['defuse_kit'] else []) + \
+                    self.objects_dict['gates'] + \
+                    self.objects_dict['power ups']
+                    
+        for obj in self.objects:
+            if type(obj)==Power_up:
+                obj.targets=[self.hero]
+                       
         
         
 

@@ -4,7 +4,7 @@ import math
 
 
 class Power_up:
-    def __init__(self, x, y, type, targets):
+    def __init__(self, x, y, type, targets=[]):
         self.base_x = x
         self.base_y = y
         self.x_pos = x
