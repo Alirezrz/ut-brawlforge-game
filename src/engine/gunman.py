@@ -90,7 +90,7 @@ class Gunman:
 
         self.death_start_y = None  # To store original y position at death start
         self.smokes = []
-
+        self.death_finished=False
     def hurt(self):
         self.hurt_sound.play()    
 
@@ -163,6 +163,7 @@ class Gunman:
 
         elif self.status == 'death':
             self.display_frame = self.death_frames[-1]
+            self.death_finished=True
 
     def Update(self, screen, offset, shot_bullets, platforms):
         self.update_animation(shot_bullets)

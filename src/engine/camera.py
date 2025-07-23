@@ -19,7 +19,7 @@ class Camera:
             self.gunmans,
             self.archer,
             self.dragonlord,
-            self.flyingdemon,
+            self.flyingdemons,  # change from single demon to a list
             self.bomb,
             self.defuse_kit
         ) = entities
@@ -60,8 +60,10 @@ class Camera:
 
         if self.dragonlord:
             self.dragonlord.display(self.screen, self.scroll)
-        if self.flyingdemon and self.flyingdemon.ALIVE:
-            self.flyingdemon.display(self.screen, self.scroll)
+        if self.flyingdemons:
+            for demon in self.flyingdemons:
+                if demon.ALIVE:
+                    demon.display(self.screen, self.scroll)
 
         for gunman in self.gunmans:
             gunman.display(self.screen, self.scroll)

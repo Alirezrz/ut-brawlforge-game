@@ -170,7 +170,8 @@ level_3_data = {
      {'type': 'flyingdemon', 'x': 58 * TILE_SIZE - 800, 'y': 382, 'direction': 'right'},
      {'type': 'gunman', 'x': 58 * TILE_SIZE - 1300, 'y': 382+17},
      {'type': 'terrorist', 'x': 58 * TILE_SIZE - 700, 'y': -1*TILE_SIZE},
-     {'type': 'flyingdemon', 'x': 20 * TILE_SIZE, 'y': 2 * TILE_SIZE-60, 'direction': 'right'},
+     {'type': 'flyingdemon', 'x': 20 * TILE_SIZE, 'y': 2 * TILE_SIZE-100, 'direction': 'right'},
+     {'type': 'gunman', 'x': 15 * TILE_SIZE, 'y': -2 * TILE_SIZE-113},
     ],
 
     'objects': [
@@ -181,7 +182,8 @@ level_3_data = {
         {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465},
                 {'type': 'power ups', 'x': 58*64 -400, 'y':400, 'subtype': 'double jump'},
                 {'type': 'power ups', 'x': 58 * TILE_SIZE - 700, 'y': 2*TILE_SIZE, 'subtype': 'super power'},
-                {'type': 'defusekit', 'x': 19 * TILE_SIZE, 'y': 2 * TILE_SIZE-60},
+                {'type': 'defusekit', 'x': 19 * TILE_SIZE, 'y': 2 * TILE_SIZE-66},
+                {'type': 'powerbox',  'x': 15 * TILE_SIZE, 'y': -2 * TILE_SIZE-48},
     ],
     'platforms': {
         'standard': [
