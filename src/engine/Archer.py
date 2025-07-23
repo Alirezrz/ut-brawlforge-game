@@ -43,7 +43,7 @@ class Archer:
         self.height = 100
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "archer", "archer hurt.mp3"))     
-        self.health = 63
+        self.health = 100
         self.max_health = 100
         self.bullets = []
         self.status = 'idle'
