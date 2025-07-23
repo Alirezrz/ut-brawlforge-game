@@ -23,7 +23,7 @@ level_1_data = {
     ],
 
     'objects': [
-        {'type': 'bomb', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 500},
+        {'type': 'bomb', 'x': 31 * TILE_SIZE , 'y': -9*TILE_SIZE-127},
         {'type': 'defusekit', 'x': 60 * TILE_SIZE + 100, 'y':200},
         {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 62 * TILE_SIZE , 'y2':1*TILE_SIZE-150},
         {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 150, 'y': 400 - 270-130},
