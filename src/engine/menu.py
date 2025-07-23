@@ -326,7 +326,7 @@ class MultiplayerMapCharacterMenu:
         self.char_button_height = 50
         self.map_button_width = 100
         self.map_button_height = 100
-        self.button_spacing = 20
+        self.button_spacing = 100
 
         total_char_width = len(self.characters) * self.char_button_width + (len(self.characters) - 1) * self.button_spacing
         start_x_char = (screen.get_width() - total_char_width) // 2
@@ -391,7 +391,7 @@ class MultiplayerMapCharacterMenu:
             text = self.font.render(button["text"], True, (255, 255, 255))
             text_rect = text.get_rect(center=(button["pos"][0] + button["size"][0] // 2, button["pos"][1] + button["size"][1] // 2))
             self.screen.blit(text, text_rect)
-            preview_img = pygame.transform.scale(self.char_previews[button["text"]], (80,120))
+            preview_img = pygame.transform.scale(self.char_previews[button["text"]], (120,120))
             self.screen.blit(preview_img, button["preview_pos"])
 
 
