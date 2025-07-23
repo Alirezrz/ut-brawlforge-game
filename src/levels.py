@@ -165,25 +165,44 @@ level_2_data = {
     }
 }
 level_3_data = {
-    'player_start': {'x': 58*64, 'y':400},
+    'player_start': {'x': 2013, 'y':400},
     'enemies': [
      {'type': 'flyingdemon', 'x': 58 * TILE_SIZE - 800, 'y': 382, 'direction': 'right'},
      {'type': 'gunman', 'x': 58 * TILE_SIZE - 1300, 'y': 382+17},
      {'type': 'terrorist', 'x': 58 * TILE_SIZE - 700, 'y': -1*TILE_SIZE},
      {'type': 'flyingdemon', 'x': 20 * TILE_SIZE, 'y': 2 * TILE_SIZE-100, 'direction': 'right'},
      {'type': 'gunman', 'x': 15 * TILE_SIZE, 'y': -2 * TILE_SIZE-113},
+     {'type': 'terrorist', 'x': 3291, 'y': -182+70},
+     {'type': 'gunman', 'x': 4664, 'y': 266},
+     {'type': 'flyingdemon', 'x': 6071, 'y': 458-30, 'direction': 'left'},
+     {'type': 'terrorist', 'x': 5538, 'y': 458},
+     {'type': 'gunman', 'x': 6860, 'y': 486-30+6},
+     {'type': 'flyingdemon', 'x': 7022+300, 'y': 38, 'direction': 'left'},
+     {'type': 'terrorist', 'x': 6603, 'y': -154},
+      {'type': 'gunman', 'x': 7183-10, 'y': -410-30+6},
+      {'type': 'flyingdemon', 'x': 5851, 'y': -694, 'direction': 'right'},
+      {'type': 'terrorist', 'x': 5352, 'y': -666},
+      {'type': 'terrorist', 'x': 5352-300, 'y': -666},
+      {'type': 'gunman', 'x': 5352-500, 'y': -666-30+5},
+      {'type': 'drone', 'x': 5920-800, 'y': 458-500, 'direction': 'right'},
+     
     ],
 
     'objects': [
-        {'type': 'bomb', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 500},
+        {'type': 'bomb', 'x': 4704, 'y':-655-50+4},
         {'type': 'defusekit', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
-        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 58 * TILE_SIZE + 1400, 'y2': 43},
-        {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
-        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465},
+        {'type': 'teleportgate', 'x1': 2013, 'y1': 422-60, 'x2':6250, 'y2': 458-60+20+10},
+        {'type': 'pumpkin', 'x': 2554, 'y': 202+60},
+        {'type': 'pumpkin', 'x': 3693, 'y': 394+60},
+        {'type': 'pumpkin', 'x': 4380, 'y': 74+60},
+        {'type': 'pumpkin', 'x': 7180, 'y': 458+60},
+        {'type': 'pumpkin', 'x': 7186, 'y': -438+60},
                 {'type': 'power ups', 'x': 58*64 -400, 'y':400, 'subtype': 'double jump'},
                 {'type': 'power ups', 'x': 58 * TILE_SIZE - 700, 'y': 2*TILE_SIZE, 'subtype': 'super power'},
+                {'type': 'power ups', 'x': 58 * TILE_SIZE + 200, 'y': 0, 'subtype': 'guard drone'},
                 {'type': 'defusekit', 'x': 19 * TILE_SIZE, 'y': 2 * TILE_SIZE-66},
                 {'type': 'powerbox',  'x': 15 * TILE_SIZE, 'y': -2 * TILE_SIZE-48},
+                {'type': 'powerbox',  'x': 3291, 'y': -182+70},
     ],
     'platforms': {
         'standard': [

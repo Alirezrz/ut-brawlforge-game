@@ -35,7 +35,7 @@ class Ninja:
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.Look = 'right'
-        self.horizontal_speed = 7
+        self.horizontal_speed = 14
         self.vertical_speed = 0
         self.jump_strenght = 20
         self.gravity_strenght = 1
@@ -550,6 +550,8 @@ class Ninja:
 
     def update_bullets(self, screen, shot_bullets,platforms,targets):
         self.update_drone()
+        print(self.x_pos,end=' ')
+        print(self.y_pos)
         for bullet in self.bullets[:]:
             bullet.update()
             
@@ -839,6 +841,7 @@ class Ninja:
                     
                     
     def update(self, platforms, shot_bullets, targets, keys, gate, trigger_shutter=None):
+
         if not self.ALIVE:
             self.update_animation(shot_bullets)
             return
