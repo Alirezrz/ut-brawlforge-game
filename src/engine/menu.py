@@ -171,7 +171,7 @@ class MapCharacterMenu:
         self.font = pygame.font.Font(None, 30)
         self.title_font = pygame.font.Font(None, 60)
         self.characters = ["Roboman", "Ninja", "NinjaGirl", "Archer"]
-        self.maps = ["level1", "level2", "level3", "level4"]
+        self.maps = ["level1", "level2", "level3", "Boss fight"]
         self.selected_character =None
         self.selected_map = None
         self.char_button_width = 150
@@ -319,14 +319,14 @@ class MultiplayerMapCharacterMenu:
         self.font = pygame.font.Font(None, 30)
         self.title_font = pygame.font.Font(None, 60)
         self.characters = ["Roboman", "Ninja", "NinjaGirl", "Archer"]
-        self.maps = ["multiplayer_arena", "boss_fight"] 
+        self.maps = ["multiplayer arena 1", "multiplayer arena 2"] 
         self.selected_characters  = []
         self.selected_map = None
         self.char_button_width = 150
         self.char_button_height = 50
         self.map_button_width = 100
         self.map_button_height = 100
-        self.button_spacing = 100
+        self.button_spacing = 150
 
         total_char_width = len(self.characters) * self.char_button_width + (len(self.characters) - 1) * self.button_spacing
         start_x_char = (screen.get_width() - total_char_width) // 2
