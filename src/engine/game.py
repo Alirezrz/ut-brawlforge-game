@@ -90,20 +90,27 @@ class Game:
         self.hero.attack_targets = all_enemies
 
         
-        self.camera = Camera(
-            self.screen, self.platforms, self.shot_bullets, self.hero,
-            self.explosions, self.scroll, self.hero,
-            self.enemies_dict['terrorists'],
-            self.objects_dict['gates'], self.background,
-            self.enemies_dict['drones'],
+        camera_entities = [
+            self.platforms,
+            self.shot_bullets,
+            self.hero,
+            self.explosions,
+            self.scroll,
+            self.hero,  # assuming ninja is the selected character
+            self.enemies_dict.get('terrorists'),
+            self.objects_dict.get('gates'),
+            self.background,
+            self.enemies_dict.get('drones'),
             self.objects,
-            self.enemies_dict['gunmans'],
-            None,  
-            self.enemies_dict['dragonlord'],
-            next(iter(self.enemies_dict['flyingdemons']), None),
-            self.objects_dict['bomb'],
-            self.objects_dict['defuse_kit']
-        )
+            self.enemies_dict.get('gunmans'),
+            None,  # archer, only if needed
+            self.enemies_dict.get('dragonlord'),
+            next(iter(self.enemies_dict.get('flyingdemons', [])), None),
+            self.objects_dict.get('bomb'),
+            self.objects_dict.get('defuse_kit')
+        ]
+
+        self.camera = Camera(self.screen, camera_entities)
 
         self.enemies = all_enemies
         self.input_handler = InputHandler(None, self.bullet_class, self.shot_bullets)
