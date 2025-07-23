@@ -805,10 +805,10 @@ class Roboman:
                 self.activate_jetpack()
             if keys[pygame.K_TAB]:
                 self.Send_teleport_request(gate)
-            if keys[pygame.K_f]:
+            if mouse_buttons[0]:
                 self.shoot(shot_bullets, bullet_class)
 
-            if keys[pygame.K_q]:
+            if keys[pygame.K_g]:
                 self.call_drone()
             if mouse_buttons[2]:
                 self.shoot_rocket(shot_bullets, bullet_class)
