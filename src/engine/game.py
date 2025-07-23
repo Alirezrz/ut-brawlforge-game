@@ -18,8 +18,7 @@ from src.engine.power_ups import Power_up
 BOMB_LEVELS = ["level_1_data", "level_2_data","level_3_data"]
 BOSS_LEVELS = ["level_4_data"]
 class Game:
-    def __init__(self, screen, platform_image, background,selected_char,selected_map
-           ):
+    def __init__(self, screen, platform_image, background,selected_char,selected_map):
         self.screen = screen
         self.background = background
         self.clock = pygame.time.Clock()
@@ -35,7 +34,7 @@ class Game:
             self.map=level_2_data
         if selected_map=="level3":
             self.map=level_3_data
-        if selected_map=="level4":
+        if selected_map=="Boss fight":
             self.map=level_4_data        
         self.shutter_strength = 0
         self.shutter_start_time = 0
