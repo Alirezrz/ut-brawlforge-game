@@ -122,10 +122,16 @@ class Game:
         self.input_handler = InputHandler(None, self.bullet_class, self.shot_bullets)
         if self.enemies_dict.get('dragonlord'):
             self.enemies_dict['dragonlord'].camera = self.camera
-        def shutter_func(self, strength=5, duration=100):
+            
+            
+        def shutter_func(strength=5, duration=100):
             self.shutter_strength = strength
             self.shutter_duration = duration
             self.shutter_start_time = pygame.time.get_ticks()
+        self.trigger_shutter = shutter_func
+        
+        
+        
         self.trigger_shutter = shutter_func
     def handle_events(self, events):
         for event in events:

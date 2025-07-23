@@ -94,7 +94,7 @@ class Ninja:
         
         #Super power attributes:
         self.Super_cofficent=1
-        self.Super_duration=5000
+        self.Super_duration=10000
         self.Super_lastActivation=0
         self.SuperPower_CoolDown=100
         self.SuperPower_pic_display_duratiom=1500
@@ -464,7 +464,8 @@ class Ninja:
         15*self.Super_cofficent,
         self.Look,
         self.Kunai,
-        "Ninja"
+        "Ninja",
+        40 if self.Super_cofficent>1 else 20
         )
         self.throw_kunai_sound.play()
 
@@ -572,7 +573,7 @@ class Ninja:
         for target in targets:
             for bullet in self.bullets:
                 if target.hitbox.colliderect(bullet.hitbox):
-                    target.health-=20   # should be intialized ***** 
+                    target.health-=bullet.damage   # should be intialized ***** 
                     target.hurt()
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)

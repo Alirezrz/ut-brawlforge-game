@@ -563,7 +563,8 @@ class Roboman:
                 30,
                 self.Look,
                 self.rocket,
-                "Roboman"
+                "Roboman",
+                20
             )
 
             self.bullets.append(bullet)
@@ -611,7 +612,8 @@ class Roboman:
                 30,
                 self.Look,
                 self.rocket,
-                "Roboman"
+                "Roboman",
+                40
             )
             self.bullets.append(rocket)
             shot_bullets.append(rocket)
@@ -671,7 +673,7 @@ class Roboman:
         for target in targets:
             for bullet in self.bullets:
                 if target.hitbox.colliderect(bullet.hitbox):
-                    target.health-=20   # should be intialized *****
+                    target.health-=bullet.damage   
                     target.hurt()
 
                     if bullet in self.bullets:
