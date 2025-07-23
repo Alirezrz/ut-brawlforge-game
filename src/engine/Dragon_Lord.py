@@ -14,7 +14,7 @@ class Dragon_Lord:
     def __init__(self, x, y, target):
         self.dialog_thread = None
         self.keep_talking = True
-
+        self.DEAD=False
         self.x_pos = x
         self.y_pos = y
         self.width = 150
@@ -187,6 +187,7 @@ class Dragon_Lord:
                     self.status=='dead'
             else:
                 self.current_picture = self.death_frames[-1]
+                self.DEAD=True
             return
 
         if self.status == 'attack':
