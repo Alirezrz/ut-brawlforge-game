@@ -233,8 +233,8 @@ class Gunman:
         shot_bullets.append(bullet)
 
     def update_bullets(self, screen, offset, shot_bullets, platforms):
-        for bullet in self.shot_bullets[:]:
-            if self.health>0:
+        for bullet in self.shot_bullets[:] :
+            if self.health>0 and not self.death_finished:
                 bullet.update()
                 bullet.draw(screen, offset)
 
