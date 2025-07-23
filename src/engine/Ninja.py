@@ -551,8 +551,7 @@ class Ninja:
 
     def update_bullets(self, screen, shot_bullets,platforms,targets):
         self.update_drone()
-        print(self.x_pos,end=' ')
-        print(self.y_pos)
+        
         for bullet in self.bullets[:]:
             bullet.update()
             
