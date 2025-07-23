@@ -122,10 +122,16 @@ class Game:
         self.input_handler = InputHandler(None, self.bullet_class, self.shot_bullets)
         if self.enemies_dict.get('dragonlord'):
             self.enemies_dict['dragonlord'].camera = self.camera
-        def shutter_func(self, strength=5, duration=100):
+            
+            
+        def shutter_func(strength=5, duration=100):
             self.shutter_strength = strength
             self.shutter_duration = duration
             self.shutter_start_time = pygame.time.get_ticks()
+        self.trigger_shutter = shutter_func
+        
+        
+        
         self.trigger_shutter = shutter_func
     def handle_events(self, events):
         for event in events:
@@ -198,6 +204,9 @@ class Game:
         self.screen.fill(self.screen_color)
 
     def run(self):
+        death_timer_started = False
+        death_start_time = 0
+        death_delay = 1500 
         while self.game_active:
             events = pygame.event.get()
             self.handle_inputs()
@@ -221,25 +230,24 @@ class Game:
             
             message = ""
             game_over = False
-            if self.hero.health <= 0:
+            if self.hero.DEAD and not death_timer_started:
+                death_timer_started = True
+                death_start_time = pygame.time.get_ticks()
+
+            if death_timer_started and pygame.time.get_ticks() - death_start_time >= death_delay:
                 message = "You Lost!"
                 game_over = True
 
-            # Level-specific Win/Loss Conditions
-            # For bomb defusal levels (1-3)
             if self.map in [level_1_data, level_2_data, level_3_data]:
                 bomb_obj = self.objects_dict.get('bomb')
                 if bomb_obj:
-                    # Loss by bomb timer
                     if bomb_obj.timer <= 0 and not bomb_obj.is_defused:
                         message = "You Lost! Time's Up!"
                         game_over = True
-                    # Win by defusing bomb
                     elif bomb_obj.is_defused:
                         message = "You Win! Bomb Defused!"
                         game_over = True
             
-            # For boss fight level (4)
             elif self.map == level_4_data:
                 boss = self.enemies_dict.get('dragonlord')
                 if boss and boss.health <= 0:

@@ -4,7 +4,7 @@ import pygame
 
 
 class Bullet:
-    def __init__(self, x, y, speed, direction, bullet_picture,owner="unkown",look='none'):
+    def __init__(self, x, y, speed, direction, bullet_picture,owner="unkown",look='none',damage=20):
         self.owner=owner
         self.status='in game'
         self.Look=look
@@ -16,7 +16,7 @@ class Bullet:
         self.width = bullet_picture.get_width()
         self.height = bullet_picture.get_height()
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
-        
+        self.damage=damage
         
         shrink = 8  
         self.hitbox = pygame.Rect(

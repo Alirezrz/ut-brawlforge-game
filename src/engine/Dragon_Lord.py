@@ -14,7 +14,7 @@ class Dragon_Lord:
     def __init__(self, x, y, target):
         self.dialog_thread = None
         self.keep_talking = True
-
+        self.DEAD=False
         self.x_pos = x
         self.y_pos = y
         self.width = 150
@@ -97,7 +97,7 @@ class Dragon_Lord:
         self.camera=None
         self.is_dying = False
         self.number_of_spotlight_activation=0
-        #self.start_dialog_loop()
+        self.start_dialog_loop()
     def get_prompt(self):
         if self.prompt_type == "attack":
             return f"Dragon Lord is unleashing a blazing punch at the player at ({self.target.x_pos}, {self.target.y_pos}).  (maximum number of words = 8)"
@@ -187,6 +187,7 @@ class Dragon_Lord:
                     self.status=='dead'
             else:
                 self.current_picture = self.death_frames[-1]
+                self.DEAD=True
             return
 
         if self.status == 'attack':

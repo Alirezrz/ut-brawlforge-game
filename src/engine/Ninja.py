@@ -35,7 +35,7 @@ class Ninja:
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.Look = 'right'
-        self.horizontal_speed = 14
+        self.horizontal_speed = 10
         self.vertical_speed = 0
         self.jump_strenght = 25
         self.gravity_strenght = 1
@@ -94,7 +94,7 @@ class Ninja:
         
         #Super power attributes:
         self.Super_cofficent=1
-        self.Super_duration=5000
+        self.Super_duration=10000
         self.Super_lastActivation=0
         self.SuperPower_CoolDown=100
         self.SuperPower_pic_display_duratiom=1500
@@ -464,7 +464,8 @@ class Ninja:
         15*self.Super_cofficent,
         self.Look,
         self.Kunai,
-        "Ninja"
+        "Ninja",
+        40 if self.Super_cofficent>1 else 20
         )
         self.throw_kunai_sound.play()
 
@@ -572,7 +573,7 @@ class Ninja:
         for target in targets:
             for bullet in self.bullets:
                 if target.hitbox.colliderect(bullet.hitbox):
-                    target.health-=20   # should be intialized ***** 
+                    target.health-=bullet.damage   # should be intialized ***** 
                     target.hurt()
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
@@ -587,7 +588,7 @@ class Ninja:
 
         if self.on_ground and self.jump_count == 0 and self.AllowJump_flag:
             self.jump_sound.play()
-            self.vertical_speed = self.jump_strenght * self.Super_cofficent
+            self.vertical_speed = self.jump_strenght 
             self.jump_count = 1
             self.on_ground = False
             self.current_platform = None
@@ -601,7 +602,7 @@ class Ninja:
 
     def double_jump(self):
         current_time = pygame.time.get_ticks()
-        self.vertical_speed = self.jump_strenght*self.Super_cofficent
+        self.vertical_speed = self.jump_strenght
         self.jump_sound.play()
         self.on_ground = False
         self.current_platform = None
@@ -685,7 +686,7 @@ class Ninja:
     def Activate_Super_Power(self):
         current_time=pygame.time.get_ticks()
         if current_time-self.Super_lastActivation>=self.SuperPower_CoolDown and self.current_platform!=None and self.vertical_speed==0 and self.SUPER_POWER_FLAG:
-            self.Super_cofficent=2
+            self.Super_cofficent=1.5
             self.Super_lastActivation = current_time
             self.last_SPdisplay=current_time
             self.Super_PowerFlag=True

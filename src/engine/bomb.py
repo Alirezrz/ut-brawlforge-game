@@ -5,7 +5,7 @@ import math
 
 
 class Bomb:
-    def __init__(self, x, y, targets, timer_seconds=30):
+    def __init__(self, x, y, targets, timer_seconds=90):
         self.x_pos = x
         self.y_pos = y
         self.targets = targets

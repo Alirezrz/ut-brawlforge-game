@@ -276,12 +276,14 @@ level_4_data = {
     'enemies': [
         {'type': 'terrorist', 'x': 6* TILE_SIZE, 'y': 1* TILE_SIZE},
         {'type': 'dragonlord', 'x': 10*64+1500, 'y':400},
-        {'type': 'gunman', 'x': 28 * TILE_SIZE, 'y': 2* TILE_SIZE-115}
+        {'type': 'gunman', 'x': 28 * TILE_SIZE, 'y': 2* TILE_SIZE-115},
+            {'type': 'flyingdemon', 'x': -602, 'y': -54, 'direction': 'right'},
     ],
 
     'objects': [
       {'type': 'powerbox', 'x': 9 * TILE_SIZE, 'y': 2* TILE_SIZE +15},
-      {'type': 'powerbox', 'x': 28 * TILE_SIZE+50, 'y': 1* TILE_SIZE +15}
+      {'type': 'powerbox', 'x': 28 * TILE_SIZE+50, 'y': 1* TILE_SIZE +15},
+      {'type': 'power ups', 'x': -726, 'y': -54, 'subtype': 'super power'},
     ],
     'platforms': {
         'standard': [

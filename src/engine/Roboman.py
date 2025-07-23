@@ -563,7 +563,8 @@ class Roboman:
                 30,
                 self.Look,
                 self.rocket,
-                "Roboman"
+                "Roboman",
+                20
             )
 
             self.bullets.append(bullet)
@@ -611,7 +612,8 @@ class Roboman:
                 30,
                 self.Look,
                 self.rocket,
-                "Roboman"
+                "Roboman",
+                40
             )
             self.bullets.append(rocket)
             shot_bullets.append(rocket)
@@ -671,7 +673,7 @@ class Roboman:
         for target in targets:
             for bullet in self.bullets:
                 if target.hitbox.colliderect(bullet.hitbox):
-                    target.health-=20   # should be intialized *****
+                    target.health-=bullet.damage   
                     target.hurt()
 
                     if bullet in self.bullets:
@@ -803,10 +805,10 @@ class Roboman:
                 self.activate_jetpack()
             if keys[pygame.K_TAB]:
                 self.Send_teleport_request(gate)
-            if keys[pygame.K_f]:
+            if mouse_buttons[0]:
                 self.shoot(shot_bullets, bullet_class)
 
-            if keys[pygame.K_q]:
+            if keys[pygame.K_g]:
                 self.call_drone()
             if mouse_buttons[2]:
                 self.shoot_rocket(shot_bullets, bullet_class)

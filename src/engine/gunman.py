@@ -103,17 +103,20 @@ class Gunman:
 
     def display(self, screen, offset):
         self.display_health_bar(screen,offset)
-
-        if self.Look == 'right':
-            screen.blit(self.display_frame, (self.x_pos - offset[0], self.y_pos - offset[1]))
-        else:
-            screen.blit(pygame.transform.flip(self.display_frame, True, False), (self.x_pos - offset[0], self.y_pos - offset[1]))
+        if not self.death_finished:
+            if self.Look == 'right':
+                screen.blit(self.display_frame, (self.x_pos - offset[0], self.y_pos - offset[1]))
+            else:
+                screen.blit(pygame.transform.flip(self.display_frame, True, False), (self.x_pos - offset[0], self.y_pos - offset[1]))
 
         for s in self.smokes[:]:
             if s.Expired:
                 self.smokes.remove(s)
             else:
                 s.display(screen, offset)
+                
+        if self.health<=0 and self.frame_index==5:
+            self.death_finished=True
 
     def update_animation(self, shot_bullets):
         current_time = pygame.time.get_ticks()
@@ -158,6 +161,8 @@ class Gunman:
                     self.frame_index += 1
                     self.last_animation_update = current_time
                 else:
+                    self.death_finished=True
+                    
                     self.status = 'death'
                     self.frame_index = len(self.death_frames) - 1
 
@@ -166,17 +171,15 @@ class Gunman:
             self.death_finished=True
 
     def Update(self, screen, offset, shot_bullets, platforms):
+        self.update_bullets(screen, offset, shot_bullets, platforms)
         self.update_animation(shot_bullets)
 
         if not self.ALIVE:
-            self.update_bullets(screen, offset, shot_bullets, platforms)
             return
 
         self.Walk()
         self.vision()
-        self.update_bullets(screen, offset, shot_bullets, platforms)
         self.update_health(shot_bullets)
-
     def Walk(self):
         current_time = pygame.time.get_ticks()
         if self.status == 'shoot':
@@ -231,25 +234,23 @@ class Gunman:
 
     def update_bullets(self, screen, offset, shot_bullets, platforms):
         for bullet in self.shot_bullets[:]:
-            if bullet not in shot_bullets:
-                self.shot_bullets.remove(bullet)
-            elif bullet.status != 'removed':
+            if self.health>0:
                 bullet.update()
                 bullet.draw(screen, offset)
 
-                for hero in self.targets:
-                    if bullet.hitbox.colliderect(hero.hitbox):
-                        hero.health -= 20
-                        hero.hurt()                        
-                        if bullet in self.shot_bullets:
-                            self.shot_bullets.remove(bullet)
-                        if bullet in shot_bullets:
-                            shot_bullets.remove(bullet)
+            for hero in self.targets:
+                if bullet.hitbox.colliderect(hero.hitbox):
+                    hero.health -= 20
+                    hero.hurt()
+                    if bullet in self.shot_bullets:
+                        self.shot_bullets.remove(bullet)
+                    if bullet in shot_bullets:
+                        shot_bullets.remove(bullet)
 
         for bullet in self.shot_bullets[:]:
             for platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
-                    self.smokes.append(Smoke(bullet.hitbox.centerx, bullet.hitbox.centery-25,bullet.Look))
+                    self.smokes.append(Smoke(bullet.hitbox.centerx, bullet.hitbox.centery - 25, bullet.Look))
                     if bullet in self.shot_bullets:
                         self.shot_bullets.remove(bullet)
                     if bullet in shot_bullets:
@@ -267,6 +268,7 @@ class Gunman:
             self.ALIVE = False
             self.status = "in the way to hell"
             self.frame_index = 0
+            
 
 
 # =============================================

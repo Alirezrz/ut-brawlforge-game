@@ -178,6 +178,11 @@ class Game_2:
         self.screen.fill(self.screen_color)
 
     def run(self):
+        player1_death_timer_started = False
+        player1_death_start_time = 0
+        player2_death_timer_started = False
+        player2_death_start_time = 0
+        death_delay = 1500        
         while self.game_active:
             events = pygame.event.get()
             self.handle_inputs()
@@ -201,10 +206,18 @@ class Game_2:
             message = ""
             game_over = False
 
-            if self.hero.health <= 0:
+            if self.hero.DEAD and not player1_death_timer_started:
+                player1_death_timer_started = True
+                player1_death_start_time = pygame.time.get_ticks()
+
+            if self.hero2.DEAD and not player2_death_timer_started:
+                player2_death_timer_started = True
+                player2_death_start_time = pygame.time.get_ticks()
+
+            if player1_death_timer_started and pygame.time.get_ticks() - player1_death_start_time >= death_delay:
                 message = "Player 2 Wins!"
                 game_over = True
-            elif self.hero2.health <= 0:
+            elif player2_death_timer_started and pygame.time.get_ticks() - player2_death_start_time >= death_delay:
                 message = "Player 1 Wins!"
                 game_over = True
 
