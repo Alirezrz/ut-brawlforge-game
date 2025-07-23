@@ -25,6 +25,10 @@ level_1_data = {
         {'type': 'terrorist', 'x': -10 * TILE_SIZE , 'y': 1*TILE_SIZE-110},
         {'type': 'gunman', 'x': -15 * TILE_SIZE , 'y': 1*TILE_SIZE-110},
         {'type': 'gunman', 'x': -20 * TILE_SIZE , 'y': 1*TILE_SIZE-110},
+        {'type': 'terrorist', 'x': 20 * TILE_SIZE , 'y': -9*TILE_SIZE-110},
+        {'type': 'terrorist', 'x': 5 * TILE_SIZE , 'y': -9*TILE_SIZE-110},
+        {'type': 'gunman', 'x':30 * TILE_SIZE , 'y': -9*TILE_SIZE-110},
+
     ],
 
     'objects': [
