@@ -120,6 +120,10 @@ class Game_2:
         self.hero2.handle_input(keys, self.objects_dict['gates'], self.shot_bullets, self.bullet_class, self.trigger_shutter)
 
     def update(self):
+        for hero in [self.hero,self.hero2]:
+            if hero.y_pos>64*50:
+                hero.health=0
+        
         if self.enemies_dict.get('dragonlord'):
             self.enemies_dict['dragonlord'].Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
 

@@ -102,7 +102,7 @@ class Game:
             self.hero,
             self.explosions,
             self.scroll,
-            self.hero,  # assuming ninja is the selected character
+            self.hero,
             self.enemies_dict.get('terrorists'),
             self.objects_dict.get('gates'),
             self.background,
@@ -111,7 +111,7 @@ class Game:
             self.enemies_dict.get('gunmans'),
             None,  # archer, only if needed
             self.enemies_dict.get('dragonlord'),
-            next(iter(self.enemies_dict.get('flyingdemons', [])), None),
+            self.enemies_dict.get('flyingdemons'),  # fixed: pass the full list
             self.objects_dict.get('bomb'),
             self.objects_dict.get('defuse_kit')
         ]
@@ -135,13 +135,17 @@ class Game:
 
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
+        mouse_bottons=pygame.mouse.get_pressed()
         if self.objects_dict.get('bomb'):
             self.objects_dict['bomb'].handle_input(keys)
-        self.hero.handle_input(keys, self.objects_dict['gates'], self.shot_bullets, self.bullet_class, self.trigger_shutter)
+        self.hero.handle_input(keys, self.objects_dict['gates'], self.shot_bullets, self.bullet_class, self.trigger_shutter,mouse_bottons)
 
     
     def update(self):
+        if self.hero.y_pos>64*50:
+            self.hero.health=0        
         keys = pygame.key.get_pressed()
+        
         if self.enemies_dict.get('dragonlord'):
             self.enemies_dict['dragonlord'].Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
 
@@ -157,10 +161,15 @@ class Game:
         self.hero.update_bullets(self.screen, self.shot_bullets, self.platforms, self.enemies)
 
         for enemy in self.enemies[:]:
+            
             if hasattr(enemy, 'Update'):
                 enemy.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
             if hasattr(enemy, 'status') and enemy.status == 'removed':
                 self.enemies.remove(enemy)
+            if hasattr(enemy, 'death_finished') :
+                if enemy.death_finished:
+                    self.enemies.remove(enemy)
+                                   
 
         for platform in self.platforms:
             platform.update()

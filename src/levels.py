@@ -8,22 +8,38 @@ TILE_SIZE = 64
 
 
 level_1_data = {
-    'player_start': {'x': 58*64, 'y':400},
+    'player_start': {'x': 2*TILE_SIZE, 'y':400},
     'enemies': [
-        {'type': 'flyingdemon', 'x': 58 * TILE_SIZE - 800, 'y': 382, 'direction': 'right'},
         {'type': 'terrorist', 'x': 41 * TILE_SIZE , 'y': 400},
+        {'type': 'drone', 'x': -400, 'y': 40, 'direction': 'right'},
         {'type': 'terrorist', 'x': 46 * TILE_SIZE , 'y': 400},
+        {'type': 'gunman', 'x': 40 * TILE_SIZE , 'y': 400},
+        {'type': 'gunman', 'x': 25 * TILE_SIZE , 'y': 400},
+        {'type': 'terrorist', 'x': 15 * TILE_SIZE , 'y': 400},
+        {'type': 'gunman', 'x': 49 * TILE_SIZE , 'y': -1*TILE_SIZE-110},
+        {'type': 'terrorist', 'x': 53 * TILE_SIZE , 'y': -1*TILE_SIZE-110},        
+        {'type': 'gunman', 'x': 44 * TILE_SIZE , 'y': 3*TILE_SIZE-110},
+        {'type': 'gunman', 'x': 47 * TILE_SIZE , 'y': 3*TILE_SIZE-110},
+        {'type': 'terrorist', 'x': 37 * TILE_SIZE , 'y': 1*TILE_SIZE-110},
+        {'type': 'terrorist', 'x': 33 * TILE_SIZE , 'y': 1*TILE_SIZE-110},
+        {'type': 'terrorist', 'x': -10 * TILE_SIZE , 'y': 1*TILE_SIZE-110},
+        {'type': 'gunman', 'x': -15 * TILE_SIZE , 'y': 1*TILE_SIZE-110},
+        {'type': 'gunman', 'x': -20 * TILE_SIZE , 'y': 1*TILE_SIZE-110},
+        {'type': 'terrorist', 'x': 20 * TILE_SIZE , 'y': -9*TILE_SIZE-110},
+        {'type': 'terrorist', 'x': 5 * TILE_SIZE , 'y': -9*TILE_SIZE-110},
+        {'type': 'gunman', 'x':30 * TILE_SIZE , 'y': -9*TILE_SIZE-110},
+
     ],
 
     'objects': [
-        {'type': 'bomb', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 500},
-        {'type': 'defusekit', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
-        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 58 * TILE_SIZE + 1400, 'y2': 43},
-        {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
-        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465},
-        {'type': 'power ups', 'x': 58 * TILE_SIZE + 200, 'y': 400 - 200, 'subtype': 'double jump'},
+        {'type': 'bomb', 'x': 31 * TILE_SIZE , 'y': -9*TILE_SIZE-127},
+        {'type': 'defusekit', 'x': 60 * TILE_SIZE + 100, 'y':200},
+        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 62 * TILE_SIZE , 'y2':1*TILE_SIZE-150},
+        {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 150, 'y': 400 - 270-130},
+        #{'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465},
+        {'type': 'power ups', 'x': -20 * TILE_SIZE + 200, 'y': TILE_SIZE - 200, 'subtype': 'double jump'},
         {'type': 'power ups', 'x': 60 * TILE_SIZE + 200, 'y': 400 - 200, 'subtype': 'super power'},
-        {'type': 'power ups', 'x':  63* TILE_SIZE + 200, 'y': 400 - 200, 'subtype': 'guard drone'}
+        {'type': 'power ups', 'x':  7* TILE_SIZE + 200, 'y': -9*TILE_SIZE - 200, 'subtype': 'guard drone'}
     ],
     'platforms': {
         'standard': [
@@ -87,104 +103,119 @@ level_1_data = {
     }
 }
 level_2_data = {
-    'player_start': {'x': 58*64, 'y':400},
+    'player_start': {'x': 2 * TILE_SIZE, 'y': 400},
     'enemies': [
-        {'type': 'terrorist', 'x': 58 * TILE_SIZE - 500, 'y': 400},
-        {'type': 'gunman', 'x': 58 * TILE_SIZE + 800, 'y': 400},
-        {'type': 'drone', 'x': -400, 'y': 40, 'direction': 'right'},
-        {'type': 'flyingdemon', 'x': 58 * TILE_SIZE - 800, 'y': 382, 'direction': 'right'},
-        {'type': 'dragonlord', 'x': 58 * TILE_SIZE - 200, 'y': 338}
+        {'type': 'terrorist', 'x': 15 * TILE_SIZE, 'y': 400},
+        {'type': 'gunman', 'x': 25 * TILE_SIZE, 'y': 400},
+        {'type': 'terrorist', 'x': 35 * TILE_SIZE, 'y': 400},
+        {'type': 'gunman', 'x': 45 * TILE_SIZE, 'y': 400},
+        {'type': 'flyingdemon', 'x': 20 * TILE_SIZE, 'y': -2 * TILE_SIZE - 110, 'direction': 'right'},
+        {'type': 'drone', 'x': 15 * TILE_SIZE, 'y': -4 * TILE_SIZE - 110, 'direction': 'right'},
+        {'type': 'terrorist', 'x': 50 * TILE_SIZE, 'y': -9 * TILE_SIZE - 110},
+        {'type': 'gunman', 'x': 25 * TILE_SIZE, 'y': -7 * TILE_SIZE - 110}
     ],
 
     'objects': [
-        {'type': 'bomb', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 500},
-        {'type': 'defusekit', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
-        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 58 * TILE_SIZE + 1400, 'y2': 43},
-        {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
-        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465}
+        {'type': 'bomb', 'x': -9 * TILE_SIZE, 'y': 1 * TILE_SIZE - 127},
+        {'type': 'defusekit', 'x': 58 * TILE_SIZE, 'y': 200},
+        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 56 * TILE_SIZE, 'y2': -2 * TILE_SIZE - 150},
+        {'type': 'pumpkin', 'x': 40 * TILE_SIZE, 'y': 400 - 270 - 130},
+        {'type': 'power ups', 'x': 10 * TILE_SIZE, 'y': -4 * TILE_SIZE - 200, 'subtype': 'super power'},
+        {'type': 'power ups', 'x': 55 * TILE_SIZE, 'y': 400 - 200, 'subtype': 'double jump'},
+        {'type': 'power ups', 'x': 27 * TILE_SIZE, 'y': -9 * TILE_SIZE - 200, 'subtype': 'guard drone'}
     ],
+
     'platforms': {
         'standard': [
             {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
-            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
-            {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
-            {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
-            {'x': 67 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 3},
-            {'x': 60 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 5},
-            {'x': 48 * TILE_SIZE, 'y': -1 * TILE_SIZE, 'tiles': 10},
-            {'x': 31 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 10},
+            {'x': -10 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 20},
+            {'x': 25 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
+            {'x': 35 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
+            {'x': 45 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 6},
+            {'x': 50 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 8},
             {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
-            {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
-            {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
-            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
-            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
-            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
-
-
-
-
-
-
-
-
-
+            {'x': 18 * TILE_SIZE, 'y': -7 * TILE_SIZE, 'tiles': 25}
         ],
         'solid': [
-            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
+            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat': 60},
+            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat': 60},
+            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat': 60},
+            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat': 60},
+            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat': 60},
+            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat': 60},
+            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat': 60},
+            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat': 60},
+            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat': 60},
+            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat': 60},
+            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat': 60},
+            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat': 60},
+            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat': 60},
+            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat': 60},
+            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat': 60},
+            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat': 60},
 
-            
-            {'x': -25 * TILE_SIZE, 'y': 2* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 3* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 4* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 5* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 6* TILE_SIZE, 'repeat': 20},
-
-
-
+            {'x': -10 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'repeat': 20},
+            {'x': -10 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'repeat': 20},
+          
         ],
         'moving': [
-            {'x': 55 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},            
-            {'x': 13 * TILE_SIZE, 'y': 1 * TILE_SIZE, 'tiles': 2,'range':2*TILE_SIZE, 'direction': 1},
-]
+            {'x': 30 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 2, 'range': 3 * TILE_SIZE, 'direction': 1},
+            {'x': 15 * TILE_SIZE, 'y': -3 * TILE_SIZE, 'tiles': 2, 'range': 2 * TILE_SIZE, 'direction': -1}
+        ]
     }
 }
+
 level_3_data = {
-    'player_start': {'x': 58*64, 'y':400},
+    'player_start': {'x': 2013, 'y':400},
     'enemies': [
-        {'type': 'terrorist', 'x': 58 * TILE_SIZE - 500, 'y': 400},
-        {'type': 'gunman', 'x': 58 * TILE_SIZE + 800, 'y': 400},
-        {'type': 'drone', 'x': -400, 'y': 40, 'direction': 'right'},
-        {'type': 'flyingdemon', 'x': 58 * TILE_SIZE - 800, 'y': 382, 'direction': 'right'},
-        {'type': 'dragonlord', 'x': 58 * TILE_SIZE - 200, 'y': 338}
+     {'type': 'flyingdemon', 'x': 58 * TILE_SIZE - 800, 'y': 382, 'direction': 'right'},
+     {'type': 'gunman', 'x': 58 * TILE_SIZE - 1300, 'y': 382+17},
+     {'type': 'terrorist', 'x': 58 * TILE_SIZE - 700, 'y': -1*TILE_SIZE},
+     {'type': 'flyingdemon', 'x': 20 * TILE_SIZE, 'y': 2 * TILE_SIZE-100, 'direction': 'right'},
+     {'type': 'gunman', 'x': 15 * TILE_SIZE, 'y': -2 * TILE_SIZE-113},
+     {'type': 'terrorist', 'x': 3291, 'y': -182+70},
+     {'type': 'gunman', 'x': 4664, 'y': 266},
+     {'type': 'flyingdemon', 'x': 6071, 'y': 458-30, 'direction': 'left'},
+     {'type': 'terrorist', 'x': 5538, 'y': 458},
+     {'type': 'gunman', 'x': 6860, 'y': 486-30+6},
+     {'type': 'flyingdemon', 'x': 7022+300, 'y': 38, 'direction': 'left'},
+     {'type': 'terrorist', 'x': 6603, 'y': -154},
+      {'type': 'gunman', 'x': 7183-10, 'y': -410-30+6},
+      {'type': 'flyingdemon', 'x': 5851, 'y': -694, 'direction': 'right'},
+      {'type': 'terrorist', 'x': 5352, 'y': -666},
+      {'type': 'terrorist', 'x': 5352-300, 'y': -666},
+      {'type': 'gunman', 'x': 5352-500, 'y': -666-30+5},
+      {'type': 'drone', 'x': 5920-800, 'y': 458-500, 'direction': 'right'},
+     
     ],
 
     'objects': [
-        {'type': 'bomb', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 500},
+        {'type': 'bomb', 'x': 4704, 'y':-655-50+4},
         {'type': 'defusekit', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
-        {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 58 * TILE_SIZE + 1400, 'y2': 43},
-        {'type': 'pumpkin', 'x': 58 * TILE_SIZE + 100, 'y': 400 - 270},
-        {'type': 'powerbox', 'x': 58 * TILE_SIZE + 700, 'y': 465}
+        {'type': 'teleportgate', 'x1': 2013, 'y1': 422-60, 'x2':6250, 'y2': 458-60+20+10},
+        {'type': 'pumpkin', 'x': 2554, 'y': 202+60},
+        {'type': 'pumpkin', 'x': 3693, 'y': 394+60},
+        {'type': 'pumpkin', 'x': 4380, 'y': 74+60},
+        {'type': 'pumpkin', 'x': 7180, 'y': 458+60},
+        {'type': 'pumpkin', 'x': 7186, 'y': -438+60},
+                {'type': 'power ups', 'x': 58*64 -400, 'y':400, 'subtype': 'double jump'},
+                {'type': 'power ups', 'x': 58 * TILE_SIZE - 700, 'y': 2*TILE_SIZE, 'subtype': 'super power'},
+                {'type': 'power ups', 'x': 58 * TILE_SIZE + 200, 'y': 0, 'subtype': 'guard drone'},
+                {'type': 'defusekit', 'x': 19 * TILE_SIZE, 'y': 2 * TILE_SIZE-66},
+                {'type': 'powerbox',  'x': 15 * TILE_SIZE, 'y': -2 * TILE_SIZE-48},
+                {'type': 'powerbox',  'x': 3291, 'y': -182+70},
     ],
     'platforms': {
         'standard': [
-            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
-            {'x': -25 * TILE_SIZE, 'y': 1* TILE_SIZE, 'tiles': 20},
+            {'x': 1920, 'y': 8 * TILE_SIZE, 'tiles': 30},
+            {'x': 70 * TILE_SIZE, 'y': 6* TILE_SIZE, 'tiles': 7},
+            {'x': 80 * TILE_SIZE, 'y': 9* TILE_SIZE, 'tiles': 20},
+            {'x': 103 * TILE_SIZE, 'y': 9 * TILE_SIZE, 'tiles': 14},
+            {'x': 113 * TILE_SIZE, 'y': 6 * TILE_SIZE, 'tiles': 4},
+            {'x': 110 * TILE_SIZE, 'y':2 * TILE_SIZE, 'tiles': 2},
+            {'x': 100 * TILE_SIZE, 'y':-1 * TILE_SIZE, 'tiles': 9},
+            {'x': 110 * TILE_SIZE, 'y':-5 * TILE_SIZE, 'tiles': 6},
+            {'x': 103 * TILE_SIZE, 'y':-7 * TILE_SIZE, 'tiles': 3},
             {'x': 35 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
             {'x': 43 * TILE_SIZE, 'y': 3 * TILE_SIZE, 'tiles': 10},
             {'x': 62 * TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 6},
@@ -195,9 +226,7 @@ level_3_data = {
             {'x': 40 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 6},
             {'x': 17 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
             {'x': 14 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 6},
-            {'x': 3 * TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 7},
-            {'x': -8 * TILE_SIZE, 'y': -4 * TILE_SIZE, 'tiles': 10},
-            {'x': 4 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
+            {'x': 70 * TILE_SIZE, 'y': -9 * TILE_SIZE, 'tiles': 30},
 
 
 
@@ -209,29 +238,29 @@ level_3_data = {
 
         ],
         'solid': [
-            {'x': 0, 'y': 9 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 10 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 11 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 12 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 13 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 14 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 15 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 16 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 17 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 18 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 19 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 20 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 21 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 22 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 23 * TILE_SIZE, 'repeat':60},
-            {'x': 0, 'y': 24 * TILE_SIZE, 'repeat':60},
+            {'x': 1920, 'y': 9 * TILE_SIZE, 'repeat':30},
+            {'x': 1920, 'y': 10 * TILE_SIZE, 'repeat':30},
+            {'x': 1920, 'y': 11 * TILE_SIZE, 'repeat':30},
+            {'x': 1920, 'y': 12 * TILE_SIZE, 'repeat':30},
+            {'x': 1920, 'y': 13 * TILE_SIZE, 'repeat':30},
+            {'x': 1920, 'y': 14 * TILE_SIZE, 'repeat':30},
+            {'x': 1920, 'y': 15 * TILE_SIZE, 'repeat':30},
+            {'x': 1920, 'y': 16 * TILE_SIZE, 'repeat':30},
+            {'x': 1920, 'y': 17 * TILE_SIZE, 'repeat':30},
+            {'x': 1920, 'y': 18 * TILE_SIZE, 'repeat':30},
+            {'x': 1920, 'y': 19 * TILE_SIZE, 'repeat':30},
+            {'x':1920, 'y': 20 * TILE_SIZE, 'repeat':30},
+            {'x':1920, 'y': 21 * TILE_SIZE, 'repeat':30},
+            {'x': 1920, 'y': 22 * TILE_SIZE, 'repeat':30},
+            {'x': 1920, 'y': 23 * TILE_SIZE, 'repeat':30},
+            {'x': 1920, 'y': 24 * TILE_SIZE, 'repeat':30},
 
             
-            {'x': -25 * TILE_SIZE, 'y': 2* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 3* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 4* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 5* TILE_SIZE, 'repeat': 20},
-            {'x': -25 * TILE_SIZE, 'y': 6* TILE_SIZE, 'repeat': 20},
+            {'x': 80 * TILE_SIZE, 'y': 10* TILE_SIZE, 'repeat': 20},
+            {'x': 80 * TILE_SIZE, 'y': 11* TILE_SIZE, 'repeat': 20},
+            {'x': 80 * TILE_SIZE, 'y': 12* TILE_SIZE, 'repeat': 20},
+            {'x': 80 * TILE_SIZE, 'y': 13* TILE_SIZE, 'repeat': 20},
+            {'x': 80 * TILE_SIZE, 'y':14* TILE_SIZE, 'repeat': 20},
 
 
 

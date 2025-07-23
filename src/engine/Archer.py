@@ -20,7 +20,7 @@ class Archer:
         self.Look = 'right'
         self.horizontal_speed = 7
         self.vertical_speed = 0
-        self.jump_strenght = 20
+        self.jump_strenght = 25
         self.gravity_strenght = 1
         self.on_ground = False
         self.jump_count = 0
@@ -317,7 +317,7 @@ class Archer:
         if self.super_power_active and current_time - self.super_power_last_activation > self.super_power_duration:
             self.super_power_active = False
 
-    def handle_input(self, keys,gates,shot_bullets,bullet_class,trigger_shutter):
+    def handle_input(self, keys,gates,shot_bullets,bullet_class,trigger_shutter,mouse_bottons):
         if self.DEAD:
             return
         if self.freezed:
@@ -333,22 +333,22 @@ class Archer:
             if keys[pygame.K_w]:
                 self.jump()
 
-            if keys[pygame.K_f] and not self.shooting and self.status != 'attack':
+            if mouse_bottons[0] and not self.shooting and self.status != 'attack':
                 self.shooting = True
                 self.status = 'shot'
                 self.current_frame_index = 0
                 self.shot_triggered = False
 
-            if keys[pygame.K_e] and self.status not in ('attack', 'shot'):
+            if mouse_bottons[2] and self.status not in ('attack', 'shot'):
                 self.status = 'attack'
                 self.current_frame_index = 0
                 self.attack_triggered = False
                 self.attack_targets = self.targets
 
-            if keys[pygame.K_q]:
+            if keys[pygame.K_g]:
                 self.call_drone()
 
-            if keys[pygame.K_LCTRL]:
+            if keys[pygame.K_LSHIFT]:
                 self.activate_super_power()
                 
             if keys[pygame.K_TAB]:

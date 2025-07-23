@@ -783,7 +783,7 @@ class Roboman:
 
 
 
-    def handle_input(self, keys, gate, shot_bullets, bullet_class, trigger_shutter):
+    def handle_input(self, keys, gate, shot_bullets, bullet_class, trigger_shutter, mouse_buttons):
         self.trigger_shutter_callback = trigger_shutter
         if not self.ALIVE:
             return
@@ -808,7 +808,7 @@ class Roboman:
 
             if keys[pygame.K_q]:
                 self.call_drone()
-            if keys[pygame.K_e]:
+            if mouse_buttons[2]:
                 self.shoot_rocket(shot_bullets, bullet_class)
 
         if self.hero_creation_index==2:
