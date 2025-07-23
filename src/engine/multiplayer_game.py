@@ -88,7 +88,6 @@ class Game_2:
         if self.enemies_dict.get('dragonlord'):
             self.enemies_dict['dragonlord'].camera = self.camera
             
-        # FIX: Define trigger_shutter directly on the instance
         def shutter_func(strength=5, duration=100):
             self.shutter_strength = strength
             self.shutter_duration = duration
@@ -114,10 +113,12 @@ class Game_2:
 
     def handle_inputs(self):
         keys = pygame.key.get_pressed()
+        mouse_buttons = pygame.mouse.get_pressed()
         if self.objects_dict.get('bomb'):
             self.objects_dict['bomb'].handle_input(keys)
-        self.hero.handle_input(keys, self.objects_dict['gates'], self.shot_bullets, self.bullet_class, self.trigger_shutter)
-        self.hero2.handle_input(keys, self.objects_dict['gates'], self.shot_bullets, self.bullet_class, self.trigger_shutter)
+        self.hero.handle_input(keys, self.objects_dict['gates'], self.shot_bullets, self.bullet_class, self.trigger_shutter, mouse_buttons)
+        self.hero2.handle_input(keys, self.objects_dict['gates'], self.shot_bullets, self.bullet_class, self.trigger_shutter, mouse_buttons)
+    
 
     def update(self):
         for hero in [self.hero,self.hero2]:
@@ -197,8 +198,6 @@ class Game_2:
             self.update()
             self.render_screen()
             self.camera.render()
-
-            # --- START: WIN/LOSS CONDITION LOGIC ---
             message = ""
             game_over = False
 
@@ -212,7 +211,7 @@ class Game_2:
             if game_over:
                 self.game_active = False
                 return "game_over", message
-            # --- END: WIN/LOSS CONDITION LOGIC ---
+            
 
             pygame.display.update()
             self.clock.tick(FPS)

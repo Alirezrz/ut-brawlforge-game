@@ -185,13 +185,13 @@ class Archer:
 
     def attack(self, targets):
         if self.status == 'shot' or self.shooting:
-            return  # Don't allow attack while shooting
+            return  
 
         self.status = 'attack'
         self.current_frame_index = 0
         self.attack_triggered = False
         self.melee_sound.play()
-        self.shooting = True  # Reuse this flag to lock input
+        self.shooting = True  
         self.HIT_PER_ATTACK=0
         self.HIT_COUNTER=0
         

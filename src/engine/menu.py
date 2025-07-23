@@ -521,9 +521,9 @@ class GameOverMenu:
                         self.selected_option_index = (self.selected_option_index + 1) % len(self.menu_options)
                     elif event.key == pygame.K_RETURN:
                         if self.selected_option_index == 0:
-                            return "menu"  # Return to mode selection menu
+                            return "menu" 
                         elif self.selected_option_index == 1:
-                            return "exit"  # Exit game
+                            return "exit"
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.return_to_menu_rect and self.return_to_menu_rect.collidepoint(event.pos):
                         return "menu"
@@ -535,7 +535,6 @@ class GameOverMenu:
                     elif self.exit_game_rect and self.exit_game_rect.collidepoint(event.pos):
                         self.selected_option_index = 1
                     else:
-                        # Optionally reset selection if mouse is not over any option
                         pass 
 
             self.draw()

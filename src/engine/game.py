@@ -111,7 +111,7 @@ class Game:
             self.enemies_dict.get('gunmans'),
             None,  # archer, only if needed
             self.enemies_dict.get('dragonlord'),
-            self.enemies_dict.get('flyingdemons'),  # fixed: pass the full list
+            self.enemies_dict.get('flyingdemons'),  
             self.objects_dict.get('bomb'),
             self.objects_dict.get('defuse_kit')
         ]
@@ -210,20 +210,17 @@ class Game:
                         continue
                     elif action == "menu":
                         self.game_active = False
-                        return "menu", "" # Return a tuple
+                        return "menu", ""
                     elif action == "exit":
                         self.game_active = False
-                        return "exit", "" # Return a tuple
+                        return "exit", "" 
 
             self.update()
             self.render_screen()
             self.camera.render()
             
-            # --- START: WIN/LOSS CONDITION LOGIC ---
             message = ""
             game_over = False
-
-            # Universal Loss Condition: Player Health
             if self.hero.health <= 0:
                 message = "You Lost!"
                 game_over = True
@@ -251,12 +248,7 @@ class Game:
 
             if game_over:
                 self.game_active = False
-                # Return status and message to the main runner
                 return "game_over", message
-            # --- END: WIN/LOSS CONDITION LOGIC ---
-
             pygame.display.update()
             self.clock.tick(FPS)
-        
-        # Default return if the loop is broken by other means
         return "menu", ""
