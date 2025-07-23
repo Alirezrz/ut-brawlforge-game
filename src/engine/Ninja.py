@@ -37,7 +37,7 @@ class Ninja:
         self.Look = 'right'
         self.horizontal_speed = 14
         self.vertical_speed = 0
-        self.jump_strenght = 20
+        self.jump_strenght = 25
         self.gravity_strenght = 1
         self.on_ground = False
         self.width = Ninja_width
