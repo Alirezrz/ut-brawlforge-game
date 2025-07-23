@@ -53,8 +53,12 @@ class Camera:
         self.hero.display(self.screen, self.scroll, self.shot_bullets)
         self.ninja.display(self.screen, self.scroll, self.shot_bullets)
 
-        if self.terrorist and self.terrorist.status != 'removed':
-            self.terrorist.display(self.screen, self.scroll)
+        for terrorist in self.terrorist :
+             if terrorist.status != 'removed':
+                 terrorist.display(self.screen, self.scroll)
+
+        #if self.terrorist and self.terrorist.status != 'removed':
+        #    self.terrorist.display(self.screen, self.scroll)
 
         if self.dragonlord:
             self.dragonlord.display(self.screen, self.scroll)

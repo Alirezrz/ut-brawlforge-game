@@ -93,7 +93,7 @@ class Game:
         self.camera = Camera(
             self.screen, self.platforms, self.shot_bullets, self.hero,
             self.explosions, self.scroll, self.hero,
-            next(iter(self.enemies_dict['terrorists']), None),
+            self.enemies_dict['terrorists'],
             self.objects_dict['gates'], self.background,
             self.enemies_dict['drones'],
             self.objects,

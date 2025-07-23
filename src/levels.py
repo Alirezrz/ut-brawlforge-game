@@ -10,6 +10,8 @@ level_1_data = {
     'player_start': {'x': 58*64, 'y':400},
     'enemies': [
         {'type': 'flyingdemon', 'x': 58 * TILE_SIZE - 800, 'y': 382, 'direction': 'right'},
+        {'type': 'terrorist', 'x': 41 * TILE_SIZE , 'y': 400},
+        {'type': 'terrorist', 'x': 46 * TILE_SIZE , 'y': 400},
     ],
 
     'objects': [
