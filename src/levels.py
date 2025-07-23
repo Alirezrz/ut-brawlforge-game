@@ -122,7 +122,7 @@ level_2_data = {
         {'type': 'pumpkin', 'x': 40 * TILE_SIZE, 'y': 400 - 270 - 130},
         {'type': 'power ups', 'x': 10 * TILE_SIZE, 'y': -4 * TILE_SIZE - 200, 'subtype': 'super power'},
         {'type': 'power ups', 'x': 55 * TILE_SIZE, 'y': 400 - 200, 'subtype': 'double jump'},
-        {'type': 'power ups', 'x': 20 * TILE_SIZE, 'y': -9 * TILE_SIZE - 200, 'subtype': 'guard drone'}
+        {'type': 'power ups', 'x': 27 * TILE_SIZE, 'y': -9 * TILE_SIZE - 200, 'subtype': 'guard drone'}
     ],
 
     'platforms': {
