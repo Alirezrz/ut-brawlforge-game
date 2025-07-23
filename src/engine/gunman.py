@@ -166,17 +166,15 @@ class Gunman:
             self.death_finished=True
 
     def Update(self, screen, offset, shot_bullets, platforms):
+        self.update_bullets(screen, offset, shot_bullets, platforms)
         self.update_animation(shot_bullets)
 
         if not self.ALIVE:
-            self.update_bullets(screen, offset, shot_bullets, platforms)
             return
 
         self.Walk()
         self.vision()
-        self.update_bullets(screen, offset, shot_bullets, platforms)
         self.update_health(shot_bullets)
-
     def Walk(self):
         current_time = pygame.time.get_ticks()
         if self.status == 'shoot':
@@ -231,25 +229,23 @@ class Gunman:
 
     def update_bullets(self, screen, offset, shot_bullets, platforms):
         for bullet in self.shot_bullets[:]:
-            if bullet not in shot_bullets:
-                self.shot_bullets.remove(bullet)
-            elif bullet.status != 'removed':
+            if self.health>0:
                 bullet.update()
                 bullet.draw(screen, offset)
 
-                for hero in self.targets:
-                    if bullet.hitbox.colliderect(hero.hitbox):
-                        hero.health -= 20
-                        hero.hurt()                        
-                        if bullet in self.shot_bullets:
-                            self.shot_bullets.remove(bullet)
-                        if bullet in shot_bullets:
-                            shot_bullets.remove(bullet)
+            for hero in self.targets:
+                if bullet.hitbox.colliderect(hero.hitbox):
+                    hero.health -= 20
+                    hero.hurt()
+                    if bullet in self.shot_bullets:
+                        self.shot_bullets.remove(bullet)
+                    if bullet in shot_bullets:
+                        shot_bullets.remove(bullet)
 
         for bullet in self.shot_bullets[:]:
             for platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
-                    self.smokes.append(Smoke(bullet.hitbox.centerx, bullet.hitbox.centery-25,bullet.Look))
+                    self.smokes.append(Smoke(bullet.hitbox.centerx, bullet.hitbox.centery - 25, bullet.Look))
                     if bullet in self.shot_bullets:
                         self.shot_bullets.remove(bullet)
                     if bullet in shot_bullets:
