@@ -120,8 +120,8 @@ level_2_data = {
         {'type': 'defusekit', 'x': 58 * TILE_SIZE, 'y': 200},
         {'type': 'teleportgate', 'x1': 58 * TILE_SIZE, 'y1': 363, 'x2': 56 * TILE_SIZE, 'y2': -2 * TILE_SIZE - 150},
         {'type': 'pumpkin', 'x': 40 * TILE_SIZE, 'y': 400 - 270 - 130},
-        {'type': 'power ups', 'x': 10 * TILE_SIZE, 'y': -4 * TILE_SIZE - 200, 'subtype': 'double jump'},
-        {'type': 'power ups', 'x': 55 * TILE_SIZE, 'y': 400 - 200, 'subtype': 'super power'},
+        {'type': 'power ups', 'x': 10 * TILE_SIZE, 'y': -4 * TILE_SIZE - 200, 'subtype': 'super power'},
+        {'type': 'power ups', 'x': 55 * TILE_SIZE, 'y': 400 - 200, 'subtype': 'double jump'},
         {'type': 'power ups', 'x': 20 * TILE_SIZE, 'y': -9 * TILE_SIZE - 200, 'subtype': 'guard drone'}
     ],
 
