@@ -254,27 +254,33 @@ class Dragon_Lord:
     def horizontal_move(self):
         self.x_pos += self.horizontal_auto_speed
         self.horizontal_auto_speed = 0
-
     def platforms_collisions(self, platforms):
-        for platform in platforms:
-            if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
-                if ((self.y_pos + self.height) >= platform.y_pos) and ((self.y_pos + self.height) < (platform.y_pos + platform.height)+10):
-                    self.on_ground = True
-                    self.vertical_speed = 0
-                    self.y_pos = platform.y_pos - self.height
-                    self.current_platform = platform
+    # Reset movement flags
+        self.allow_move_left = True
+        self.allow_move_right = True
 
-            if self.x_pos + self.width >= platform.x_pos and self.x_pos <= platform.x_pos + platform.width:
-                if ((self.y_pos + self.height) > platform.y_pos) and ((self.y_pos) < (platform.y_pos + platform.height)):
-                    if abs(self.x_pos - (platform.x_pos + platform.width)) <= 10:
-                        self.allow_move_left = False
-                        self.x_pos = platform.x_pos + platform.width
-                    if abs(self.x_pos + self.width - platform.x_pos) <= 10:
-                        self.allow_move_right = False
-                        self.x_pos = platform.x_pos - self.width
-            else:
-                self.allow_move_left = True
-                self.allow_move_right = True
+        for platform in platforms:
+        # Landing detection
+         if self.x_pos + self.width > platform.x_pos+15 and self.x_pos+15 < platform.x_pos + platform.width:
+             # Landing on top of platform
+             if ((self.y_pos + self.height) >= platform.y_pos) and \
+                ((self.y_pos + self.height) < (platform.y_pos + platform.height) + 10) and \
+                self.vertical_speed <= 0:  # Only land if moving downward
+
+                 self.on_ground = True
+                 self.vertical_speed = 0
+                 self.y_pos = platform.y_pos - self.height
+                 self.current_platform = platform
+                 landed = True
+         if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
+             if ((self.y_pos + self.height) > platform.y_pos) and \
+                  (self.y_pos < platform.y_pos + platform.height):
+                 if abs(self.x_pos - (platform.x_pos + platform.width)) <= 15:
+                     self.allow_move_left = False
+                     self.x_pos = platform.x_pos + platform.width
+                 elif abs(self.x_pos + self.width - platform.x_pos) <= 15:
+                     self.allow_move_right = False
+                     self.x_pos = platform.x_pos - self.width
 
     def attack(self):
         self.attacking = True
