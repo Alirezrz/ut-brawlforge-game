@@ -551,7 +551,7 @@ class Archer:
                 self.guard_drone.remove(drone)
                 
     def update(self,platforms,shot_bullets,targets,keys,gate,trigger_shutter=None):
-        if self.y_pos>7000:
+        if self.y_pos>1000:
             self.health=0
         self.is_on_ground()
         self.vertical_move()

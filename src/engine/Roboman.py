@@ -860,7 +860,7 @@ class Roboman:
         if hasattr(self, "ALIVE") and not self.ALIVE:
             self.update_animation(shot_bullets)
             return
-        if self.y_pos>7000:
+        if self.y_pos>1000:
             self.health=0
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.current_picture.get_width(), self.current_picture.get_height())
 
