@@ -61,25 +61,40 @@ class Game_2:
         self.hero.attack_targets = all_enemies + [self.hero2]
         self.hero2.attack_targets = all_enemies + [self.hero]
 
-        self.camera = Camera(
-            self.screen, self.platforms, self.shot_bullets, self.hero2,
-            self.explosions, self.scroll, self.hero,
-            next(iter(self.enemies_dict['terrorists']), None),
-            self.objects_dict['gates'], self.background,
-            self.enemies_dict['drones'],
+        camera_entities = [
+            self.platforms,
+            self.shot_bullets,
+            self.hero,
+            self.explosions,
+            self.scroll,
+            self.hero2,
+            self.enemies_dict.get('terrorists'),
+            self.objects_dict.get('gates'),
+            self.background,
+            self.enemies_dict.get('drones'),
             self.objects,
-            self.enemies_dict['gunmans'],
+            self.enemies_dict.get('gunmans'),
             None,
-            self.enemies_dict['dragonlord'],
-            next(iter(self.enemies_dict['flyingdemons']), None),
-            self.objects_dict['bomb'],
-            self.objects_dict['defuse_kit']
-        )
+            self.enemies_dict.get('dragonlord'),
+            next(iter(self.enemies_dict.get('flyingdemons', [])), None),
+            self.objects_dict.get('bomb'),
+            self.objects_dict.get('defuse_kit')
+        ]
+        self.camera = Camera(self.screen, camera_entities)
+
 
         self.enemies = all_enemies
         self.input_handler = InputHandler(None, self.bullet_class, self.shot_bullets)
         if self.enemies_dict.get('dragonlord'):
             self.enemies_dict['dragonlord'].camera = self.camera
+            
+        # FIX: Define trigger_shutter directly on the instance
+        def shutter_func(strength=5, duration=100):
+            self.shutter_strength = strength
+            self.shutter_duration = duration
+            self.shutter_start_time = pygame.time.get_ticks()
+        self.trigger_shutter = shutter_func
+
 
     def create_hero(self, char_name, start_pos, player_id):
         if char_name == "Ninja":
@@ -116,8 +131,13 @@ class Game_2:
             character.move_with_platform()
             character.jump_under_platform(self.platforms)
             character.update_animation(self.shot_bullets)
-            character.update_bullets(self.screen, self.shot_bullets, self.platforms, self.enemies + [self.hero, self.hero2][character == self.hero])
-
+            if character == self.hero:
+                other_player = self.hero2
+            else:
+                other_player = self.hero
+            
+            all_targets = self.enemies + [other_player]
+            character.update_bullets(self.screen, self.shot_bullets, self.platforms, all_targets)
         for enemy in self.enemies[:]:
             if hasattr(enemy, 'Update'):
                 enemy.Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
@@ -165,18 +185,32 @@ class Game_2:
                         continue
                     elif action == "menu":
                         self.game_active = False
-                        return "menu"
+                        return "menu", "" # Return a tuple
                     elif action == "exit":
                         self.game_active = False
-                        return "exit"
+                        return "exit", "" # Return a tuple
 
             self.update()
             self.render_screen()
             self.camera.render()
+
+            # --- START: WIN/LOSS CONDITION LOGIC ---
+            message = ""
+            game_over = False
+
+            if self.hero.health <= 0:
+                message = "Player 2 Wins!"
+                game_over = True
+            elif self.hero2.health <= 0:
+                message = "Player 1 Wins!"
+                game_over = True
+
+            if game_over:
+                self.game_active = False
+                return "game_over", message
+            # --- END: WIN/LOSS CONDITION LOGIC ---
+
             pygame.display.update()
             self.clock.tick(FPS)
 
-    def trigger_shutter(self, strength=5, duration=100):
-        self.shutter_strength = strength
-        self.shutter_duration = duration
-        self.shutter_start_time = pygame.time.get_ticks()
+        return "menu", ""

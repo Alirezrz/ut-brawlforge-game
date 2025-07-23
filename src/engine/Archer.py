@@ -53,7 +53,7 @@ class Archer:
         self.animation_speed = 80
         self.last_frame_update_time = pygame.time.get_ticks()
         self.is_moving_horizontally = False
-
+        self.is_first_time = True
         self.shooting = False
         self.shot_triggered = False
 
@@ -89,7 +89,7 @@ class Archer:
         sizes=[(98,100),(102,100),(150,43)]
         self.death_frames=[pygame.transform.scale(pygame.image.load(os.path.join(base_path, "death", f"{i}.png")), sizes[i]) for i in range(3)]
         
-        self.current_picture = None
+        self.current_picture = self.idle_frames[0]
         
         self.SUPER_POWER_FLAG=False
         self.GUARD_DRONE_FLAG=False
@@ -121,7 +121,7 @@ class Archer:
             profile_x, profile_y = 0, 0
         elif self.hero_creation_index == 2:  # بالا راست
             if self.is_first_time:
-                self.hero_profile_picture = pygame.transform.flip(self.hero_profile_picture, True, False)
+                self.hero_profile_picture = pygame.transform.flip(self.profile_picture, True, False)
                 self.is_first_time=False            
             bar_x = self.screen_width - health_bar_lenght - (2 * roboman_health_bar_frame_thickness) - profileSideSize
             bar_y = 0

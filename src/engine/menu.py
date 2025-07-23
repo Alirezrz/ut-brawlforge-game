@@ -379,7 +379,7 @@ class MultiplayerMapCharacterMenu:
 
     def draw(self):
         self.screen.blit(self.background, (0, 0))
-        title_text = self.title_font.render("Choose Two Characters and a Map", True, (255, 255, 255)) # متن عنوان چند نفره
+        title_text = self.title_font.render("Choose Two Characters and a Map", True, (255, 255, 255))
         title_rect = title_text.get_rect(center=(self.screen.get_width() // 2, 50))
         self.screen.blit(title_text, title_rect)
         
@@ -391,7 +391,7 @@ class MultiplayerMapCharacterMenu:
             text = self.font.render(button["text"], True, (255, 255, 255))
             text_rect = text.get_rect(center=(button["pos"][0] + button["size"][0] // 2, button["pos"][1] + button["size"][1] // 2))
             self.screen.blit(text, text_rect)
-            preview_img = pygame.transform.scale(self.char_previews[button["text"]], (120, 120))
+            preview_img = pygame.transform.scale(self.char_previews[button["text"]], (80,120))
             self.screen.blit(preview_img, button["preview_pos"])
 
 
@@ -469,3 +469,74 @@ class MultiplayerMapCharacterMenu:
                         return "exit", None, None 
             self.draw()
             pygame.display.flip()
+
+
+class GameOverMenu:
+    def __init__(self, screen, background, message):
+        self.screen = screen
+        self.background = background
+        self.message = message
+        self.font = pygame.font.Font(None, 74)
+        self.small_font = pygame.font.Font(None, 50)
+
+        self.menu_options = ["Return to Mode Selection", "Exit Game"]
+        self.selected_option_index = 0
+
+        self.return_to_menu_rect = None
+        self.exit_game_rect = None
+
+    def draw(self):
+        # Draw the background
+        self.screen.blit(self.background, (0, 0))
+
+        # Draw the game over message
+        message_surface = self.font.render(self.message, True, (255, 255, 255))
+        message_rect = message_surface.get_rect(center=(self.screen.get_width() / 2, self.screen.get_height() / 4))
+        self.screen.blit(message_surface, message_rect)
+
+        # Draw menu options
+        for i, option in enumerate(self.menu_options):
+            color = (255, 255, 0) if i == self.selected_option_index else (255, 255, 255)
+            option_surface = self.small_font.render(option, True, color)
+            
+            if i == 0:
+                self.return_to_menu_rect = option_surface.get_rect(center=(self.screen.get_width() / 2, self.screen.get_height() / 2))
+                self.screen.blit(option_surface, self.return_to_menu_rect)
+            elif i == 1:
+                self.exit_game_rect = option_surface.get_rect(center=(self.screen.get_width() / 2, self.screen.get_height() / 2 + 70))
+                self.screen.blit(option_surface, self.exit_game_rect)
+
+        pygame.display.flip()
+
+    def run(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_UP:
+                        self.selected_option_index = (self.selected_option_index - 1) % len(self.menu_options)
+                    elif event.key == pygame.K_DOWN:
+                        self.selected_option_index = (self.selected_option_index + 1) % len(self.menu_options)
+                    elif event.key == pygame.K_RETURN:
+                        if self.selected_option_index == 0:
+                            return "menu"  # Return to mode selection menu
+                        elif self.selected_option_index == 1:
+                            return "exit"  # Exit game
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.return_to_menu_rect and self.return_to_menu_rect.collidepoint(event.pos):
+                        return "menu"
+                    if self.exit_game_rect and self.exit_game_rect.collidepoint(event.pos):
+                        return "exit"
+                if event.type == pygame.MOUSEMOTION:
+                    if self.return_to_menu_rect and self.return_to_menu_rect.collidepoint(event.pos):
+                        self.selected_option_index = 0
+                    elif self.exit_game_rect and self.exit_game_rect.collidepoint(event.pos):
+                        self.selected_option_index = 1
+                    else:
+                        # Optionally reset selection if mouse is not over any option
+                        pass 
+
+            self.draw()
+            pygame.time.Clock().tick(30)            

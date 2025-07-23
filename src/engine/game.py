@@ -11,10 +11,12 @@ from src.engine.Ninja import Ninja
 from src.engine.Roboman import Roboman
 from src.engine.NinjaGirl import NinjaGirl
 from src.engine.Archer import Archer
-from src.engine.menu import PauseMenu
+from src.engine.menu import PauseMenu,GameModeMenu
 from src.levels import level_1_data,level_2_data,level_3_data,level_4_data, load_level_data, build_enemies, build_objects, apply_targets_to_enemies,Boss_fight_level
 from src.engine.power_ups import Power_up
 
+BOMB_LEVELS = ["level_1_data", "level_2_data","level_3_data"]
+BOSS_LEVELS = ["level_4_data"]
 class Game:
     def __init__(self, screen, platform_image, background,selected_char,selected_map
            ):
@@ -120,7 +122,11 @@ class Game:
         self.input_handler = InputHandler(None, self.bullet_class, self.shot_bullets)
         if self.enemies_dict.get('dragonlord'):
             self.enemies_dict['dragonlord'].camera = self.camera
-
+        def shutter_func(self, strength=5, duration=100):
+            self.shutter_strength = strength
+            self.shutter_duration = duration
+            self.shutter_start_time = pygame.time.get_ticks()
+        self.trigger_shutter = shutter_func
     def handle_events(self, events):
         for event in events:
             if event.type == pygame.QUIT:
@@ -133,6 +139,7 @@ class Game:
             self.objects_dict['bomb'].handle_input(keys)
         self.hero.handle_input(keys, self.objects_dict['gates'], self.shot_bullets, self.bullet_class, self.trigger_shutter)
 
+    
     def update(self):
         keys = pygame.key.get_pressed()
         if self.enemies_dict.get('dragonlord'):
@@ -194,18 +201,53 @@ class Game:
                         continue
                     elif action == "menu":
                         self.game_active = False
-                        return "menu"
+                        return "menu", "" # Return a tuple
                     elif action == "exit":
                         self.game_active = False
-                        return "exit"
+                        return "exit", "" # Return a tuple
 
             self.update()
             self.render_screen()
             self.camera.render()
+            
+            # --- START: WIN/LOSS CONDITION LOGIC ---
+            message = ""
+            game_over = False
+
+            # Universal Loss Condition: Player Health
+            if self.hero.health <= 0:
+                message = "You Lost!"
+                game_over = True
+
+            # Level-specific Win/Loss Conditions
+            # For bomb defusal levels (1-3)
+            if self.map in [level_1_data, level_2_data, level_3_data]:
+                bomb_obj = self.objects_dict.get('bomb')
+                if bomb_obj:
+                    # Loss by bomb timer
+                    if bomb_obj.timer <= 0 and not bomb_obj.is_defused:
+                        message = "You Lost! Time's Up!"
+                        game_over = True
+                    # Win by defusing bomb
+                    elif bomb_obj.is_defused:
+                        message = "You Win! Bomb Defused!"
+                        game_over = True
+            
+            # For boss fight level (4)
+            elif self.map == level_4_data:
+                boss = self.enemies_dict.get('dragonlord')
+                if boss and boss.health <= 0:
+                    message = "You Win! Boss Defeated!"
+                    game_over = True
+
+            if game_over:
+                self.game_active = False
+                # Return status and message to the main runner
+                return "game_over", message
+            # --- END: WIN/LOSS CONDITION LOGIC ---
+
             pygame.display.update()
             self.clock.tick(FPS)
-
-    def trigger_shutter(self, strength=5, duration=100):
-        self.shutter_strength = strength
-        self.shutter_duration = duration
-        self.shutter_start_time = pygame.time.get_ticks()
+        
+        # Default return if the loop is broken by other means
+        return "menu", ""

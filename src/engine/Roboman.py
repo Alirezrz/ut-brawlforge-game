@@ -17,9 +17,9 @@ class Roboman:
         self.on_platform = False
         self.current_platform = None
         self.status="idle"
-        self.horizontal_speed = 7  
+        self.horizontal_speed = 7
         self.trigger_shutter_callback=None
-        self.jump_strenght = 20 
+        self.jump_strenght = 20
         self.freezed=False
         self.last_freezed=0
         self.is_first_time=True
@@ -44,7 +44,7 @@ class Roboman:
             os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shoot.wav"))
         self.jetpack_sound = pygame.mixer.Sound(
             os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "jetpack.wav"))
-          
+
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "RoboMan_pictures")
         self.freezed_img=pygame.transform.scale(pygame.image.load(os.path.join(base_path,"freezed.png")),(69,118))
         self.run_frames = []
@@ -96,7 +96,7 @@ class Roboman:
             except FileNotFoundError:
                 print(f"Error: Roboman Shoot frame 'Shoot ({i}).png' not found at {img_path}. Check path.")
                 self.shoot_frames.append(pygame.Surface((70, 118)))
- 
+
         self.RunShoot_frames=[]
         for i in range(1, 9):
             try:
@@ -135,7 +135,7 @@ class Roboman:
                 self.jump_frames.append(pygame.Surface((70, 118)))
                 print(img_path)
 
-        self.jump_shoot_animation_speed = 50 
+        self.jump_shoot_animation_speed = 50
         self.jumpshoot_flag=False
         self.JumpShoot_frames=[]
         self.JumpShoot = False
@@ -154,7 +154,7 @@ class Roboman:
                 print(f"Error: Roboman jump shhot frame 'JumpShoot ({i}).png' not found at {img_path}. Check path.")
                 self.JumpShoot_frames.append(pygame.Surface((70, 118)))
                 print(img_path)
-        sizes=[(73,118),(84,118),(90,100),(145,90),(133,90),(110,61),(118,56),(118,52),(118,53),(118,53)]      
+        sizes=[(73,118),(84,118),(90,100),(145,90),(133,90),(110,61),(118,56),(118,52),(118,53),(118,53)]
         self.death_frames=[]
         for i in range(1,11):
             self.death_frames.append(pygame.transform.scale(
@@ -167,11 +167,11 @@ class Roboman:
                 ),
                 sizes[i-1]
             ))
-            
+
         img_path = os.path.join(base_path, f"jetpack.png")
         self.jetpack_frame=pygame.image.load(img_path)
         self.jetpack_frame=pygame.transform.scale(self.jetpack_frame, (80,118))
- 
+
         bullet_image_path = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
         "..", "assets", "images", "RoboMan_pictures", "Bullet.png"
@@ -212,7 +212,7 @@ class Roboman:
         self.max_health = 100
         self.bullets = []
         self.explosions=[]
-        
+
         self.jetpack_reload_duration = roboman_jetpack_reload
         self.last_jetpack_fire=0
         self.jetpack_thrust = 12
@@ -222,12 +222,12 @@ class Roboman:
         self.jetpack_start_time = 0
         self.jetpack_active = False
         self.super_power_last_activation=0
-        
+
         self.last_rocket_shot=0
         self.rocket_reload_duration=6000
-        
-        
-        
+
+
+
         self.DEAD=False
         self.ALIVE=True
 
@@ -248,7 +248,7 @@ class Roboman:
         self.Last__Shooting_time=0
         self.frame_flag=False
         self.in_jump_animation = False
-        
+
         # drone attributes:
         self.guard_drone_reload_duration = 10000  # cooldown time (ms)
         self.last_guard_call = 0
@@ -260,14 +260,14 @@ class Roboman:
         self.SUPER_POWER_FLAG=False
         self.GUARD_DRONE_FLAG=False
         self.DOUBLE_JUMP_FLAG=False
-        
-        
-        
+
+
+
     def hurt(self):
         self.hurt_sound.play()
         if self.health <= 0:
             self.die()
-            
+
     def die(self):
         if hasattr(self, "DEAD") and self.DEAD:
             return
@@ -285,27 +285,27 @@ class Roboman:
         if self.current_platform:
             self.y_pos = self.current_platform.y_pos - self.height
         else:
-            self.y_pos = self.screen_height - self.height - 10 
-        
+            self.y_pos = self.screen_height - self.height - 10
+
     def display(self, screen, offset, shot_bullets):
         if self.health<0:
             self.health=0
-        
+
         self.roboman_health_bar = pygame.transform.scale(
-            self.roboman_health_bar, 
+            self.roboman_health_bar,
             (int(health_bar_lenght * (self.health / self.max_health)), profileSideSize - (2 * roboman_health_bar_frame_thickness))
         )
         self.roboman_health_bar_frame = pygame.transform.scale(
-            self.roboman_health_bar_frame, 
+            self.roboman_health_bar_frame,
             (health_bar_lenght + (2 * roboman_health_bar_frame_thickness), profileSideSize)
         )
 
         display_picture = self.current_picture
         y = self.y_pos
 
-        if self.super_power_active and pygame.time.get_ticks() - self.super_power_display_start < 1500:
+        if self.super_power_active and hasattr(self, 'super_power_display_start') and pygame.time.get_ticks() - self.super_power_display_start < 1500:
             display_picture = self.super_power_effect
-            y -= 20 
+            y -= 20
 
         if self.Look == 'right':
             screen.blit(display_picture, (self.x_pos - offset[0], y - offset[1]))
@@ -393,7 +393,7 @@ class Roboman:
         if self.freezed:
             self.current_picture = self.freezed_img
             return
-        
+
         if self.jetpack_active and self.jetpack_frame:
             self.current_picture = self.jetpack_frame
             return
@@ -509,7 +509,7 @@ class Roboman:
             self.Look = 'left'
             self.hitbox.topleft = (self.x_pos, self.y_pos)
             self.fall_from_platform()
-            
+
         elif self.allow_move_left and not (self.is_shooting and not self.is_moving_horizontally):
             self.x_pos -= self.horizontal_speed
             self.is_moving_horizontally = True
@@ -519,25 +519,25 @@ class Roboman:
 
     def shoot(self, shot_bullets, Bullet_Class):
         current_time = pygame.time.get_ticks()
-        
+
         if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active:
             if self.shoot_sound:
                 self.shoot_sound.play()
-            
-            self.Last__Shooting_time = current_time 
+
+            self.Last__Shooting_time = current_time
             if not self.on_ground:
                 self.jumpShoot(shot_bullets, Bullet_Class)
                 return
-                
-            if self.is_moving_horizontally and self.vertical_speed == 0: 
-                self.RunShoot = True 
+
+            if self.is_moving_horizontally and self.vertical_speed == 0:
+                self.RunShoot = True
                 self.shooting_animation_start_time = pygame.time.get_ticks()
-                self.current_frame_index = self.Last_RunShoot_frame_index 
-            
-            self.is_shooting = True 
+                self.current_frame_index = self.Last_RunShoot_frame_index
+
+            self.is_shooting = True
             if not self.RunShoot:
                 self.shooting_animation_start_time = pygame.time.get_ticks()
-                self.current_frame_index = 0 
+                self.current_frame_index = 0
 
             bullet_offset_x = 10
             bullet_start_y = self.y_pos + 35
@@ -550,26 +550,26 @@ class Roboman:
             if not self.super_power_active:
                 bullet = Bullet_Class(
                 bullet_start_x,
-                bullet_start_y + 18, 
-                15, 
-                self.Look, 
-                self.bullet_picture, 
+                bullet_start_y + 18,
+                15,
+                self.Look,
+                self.bullet_picture,
                 "Roboman"
             )
             else:
                 bullet = Bullet_Class(
                 bullet_start_x,
-                bullet_start_y + 18, 
-                30, 
-                self.Look, 
-                self.rocket, 
+                bullet_start_y + 18,
+                30,
+                self.Look,
+                self.rocket,
                 "Roboman"
             )
-                
-            self.bullets.append(bullet) 
-            shot_bullets.append(bullet) 
-            
-            
+
+            self.bullets.append(bullet)
+            shot_bullets.append(bullet)
+
+
     def shoot_rocket(self, shot_bullets, Bullet_Class):
         current_time = pygame.time.get_ticks()
 
@@ -627,11 +627,11 @@ class Roboman:
 
         bullet = Bullet_Class(
             bullet_start_x,
-            bullet_start_y + 18, 
-            15, 
-            self.Look, 
-            self.bullet_picture, 
-            self.screen_width 
+            bullet_start_y + 18,
+            15,
+            self.Look,
+            self.bullet_picture,
+            self.screen_width
         )
         shot_bullets.append(bullet)
         self.bullets.append(bullet)
@@ -667,23 +667,22 @@ class Roboman:
                         self.bullets.remove(bullet)
                     if bullet in shot_bullets:
                         shot_bullets.remove(bullet)
-                        
+
         for target in targets:
             for bullet in self.bullets:
                 if target.hitbox.colliderect(bullet.hitbox):
-                    target.health-=20   # should be intialized ***** 
+                    target.health-=20   # should be intialized *****
                     target.hurt()
 
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
                     if bullet in shot_bullets:
                         shot_bullets.remove(bullet)
-                    
-                    
-        
-                
-                                  
-                    
+
+
+
+
+
 
 
     def jump(self):
@@ -694,12 +693,12 @@ class Roboman:
             self.on_ground = False
             self.current_platform = None
             self.last_jump_time=pygame.time.get_ticks()
-            self.current_frame_index = 0 
+            self.current_frame_index = 0
             self.frame_flag=True
-            self.in_jump_animation = True 
+            self.in_jump_animation = True
             self.allow_move_left=True
             self.allow_move_right=True
-            
+
     def activate_jetpack(self):
         current_time = pygame.time.get_ticks()
         if not self.on_ground and not self.jetpack_active and (current_time - self.last_jetpack_use_time >= self.jetpack_reload_duration) and self.DOUBLE_JUMP_FLAG:
@@ -723,7 +722,7 @@ class Roboman:
                     self.current_picture = self.Jump_frames[8]
 
     def gravity(self):
-        self.update_jetpack() 
+        self.update_jetpack()
         if not self.on_ground:
             self.vertical_speed -= self.gravity_strenght
 
@@ -743,7 +742,7 @@ class Roboman:
     # Reset movement flags
         self.allow_move_left = True
         self.allow_move_right = True
-    
+
         for platform in platforms:
         # Landing detection
          if self.x_pos + self.width > platform.x_pos+15 and self.x_pos+15 < platform.x_pos + platform.width:
@@ -751,28 +750,22 @@ class Roboman:
              if ((self.y_pos + self.height) >= platform.y_pos) and \
                 ((self.y_pos + self.height) < (platform.y_pos + platform.height) + 10) and \
                 self.vertical_speed <= 0:  # Only land if moving downward
-                
+
                  self.on_ground = True
                  self.vertical_speed = 0
                  self.y_pos = platform.y_pos - self.height
                  self.current_platform = platform
                  landed = True
          if self.x_pos + self.width > platform.x_pos and self.x_pos < platform.x_pos + platform.width:
-
-            # Side collisions (left/right of platform)
              if ((self.y_pos + self.height) > platform.y_pos) and \
                   (self.y_pos < platform.y_pos + platform.height):
-                
-                # Left side collision
                  if abs(self.x_pos - (platform.x_pos + platform.width)) <= 15:
                      self.allow_move_left = False
                      self.x_pos = platform.x_pos + platform.width
-                
-                # Right side collision
                  elif abs(self.x_pos + self.width - platform.x_pos) <= 15:
                      self.allow_move_right = False
                      self.x_pos = platform.x_pos - self.width
-    
+
     def jump_under_platform(self, platforms):
         if self.vertical_speed > 0:
             for platform in platforms:
@@ -782,15 +775,16 @@ class Roboman:
                        self.y_pos > platform.y_pos:
                         self.vertical_speed = 0
                         self.y_pos = platform.y_pos + platform.height
-                        
-                        
+
+
     def Send_teleport_request(self,Gates):
         for gate in Gates:
             gate.recieve_request(self)
-        
-        
-        
-    def handle_input(self, keys, gate, shot_bullets, bullet_class,trigger_shutter):
+
+
+
+    def handle_input(self, keys, gate, shot_bullets, bullet_class, trigger_shutter):
+        self.trigger_shutter_callback = trigger_shutter
         if not self.ALIVE:
             return
         self.is_moving_horizontally = False
@@ -806,18 +800,18 @@ class Roboman:
             if keys[pygame.K_w]:
                 self.jump()
             if keys[pygame.K_LSHIFT]:
-                self.activate_jetpack()  
+                self.activate_jetpack()
             if keys[pygame.K_TAB]:
                 self.Send_teleport_request(gate)
-            if keys[pygame.K_f]: 
+            if keys[pygame.K_f]:
                 self.shoot(shot_bullets, bullet_class)
-                
+
             if keys[pygame.K_q]:
                 self.call_drone()
             if keys[pygame.K_e]:
                 self.shoot_rocket(shot_bullets, bullet_class)
 
-        if self.hero_creation_index==2:        
+        if self.hero_creation_index==2:
             if keys[pygame.K_RIGHT]:
                 self.move_right()
                 self.is_moving_horizontally = True
@@ -827,18 +821,18 @@ class Roboman:
             if keys[pygame.K_UP]:
                 self.jump()
             if keys[pygame.K_PERIOD]:
-                self.activate_jetpack()  
+                self.activate_jetpack()
             if keys[pygame.K_RETURN]:
                 self.Send_teleport_request(gate)
-            if keys[pygame.K_RCTRL]: 
+            if keys[pygame.K_RCTRL]:
                 self.shoot(shot_bullets, bullet_class)
-                
+
             if keys[pygame.K_SLASH]:
                 self.call_drone()
             if keys[pygame.K_RALT]:
-                self.shoot_rocket(shot_bullets, bullet_class)            
-            
-            
+                self.shoot_rocket(shot_bullets, bullet_class)
+
+
     def call_drone(self):
         current_time=pygame.time.get_ticks()
         if current_time - self.last_guard_call >= self.guard_drone_reload_duration and self.GUARD_DRONE_FLAG:
@@ -853,9 +847,9 @@ class Roboman:
                     drone.status = 'departing'
             if drone.status == 'departing' and drone.departed_len>3000:
                 self.guard_drone.remove(drone)
-                
 
-                
+
+
     def update(self, platforms, shot_bullets, targets, keys, gate, trigger_shutter=None):
         if hasattr(self, "ALIVE") and not self.ALIVE:
             self.update_animation(shot_bullets)
@@ -874,9 +868,8 @@ class Roboman:
         self.update_bullets(shot_bullets, targets)
         self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter)
         self.update_drone()
-  
 
-        
+
 
 
 
@@ -889,9 +882,9 @@ class Explosion:
         self.y_pos=y
         self.Expired=False
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "RoboMan_pictures")
-        
+
         self.images=[]
-        
+
         for i in range (5):
             self.images.append(
                 pygame.transform.scale(
@@ -904,14 +897,14 @@ class Explosion:
         self.frame_index=-1
         self.frame=self.images[0]
         self.last_update=0
-        
-            
-            
-            
+
+
+
+
     def display(self,screen,offset):
         self.update()
         screen.blit(self.frame,(self.x_pos-offset[0],self.y_pos-offset[1]))
-        
+
     def update(self):
         current_time=pygame.time.get_ticks()
         elapsed_time=current_time-self.last_update
@@ -921,18 +914,3 @@ class Explosion:
             self.last_update=current_time
         elif elapsed_time>=60 and not self.frame_index<4:
             self.Expired=True
-            
-            
-
-            
-            
-            
-            
-            
-            
-            
-            
-        
-        
-        
-        
