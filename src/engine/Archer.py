@@ -20,7 +20,7 @@ class Archer:
         self.Look = 'right'
         self.horizontal_speed = 7
         self.vertical_speed = 0
-        self.jump_strenght = 20
+        self.jump_strenght = 25
         self.gravity_strenght = 1
         self.on_ground = False
         self.jump_count = 0
