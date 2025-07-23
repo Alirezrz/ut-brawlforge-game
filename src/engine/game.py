@@ -14,6 +14,7 @@ from src.engine.Archer import Archer
 from src.engine.menu import PauseMenu,GameModeMenu
 from src.levels import level_1_data,level_2_data,level_3_data,level_4_data, load_level_data, build_enemies, build_objects, apply_targets_to_enemies,Boss_fight_level
 from src.engine.power_ups import Power_up
+from src.engine.Dragon_Lord import Dragon_Lord
 
 BOMB_LEVELS = ["level_1_data", "level_2_data","level_3_data"]
 BOSS_LEVELS = ["level_4_data"]
@@ -147,9 +148,8 @@ class Game:
 
     
     def update(self):
-        if self.hero.y_pos>64*50:
-            self.hero.health=0        
-        keys = pygame.key.get_pressed()
+        if (self.hero.health <= 0 or self.hero.y_pos > 64 * 50) and self.hero.ALIVE:
+            self.hero.die()
         
         if self.enemies_dict.get('dragonlord'):
             self.enemies_dict['dragonlord'].Update(self.screen, self.scroll, self.shot_bullets, self.platforms)
@@ -203,12 +203,14 @@ class Game:
         self.screen.fill(self.screen_color)
 
     def run(self):
-        death_timer_started = False
-        death_start_time = 0
-        death_delay = 1500 
+        game_is_over = False
+        final_message = ""
+        game_over_start_time = 0
+        game_over_delay = 2000
         while self.game_active:
             events = pygame.event.get()
-            self.handle_inputs()
+            if not game_is_over:
+                self.handle_inputs()
             self.handle_events(events)
             for event in events:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -223,39 +225,41 @@ class Game:
                         self.game_active = False
                         return "exit", "" 
 
-            self.update()
+            if not game_is_over:
+                self.update()
             self.render_screen()
             self.camera.render()
             
-            message = ""
-            game_over = False
-            if self.hero.DEAD and not death_timer_started:
-                death_timer_started = True
-                death_start_time = pygame.time.get_ticks()
+            if not game_is_over:
+                win_or_loss_triggered = False
+                if self.hero.DEAD:
+                    final_message = "You Lost!"
+                    win_or_loss_triggered = True
+                elif self.map in [level_1_data, level_2_data, level_3_data]:
+                    bomb_obj = self.objects_dict.get('bomb')
+                    if bomb_obj:
+                        if bomb_obj.timer <= 0 and not bomb_obj.is_defused:
+                            final_message = "You Lost! Time's Up!"
+                            win_or_loss_triggered = True
+                        elif bomb_obj.is_defused:
+                            final_message = "You Win! Bomb Defused!"
+                            win_or_loss_triggered = True
+                elif self.map in [level_4_data, Boss_fight_level]:
+                    boss = self.enemies_dict.get('dragonlord')
+                    if boss and boss.DEAD:
+                        final_message = "You Win! Boss Defeated!"
+                        win_or_loss_triggered = True
 
-            if death_timer_started and pygame.time.get_ticks() - death_start_time >= death_delay:
-                message = "You Lost!"
-                game_over = True
-
-            if self.map in [level_1_data, level_2_data, level_3_data]:
-                bomb_obj = self.objects_dict.get('bomb')
-                if bomb_obj:
-                    if bomb_obj.timer <= 0 and not bomb_obj.is_defused:
-                        message = "You Lost! Time's Up!"
-                        game_over = True
-                    elif bomb_obj.is_defused:
-                        message = "You Win! Bomb Defused!"
-                        game_over = True
+                if win_or_loss_triggered:
+                    game_is_over = True
+                    game_over_start_time = pygame.time.get_ticks()
             
-            elif self.map == level_4_data:
-                boss = self.enemies_dict.get('dragonlord')
-                if boss and boss.health <= 0:
-                    message = "You Win! Boss Defeated!"
-                    game_over = True
-
-            if game_over:
-                self.game_active = False
-                return "game_over", message
+            if game_is_over:
+                if pygame.time.get_ticks() - game_over_start_time > game_over_delay:
+                    self.game_active = False
+                    return "game_over", final_message
+                
             pygame.display.update()
             self.clock.tick(FPS)
+            
         return "menu", ""

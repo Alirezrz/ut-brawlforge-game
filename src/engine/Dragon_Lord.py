@@ -185,6 +185,7 @@ class Dragon_Lord:
                 self.current_frame_index += 1
                 if self.current_frame_index==29:
                     self.status=='dead'
+                    self.DEAD = True
             else:
                 self.current_picture = self.death_frames[-1]
                 self.DEAD=True
