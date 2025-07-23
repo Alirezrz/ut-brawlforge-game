@@ -110,7 +110,7 @@ level_2_data = {
         {'type': 'terrorist', 'x': 35 * TILE_SIZE, 'y': 400},
         {'type': 'gunman', 'x': 45 * TILE_SIZE, 'y': 400},
         {'type': 'flyingdemon', 'x': 20 * TILE_SIZE, 'y': -2 * TILE_SIZE - 110, 'direction': 'right'},
-        {'type': 'drone', 'x': 30 * TILE_SIZE, 'y': -4 * TILE_SIZE - 110, 'direction': 'right'},
+        {'type': 'drone', 'x': 15 * TILE_SIZE, 'y': -4 * TILE_SIZE - 110, 'direction': 'right'},
         {'type': 'terrorist', 'x': 50 * TILE_SIZE, 'y': -9 * TILE_SIZE - 110},
         {'type': 'gunman', 'x': 55 * TILE_SIZE, 'y': -9 * TILE_SIZE - 110}
     ],
