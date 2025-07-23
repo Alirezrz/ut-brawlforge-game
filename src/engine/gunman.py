@@ -21,7 +21,6 @@ class Gunman:
         self.ALIVE = True
         self.platforms = platforms
 
-
         self.shoot_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "gunner", "gunner shoot.mp3"))
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "gunner", "gunman hurt.mp3"))
 
@@ -68,7 +67,6 @@ class Gunman:
         self.health_bar_width=100
         self.health_bar=pygame.image.load("src/assets/images/gunman/health_bar.png")
 
-
         self.display_frame = self.idle_frames[0]
         self.animation_speed = 150
         self.last_animation_update = 0
@@ -91,9 +89,9 @@ class Gunman:
         self.death_start_y = None  # To store original y position at death start
         self.smokes = []
         self.death_finished=False
+
     def hurt(self):
         self.hurt_sound.play()    
-
 
     def display_health_bar(self,screen,offset):
         if self.health<0:
@@ -180,6 +178,7 @@ class Gunman:
         self.Walk()
         self.vision()
         self.update_health(shot_bullets)
+
     def Walk(self):
         current_time = pygame.time.get_ticks()
         if self.status == 'shoot':
@@ -233,6 +232,8 @@ class Gunman:
         shot_bullets.append(bullet)
 
     def update_bullets(self, screen, offset, shot_bullets, platforms):
+        if self.death_finished:
+            self.shot_bullets=[]
         for bullet in self.shot_bullets[:] :
             if self.health>0 and not self.death_finished:
                 bullet.update()
@@ -266,13 +267,14 @@ class Gunman:
 
         if self.health <= 0 and self.ALIVE:
             self.ALIVE = False
+            for bullet in self.shot_bullets[:]:
+                if bullet in shot_bullets:
+                    shot_bullets.remove(bullet)
+            self.shot_bullets = []
             self.status = "in the way to hell"
             self.frame_index = 0
-            
-
 
 # =============================================
-
 
 class Smoke:
     def __init__(self, x, y,look):
