@@ -6,7 +6,7 @@ from src.engine.protector import Guard_Drone
 ## must be done -->  1- list of enemies for hit when attacking must be fixed 
 class Ninja:
     def __init__(self, x, y, screen_width, screen_height, targets, hero_creation_index=2):
-        
+        self.frame_address=None
         self.ALIVE=True
         self.DEAD=False
         
@@ -318,12 +318,14 @@ class Ninja:
     def update_animation(self, shot_bullets):
         if self.DEAD:
             self.current_picture=self.death_frames[9]
+            self.frame_address=["death_frames",9]
             self.y_pos=self.y_pos+118-self.current_picture.get_height()
         current_time = pygame.time.get_ticks()
 
         if not self.ALIVE:
             if self.current_frame_index < len(self.death_frames):
                 self.current_picture = self.death_frames[self.current_frame_index]
+                self.frame_address=["death_frames",self.current_frame_index]
                 new_width, new_height = self.current_picture.get_size()
                 if self.current_frame_index == 0:
                     self.previous_center = (self.x_pos + self.width // 2, self.y_pos + self.height)
@@ -336,15 +338,18 @@ class Ninja:
                     self.last_frame_update_time = current_time
             else:
                 self.current_picture = self.death_frames[-1]
+                self.frame_address=["death_frames",-1]
                 self.DEAD = True  
             return
 
         if self.freezed:
             self.current_picture = self.freezed_frame
+            self.frame_address=["freezed",-2]
             return
 
         if self.Super_PowerFlag:
             self.current_picture = self.SuperPower_pic
+            self.frame_address=["SuperPower_pic",-2]
             return
        
         
@@ -382,6 +387,7 @@ class Ninja:
         if target_animation_state == 'jumpattack':
             if self.current_frame_index < len(self.JumpAttack_frames):
                 self.current_picture = self.JumpAttack_frames[self.current_frame_index]
+                self.frame_address=["JumpAttack_frames",self.current_frame_index]
                 frame_width = self.with_sword_width[self.current_frame_index]
                 self.hitbox = pygame.Rect(self.x_pos, self.y_pos, frame_width, 118)
                 self.current_frame_index += 1
@@ -396,6 +402,7 @@ class Ninja:
         elif target_animation_state == 'attack':
             if self.current_frame_index < len(self.Attack_frames):
                 self.current_picture = self.Attack_frames[self.current_frame_index]
+                self.frame_address=["Attack_frames",self.current_frame_index]
                 frame_width = self.with_sword_width[self.current_frame_index]
                 self.hitbox = pygame.Rect(self.x_pos, self.y_pos, frame_width, 118)
                 self.current_frame_index += 1
@@ -410,6 +417,7 @@ class Ninja:
         elif target_animation_state == 'jump_throw':
             if self.current_frame_index < len(self.jumpThrow_frames):
                 self.current_picture = self.jumpThrow_frames[self.current_frame_index]
+                self.frame_address=["jumpThrow_frames",self.current_frame_index]
                 if self.current_frame_index == 2 and not self.kunai_fired:
                     self.fire_kunai(shot_bullets)
                     self.kunai_fired = True
@@ -422,11 +430,14 @@ class Ninja:
         elif target_animation_state == 'jump':
             if self.current_frame_index < len(self.jump_frames):
                 self.current_picture = self.jump_frames[self.current_frame_index]
+                self.frame_address=["jump_frames",self.current_frame_index]
                 self.current_frame_index += 1
 
         elif target_animation_state == 'throw':
             if self.current_frame_index < len(self.throw_frames):
                 self.current_picture = self.throw_frames[self.current_frame_index]
+                self.frame_address=["throw_frames" , self.current_frame_index]
+                
                 if self.current_frame_index == 3 and not self.kunai_fired:
                     self.fire_kunai(shot_bullets)
                     self.kunai_fired = True
@@ -442,10 +453,12 @@ class Ninja:
         elif target_animation_state == 'running':
             self.current_frame_index = (self.current_frame_index + 1) % len(self.run_frames)
             self.current_picture = self.run_frames[self.current_frame_index]
+            self.frame_address=["run_frames",self.current_frame_index]
 
         elif target_animation_state == 'idle':
             self.current_frame_index = (self.current_frame_index + 1) % len(self.idle_frames)
             self.current_picture = self.idle_frames[self.current_frame_index]
+            self.frame_address=["idle_frames",self.current_frame_index]
 
         self.update_attack()
 
@@ -860,6 +873,15 @@ class Ninja:
         self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter)
         self.update_drone()
 
+    def serialize(self):
+        return{
+            "x_pos":self.x_pos,
+            "y_pos":self.y_pos,
+            "Look":self.Look,
+            "health":self.health,
+            "frame list address":self.frame_address[0],
+            "frame_index":self.frame_address[1]
+        }
 
                        
                       

@@ -7,6 +7,7 @@ from src.engine.bullet import Bullet
 
 class Archer:
     def __init__(self, x, y, targets,index=3):
+        self.frame_address=None
         self.hero_creation_index=index
         self.x_pos = x
         self.y_pos = y
@@ -201,6 +202,7 @@ class Archer:
             self.y_pos -= self.vertical_speed
             self.hitbox.topleft = (self.x_pos, self.y_pos)
             self.current_picture = self.death_frames[-1]
+            self.frame_address=["death_frames",-1]
             return
 
         current_time = pygame.time.get_ticks()
@@ -208,6 +210,7 @@ class Archer:
         if hasattr(self, 'ALIVE') and not self.ALIVE and self.status == 'dead':
             if self.current_frame_index < len(self.death_frames):
                 self.current_picture = self.death_frames[self.current_frame_index]
+                self.frame_address=["death_frames",self.current_frame_index]
                 new_width, new_height = self.current_picture.get_size()
                 if self.current_frame_index == 0:
                     self.previous_center = (self.x_pos + self.width // 2, self.y_pos + self.height)
@@ -220,6 +223,7 @@ class Archer:
                     self.last_frame_update_time = current_time
             else:
                 self.current_picture = self.death_frames[-1]
+                self.frame_address=["death_frames",-1]
                 self.DEAD = True
 
             
@@ -227,6 +231,7 @@ class Archer:
 
         if self.freezed:
             self.current_picture = self.freezed_img
+            self.frame_address=["freezed_img",-2]
             return
 
         speed = self.animation_speed if self.status != 'shot' else self.animation_speed - 50
@@ -251,12 +256,16 @@ class Archer:
 
             if self.status == 'idle':
                 self.current_picture = self.idle_frames[self.current_frame_index % len(self.idle_frames)]
+                self.frame_address=["idle_frames",self.current_frame_index % len(self.idle_frames)]
             elif self.status == 'run':
                 self.current_picture = self.run_frames[self.current_frame_index % len(self.run_frames)]
+                self.frame_address=['run_frames',self.current_frame_index % len(self.run_frames)]
             elif self.status == 'jump':
                 self.current_picture = self.jump_frames[self.current_frame_index % len(self.jump_frames)]
+                self.frame_address=["jump_frames",self.current_frame_index % len(self.jump_frames)]
             elif self.status == 'shot':
                 self.current_picture = self.shot_frames[self.current_frame_index % len(self.shot_frames)]
+                self.frame_address=["shot_frames",self.current_frame_index % len(self.shot_frames)]
                 if self.current_frame_index == 11 and not self.shot_triggered:
                     self.shoot_arrow(shot_bullets)
                     self.shot_triggered = True
@@ -269,6 +278,7 @@ class Archer:
                     self.damaged_targets = set()
 
                 self.current_picture = self.attack_frames[self.current_frame_index % len(self.attack_frames)]
+                self.frame_address=["attack_frames",self.current_frame_index % len(self.attack_frames)]
 
                 self.damage_nearby_targets()
                 self.melee_sound.play()
@@ -594,6 +604,18 @@ class Archer:
         self.AllowJump_flag = False if hasattr(self, 'AllowJump_flag') else None
         self.previous_center = (self.x_pos + self.width // 2, self.y_pos + self.height)
         self.y_pos+=60
+        
+    
+    def serialize(self):
+        return{
+            "x_pos":self.x_pos,
+            "y_pos":self.y_pos,
+            "Look":self.Look,
+            "health":self.health,
+            "frame list address":self.frame_address[0],
+            "frame_index":self.frame_address[1]
+        }
+
         
                 
     
