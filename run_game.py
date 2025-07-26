@@ -5,9 +5,9 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 from config import screen_width, screen_height,explode_side_size,enenmy_health_bar_height,enenmy_health_bar_width
 from src.engine.game import Game
-from src.engine.menu import Menu, GameModeMenu, MapCharacterMenu,MultiplayerMapCharacterMenu, GameOverMenu
+from src.engine.menu import Menu, GameModeMenu, MapCharacterMenu,MultiplayerMapCharacterMenu, GameOverMenu,MatchmakingMenu,NetworkMenu
 from src.engine.multiplayer_game import Game_2
-
+from src.engine.network import Network
 pygame.init()
 pygame.mixer.init()
 
@@ -56,40 +56,51 @@ while True:
             game = None
 
             if mode == "exit":
-                break 
+                break
 
             if mode == "single":
                 single_player_menu = MapCharacterMenu(screen, background, hero_profile_picture)
                 result = single_player_menu.run()
                 if result[0] == "exit":
-                    break 
+                    break
                 selected_char, selected_map, _ = result
                 game = Game(screen, platform_images, background, selected_char, selected_map)
 
+        
             elif mode == "multi":
-                multi_player_menu = MultiplayerMapCharacterMenu(screen, background, hero_profile_picture)
-                result = multi_player_menu.run()
-                if result[0] == "exit":
-                    break 
-                selected_char_list, selected_map, _ = result
-                game = Game_2(screen, platform_images, background, selected_char_list[0], selected_char_list[1])
-            if game:
+                network_handler = Network()
+                network_menu = NetworkMenu(screen, background, network_handler)
+                connection_result = network_menu.run()
+                
+                if connection_result == "connected":
+                    match_menu = MatchmakingMenu(screen, background, network_handler)
+                    match_result = match_menu.run()
+
+                    if match_result == "match_found":
+                        print("Test successful! Match was found on the server.")
+                        
+                        continue
+                    else:
+                        network_handler.disconnect()
+                        break
+                else:
+                    break
+
+            if game: 
                 status, message = game.run()
                 if status == "game_over":
                     game_over_menu = GameOverMenu(screen, background, message)
                     game_over_action = game_over_menu.run()
                     if game_over_action == "menu":
-                        continue 
-                    else: 
+                        continue
+                    else:
                         pygame.quit()
                         sys.exit()
                 elif status == "menu":
-                    break 
-                
+                    break
                 elif status == "exit":
                     pygame.quit()
                     sys.exit()
-
 
 pygame.quit()
 sys.exit()

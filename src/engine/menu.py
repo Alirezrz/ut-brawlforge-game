@@ -1,6 +1,8 @@
 import pygame
 import os
 import time
+import json
+import socket
 class Menu:
     def __init__(self, screen, background):
         self.screen = screen
@@ -539,3 +541,144 @@ class GameOverMenu:
 
             self.draw()
             pygame.time.Clock().tick(30)            
+
+class NetworkMenu:
+    def __init__(self,screen,background,network_handler):
+        self.screen = screen
+        self.background = background
+        self.network = network_handler
+        self.font = pygame.font.Font(None, 50)
+        self.title_font = pygame.font.Font(None, 74)
+        self.username = ""
+        self.input_box = pygame.Rect(screen.get_width() // 2 - 150, 300, 300, 50)
+        self.connect_button = pygame.Rect(screen.get_width() // 2 - 100, 400, 200, 50)
+        self.message = "Enter Your Username"
+        self.message_color = (255, 255, 255)
+    def run(self):
+        active = True
+        while active:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return "exit"
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN: 
+                        self.try_connect()
+                    elif event.key == pygame.K_BACKSPACE:
+                        self.username = self.username[:-1]
+                    else:
+                        self.username += event.unicode
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.connect_button.collidepoint(event.pos):
+                        if self.try_connect():
+                           return "connected"
+
+            self.draw()
+            pygame.display.flip()
+    def try_connect(self):
+        if len(self.username) > 2:
+            self.message = "Connecting..."
+            self.draw() 
+            pygame.display.flip()
+            if self.network.connect(self.username):
+                return True
+            else:
+                self.message = "Connection Failed. Try again."
+                self.message_color = (255, 100, 100)
+                return False
+        else:
+            self.message = "Username must be at least 3 characters."
+            self.message_color = (255, 100, 100)
+            return False
+    def draw(self):
+        self.screen.blit(self.background, (0,0))
+        # Draw title
+        title_surf = self.title_font.render("Multiplayer", True, (255, 255, 255))
+        self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width()//2, 150)))
+        # Draw message
+        msg_surf = self.font.render(self.message, True, self.message_color)
+        self.screen.blit(msg_surf, msg_surf.get_rect(center=(self.screen.get_width()//2, 250)))
+        # Draw input box
+        pygame.draw.rect(self.screen, (255, 255, 255), self.input_box, 2)
+        text_surface = self.font.render(self.username, True, (255, 255, 255))
+        self.screen.blit(text_surface, (self.input_box.x + 5, self.input_box.y + 5))
+        # Draw connect button
+        pygame.draw.rect(self.screen, (0, 150, 0), self.connect_button)
+        connect_text = self.font.render("Connect", True, (255, 255, 255))
+        self.screen.blit(connect_text, connect_text.get_rect(center=self.connect_button.center))
+
+class MatchmakingMenu:
+    """A menu for choosing how to find a match."""
+    def __init__(self, screen, background, network_handler):
+        self.screen = screen
+        self.background = background
+        self.network = network_handler
+        self.font = pygame.font.Font(None, 50)
+        self.title_font = pygame.font.Font(None, 74)
+        self.buttons = [
+            {"text": "Find 1v1 Match", "pos": (screen.get_width() // 2, 300), "action": "1v1"},
+            {"text": "Find 2v2 Match", "pos": (screen.get_width() // 2, 400), "action": "2v2"}
+        ]
+        #بعدا سرچ با ایدی رو اضافه میکنم
+        self.status_message = f"Connected as {self.network.player_id}" 
+    
+    def run(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return "exit"
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = event.pos
+                    for button in self.buttons:
+                        button_rect = pygame.Rect(0,0,300,50)
+                        button_rect.center = button["pos"]
+                        if button_rect.collidepoint(mouse_pos):
+                        
+                            request = {"type": "join_waiting_room", "payload": {"game_mode": button["action"]}}
+                            self.network.client.sendall(json.dumps(request).encode('utf-8'))
+                            return self.wait_for_match()
+
+            self.draw()
+            pygame.display.flip()
+
+    def wait_for_match(self):
+        
+        waiting = True
+        while waiting:
+            self.screen.blit(self.background, (0,0))
+            wait_text = self.title_font.render("Waiting for match...", True, (255, 255, 255))
+            self.screen.blit(wait_text, wait_text.get_rect(center=(self.screen.get_width()//2, 300)))
+            pygame.display.flip()
+
+         
+            try:
+                
+                self.network.client.settimeout(0.1) 
+                response_data = self.network.client.recv(2048).decode('utf-8')
+                response = json.loads(response_data)
+                
+                if response.get("type") == "match_found":
+                    print("Match Found!", response["payload"])
+                    self.network.client.settimeout(None) 
+                    return "match_found" 
+            except socket.timeout:
+                pass
+            except Exception as e:
+                print(f"Error while waiting: {e}")
+                self.network.client.settimeout(None) 
+                return "exit"
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return "exit"
+
+    def draw(self):
+        self.screen.blit(self.background, (0,0))
+        title_surf = self.title_font.render("Find a Game", True, (255, 255, 255))
+        self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width()//2, 150)))
+        
+        mouse_pos = pygame.mouse.get_pos()
+        for button in self.buttons:
+            button_rect = pygame.Rect(0,0,300,50)
+            button_rect.center = button["pos"]
+            color = (255,165,0) if button_rect.collidepoint(mouse_pos) else (255, 255, 255)
+            text_surf = self.font.render(button["text"], True, color)
+            self.screen.blit(text_surf, text_surf.get_rect(center=button_rect.center))
