@@ -8,7 +8,7 @@ from src.engine.bullet import Bullet
 # bug : وقتی تیر انداز تیرش به تروریست بخوره روبات میمیره
 class Roboman:
 
-    def __init__(self, x, y, screen_width, screen_height, hero_creation_index=1):
+    def __init__(self, x, y, screen_width, screen_height, hero_creation_index=1,username='Player'):
         self.x_pos = x
         self.y_pos = y
         self.hero_profile_picture = pygame.image.load("src/assets/images/RoboMan_pictures/hero_profile.png")
@@ -25,6 +25,7 @@ class Roboman:
         self.is_first_time=True
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))
         self.has_defuse_kit=False
+        self.username =username
 
 
         self.super_power_duration = 15000
@@ -873,7 +874,21 @@ class Roboman:
 
 
 
-
+    def serialize(self):
+        frame_source_name = "idle_frames"
+        frame_index_val = 0
+        if hasattr(self, 'frame_address') and self.frame_address:
+             frame_source_name = self.frame_address[0]
+             frame_index_val = self.frame_address[1]
+        return {
+            "x": self.x_pos,
+            "y": self.y_pos,
+            "look": self.Look,
+            "health": self.health,
+            "username": self.username,
+            "frame_source": frame_source_name,
+            "frame_index": frame_index_val
+        }
 
 
 #================================================

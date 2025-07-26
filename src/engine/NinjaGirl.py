@@ -2,8 +2,8 @@ from src.engine.Ninja import Ninja
 import os
 import pygame
 class NinjaGirl(Ninja):
-    def __init__(self, x, y, screen_width, screen_height, attack_targets,hero_creation_index):
-        super().__init__(x, y, screen_width, screen_height, attack_targets,hero_creation_index)
+    def __init__(self, x, y, screen_width, screen_height, attack_targets,hero_creation_index,username='Player'):
+        super().__init__(x, y, screen_width, screen_height, attack_targets,hero_creation_index,username)
         self.load_girl_sprites()
         self.hero_creation_index=hero_creation_index
         self.ninja_health_bar=pygame.image.load("src/assets/images/NinjaGirl/health_bar.png")
@@ -11,7 +11,6 @@ class NinjaGirl(Ninja):
         self.ninja_profile_picture = pygame.image.load("src/assets/images/NinjaGirl/profile.png")
 
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja girl", "ninjagirl hurt.mp3"))
-          
     def hurt(self):
         self.hurt_sound.play()
         if self.health <= 0:

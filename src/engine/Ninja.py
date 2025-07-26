@@ -5,7 +5,7 @@ from config import Ninja_width, Ninja_height,profileSideSize, health_bar_lenght,
 from src.engine.protector import Guard_Drone
 ## must be done -->  1- list of enemies for hit when attacking must be fixed 
 class Ninja:
-    def __init__(self, x, y, screen_width, screen_height, targets, hero_creation_index=2):
+    def __init__(self, x, y, screen_width, screen_height, targets, hero_creation_index=2,username='Player'):
         self.frame_address=None
         self.ALIVE=True
         self.DEAD=False
@@ -874,15 +874,22 @@ class Ninja:
         self.update_drone()
 
     def serialize(self):
-        return{
-            "x_pos":self.x_pos,
-            "y_pos":self.y_pos,
-            "Look":self.Look,
-            "health":self.health,
-            "frame list address":self.frame_address[0],
-            "frame_index":self.frame_address[1]
-        }
+        frame_source_name = "idle_frames"
+        frame_index_val = 0
 
+        if hasattr(self, 'frame_address') and self.frame_address:
+             frame_source_name = self.frame_address[0]
+             frame_index_val = self.frame_address[1]
+
+        return {
+            "x_pos": self.x_pos,
+            "y_pos": self.y_pos,
+            "Look": self.Look,
+            "health": self.health,
+            "username": self.username,
+            "frame list address": frame_source_name,
+            "frame_index": frame_index_val
+        }
                        
                       
 

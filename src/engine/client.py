@@ -35,7 +35,7 @@ class Client:
         print("3_ Ninjagirl")
         print("4_ Archer")
         self.type=int(input())
-        
+        self.opponent = self
         
         if self.type==1:
             base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "RoboMan_pictures")

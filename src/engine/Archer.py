@@ -6,7 +6,7 @@ from src.engine.protector import Guard_Drone
 from src.engine.bullet import Bullet
 
 class Archer:
-    def __init__(self, x, y, targets,index=3):
+    def __init__(self, x, y, targets,index=3,username='Player'):
         self.frame_address=None
         self.hero_creation_index=index
         self.x_pos = x
@@ -36,7 +36,7 @@ class Archer:
         self.ALIVE=True
         self.health_bar_frame =pygame.image.load("src/assets/images/Archer/health_bar_frame.png")
         self.health_bar = pygame.image.load("src/assets/images/Archer/health_bar.png")
-
+        self.username = username
         self.health=100
         self.targets = targets
         self.profile_picture = pygame.image.load("src/assets/images/Archer/profile.png")
@@ -607,13 +607,19 @@ class Archer:
         
     
     def serialize(self):
-        return{
-            "x_pos":self.x_pos,
-            "y_pos":self.y_pos,
-            "Look":self.Look,
-            "health":self.health,
-            "frame list address":self.frame_address[0],
-            "frame_index":self.frame_address[1]
+        frame_source_name = "idle_frames"
+        frame_index_val = 0
+        if hasattr(self, 'frame_address') and self.frame_address:
+             frame_source_name = self.frame_address[0]
+             frame_index_val = self.frame_address[1]
+        return {
+            "x": self.x_pos,
+            "y": self.y_pos,
+            "look": self.Look,
+            "health": self.health,
+            "username": self.username,
+            "frame_source": frame_source_name,
+            "frame_index": frame_index_val
         }
 
         
