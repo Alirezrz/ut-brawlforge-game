@@ -7,6 +7,7 @@ from src.engine.bullet import Bullet
 
 class Archer:
     def __init__(self, x, y, targets,index=3,username='Player'):
+        self.username=username
         self.frame_address=None
         self.hero_creation_index=index
         self.x_pos = x

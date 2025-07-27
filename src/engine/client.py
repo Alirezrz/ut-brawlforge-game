@@ -439,27 +439,27 @@ class Client:
 
         # Mapping string to actual frame list/image
         if frame_source == "idle_frames":
-            self.current_picture = self.idle_frames[frame_index % len(self.idle_frames)]
+            self.current_picture = self.idle_frames[frame_index]
         elif frame_source == "run_frames":
-            self.current_picture = self.run_frames[frame_index % len(self.run_frames)]
+            self.current_picture = self.run_frames[frame_index ]
         elif frame_source == "jump_frames":
-            self.current_picture = self.jump_frames[frame_index % len(self.jump_frames)]
+            self.current_picture = self.jump_frames[frame_index ]
         elif frame_source == "Jump_frames":
-            self.current_picture = self.Jump_frames[frame_index % len(self.Jump_frames)]
+            self.current_picture = self.Jump_frames[frame_index]
         elif frame_source == "RunShoot_frames":
-            self.current_picture = self.RunShoot_frames[frame_index % len(self.RunShoot_frames)]
+            self.current_picture = self.RunShoot_frames[frame_index]
         elif frame_source == "shoot_frames":
-            self.current_picture = self.shoot_frames[frame_index % len(self.shoot_frames)]
+            self.current_picture = self.shoot_frames[frame_index ]
         elif frame_source == "JumpShoot_frames":
-            self.current_picture = self.JumpShoot_frames[frame_index % len(self.JumpShoot_frames)]
+            self.current_picture = self.JumpShoot_frames[frame_index ]
         elif frame_source == "attack_frames":
-            self.current_picture = self.attack_frames[frame_index % len(self.attack_frames)]
+            self.current_picture = self.attack_frames[frame_index]
         elif frame_source == "JumpAttack_frames":
-            self.current_picture = self.JumpAttack_frames[frame_index % len(self.JumpAttack_frames)]
+            self.current_picture = self.JumpAttack_frames[frame_index]
         elif frame_source == "throw_frames":
-            self.current_picture = self.throw_frames[frame_index % len(self.throw_frames)]
+            self.current_picture = self.throw_frames[frame_index ]
         elif frame_source == "jumpThrow_frames":
-            self.current_picture = self.jumpThrow_frames[frame_index % len(self.jumpThrow_frames)]
+            self.current_picture = self.jumpThrow_frames[frame_index]
         elif frame_source == "death_frames":
             self.current_picture = self.death_frames[frame_index if frame_index >= 0 else -1]
         elif frame_source == "freezed_img" or frame_source == "freezed":
@@ -484,11 +484,15 @@ class Client:
         self.scroll[0] += (mid_x - screen_width / 2 - self.scroll[0]) / 15
         self.scroll[1] += (mid_y - screen_height / 2 - self.scroll[1]) / 15
 
-        flipped_self = pygame.transform.flip(self.current_picture, not self.Look, False)
+        if self.Look=='left':
+            flag=True
+        else:
+            flag=False
+
+        flipped_self = pygame.transform.flip(self.current_picture, flag, False)
         screen.blit(flipped_self, (self.x_pos - self.scroll[0], self.y_pos - self.scroll[1]))
 
-        flipped_opponent = pygame.transform.flip(self.opponent.current_picture, not self.opponent.Look, False)
-        screen.blit(flipped_opponent, (self.opponent.x_pos - self.scroll[0], self.opponent.y_pos - self.scroll[1]))
+
 
         pygame.display.update()
             

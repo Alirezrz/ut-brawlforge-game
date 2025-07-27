@@ -8,12 +8,11 @@ from src.engine.bullet import Bullet
 # bug : وقتی تیر انداز تیرش به تروریست بخوره روبات میمیره
 class Roboman:
 
-    def __init__(self, x, y, screen_width, screen_height, hero_creation_index=1,username='Player'):
+    def __init__(self, x, y, screen_width, screen_height, hero_creation_index=1,username='Player',LOAD_FLAG=True):
+        self.username=username
         self.x_pos = x
         self.y_pos = y
-        self.hero_profile_picture = pygame.image.load("src/assets/images/RoboMan_pictures/hero_profile.png")
-        self.roboman_health_bar_frame = pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar_frame.png")
-        self.roboman_health_bar = pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar.png")
+
         self.on_platform = False
         self.current_platform = None
         self.status="idle"
@@ -23,7 +22,7 @@ class Roboman:
         self.freezed=False
         self.last_freezed=0
         self.is_first_time=True
-        self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))
+        
         self.has_defuse_kit=False
         self.username =username
 
@@ -33,170 +32,182 @@ class Roboman:
         self.super_power_active=False
 
         self.hero_creation_index = hero_creation_index  # اضافه شد
-        self.shot_hit_enemy_sound = pygame.mixer.Sound(
-            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_enemy.wav")
-)
-        self.shot_hit_platform_sound = pygame.mixer.Sound(
-            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_platoform.mp3")
-)
-        self.jump_sound = pygame.mixer.Sound(
-            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "robot jump.MP3"))
-        self.shoot_sound = pygame.mixer.Sound(
-            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shoot.wav"))
-        self.jetpack_sound = pygame.mixer.Sound(
-            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "jetpack.wav"))
 
-        base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "RoboMan_pictures")
-        self.freezed_img=pygame.transform.scale(pygame.image.load(os.path.join(base_path,"freezed.png")),(69,118))
-        self.run_frames = []
-        for i in range(1, 9):
-            try:
-                img_path = os.path.join(base_path, "hero_run_frames", f"Run ({i}).png")
-                tmp = pygame.image.load(img_path)
-                if i == 1: self.run_frames.append(pygame.transform.scale(tmp, (63, 118)))
-                elif i == 2: self.run_frames.append(pygame.transform.scale(tmp, (62, 118)))
-                elif i == 3: self.run_frames.append(pygame.transform.scale(tmp, (82, 118)))
-                elif i == 4: self.run_frames.append(pygame.transform.scale(tmp, (77, 118)))
-                elif i == 5: self.run_frames.append(pygame.transform.scale(tmp, (73, 118)))
-                elif i == 6: self.run_frames.append(pygame.transform.scale(tmp, (80, 118)))
-                elif i == 7: self.run_frames.append(pygame.transform.scale(tmp, (92, 118)))
-                elif i == 8: self.run_frames.append(pygame.transform.scale(tmp, (79, 118)))
-            except FileNotFoundError:
-                print(f"Error: Roboman run frame 'Run ({i}).png' not found at {img_path}. Check path.")
-                self.run_frames.append(pygame.Surface((70, 118)))
-
-        self.idle_frames = []
-        for i in range(1, 11):
-            try:
-                img_path = os.path.join(base_path, "idle", f"Idle ({i}).png")
-                idle_tmp = pygame.image.load(img_path)
-                self.idle_frames.append(pygame.transform.scale(idle_tmp, (70, 118)))
-            except FileNotFoundError:
-                print(f"Error: Roboman idle frame 'Idle ({i}).png' not found at {img_path}. Check path.")
-                self.idle_frames.append(pygame.Surface((70, 118)))
-
-        self.jump_frames = []
-        for i in range(1, 11):
-            try:
-                img_path = os.path.join(base_path, "idle", f"Idle ({i}).png")
-                jump_tmp = pygame.image.load(img_path)
-                self.jump_frames.append(pygame.transform.scale(jump_tmp, (70, 118)))
-            except FileNotFoundError:
-                print(f"Error: Roboman idle frame 'Idle ({i}).png' not found at {img_path}. Check path.")
-
-        self.shoot_frames = []
+        
         self.Bullet_Class_ref = None
-        for i in range(1, 5):
-            try:
-                img_path = os.path.join(base_path, "Shoot", f"Shoot ({i}).png")
-                shoot_tmp = pygame.image.load(img_path)
-                if i == 1: self.shoot_frames.append(pygame.transform.scale(shoot_tmp, (83, 118)))
-                elif i == 2: self.shoot_frames.append(pygame.transform.scale(shoot_tmp, (83, 118)))
-                elif i == 3: self.shoot_frames.append(pygame.transform.scale(shoot_tmp, (82, 118)))
-                elif i == 4: self.shoot_frames.append(pygame.transform.scale(shoot_tmp, (84, 118)))
-            except FileNotFoundError:
-                print(f"Error: Roboman Shoot frame 'Shoot ({i}).png' not found at {img_path}. Check path.")
-                self.shoot_frames.append(pygame.Surface((70, 118)))
+        
+        if LOAD_FLAG:
+            
+            self.shot_hit_enemy_sound = pygame.mixer.Sound(
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_enemy.wav")
+            )
+            self.shot_hit_platform_sound = pygame.mixer.Sound(
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_platoform.mp3")
+                )
+            self.jump_sound = pygame.mixer.Sound(
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "robot jump.MP3"))
+            self.shoot_sound = pygame.mixer.Sound(
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shoot.wav"))
+            self.jetpack_sound = pygame.mixer.Sound(
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "jetpack.wav"))
+            self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))
+            self.hero_profile_picture = pygame.image.load("src/assets/images/RoboMan_pictures/hero_profile.png")
+            self.roboman_health_bar_frame = pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar_frame.png")
+            self.roboman_health_bar = pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar.png")
+            base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "RoboMan_pictures")
+            self.freezed_img=pygame.transform.scale(pygame.image.load(os.path.join(base_path,"freezed.png")),(69,118))
+            self.run_frames = []
+            for i in range(1, 9):
+                try:
+                    img_path = os.path.join(base_path, "hero_run_frames", f"Run ({i}).png")
+                    tmp = pygame.image.load(img_path)
+                    if i == 1: self.run_frames.append(pygame.transform.scale(tmp, (63, 118)))
+                    elif i == 2: self.run_frames.append(pygame.transform.scale(tmp, (62, 118)))
+                    elif i == 3: self.run_frames.append(pygame.transform.scale(tmp, (82, 118)))
+                    elif i == 4: self.run_frames.append(pygame.transform.scale(tmp, (77, 118)))
+                    elif i == 5: self.run_frames.append(pygame.transform.scale(tmp, (73, 118)))
+                    elif i == 6: self.run_frames.append(pygame.transform.scale(tmp, (80, 118)))
+                    elif i == 7: self.run_frames.append(pygame.transform.scale(tmp, (92, 118)))
+                    elif i == 8: self.run_frames.append(pygame.transform.scale(tmp, (79, 118)))
+                except FileNotFoundError:
+                    print(f"Error: Roboman run frame 'Run ({i}).png' not found at {img_path}. Check path.")
+                    self.run_frames.append(pygame.Surface((70, 118)))
 
-        self.RunShoot_frames=[]
-        for i in range(1, 9):
-            try:
-                img_path = os.path.join(base_path, "RunShoot", f"RunShoot ({i}).png")
-                tmp = pygame.image.load(img_path)
-                if i == 1: self.RunShoot_frames.append(pygame.transform.scale(tmp, (83, 118)))
-                elif i == 2: self.RunShoot_frames.append(pygame.transform.scale(tmp, (87, 118)))
-                elif i == 3: self.RunShoot_frames.append(pygame.transform.scale(tmp, (93, 118)))
-                elif i == 4: self.RunShoot_frames.append(pygame.transform.scale(tmp, (97, 118)))
-                elif i == 5: self.RunShoot_frames.append(pygame.transform.scale(tmp, (88, 118)))
-                elif i == 6: self.RunShoot_frames.append(pygame.transform.scale(tmp, (90, 118)))
-                elif i == 7: self.RunShoot_frames.append(pygame.transform.scale(tmp, (100, 118)))
-                elif i == 8: self.RunShoot_frames.append(pygame.transform.scale(tmp, (89, 118)))
-            except FileNotFoundError:
-                print(f"Error: Roboman Shoot frame 'Shoot ({i}).png' not found at {img_path}. Check path.")
-                self.RunShoot_frames.append(pygame.Surface((70, 118)))
+            self.idle_frames = []
+            for i in range(1, 11):
+                try:
+                    img_path = os.path.join(base_path, "idle", f"Idle ({i}).png")
+                    idle_tmp = pygame.image.load(img_path)
+                    self.idle_frames.append(pygame.transform.scale(idle_tmp, (70, 118)))
+                except FileNotFoundError:
+                    print(f"Error: Roboman idle frame 'Idle ({i}).png' not found at {img_path}. Check path.")
+                    self.idle_frames.append(pygame.Surface((70, 118)))
 
-        self.Jump_frames=[]
-        self.last_jump_time=0
-        scale_numebrs=[(73,118),(80,118),(90,118),(91,118),(90,118),(109,118),(95,118),(96,118),(84,118)]
-        for i in range(1,10):
+            self.jump_frames = []
+            for i in range(1, 11):
+                try:
+                    img_path = os.path.join(base_path, "idle", f"Idle ({i}).png")
+                    jump_tmp = pygame.image.load(img_path)
+                    self.jump_frames.append(pygame.transform.scale(jump_tmp, (70, 118)))
+                except FileNotFoundError:
+                    print(f"Error: Roboman idle frame 'Idle ({i}).png' not found at {img_path}. Check path.")
+
+            self.shoot_frames = []
+            
+            for i in range(1, 5):
+                try:
+                    img_path = os.path.join(base_path, "Shoot", f"Shoot ({i}).png")
+                    shoot_tmp = pygame.image.load(img_path)
+                    if i == 1: self.shoot_frames.append(pygame.transform.scale(shoot_tmp, (83, 118)))
+                    elif i == 2: self.shoot_frames.append(pygame.transform.scale(shoot_tmp, (83, 118)))
+                    elif i == 3: self.shoot_frames.append(pygame.transform.scale(shoot_tmp, (82, 118)))
+                    elif i == 4: self.shoot_frames.append(pygame.transform.scale(shoot_tmp, (84, 118)))
+                except FileNotFoundError:
+                    print(f"Error: Roboman Shoot frame 'Shoot ({i}).png' not found at {img_path}. Check path.")
+                    self.shoot_frames.append(pygame.Surface((70, 118)))
+
+            self.RunShoot_frames=[]
+            for i in range(1, 9):
+                try:
+                    img_path = os.path.join(base_path, "RunShoot", f"RunShoot ({i}).png")
+                    tmp = pygame.image.load(img_path)
+                    if i == 1: self.RunShoot_frames.append(pygame.transform.scale(tmp, (83, 118)))
+                    elif i == 2: self.RunShoot_frames.append(pygame.transform.scale(tmp, (87, 118)))
+                    elif i == 3: self.RunShoot_frames.append(pygame.transform.scale(tmp, (93, 118)))
+                    elif i == 4: self.RunShoot_frames.append(pygame.transform.scale(tmp, (97, 118)))
+                    elif i == 5: self.RunShoot_frames.append(pygame.transform.scale(tmp, (88, 118)))
+                    elif i == 6: self.RunShoot_frames.append(pygame.transform.scale(tmp, (90, 118)))
+                    elif i == 7: self.RunShoot_frames.append(pygame.transform.scale(tmp, (100, 118)))
+                    elif i == 8: self.RunShoot_frames.append(pygame.transform.scale(tmp, (89, 118)))
+                except FileNotFoundError:
+                    print(f"Error: Roboman Shoot frame 'Shoot ({i}).png' not found at {img_path}. Check path.")
+                    self.RunShoot_frames.append(pygame.Surface((70, 118)))
+
+            self.Jump_frames=[]
+            
+            scale_numebrs=[(73,118),(80,118),(90,118),(91,118),(90,118),(109,118),(95,118),(96,118),(84,118)]
+            for i in range(1,10):
+                try:
+                    img_path = os.path.join(base_path, "jump", f"Jump ({i}).png")
+                    tmp = pygame.image.load(img_path)
+                    if i == 1: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                    elif i == 2: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                    elif i == 3: self.Jump_frames.append(pygame.transform.scale(tmp,scale_numebrs[i-1]))
+                    elif i == 4: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                    elif i == 5: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                    elif i == 6: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                    elif i == 7: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                    elif i == 8: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                    elif i == 9: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                except FileNotFoundError:
+                    print(f"Error: Roboman jump frame 'Jump ({i}).png' not found at {img_path}. Check path.")
+                    self.jump_frames.append(pygame.Surface((70, 118)))
+                    print(img_path)
+
+
+            scale_numebrs=[(97,118),(97,118),(98,118),(95,118),(97,118)]
+            self.JumpShoot_frames=[]
+            for i in range(1,6):
+                try:
+                    img_path = os.path.join(base_path, "jump shoot", f"JumpShoot ({i}).png")
+                    tmp = pygame.image.load(img_path)
+                    if i == 1: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                    elif i == 2: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                    elif i == 3: self.JumpShoot_frames.append(pygame.transform.scale(tmp,scale_numebrs[i-1]))
+                    elif i == 4: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                    elif i == 5: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                except FileNotFoundError:
+                    print(f"Error: Roboman jump shhot frame 'JumpShoot ({i}).png' not found at {img_path}. Check path.")
+                    self.JumpShoot_frames.append(pygame.Surface((70, 118)))
+                    print(img_path)
+            sizes=[(73,118),(84,118),(90,100),(145,90),(133,90),(110,61),(118,56),(118,52),(118,53),(118,53)]
+            self.death_frames=[]
+            for i in range(1,11):
+                self.death_frames.append(pygame.transform.scale(
+                    pygame.image.load(
+                        os.path.join(
+                            base_path,
+                            "death",
+                            f"Dead ({i}).png"
+                        )
+                    ),
+                    sizes[i-1]
+                ))
+
+            img_path = os.path.join(base_path, f"jetpack.png")
+            self.jetpack_frame=pygame.image.load(img_path)
+            self.jetpack_frame=pygame.transform.scale(self.jetpack_frame, (80,118))
+
+            bullet_image_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "..", "assets", "images", "RoboMan_pictures", "Bullet.png"
+            )
             try:
-                img_path = os.path.join(base_path, "jump", f"Jump ({i}).png")
-                tmp = pygame.image.load(img_path)
-                if i == 1: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 2: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 3: self.Jump_frames.append(pygame.transform.scale(tmp,scale_numebrs[i-1]))
-                elif i == 4: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 5: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 6: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 7: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 8: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 9: self.Jump_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
+                self.bullet_picture = pygame.image.load(bullet_image_path).convert_alpha()
+                self.bullet_picture = pygame.transform.scale(self.bullet_picture ,(35,15))
             except FileNotFoundError:
-                print(f"Error: Roboman jump frame 'Jump ({i}).png' not found at {img_path}. Check path.")
-                self.jump_frames.append(pygame.Surface((70, 118)))
-                print(img_path)
+                print(f"Error: Bullet.png not found at {bullet_image_path}. Using a placeholder.")
+                self.bullet_picture = pygame.Surface((40, 40), pygame.SRCALPHA)
+            bullet_image_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "..", "assets", "images", "RoboMan_pictures", "rocket.png"
+            )
+            self.rocket=pygame.image.load(bullet_image_path).convert_alpha()
+            self.rocket=pygame.transform.scale(self.rocket ,(43,25))
+            image_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "..", "assets", "images", "RoboMan_pictures", "super power effect.png"
+            )
+        self.picture = self.idle_frames[0] if self.idle_frames else pygame.Surface((70, 118))
+        self.width = self.picture.get_width()
+        self.height = self.picture.get_height()
 
         self.jump_shoot_animation_speed = 50
         self.jumpshoot_flag=False
         self.JumpShoot_frames=[]
         self.JumpShoot = False
         self.last_jump_shoot_index = 0
-        scale_numebrs=[(97,118),(97,118),(98,118),(95,118),(97,118)]
-        for i in range(1,6):
-            try:
-                img_path = os.path.join(base_path, "jump shoot", f"JumpShoot ({i}).png")
-                tmp = pygame.image.load(img_path)
-                if i == 1: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 2: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 3: self.JumpShoot_frames.append(pygame.transform.scale(tmp,scale_numebrs[i-1]))
-                elif i == 4: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-                elif i == 5: self.JumpShoot_frames.append(pygame.transform.scale(tmp, scale_numebrs[i-1]))
-            except FileNotFoundError:
-                print(f"Error: Roboman jump shhot frame 'JumpShoot ({i}).png' not found at {img_path}. Check path.")
-                self.JumpShoot_frames.append(pygame.Surface((70, 118)))
-                print(img_path)
-        sizes=[(73,118),(84,118),(90,100),(145,90),(133,90),(110,61),(118,56),(118,52),(118,53),(118,53)]
-        self.death_frames=[]
-        for i in range(1,11):
-            self.death_frames.append(pygame.transform.scale(
-                pygame.image.load(
-                    os.path.join(
-                        base_path,
-                        "death",
-                        f"Dead ({i}).png"
-                    )
-                ),
-                sizes[i-1]
-            ))
-
-        img_path = os.path.join(base_path, f"jetpack.png")
-        self.jetpack_frame=pygame.image.load(img_path)
-        self.jetpack_frame=pygame.transform.scale(self.jetpack_frame, (80,118))
-
-        bullet_image_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "..", "assets", "images", "RoboMan_pictures", "Bullet.png"
-        )
-        try:
-            self.bullet_picture = pygame.image.load(bullet_image_path).convert_alpha()
-            self.bullet_picture = pygame.transform.scale(self.bullet_picture ,(35,15))
-        except FileNotFoundError:
-            print(f"Error: Bullet.png not found at {bullet_image_path}. Using a placeholder.")
-            self.bullet_picture = pygame.Surface((40, 40), pygame.SRCALPHA)
-        bullet_image_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "..", "assets", "images", "RoboMan_pictures", "rocket.png"
-        )
-        self.rocket=pygame.image.load(bullet_image_path).convert_alpha()
-        self.rocket=pygame.transform.scale(self.rocket ,(43,25))
-        image_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "..", "assets", "images", "RoboMan_pictures", "super power effect.png"
-        )
-        self.picture = self.idle_frames[0] if self.idle_frames else pygame.Surface((70, 118))
-        self.width = self.picture.get_width()
-        self.height = self.picture.get_height()
-
+        self.last_jump_time=0
         self.horizontal_auto_speed = 0
         self.allow_move_right = True
         self.allow_move_left = True
@@ -870,6 +881,23 @@ class Roboman:
         self.update_animation(shot_bullets)
         self.update_bullets(shot_bullets, targets)
         self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter)
+        self.update_drone()
+
+    def update_online(self, platforms, shot_bullets, targets, keys, gate, trigger_shutter=None):
+        if hasattr(self, "ALIVE") and not self.ALIVE:
+            self.update_animation(shot_bullets)
+            return
+        if self.y_pos>1000:
+            self.health=0
+        self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.current_picture.get_width(), self.current_picture.get_height())
+
+        self.is_on_ground()
+        self.gravity()
+        self.vertical_move()
+        self.platforms_collisions(platforms)
+        self.move_with_platform()
+        self.jump_under_platform(platforms)
+        self.update_animation(shot_bullets)
         self.update_drone()
 
 

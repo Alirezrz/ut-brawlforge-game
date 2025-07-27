@@ -5,27 +5,21 @@ from config import Ninja_width, Ninja_height,profileSideSize, health_bar_lenght,
 from src.engine.protector import Guard_Drone
 ## must be done -->  1- list of enemies for hit when attacking must be fixed 
 class Ninja:
-    def __init__(self, x, y, screen_width, screen_height, targets, hero_creation_index=2,username='Player'):
+    def __init__(self, x, y, screen_width, screen_height, targets, hero_creation_index=2,username='Player',LOAD_FLAG=True):
+        self.username=username
         self.frame_address=None
         self.ALIVE=True
         self.DEAD=False
         
         
         
-        self.jump_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja jump.MP3"))
-        self.kunai_hit_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit.mp3"))
-        self.kunai_hit_platform_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit platofrm.mp3"))
-        self.melee_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "sword.mp3"))
-        self.melee_hit_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "sword hit.mp3"))
-        self.throw_kunai_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "throw kunai.mp3"))
+
         self.x_pos = x
         self.y_pos = y
-        self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja hurt.mp3"))        
         self.on_platform = False
-        self.ninja_health_bar_frame = pygame.image.load("src/assets/images/Ninja/Ninja_health_bar_frame.png")
-        self.ninja_health_bar =pygame.image.load("src/assets/images/Ninja/Ninja_health_bar.png")
+
         self.hero_creation_index = hero_creation_index  # دیفالت 2
-        self.ninja_profile_picture = pygame.image.load("src/assets/images/Ninja/ninja_profile.png")
+        
         self.current_platform = None
         self.horizontal_auto_speed = 0
         self.freezed=False
@@ -106,99 +100,109 @@ class Ninja:
         self.shutter_direction = 1 
         self.is_first_time=True          
         
-        
-        base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Ninja")
+        if LOAD_FLAG:
+            self.jump_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja jump.MP3"))
+            self.kunai_hit_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit.mp3"))
+            self.kunai_hit_platform_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit platofrm.mp3"))
+            self.melee_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "sword.mp3"))
+            self.melee_hit_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "sword hit.mp3"))
+            self.throw_kunai_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "throw kunai.mp3"))
+            self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja hurt.mp3"))        
+            self.ninja_health_bar_frame = pygame.image.load("src/assets/images/Ninja/Ninja_health_bar_frame.png")
+            self.ninja_health_bar =pygame.image.load("src/assets/images/Ninja/Ninja_health_bar.png")
+            self.ninja_profile_picture = pygame.image.load("src/assets/images/Ninja/ninja_profile.png")
+            base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Ninja")
 
-        # Load Idle image for default state
-        tmp = pygame.image.load(os.path.join(base_path, "Idle", f"Idle__000.png"))
-        self.current_picture = pygame.transform.scale(tmp, (62, 118))
-        
+            # Load Idle image for default state
+            tmp = pygame.image.load(os.path.join(base_path, "Idle", f"Idle__000.png"))
+            self.current_picture = pygame.transform.scale(tmp, (62, 118))
+            
 
-        
-        self.freezed_frame=pygame.transform.scale(
-            pygame.image.load(os.path.join(base_path,"freezed.png")),
-            (62,118)
-        )
-        
-        
-        img_path = os.path.join(base_path, "SuperPower effect.png")
-        self.SuperPower_pic=pygame.image.load(img_path )
-        self.SuperPower_pic=pygame.transform.scale(self.SuperPower_pic,(100,118))
+            
+            self.freezed_frame=pygame.transform.scale(
+                pygame.image.load(os.path.join(base_path,"freezed.png")),
+                (62,118)
+            )
+            
+            
+            img_path = os.path.join(base_path, "SuperPower effect.png")
+            self.SuperPower_pic=pygame.image.load(img_path )
+            self.SuperPower_pic=pygame.transform.scale(self.SuperPower_pic,(100,118))
 
-        # Load Idle frames
-        self.idle_frames = []
-        for i in range(0, 10): 
-            img_path = os.path.join(base_path, "Idle", f"Idle__00{i}.png")
-            tmp = pygame.image.load(img_path)
-            self.idle_frames.append(pygame.transform.scale(tmp, (62, 118)))
+            # Load Idle frames
+            self.idle_frames = []
+            for i in range(0, 10): 
+                img_path = os.path.join(base_path, "Idle", f"Idle__00{i}.png")
+                tmp = pygame.image.load(img_path)
+                self.idle_frames.append(pygame.transform.scale(tmp, (62, 118)))
 
-        # Load Run frames
-        self.run_frames = []
-        for i in range(1, 10):
-            img_path = os.path.join(base_path, "Run", f"Run__00{i}.png")
-            tmp = pygame.image.load(img_path)
-            self.run_frames.append(pygame.transform.scale(tmp, (94, 118)))
+            # Load Run frames
+            self.run_frames = []
+            for i in range(1, 10):
+                img_path = os.path.join(base_path, "Run", f"Run__00{i}.png")
+                tmp = pygame.image.load(img_path)
+                self.run_frames.append(pygame.transform.scale(tmp, (94, 118)))
+                
+            # Load Jump frames
+            self.jump_frames = []
+            sizes = [77, 69, 69, 71, 70, 70, 77, 84, 95, 93]
+            for i in range(0, 10):
+                img_path = os.path.join(base_path, "Jump", f"Jump__00{i}.png")
+                tmp = pygame.image.load(img_path)
+                self.jump_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
             
-        # Load Jump frames
-        self.jump_frames = []
-        sizes = [77, 69, 69, 71, 70, 70, 77, 84, 95, 93]
-        for i in range(0, 10):
-            img_path = os.path.join(base_path, "Jump", f"Jump__00{i}.png")
-            tmp = pygame.image.load(img_path)
-            self.jump_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
-        
 
-        # Load Kunai
-        img_path = os.path.join(base_path, "Kunai.png")
-        self.Kunai_pic = pygame.image.load(img_path)
-        self.Kunai_pic = pygame.transform.scale(self.Kunai_pic, (60, 12))
-        
-        img_path = os.path.join(base_path, "FiredKunai.png") 
-        self.Fired_kunai_pic=pygame.image.load(img_path)
-        self.Fired_kunai_pic= pygame.transform.scale(self.Fired_kunai_pic, (70, 24))
-        
-        self.Kunai=self.Kunai_pic
+            # Load Kunai
+            img_path = os.path.join(base_path, "Kunai.png")
+            self.Kunai_pic = pygame.image.load(img_path)
+            self.Kunai_pic = pygame.transform.scale(self.Kunai_pic, (60, 12))
+            
+            img_path = os.path.join(base_path, "FiredKunai.png") 
+            self.Fired_kunai_pic=pygame.image.load(img_path)
+            self.Fired_kunai_pic= pygame.transform.scale(self.Fired_kunai_pic, (70, 24))
+            
+            self.Kunai=self.Kunai_pic
 
-        # Load Throw frames
-        self.throw_frames = []
-        throw_widths = [72, 66, 83, 81, 79, 79, 78, 86, 78, 66]
-        for i in range(10):
-            img_path = os.path.join(base_path, "Throw", f"Throw__00{i}.png")
-            tmp = pygame.image.load(img_path)
-            scaled = pygame.transform.scale(tmp, (throw_widths[i], 118))
-            self.throw_frames.append(scaled)
-        # Load Jump throw frames
-        self.jumpThrow_frames = []
-        sizes = [85,88,92,99,101,104,103,96,89,89]
-        for i in range(0, 10):
-            img_path = os.path.join(base_path, "JumpThrow", f"Jump_Throw__00{i}.png")
-            tmp = pygame.image.load(img_path)
-            self.jumpThrow_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
-            
-            
-            
-        self.Attack_frames=[]
-        sizes = [78,75,85,132,136,149,149,149,147,137]
-        self.with_sword_width= [77,75,80,73,95,108,107,105,115,105]
-        for i in range(0, 10):
-            img_path = os.path.join(base_path, "Attack", f"Attack__00{i}.png")
-            tmp = pygame.image.load(img_path)
-            self.Attack_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
-            
-            
-        self.JumpAttack_frames=[]
-        self.jumpattack_sizes=[(87,118),(86,118),(86,118),(136,118),(136,118),(137,138),(139,138),(140,138),(125,170),(136,118)]
-        for i in range(0, 10):
-            img_path = os.path.join(base_path, "JumpAttack", f"Jump_Attack__00{i}.png")
-            tmp = pygame.image.load(img_path)
-            self.JumpAttack_frames.append(pygame.transform.scale(tmp, self.jumpattack_sizes[i]))
-            
-        self.death_frames=[]
-        self.death_sizes=[(63,118),(74,118),(127,113),(111,108),(140,100),(157,100),(152,90),(157,90),(160,90),(156,90)]
-        for i in range(0, 10):
-            img_path = os.path.join(base_path, "death", f"Dead__00{i}.png")
-            tmp = pygame.image.load(img_path)
-            self.death_frames.append(pygame.transform.scale(tmp, self.death_sizes[i]))
+            # Load Throw frames
+            self.throw_frames = []
+            throw_widths = [72, 66, 83, 81, 79, 79, 78, 86, 78, 66]
+            for i in range(10):
+                img_path = os.path.join(base_path, "Throw", f"Throw__00{i}.png")
+                tmp = pygame.image.load(img_path)
+                scaled = pygame.transform.scale(tmp, (throw_widths[i], 118))
+                self.throw_frames.append(scaled)
+            # Load Jump throw frames
+            self.jumpThrow_frames = []
+            sizes = [85,88,92,99,101,104,103,96,89,89]
+            for i in range(0, 10):
+                img_path = os.path.join(base_path, "JumpThrow", f"Jump_Throw__00{i}.png")
+                tmp = pygame.image.load(img_path)
+                self.jumpThrow_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
+                
+                
+                
+            self.Attack_frames=[]
+            sizes = [78,75,85,132,136,149,149,149,147,137]
+            self.with_sword_width= [77,75,80,73,95,108,107,105,115,105]
+            for i in range(0, 10):
+                img_path = os.path.join(base_path, "Attack", f"Attack__00{i}.png")
+                tmp = pygame.image.load(img_path)
+                self.Attack_frames.append(pygame.transform.scale(tmp, (sizes[i], 118)))
+                
+                
+            self.JumpAttack_frames=[]
+            self.jumpattack_sizes=[(87,118),(86,118),(86,118),(136,118),(136,118),(137,138),(139,138),(140,138),(125,170),(136,118)]
+            for i in range(0, 10):
+                img_path = os.path.join(base_path, "JumpAttack", f"Jump_Attack__00{i}.png")
+                tmp = pygame.image.load(img_path)
+                self.JumpAttack_frames.append(pygame.transform.scale(tmp, self.jumpattack_sizes[i]))
+                
+            self.death_frames=[]
+            self.death_sizes=[(63,118),(74,118),(127,113),(111,108),(140,100),(157,100),(152,90),(157,90),(160,90),(156,90)]
+            for i in range(0, 10):
+                img_path = os.path.join(base_path, "death", f"Dead__00{i}.png")
+                tmp = pygame.image.load(img_path)
+                self.death_frames.append(pygame.transform.scale(tmp, self.death_sizes[i]))
             
       
         
@@ -871,6 +875,24 @@ class Ninja:
         self.update_animation(shot_bullets)
         self.update_bullets(shot_bullets, targets)
         self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter)
+        self.update_drone()
+        
+    def update_online(self, platforms, shot_bullets, targets, keys, gate, trigger_shutter=None):
+
+        if not self.ALIVE:
+            self.update_animation(shot_bullets)
+            return
+        
+        self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.current_picture.get_width(),self.current_picture.get_height())
+        if self.y_pos>1000:
+            self.health=0
+        self.is_on_ground()
+        self.gravity()
+        self.vertical_move()
+        self.platforms_collisions(platforms)
+        self.move_with_platform()
+        self.jump_under_platform(platforms)
+        self.update_animation(shot_bullets)
         self.update_drone()
 
     def serialize(self):
