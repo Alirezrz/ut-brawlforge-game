@@ -18,6 +18,10 @@ pygame.display.set_mode((1, 1))
 
 pygame.init()
 
+
+start_x= 58*64
+start_y=400
+
 # Load platforms
 platform_image_path = "src/assets/images/"
 platform_images = {}
@@ -86,7 +90,7 @@ class MultiplayerGame:
             initial_data = json.loads(conn.recv(1024).decode('utf-8'))
             username = initial_data.get("username", f"Player{player_index+1}")
             char_choice = initial_data.get("character", "Ninja")
-            hero = self.create_hero(char_choice, 400 + player_index * 400, 400, player_index + 1, username)
+            hero = self.create_hero(char_choice,58*64, 400, player_index + 1, username)
             self.heroes[conn] = hero
             self.player_inputs[conn] = {}
             conn.sendall(json.dumps({"status": "setup_complete"}).encode('utf-8'))
