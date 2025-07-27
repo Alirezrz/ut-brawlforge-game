@@ -9,7 +9,7 @@ from config import screen_width, screen_height
 # Initialize Pygame
 pygame.init()
 try:
-    #screen = pygame.display.set_mode((screen_width, screen_height))
+    screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption("BrawlForge Client")
 except Exception as e:
     print(f"Error initializing Pygame screen: {e}")

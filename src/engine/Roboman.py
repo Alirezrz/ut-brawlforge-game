@@ -809,11 +809,11 @@ class Roboman:
             return
         if self.hero_creation_index==1:
             if keys[pygame.K_d]:
-                #self.move_right()
+                self.move_right()
                 self.is_moving_horizontally = True
                 print("Moving right...")
             if keys[pygame.K_a]:
-               # self.move_left()
+                self.move_left()
                 self.is_moving_horizontally = True
                 print("Moving left...")
             if keys[pygame.K_w]:
