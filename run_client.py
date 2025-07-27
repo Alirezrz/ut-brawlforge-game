@@ -42,7 +42,7 @@ except Exception as e:
     background = pygame.Surface((screen_width, screen_height))
     background.fill((0, 100, 200))  # Fallback blue background
 
-HOST = "192.168.1.4"
+HOST = "10.138.26.11"
 PORT = 9191
 
 class Client:

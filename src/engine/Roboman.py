@@ -798,6 +798,9 @@ class Roboman:
 
 
     def handle_input(self, keys, gate, shot_bullets, bullet_class, trigger_shutter, mouse_buttons):
+        print("bullet_class:", bullet_class)
+        print("mouse:", mouse_buttons)
+        print(f"[{self.username}] handle_input called")
         self.trigger_shutter_callback = trigger_shutter
         if not self.ALIVE:
             return
@@ -806,14 +809,17 @@ class Roboman:
             return
         if self.hero_creation_index==1:
             if keys[pygame.K_d]:
-                self.move_right()
+                #self.move_right()
                 self.is_moving_horizontally = True
+                print("Moving right...")
             if keys[pygame.K_a]:
-                self.move_left()
+               # self.move_left()
                 self.is_moving_horizontally = True
+                print("Moving left...")
             if keys[pygame.K_w]:
-                self.jump()
-            if keys[pygame.K_LSHIFT]:
+                #self.jump()
+                print("jump...")
+            '''if keys[pygame.K_LSHIFT]:
                 self.activate_jetpack()
             if keys[pygame.K_TAB]:
                 self.Send_teleport_request(gate)
@@ -844,7 +850,7 @@ class Roboman:
             if keys[pygame.K_SLASH]:
                 self.call_drone()
             if keys[pygame.K_RALT]:
-                self.shoot_rocket(shot_bullets, bullet_class)
+                self.shoot_rocket(shot_bullets, bullet_class)'''
 
 
     def call_drone(self):

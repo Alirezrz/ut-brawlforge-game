@@ -156,8 +156,8 @@ class MultiplayerGame:
                     pygame.K_RALT: inputs2.get("RALT", False)
                 }
                 mouse2 = (inputs2.get("left_click", False), False, inputs2.get("right_click", False))
-                # hero1.handle_input( keys1, self.gates, self.shot_bullets, bullet_class,None, mouse1)
-                # hero2.handle_input( keys2, self.gates, self.shot_bullets, bullet_class,None, mouse2)
+                hero1.handle_input( keys1, self.gates, self.shot_bullets, bullet_class,None, mouse1)
+                hero2.handle_input( keys2, self.gates, self.shot_bullets, bullet_class,None, mouse2)
 
                 hero1.update_online(self.platforms, self.shot_bullets, [hero2], keys1, self.gates, None)
                 hero2.update_online(self.platforms, self.shot_bullets, [hero1], keys2, self.gates, None)
