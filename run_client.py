@@ -488,17 +488,17 @@ class Client:
 
     def render_game(self):
         screen.blit(background, (0, 0))
-        for platform in self.platforms:
-            try:
-                 platform.draw(screen, self.scroll)
-            except Exception as e:
-                 print(f"Error drawing platform: {e}")
-
+      
         # Camera scrolling
         mid_x = (self.x_pos + self.current_picture.get_width() // 2 )
         mid_y = (self.y_pos + self.current_picture.get_height() // 2 )
         self.scroll[0] += (mid_x - screen_width / 2 - self.scroll[0]) / 15
         self.scroll[1] += (mid_y - screen_height / 2 - self.scroll[1]) / 15
+        for platform in self.platforms:
+            try:
+                 platform.draw(screen, self.scroll)
+            except Exception as e:
+                 print(f"Error drawing platform: {e}")
 
         #Render heroe
         if self.Look=='right':
