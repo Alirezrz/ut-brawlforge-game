@@ -939,7 +939,6 @@ class Roboman:
 
         self.is_on_ground()
         self.gravity()
-        self.display
         self.vertical_move()
         self.platforms_collisions(platforms)
         self.move_with_platform()
