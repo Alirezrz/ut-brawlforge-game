@@ -91,7 +91,7 @@ class MultiplayerGame:
             initial_data = json.loads(conn.recv(1024).decode('utf-8'))
             username = initial_data.get("username", f"Player{player_index+1}")
             char_choice = initial_data.get("character", "Ninja")
-            hero = self.create_hero(char_choice, 58*64, 400, player_index + 1, username)
+            hero = self.create_hero(char_choice, 58*64, 200, player_index + 1, username)
             self.heroes[player_index] = hero
             self.player_inputs[player_index] = {}
             conn.sendall(json.dumps({"status": "setup_complete"}).encode('utf-8'))
