@@ -409,7 +409,7 @@ class Archer:
                 self.is_moving_horizontally = True
                 print("Moving left...")
             if keys[pygame.K_w]:
-                #self.jump()
+                self.jump()
                 print("jump...")
             if keys[pygame.K_LSHIFT]:
                 self.activate_jetpack()
