@@ -447,22 +447,28 @@ class Client:
     def receive_state(self):
         while True:
             try:
-                data = self.socket.recv(1024)
-                data = data.decode('utf-8')
-                if not data:
-                    print("Server disconnected")
-                    break
+                buffer = ""
+                while True:
+                    chunk = self.socket.recv(1024)
+                    if not chunk:
+                        break
+                    buffer += chunk.decode('utf-8')
 
-                parsed = json.loads(data)
-                selfdata = parsed["self"]
-                self.x_pos = selfdata['x_pos']
-                self.y_pos = selfdata['y_pos']
-                self.health = selfdata['health']
-                self.Look = selfdata['look']
-                self.username=selfdata['username']
-                self.frame_source=selfdata['frame_source']
-                self.frame_index=selfdata['frame_index']
-                print(f"x_pos={self.x_pos}   y_pos={self.y_pos}")
+                    while '\n' in buffer:
+                        line, buffer = buffer.split('\n', 1)
+                        try:
+                            parsed = json.loads(line)
+                            selfdata = parsed["self"]
+                            self.x_pos = selfdata['x_pos']
+                            self.y_pos = selfdata['y_pos']
+                            self.health = selfdata['health']
+                            self.Look = selfdata['look']
+                            self.username=selfdata['username']
+                            self.frame_source=selfdata['frame_source']
+                            self.frame_index=selfdata['frame_index']
+           
+                        except Exception as e:
+                            print(f"Error decoding JSON: {e}")                
                 try:
                     self.current_picture=self.frames[self.frame_source][self.frame_index if self.frame_index>=-1 else 0]
                 except:
