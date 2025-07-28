@@ -20,7 +20,7 @@ pygame.init()
 
 
 start_x= 58*64
-start_y=400
+start_y=-1000
 
 # Load platforms
 platform_image_path = "src/assets/images/"
@@ -91,7 +91,7 @@ class MultiplayerGame:
             initial_data = json.loads(conn.recv(1024).decode('utf-8'))
             username = initial_data.get("username", f"Player{player_index+1}")
             char_choice = initial_data.get("character", "Ninja")
-            hero = self.create_hero(char_choice, 58*64, 100, player_index + 1, username)
+            hero = self.create_hero(char_choice, 58*64, -2000, player_index + 1, username)
             self.heroes[player_index] = hero
             self.player_inputs[player_index] = {}
             conn.sendall(json.dumps({"status": "setup_complete"}).encode('utf-8'))
@@ -154,7 +154,7 @@ class MultiplayerGame:
                 mouse2 = (inputs2.get("left_click", False), False, inputs2.get("right_click", False))
 
                 hero1.handle_input_online(keys1, self.gates, self.shot_bullets, bullet_class, None, mouse1)
-                hero2.handle_input_online(keys1, self.gates, self.shot_bullets, bullet_class, None, mouse1)
+                hero2.handle_input_online(keys2, self.gates, self.shot_bullets, bullet_class, None, mouse2)
 
 
                 hero1.update_online(self.platforms, self.shot_bullets, [hero2], keys1, self.gates, None)
