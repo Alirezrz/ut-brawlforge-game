@@ -54,7 +54,7 @@ class Client:
         except Exception as e:
             print(f"Error connecting to server: {e}")
             exit()
-        
+        print("Initializing client...")
         self.platforms = load_level_data(multiplayer_data, platform_images)
         self.scroll = [0, 0]
         self.type = None
@@ -72,6 +72,11 @@ class Client:
         self.frame_index=0
         self.current_picture=None
         self.scroll=[0,0]
+        if "idle_frames" in self.frames and len(self.frames["idle_frames"]) > 0:
+            self.current_picture = self.frames["idle_frames"][0]
+        else:
+            self.current_picture = pygame.Surface((50, 50))
+            self.current_picture.fill((255, 0, 0))
         
 
     def load_assets(self):
@@ -484,6 +489,7 @@ class Client:
 
     def render_game(self):
         screen.blit(background, (0, 0))
+        print("render_game..")
         for platform in self.platforms:
             try:
                  platform.draw(screen, self.scroll)
@@ -504,6 +510,7 @@ class Client:
         pygame.display.update()
 
 def main():
+    print("main...")
     client = Client()
     threading.Thread(target=client.send_input, daemon=True).start()
     threading.Thread(target=client.receive_state, daemon=True).start()
