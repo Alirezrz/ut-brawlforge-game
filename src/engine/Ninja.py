@@ -12,7 +12,7 @@ class Ninja:
         self.DEAD=False
         
         
-        
+        self.frame_address=None
 
         self.x_pos = x
         self.y_pos = y
@@ -820,6 +820,12 @@ class Ninja:
         if not self.is_moving_horizontally:
             self.stop_horizontal_movement()
                     # Add in handle_input
+                    
+    def handle_input_online(self, keys, mouse_clicks):
+        if keys[pygame.K_d]:
+            print("moving right")
+        if keys[pygame.K_a]:
+            print("moving left")    
 
             
                 
@@ -878,14 +884,13 @@ class Ninja:
         self.update_drone()
         
     def update_online(self, platforms, shot_bullets, targets, keys, gate, trigger_shutter=None):
-
-        if not self.ALIVE:
+        if hasattr(self, "ALIVE") and not self.ALIVE:
             self.update_animation(shot_bullets)
             return
-        
-        self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.current_picture.get_width(),self.current_picture.get_height())
         if self.y_pos>1000:
             self.health=0
+        self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.current_picture.get_width(), self.current_picture.get_height())
+
         self.is_on_ground()
         self.gravity()
         self.vertical_move()
@@ -895,24 +900,24 @@ class Ninja:
         self.update_animation(shot_bullets)
         self.update_drone()
 
+
+
     def serialize(self):
         frame_source_name = "idle_frames"
         frame_index_val = 0
-
         if hasattr(self, 'frame_address') and self.frame_address:
              frame_source_name = self.frame_address[0]
              frame_index_val = self.frame_address[1]
-
         return {
             "x_pos": self.x_pos,
             "y_pos": self.y_pos,
-            "Look": self.Look,
+            "look": self.Look,
             "health": self.health,
             "username": self.username,
-            "frame list address": frame_source_name,
+            "frame_source": frame_source_name,
             "frame_index": frame_index_val
         }
-                       
+        
                       
 
     

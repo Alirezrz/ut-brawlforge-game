@@ -30,7 +30,7 @@ except Exception as e:
     print(f"Error loading platform images: {e}")
     platform_images = {key: pygame.Surface((100, 20)) for key in ['left', 'middle', 'right', 'solid']}
     for surface in platform_images.values():
-        surface.fill((100, 100, 100))  # Gray placeholder
+        surface.fill((100, 100, 100)) 
 
 # Load background
 try:
@@ -40,9 +40,9 @@ try:
 except Exception as e:
     print(f"Error loading background: {e}")
     background = pygame.Surface((screen_width, screen_height))
-    background.fill((0, 100, 200))  # Fallback blue background
+    background.fill((0, 100, 200))  
 
-HOST = "10.138.26.11"
+HOST = "172.20.10.3"
 PORT = 9191
 
 class Client:
@@ -63,6 +63,16 @@ class Client:
         self.frames = {}
         self.load_assets()
         self.send_initial_data()
+        self.x_pos=0
+        self.y_pos=0
+        self.health=100
+        self.Look='right'
+        self.username=None
+        self.frame_source='idle'
+        self.frame_index=0
+        self.current_picture=None
+        self.scroll=[0,0]
+        
 
     def load_assets(self):
         print("Select your hero type:")
@@ -70,6 +80,7 @@ class Client:
         print("2_ Ninja")
         print("3_ NinjaGirl")
         print("4_ Archer")
+        
         try:
             self.type = int(input("Enter choice (1-4): "))
             if self.type not in [1, 2, 3, 4]:
@@ -78,12 +89,17 @@ class Client:
             print("Invalid input, defaulting to Ninja")
             self.type = 2
 
-        base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "images")
+
+
+        base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src","assets", "images")
+        
+        
+        
+        
         try:
             if self.type == 1:  # Roboman
                 base_path = os.path.join(base_path, "RoboMan_pictures")
-                self.frames["freezed_img"] = pygame.transform.scale(
-                    pygame.image.load(os.path.join(base_path, "freezed.png")), (69, 118))
+                self.frames['freezed_img']=pygame.transform.scale(pygame.image.load(os.path.join(base_path,"freezed.png")),(69,118))
                 self.frames["run_frames"] = []
                 sizes = [(63, 118), (62, 118), (82, 118), (77, 118), (73, 118), (80, 118), (92, 118), (79, 118)]
                 for i in range(1, 9):
@@ -374,7 +390,7 @@ class Client:
             print(f"Error loading hero assets: {e}")
             self.frames = {key: [pygame.Surface((50, 50)) for _ in range(10)] for key in ["idle_frames", "run_frames", "jump_frames"]}
 
-        # Initialize hero and opponent
+        # hero and opponent
         self.hero = type('Hero', (), {
             'x_pos': 0, 'y_pos': 0, 'Look': 'right', 'health': 100,
             'current_picture': self.frames["idle_frames"][0],
@@ -427,85 +443,58 @@ class Client:
                 break
             clock.tick(60)
 
-    def update_from_state(self, state, is_opponent=False):
-        obj = self.opponent if is_opponent else self.hero
-        obj.x_pos = state.get("x_pos", 0)
-        obj.y_pos = state.get("y_pos", 0)
-        obj.Look = state.get("Look", "right")
-        obj.health = state.get("health", 100)
-        frame_source = state.get("frame list address", "idle_frames")
-        frame_index = state.get("frame_index", 0)
-
-        try:
-            if frame_source in self.frames:
-                obj.current_picture = self.frames[frame_source][frame_index if frame_index >= 0 and frame_index < len(self.frames[frame_source]) else 0]
-            elif frame_source in ["freezed_img", "freezed", "freezed_frame"]:
-                obj.current_picture = self.frames.get("freezed_img", self.frames.get("freezed_frame", pygame.Surface((50, 50))))
-            elif frame_source in ["SuperPower_pic", "super_power_effect_picture"]:
-                obj.current_picture = self.frames.get("SuperPower_pic", self.frames.get("super_power_effect_picture", pygame.Surface((50, 50))))
-            elif frame_source == "jetpack_frame":
-                obj.current_picture = self.frames.get("jetpack_frame", pygame.Surface((50, 50)))
-            elif frame_source in ["Kunai", "Fired_kunai", "arrow_pic", "firedarrow_pic"]:
-                obj.current_picture = self.frames.get(frame_source, pygame.Surface((50, 50)))
-            else:
-                obj.current_picture = self.frames["idle_frames"][0]
-                print(f"Unknown frame source {frame_source}, using idle frame")
-        except IndexError:
-            print(f"Invalid frame index {frame_index} for {frame_source}, using fallback")
-            obj.current_picture = self.frames["idle_frames"][0]
-        obj.hitbox = pygame.Rect(obj.x_pos, obj.y_pos, obj.current_picture.get_width(), obj.current_picture.get_height())
-        print(f"Updated {'opponent' if is_opponent else 'self'}: x={obj.x_pos}, y={obj.y_pos}, frame={frame_source}[{frame_index}]")
 
     def receive_state(self):
         while True:
             try:
-                data = self.socket.recv(4096)
+                data = self.socket.recv(1024)
+                data = data.decode('utf-8')
                 if not data:
                     print("Server disconnected")
                     break
-                state_bundle = json.loads(data.decode('utf-8'))
-                self.update_from_state(state_bundle["self"])
-                self.update_from_state(state_bundle["opponent"], is_opponent=True)
+
+                parsed = json.loads(data)
+                selfdata = parsed["self"]
+                self.x_pos = selfdata['x_pos']
+                self.y_pos = selfdata['y_pos']
+                self.health = selfdata['health']
+                self.Look = selfdata['look']
+                self.username=selfdata['username']
+                self.frame_source=selfdata['frame_source']
+                self.frame_index=selfdata['frame_index']
+                try:
+                    self.current_picture=self.frames[self.frame_source][self.frame_index if self.frame_index>=-1 else 0]
+                except:
+                    print("not able to update the frame")
+                    self.current_picture = self.frames["idle_frames"][0]
+                    
+                print(f"x_pos={self.x_pos}   y_pos={self.y_pos}")
+                print(f"frame_source={self.frame_source}   frame_index={self.frame_index}")
+                print("-----------")
             except Exception as e:
                 print(f"Error receiving game state: {e}")
                 break
 
     def render_game(self):
-        # screen.blit(background, (0, 0))
-        # for platform in self.platforms:
-        #     try:
-        #         platform.draw(screen, self.scroll)
-        #     except Exception as e:
-        #         print(f"Error drawing platform: {e}")
+        screen.blit(background, (0, 0))
+        for platform in self.platforms:
+            try:
+                 platform.draw(screen, self.scroll)
+            except Exception as e:
+                 print(f"Error drawing platform: {e}")
 
         # Camera scrolling
-        if self.hero and self.opponent:
-            mid_x = (self.hero.x_pos + self.hero.current_picture.get_width() // 2 +
-                     self.opponent.x_pos + self.opponent.current_picture.get_width() // 2) / 2
-            mid_y = (self.hero.y_pos + self.hero.current_picture.get_height() // 2 +
-                     self.opponent.y_pos + self.opponent.current_picture.get_height() // 2) / 2
-            self.scroll[0] += (mid_x - screen_width / 2 - self.scroll[0]) / 15
-            self.scroll[1] += (mid_y - screen_height / 2 - self.scroll[1]) / 15
+        mid_x = (self.x_pos + self.current_picture.get_width() // 2 )
+        mid_y = (self.y_pos + self.current_picture.get_height() // 2 )
+        self.scroll[0] += (mid_x - screen_width / 2 - self.scroll[0]) / 15
+        self.scroll[1] += (mid_y - screen_height / 2 - self.scroll[1]) / 15
 
-        # Render heroes
-        # for obj in [self.hero, self.opponent]:
-        #     if obj:
-        #         try:
-        #             flipped = pygame.transform.flip(obj.current_picture, obj.Look == 'left', False)
-        #             screen.blit(flipped, (obj.x_pos - self.scroll[0], obj.y_pos - self.scroll[1]))
-        #             # Draw health bar
-        #             health_bar_width = int(100 * (obj.health / 100))
-        #             health_bar = pygame.Surface((health_bar_width, 10))
-        #             health_bar.fill((255, 0, 0))
-        #             screen.blit(health_bar, (obj.x_pos - self.scroll[0], obj.y_pos - self.scroll[1] - 20))
-        #         except Exception as e:
-        #             print(f"Error rendering hero: {e}")
-        #             # Fallback text
-        #             font = pygame.font.SysFont("arial", 24)
-        #             text = font.render(f"Health: {obj.health}", True, (255, 255, 255))
-        #             screen.blit(text, (obj.x_pos - self.scroll[0], obj.y_pos - self.scroll[1]))
-
-        # pygame.display.update()
+        #Render heroe
+        if self.Look=='right':
+            screen.blit(self.current_picture, (screen_width//2, screen_height//2))
+        elif self.Look=='left':
+            screen.blit(self.current_picture, (screen_width//2, screen_height//2))
+        pygame.display.update()
 
 def main():
     client = Client()
@@ -519,7 +508,9 @@ def main():
                 pygame.quit()
                 client.socket.close()
                 exit()
-        client.render_game()
+        if client.current_picture!=None:
+            client.render_game()
+        
         clock.tick(60)
 
 if __name__ == "__main__":

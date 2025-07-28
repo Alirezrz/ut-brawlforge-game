@@ -397,6 +397,13 @@ class Archer:
 
         if not self.is_moving_horizontally:
             self.stop_horizontal_movement()
+            
+            
+    def handle_input_online(self, keys, mouse_clicks):
+        if keys[pygame.K_d]:
+            print("moving right")
+        if keys[pygame.K_a]:
+            print("moving left")    
 
     def update_bullets(self, screen, global_bullet_list, platforms, targets):
         
@@ -574,6 +581,23 @@ class Archer:
         self.handle_input(keys, gate, shot_bullets, Bullet, trigger_shutter=None)
         self.update_drone()
         self.update_attack()
+    def update_online(self, platforms, shot_bullets, targets, keys, gate, trigger_shutter=None):
+        if hasattr(self, "ALIVE") and not self.ALIVE:
+            self.update_animation(shot_bullets)
+            return
+        if self.y_pos>1000:
+            self.health=0
+        self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.current_picture.get_width(), self.current_picture.get_height())
+
+        self.is_on_ground()
+        self.gravity()
+        self.vertical_move()
+        self.platforms_collisions(platforms)
+        self.move_with_platform()
+        self.jump_under_platform(platforms)
+        self.update_animation(shot_bullets)
+        self.update_drone()
+
 
     def update_attack(self):
      if self.status=='attack' or self.status=='jumpattack':
@@ -607,6 +631,7 @@ class Archer:
         self.y_pos+=60
         
     
+
     def serialize(self):
         frame_source_name = "idle_frames"
         frame_index_val = 0
@@ -614,8 +639,8 @@ class Archer:
              frame_source_name = self.frame_address[0]
              frame_index_val = self.frame_address[1]
         return {
-            "x": self.x_pos,
-            "y": self.y_pos,
+            "x_pos": self.x_pos,
+            "y_pos": self.y_pos,
             "look": self.Look,
             "health": self.health,
             "username": self.username,
