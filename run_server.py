@@ -153,8 +153,9 @@ class MultiplayerGame:
                 }
                 mouse2 = (inputs2.get("left_click", False), False, inputs2.get("right_click", False))
 
-                hero1.handle_input_online(keys1, mouse1)
-                hero2.handle_input_online(keys2, mouse2)
+                hero1.handle_input_online(keys1, self.gates, self.shot_bullets, bullet_class, None, mouse1)
+                hero2.handle_input_online(keys1, self.gates, self.shot_bullets, bullet_class, None, mouse1)
+
 
                 hero1.update_online(self.platforms, self.shot_bullets, [hero2], keys1, self.gates, None)
                 hero2.update_online(self.platforms, self.shot_bullets, [hero1], keys2, self.gates, None)
