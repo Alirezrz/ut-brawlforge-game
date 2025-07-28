@@ -502,9 +502,11 @@ class Client:
 
         #Render heroe
         if self.Look=='right':
-            screen.blit(self.current_picture, (screen_width//2, screen_height//2))
+            screen.blit(self.current_picture, (self.x_pos - self.scroll[0], self.y_pos - self.scroll[1]))
+
         elif self.Look=='left':
-            screen.blit(self.current_picture, (screen_width//2, screen_height//2))
+            screen.blit(self.current_picture, (self.x_pos - self.scroll[0], self.y_pos - self.scroll[1]))
+
         pygame.display.update()
 
 def main():
