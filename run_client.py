@@ -445,9 +445,9 @@ class Client:
 
 
     def receive_state(self):
+        buffer = ""
         while True:
             try:
-                buffer = ""
                 while True:
                     chunk = self.socket.recv(1024)
                     if not chunk:
