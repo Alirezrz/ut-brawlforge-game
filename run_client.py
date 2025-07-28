@@ -462,6 +462,7 @@ class Client:
                 self.username=selfdata['username']
                 self.frame_source=selfdata['frame_source']
                 self.frame_index=selfdata['frame_index']
+                print(f"x_pos={self.x_pos}   y_pos={self.y_pos}")
                 try:
                     self.current_picture=self.frames[self.frame_source][self.frame_index if self.frame_index>=-1 else 0]
                 except:

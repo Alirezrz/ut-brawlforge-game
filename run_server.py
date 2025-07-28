@@ -163,8 +163,9 @@ class MultiplayerGame:
                 state_p1 = hero1.serialize()
                 state_p2 = hero2.serialize()
 
-                self.clients[0].sendall(json.dumps({"self": state_p1}).encode('utf-8'))
-                self.clients[1].sendall(json.dumps({"self": state_p2}).encode('utf-8'))
+                self.clients[0].sendall((json.dumps({"self": state_p1}) + "\n").encode('utf-8'))
+
+                self.clients[1].sendall((json.dumps({"self": state_p2}) + "\n").encode('utf-8'))
 
                 print(f"Hero1 x_pos: {hero1.x_pos}, Hero2 x_pos: {hero2.x_pos}")
                 clock.tick(60)
