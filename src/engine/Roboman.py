@@ -832,7 +832,7 @@ class Roboman:
             if keys[pygame.K_w]:
                 #self.jump()
                 print("jump...")
-            '''if keys[pygame.K_LSHIFT]:
+            if keys[pygame.K_LSHIFT]:
                 self.activate_jetpack()
             if keys[pygame.K_TAB]:
                 self.Send_teleport_request(gate)
@@ -863,12 +863,30 @@ class Roboman:
             if keys[pygame.K_SLASH]:
                 self.call_drone()
             if keys[pygame.K_RALT]:
-                self.shoot_rocket(shot_bullets, bullet_class)'''
-    def handle_input_online(self, keys, mouse_clicks):
-        if keys[pygame.K_d]:
-            print("moving right")
-        if keys[pygame.K_a]:
-            print("moving left")    
+                self.shoot_rocket(shot_bullets, bullet_class)
+    def handle_input_online(self, keys, gate, shot_bullets, bullet_class, trigger_shutter, mouse_buttons):
+            if keys[pygame.K_d]:
+                self.move_right()
+                self.is_moving_horizontally = True
+                print("Moving right...")
+            if keys[pygame.K_a]:
+                self.move_left()
+                self.is_moving_horizontally = True
+                print("Moving left...")
+            if keys[pygame.K_w]:
+                #self.jump()
+                print("jump...")
+            if keys[pygame.K_LSHIFT]:
+                self.activate_jetpack()
+            if keys[pygame.K_TAB]:
+                self.Send_teleport_request(gate)
+            if mouse_buttons[0]:
+                self.shoot(shot_bullets, bullet_class)
+
+            if keys[pygame.K_g]:
+                self.call_drone()
+            if mouse_buttons[2]:
+                self.shoot_rocket(shot_bullets, bullet_class)    
 
 
         

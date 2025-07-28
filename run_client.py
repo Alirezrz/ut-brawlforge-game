@@ -42,7 +42,7 @@ except Exception as e:
     background = pygame.Surface((screen_width, screen_height))
     background.fill((0, 100, 200))  
 
-HOST = "172.20.10.3"
+HOST = "10.138.26.11"
 PORT = 9191
 
 class Client:
