@@ -479,7 +479,11 @@ class Client:
                             self.opponent.username = opp_data.get('username', '')
                             self.opponent.frame_source = opp_data.get('frame_source', 'idle_frames')
                             self.opponent.frame_index = opp_data.get('frame_index', 0)
-           
+
+                            opponent_char = opp_data.get("character", "Ninja")
+                            if opponent_char != self.opponent_character:
+                                self.opponent_character = opponent_char
+                                self.opponent_frames = self.load_opponent_assets(opponent_char)
                         except Exception as e:
                             print(f"Error decoding JSON: {e}") 
                                            
