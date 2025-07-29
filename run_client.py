@@ -5,7 +5,7 @@ import json
 import os
 from src.levels import multiplayer_data, load_level_data
 from config import screen_width, screen_height
-from utils import get_my_local_ip
+from src.network_utils import get_my_local_ip
 # Initialize Pygame
 pygame.init()
 try:
@@ -571,33 +571,38 @@ class Client:
     def render_game(self):
         screen.blit(background, (0, 0))
         try:
-            self.opponent.current_picture = self.opponent_frames[self.opponent.frame_source][self.opponent.frame_index]
+            font = pygame.font.Font("src/assets/fonts/VCR_OSD_MONO.ttf", 20)
+        except:
+            font = pygame.font.SysFont("arial", 20)
+        try:
+            if self.opponent.frame_source in self.opponent_frames:
+                 self.opponent.current_picture = self.opponent_frames[self.opponent.frame_source][self.opponent.frame_index]
         except Exception as e:
-            print(f"Error updating opponent frame: {e}")
             self.opponent.current_picture = self.opponent_frames["idle_frames"][0]
-        # Camera scrolling
-        mid_x = (self.x_pos + self.current_picture.get_width() // 2 )
-        mid_y = (self.y_pos + self.current_picture.get_height() // 2 )
+        
+        mid_x = (self.x_pos + self.current_picture.get_width() // 2)
+        mid_y = (self.y_pos + self.current_picture.get_height() // 2)
         self.scroll[0] += (mid_x - screen_width / 2 - self.scroll[0]) / 15
         self.scroll[1] += (mid_y - screen_height / 2 - self.scroll[1]) / 15
+
         for platform in self.platforms:
             try:
                  platform.draw(screen, self.scroll)
             except Exception as e:
                  print(f"Error drawing platform: {e}")
-
-        #Render heroe
-        if self.Look=='right':
-            screen.blit(self.current_picture, (self.x_pos - self.scroll[0], self.y_pos - self.scroll[1]))
-
-        elif self.Look=='left':
-            screen.blit(pygame.transform.flip(self.current_picture, True, False), (self.x_pos - self.scroll[0], self.y_pos - self.scroll[1]))
-
+        if self.current_picture:
+            self_image = pygame.transform.flip(self.current_picture, True, False) if self.Look == 'left' else self.current_picture
+            screen.blit(self_image, (self.x_pos - self.scroll[0], self.y_pos - self.scroll[1]))
+            username_surface = font.render(self.username, True, (255, 255, 255))
+            username_rect = username_surface.get_rect(center=(self.x_pos - self.scroll[0] + self_image.get_width() / 2, self.y_pos - self.scroll[1] - 15))
+            screen.blit(username_surface, username_rect)
         if self.opponent.current_picture:
-            screen.blit(
-                pygame.transform.flip(self.opponent.current_picture, True, False) if self.opponent.Look == 'left' else self.opponent.current_picture,
-                (self.opponent.x_pos - self.scroll[0], self.opponent.y_pos - self.scroll[1])
-            )
+            opponent_image = pygame.transform.flip(self.opponent.current_picture, True, False) if self.opponent.Look == 'left' else self.opponent.current_picture
+            screen.blit(opponent_image, (self.opponent.x_pos - self.scroll[0], self.opponent.y_pos - self.scroll[1]))
+            opp_username_surface = font.render(self.opponent.username, True, (255, 255, 0)) 
+            opp_username_rect = opp_username_surface.get_rect(center=(self.opponent.x_pos - self.scroll[0] + opponent_image.get_width() / 2, self.opponent.y_pos - self.scroll[1] - 15))
+            screen.blit(opp_username_surface, opp_username_rect)
+
         pygame.display.update()
 
 def main():
