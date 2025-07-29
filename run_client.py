@@ -403,10 +403,17 @@ class Client:
             'hitbox': pygame.Rect(0, 0, self.frames["idle_frames"][0].get_width(), self.frames["idle_frames"][0].get_height())
         })()
         self.opponent = type('Hero', (), {
-            'x_pos': 0, 'y_pos': 0, 'Look': 'right', 'health': 100,
+            'x_pos': 0,
+            'y_pos': 0,
+            'Look': 'right',
+            'health': 100,
+            'frame_source': 'idle_frames',
+            'frame_index': 0,
+            'username': '',
             'current_picture': self.frames["idle_frames"][0],
             'hitbox': pygame.Rect(0, 0, self.frames["idle_frames"][0].get_width(), self.frames["idle_frames"][0].get_height())
         })()
+
 
     
     def load_opponent_assets(self, character_name):
