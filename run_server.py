@@ -71,19 +71,22 @@ class MultiplayerGame:
         print(f"Creating hero: {char_name} at ({x}, {y}) for player {index} ({username})")
         try:
             if char_name == "Roboman":
-                return Roboman(x, y, screen_width, screen_height, index, username)
-            if char_name == "Ninja":
-                return Ninja(x, y, screen_width, screen_height, [], index, username)
-            if char_name == "NinjaGirl":
-                return NinjaGirl(x, y, screen_width, screen_height, [], index, username)
-            if char_name == "Archer":
-                return Archer(x, y, [], index, username)
-            print(f"Unknown character {char_name}, defaulting to Ninja")
-            return Ninja(x, y, screen_width, screen_height, [], index, username)
+                hero = Roboman(x, y, screen_width, screen_height, index, username)
+            elif char_name == "Ninja":
+                hero = Ninja(x, y, screen_width, screen_height, [], index, username)
+            elif char_name == "NinjaGirl":
+                hero = NinjaGirl(x, y, screen_width, screen_height, [], index, username)
+            elif char_name == "Archer":
+                hero = Archer(x, y, [], index, username)
+            else:
+                print(f"Unknown character {char_name}, defaulting to Ninja")
+                hero = Ninja(x, y, screen_width, screen_height, [], index, username)
+
+            hero.character_name = char_name
+            return hero
         except Exception as e:
             print(f"Error creating hero {char_name}: {e}")
             return Ninja(x, y, screen_width, screen_height, [], index, username)
-
 
     def client_thread(self, conn, player_index):
         print(f"Player {player_index} connected")
