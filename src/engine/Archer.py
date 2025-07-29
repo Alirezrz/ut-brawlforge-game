@@ -400,6 +400,7 @@ class Archer:
             
             
     def handle_input_online(self, keys, gate, shot_bullets, bullet_class, trigger_shutter, mouse_buttons):
+            self.is_moving_horizontally = False
             if keys[pygame.K_d]:
                 self.move_right()
                 self.is_moving_horizontally = True

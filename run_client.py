@@ -526,6 +526,8 @@ class Client:
 
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
+                        print("RAW DATA FROM SERVER:", line)
+
                         try:
                             parsed = json.loads(line)
                             selfdata = parsed["self"]
@@ -533,9 +535,14 @@ class Client:
                             self.y_pos = selfdata['y_pos']
                             self.health = selfdata['health']
                             self.Look = selfdata['look']
-                            self.username=selfdata['username']
-                            self.frame_source=selfdata['frame_source']
-                            self.frame_index=selfdata['frame_index']
+                            self.username = selfdata['username']
+                            self.frame_source = selfdata['frame_source']
+                            self.frame_index = selfdata['frame_index']
+
+                            # fix index out of range crash
+                            frame_list = self.frames.get(self.frame_source, [])
+                            if frame_list:
+                                self.current_picture = frame_list[self.frame_index % len(frame_list)]
 
                             opp_data = parsed.get("opponent", {})
                             self.opponent.x_pos = opp_data.get('x_pos', 0)
@@ -550,21 +557,19 @@ class Client:
                             if opponent_char != self.opponent_character:
                                 self.opponent_character = opponent_char
                                 self.opponent_frames = self.load_opponent_assets(opponent_char)
+
+                            # Ensure opponent image is updated correctly
+                            opp_frames = self.opponent_frames.get(self.opponent.frame_source, [])
+                            if opp_frames:
+                                self.opponent.current_picture = opp_frames[self.opponent.frame_index % len(opp_frames)]
+
                         except Exception as e:
-                            print(f"Error decoding JSON: {e}") 
-                                           
-                try:
-                    self.current_picture=self.frames[self.frame_source][self.frame_index if self.frame_index>=-1 else 0]
-                except:
-                    print("not able to update the frame")
-                    self.current_picture = self.frames["idle_frames"][0]
-                    
-                print(f"x_pos={self.x_pos}   y_pos={self.y_pos}")
-                print(f"frame_source={self.frame_source}   frame_index={self.frame_index}")
-                print("-----------")
+                            print(f"Error decoding JSON or setting frames: {e}")
+
             except Exception as e:
                 print(f"Error receiving game state: {e}")
                 break
+
 
             
 
@@ -573,7 +578,7 @@ class Client:
         try:
             self.opponent.current_picture = self.opponent_frames[self.opponent.frame_source][self.opponent.frame_index]
         except Exception as e:
-            print(f"Error updating opponent frame: {e}")
+            #print(f"Error updating opponent frame: {e}")
             self.opponent.current_picture = self.opponent_frames["idle_frames"][0]
         # Camera scrolling
         mid_x = (self.x_pos + self.current_picture.get_width() // 2 )

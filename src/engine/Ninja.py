@@ -465,6 +465,9 @@ class Ninja:
             self.frame_address=["idle_frames",self.current_frame_index]
 
         self.update_attack()
+        print(f"sending from ninja ")
+        print(f"frame_adress={self.frame_address[0] }    {self.frame_address[1]}")
+        print("-------------------------------")
 
 
     def fire_kunai(self, shot_bullets):
@@ -822,6 +825,7 @@ class Ninja:
                     # Add in handle_input
                     
     def handle_input_online(self, keys, gate, shot_bullets, bullet_class, trigger_shutter, mouse_buttons):
+            self.is_moving_horizontally = False
             if keys[pygame.K_d]:
                 self.move_right()
                 self.is_moving_horizontally = True
@@ -917,6 +921,7 @@ class Ninja:
         self.jump_under_platform(platforms)
         self.update_animation(shot_bullets)
         self.update_drone()
+        
 
 
 
@@ -926,7 +931,8 @@ class Ninja:
         if hasattr(self, 'frame_address') and self.frame_address:
              frame_source_name = self.frame_address[0]
              frame_index_val = self.frame_address[1]
-        return {
+             
+        data={
             "x_pos": self.x_pos,
             "y_pos": self.y_pos,
             "look": self.Look,
@@ -936,6 +942,8 @@ class Ninja:
             "frame_index": frame_index_val,
             "character": getattr(self, 'character_name', 'Ninja')
         }
+        print(data)
+        return data
         
                       
 

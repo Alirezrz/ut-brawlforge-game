@@ -495,6 +495,10 @@ class Roboman:
                 self.last_frame_update_time = current_time
         else:
             print("Roboman frames not detected")
+            
+        print(f"sending from ninja ")
+        print(f"frame_adress={self.frame_address[0] }    {self.frame_address[1]}")
+        print("-------------------------------")
 
 
     def stop_horizontal_movement(self):
@@ -714,6 +718,7 @@ class Roboman:
 
     def jump(self):
         if self.on_ground :
+            self.frame_flag=True
             if self.jump_sound:
                 self.jump_sound.play()
             self.vertical_speed = self.jump_strenght
@@ -865,6 +870,7 @@ class Roboman:
             if keys[pygame.K_RALT]:
                 self.shoot_rocket(shot_bullets, bullet_class)
     def handle_input_online(self, keys, gate, shot_bullets, bullet_class, trigger_shutter, mouse_buttons):
+            self.is_moving_horizontally = False
             if keys[pygame.K_d]:
                 self.move_right()
                 self.is_moving_horizontally = True

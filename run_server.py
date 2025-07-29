@@ -123,7 +123,7 @@ class MultiplayerGame:
         clock = pygame.time.Clock()
         while self.game_active:
             if not all(self.heroes):
-                print("Waiting for both players to connect...")
+                #print("Waiting for both players to connect...")
                 clock.tick(60)
                 continue
 
