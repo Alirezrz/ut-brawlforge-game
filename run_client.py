@@ -406,6 +406,63 @@ class Client:
             'hitbox': pygame.Rect(0, 0, self.frames["idle_frames"][0].get_width(), self.frames["idle_frames"][0].get_height())
         })()
 
+    
+    def load_opponent_assets(self, character_name):
+        frames = {}
+        base_path = os.path.join("src", "assets", "images")
+
+        if character_name == "Roboman":
+            path = os.path.join(base_path, "RoboMan_pictures", "idle")
+            frames["idle_frames"] = []
+            for i in range(1, 11):
+                try:
+                    img = pygame.image.load(os.path.join(path, f"Idle ({i}).png")).convert_alpha()
+                    img = pygame.transform.scale(img, (70, 118))
+                    frames["idle_frames"].append(img)
+                except:
+                    frames["idle_frames"].append(pygame.Surface((70, 118)))
+
+        elif character_name == "Ninja":
+            path = os.path.join(base_path, "Ninja", "Idle")
+            frames["idle_frames"] = []
+            for i in range(10):
+                try:
+                    img = pygame.image.load(os.path.join(path, f"Idle__00{i}.png")).convert_alpha()
+                    img = pygame.transform.scale(img, (62, 118))
+                    frames["idle_frames"].append(img)
+                except:
+                    frames["idle_frames"].append(pygame.Surface((62, 118)))
+
+        elif character_name == "NinjaGirl":
+            path = os.path.join(base_path, "NinjaGirl", "Idle")
+            frames["idle_frames"] = []
+            for i in range(10):
+                try:
+                    img = pygame.image.load(os.path.join(path, f"Idle__00{i}.png")).convert_alpha()
+                    img = pygame.transform.scale(img, (68, 118))
+                    frames["idle_frames"].append(img)
+                except:
+                    frames["idle_frames"].append(pygame.Surface((68, 118)))
+
+        elif character_name == "Archer":
+            path = os.path.join(base_path, "Archer", "idle")
+            frames["idle_frames"] = []
+            for i in range(6):
+                try:
+                    img = pygame.image.load(os.path.join(path, f"{i}.png")).convert_alpha()
+                    img = pygame.transform.scale(img, (88, 100))
+                    frames["idle_frames"].append(img)
+                except:
+                    frames["idle_frames"].append(pygame.Surface((88, 100)))
+
+        else:
+            print(f"Unknown character '{character_name}', using blank placeholder.")
+            frames["idle_frames"] = [pygame.Surface((64, 64)) for _ in range(5)]
+
+        return frames
+
+
+ 
     def send_initial_data(self):
         username = input("Enter your username: ")
         char_map = {1: "Roboman", 2: "Ninja", 3: "NinjaGirl", 4: "Archer"}
@@ -499,6 +556,8 @@ class Client:
             except Exception as e:
                 print(f"Error receiving game state: {e}")
                 break
+
+            
 
     def render_game(self):
         screen.blit(background, (0, 0))
