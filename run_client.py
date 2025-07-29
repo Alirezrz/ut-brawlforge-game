@@ -61,6 +61,8 @@ class Client:
         self.opponent = None
         self.frames = {}
         self.load_assets()
+        self.opponent_character = None
+        self.opponent_frames = {"idle_frames": [pygame.Surface((50, 50))]}
         self.send_initial_data()
         self.x_pos=0
         self.y_pos=0
