@@ -561,7 +561,8 @@ class Client:
 
     def render_game(self):
         screen.blit(background, (0, 0))
-      
+        self.opponent.current_picture = self.opponent_frames[self.opponent.frame_source][self.opponent.frame_index]
+
         # Camera scrolling
         mid_x = (self.x_pos + self.current_picture.get_width() // 2 )
         mid_y = (self.y_pos + self.current_picture.get_height() // 2 )
