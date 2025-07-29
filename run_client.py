@@ -5,7 +5,7 @@ import json
 import os
 from src.levels import multiplayer_data, load_level_data
 from config import screen_width, screen_height
-from utils import get_my_local_ip
+from src.utils import get_my_local_ip
 # Initialize Pygame
 pygame.init()
 try:
