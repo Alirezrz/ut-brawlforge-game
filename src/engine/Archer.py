@@ -452,6 +452,33 @@ class Archer:
                     if arrow in global_bullet_list:
                         global_bullet_list.remove(arrow)
                     break
+    def update_bullets_online(self, global_bullet_list, platforms, targets):
+        
+        for arrow in self.bullets[:]:
+            if arrow not in global_bullet_list:
+                if arrow in self.bullets:
+                    self.bullets.remove(arrow)
+            arrow.update()
+
+
+
+            for target in targets:
+                if hasattr(target, 'hitbox') and arrow.hitbox.colliderect(target.hitbox):
+                    target.health -= arrow.damage
+                    target.hurt()
+                    if arrow in self.bullets:
+                        self.bullets.remove(arrow)
+                    if arrow in global_bullet_list:
+                        global_bullet_list.remove(arrow)
+                    break
+
+            for platform in platforms:
+                if arrow.hitbox.colliderect(platform.rect):
+                    if arrow in self.bullets:
+                        self.bullets.remove(arrow)
+                    if arrow in global_bullet_list:
+                        global_bullet_list.remove(arrow)
+                    break
 
 
 
@@ -617,6 +644,7 @@ class Archer:
         self.jump_under_platform(platforms)
         self.update_animation(shot_bullets)
         self.update_drone()
+        self.update_bullets_online(shot_bullets,platforms,targets)
 
 
     def update_attack(self):
@@ -686,6 +714,7 @@ class Arrow:
         self.height = arrow_picture.get_height()
         self.status = 'in game'
         self.damage=damage
+        self.owner='archer'
         
        
         self.hitbox = pygame.Rect(

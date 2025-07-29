@@ -126,7 +126,8 @@ class MultiplayerGame:
                 #print("Waiting for both players to connect...")
                 clock.tick(60)
                 continue
-
+            print(f"bullets={len(self.shot_bullets)}")
+            print(f"health1={self.heroes[0].health}   health2={self.heroes[1].health}")
             try:
                 hero1, hero2 = self.heroes[0], self.heroes[1]
                 inputs1 = self.player_inputs.get(0, {})

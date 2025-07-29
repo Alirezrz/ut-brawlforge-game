@@ -598,6 +598,34 @@ class Ninja:
                         self.bullets.remove(bullet)
                     if bullet in shot_bullets:
                         shot_bullets.remove(bullet)
+    def update_bullets_online(self,shot_bullets,platforms,targets):
+        
+        for bullet in self.bullets[:]:
+            bullet.update()
+            
+        for bullet in self.bullets:
+            if bullet not in shot_bullets:
+                self.bullets.remove(bullet)
+
+        for bullet in self.bullets:
+            for  platform in platforms:
+                if bullet.hitbox.colliderect(platform.rect):
+                    self.kunai_hit_platform_sound.play()
+
+                    if bullet in self.bullets:
+                        self.bullets.remove(bullet)
+                    if bullet in shot_bullets:
+                        shot_bullets.remove(bullet)
+                        
+        for target in targets:
+            for bullet in self.bullets:
+                if target.hitbox.colliderect(bullet.hitbox):
+                    target.health-=bullet.damage   # should be intialized ***** 
+                    target.hurt()
+                    if bullet in self.bullets:
+                        self.bullets.remove(bullet)
+                    if bullet in shot_bullets:
+                        shot_bullets.remove(bullet)
 
     def jump(self):
         current_time = pygame.time.get_ticks()
@@ -921,6 +949,7 @@ class Ninja:
         self.jump_under_platform(platforms)
         self.update_animation(shot_bullets)
         self.update_drone()
+        self.update_bullets_online(shot_bullets,platforms, targets)
         
 
 

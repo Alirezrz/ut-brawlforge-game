@@ -656,14 +656,25 @@ class Roboman:
         else:
             bullet_start_x += 5
 
-        bullet = Bullet_Class(
-            bullet_start_x,
-            bullet_start_y + 18,
-            15,
-            self.Look,
-            self.bullet_picture,
-            self.screen_width
-        )
+        if not self.super_power_active:
+                bullet = Bullet_Class(
+                bullet_start_x,
+                bullet_start_y + 18,
+                15,
+                self.Look,
+                self.bullet_picture,
+                "Roboman"
+            )
+        else:
+                bullet = Bullet_Class(
+                bullet_start_x,
+                bullet_start_y + 18,
+                30,
+                self.Look,
+                self.rocket,
+                "Roboman",
+                20
+            )
         shot_bullets.append(bullet)
         self.bullets.append(bullet)
 
@@ -710,6 +721,35 @@ class Roboman:
                     if bullet in shot_bullets:
                         shot_bullets.remove(bullet)
 
+    def update_bullets_online(self, shot_bullets,platforms,targets):
+        for bullet in self.bullets:
+            if bullet not in shot_bullets:
+                self.bullets.remove(bullet)
+        self.update_drone()
+        for bullet in self.bullets[:]:
+            bullet.update()
+
+        for bullet in self.bullets:
+            for  platform in platforms:
+                if bullet.hitbox.colliderect(platform.rect):
+                    self.explosions.append(Explosion(bullet.x_pos,bullet.y_pos-65))
+                    if self.shot_hit_platform_sound:
+                        self.shot_hit_platform_sound.play()
+                    if bullet in self.bullets:
+                        self.bullets.remove(bullet)
+                    if bullet in shot_bullets:
+                        shot_bullets.remove(bullet)
+
+        for target in targets:
+            for bullet in self.bullets:
+                if target.hitbox.colliderect(bullet.hitbox):
+                    target.health-=bullet.damage   
+                    target.hurt()
+
+                    if bullet in self.bullets:
+                        self.bullets.remove(bullet)
+                    if bullet in shot_bullets:
+                        shot_bullets.remove(bullet)
 
 
 
@@ -951,6 +991,7 @@ class Roboman:
         self.jump_under_platform(platforms)
         self.update_animation(shot_bullets)
         self.update_drone()
+        self.update_bullets_online(shot_bullets,platforms, targets)
 
 
 
