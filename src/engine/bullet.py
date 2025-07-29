@@ -49,3 +49,14 @@ class Bullet:
 
     def explode(self, screen, explosion_picture):
         screen.blit(explosion_picture, (self.x_pos, self.y_pos))
+        
+    def serialize(self):
+        frame_source_name = "default"
+        data={
+            "x_pos": self.x_pos,
+            "y_pos": self.y_pos,
+            "Look": self.direction,
+            "frame_source": frame_source_name,
+            "owner":self.owner
+        }
+        return data

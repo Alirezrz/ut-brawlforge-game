@@ -747,4 +747,15 @@ class Arrow:
     def is_off_screen(self, screen_width):
         return self.x_pos < -screen_width or self.x_pos > screen_width * 2
     
+    def serialize(self):
+        frame_source_name = "default"
+        data={
+            "x_pos": self.x_pos,
+            "y_pos": self.y_pos,
+            "Look": self.direction,
+            "frame_source": frame_source_name,
+            "owner":self.owner
+        }
+        return data
+    
         

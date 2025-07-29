@@ -123,7 +123,6 @@ class MultiplayerGame:
         clock = pygame.time.Clock()
         while self.game_active:
             if not all(self.heroes):
-                #print("Waiting for both players to connect...")
                 clock.tick(60)
                 continue
             print(f"bullets={len(self.shot_bullets)}")
@@ -160,22 +159,25 @@ class MultiplayerGame:
                 hero1.handle_input_online(keys1, self.gates, self.shot_bullets, bullet_class, None, mouse1)
                 hero2.handle_input_online(keys2, self.gates, self.shot_bullets, bullet_class, None, mouse2)
 
-
                 hero1.update_online(self.platforms, self.shot_bullets, [hero2], keys1, self.gates, None)
                 hero2.update_online(self.platforms, self.shot_bullets, [hero1], keys2, self.gates, None)
 
                 state_p1 = hero1.serialize()
                 state_p2 = hero2.serialize()
+                bullets_state = [bullet.serialize() for bullet in self.shot_bullets]
 
-                self.clients[0].sendall((json.dumps({
+                # Send a single state update to each client
+                self.clients[0].sendall(json.dumps({
                     "self": state_p1,
-                    "opponent": state_p2
-                }) + "\n").encode('utf-8'))
+                    "opponent": state_p2,
+                    "bullets": bullets_state
+                }).encode('utf-8') + b"\n")
 
-                self.clients[1].sendall((json.dumps({
+                self.clients[1].sendall(json.dumps({
                     "self": state_p2,
-                    "opponent": state_p1
-                }) + "\n").encode('utf-8'))
+                    "opponent": state_p1,
+                    "bullets": bullets_state
+                }).encode('utf-8') + b"\n")
 
                 print(f"Hero1 x_pos: {hero1.x_pos}, Hero2 x_pos: {hero2.x_pos}")
                 clock.tick(60)
