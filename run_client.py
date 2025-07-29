@@ -470,9 +470,19 @@ class Client:
                             self.username=selfdata['username']
                             self.frame_source=selfdata['frame_source']
                             self.frame_index=selfdata['frame_index']
+
+                            opp_data = parsed.get("opponent", {})
+                            self.opponent.x_pos = opp_data.get('x_pos', 0)
+                            self.opponent.y_pos = opp_data.get('y_pos', 0)
+                            self.opponent.health = opp_data.get('health', 100)
+                            self.opponent.Look = opp_data.get('look', 'right')
+                            self.opponent.username = opp_data.get('username', '')
+                            self.opponent.frame_source = opp_data.get('frame_source', 'idle_frames')
+                            self.opponent.frame_index = opp_data.get('frame_index', 0)
            
                         except Exception as e:
-                            print(f"Error decoding JSON: {e}")                
+                            print(f"Error decoding JSON: {e}") 
+                                           
                 try:
                     self.current_picture=self.frames[self.frame_source][self.frame_index if self.frame_index>=-1 else 0]
                 except:
@@ -505,8 +515,13 @@ class Client:
             screen.blit(self.current_picture, (self.x_pos - self.scroll[0], self.y_pos - self.scroll[1]))
 
         elif self.Look=='left':
-            screen.blit(self.current_picture, (self.x_pos - self.scroll[0], self.y_pos - self.scroll[1]))
+            screen.blit(pygame.transform.flip(self.current_picture, True, False), (self.x_pos - self.scroll[0], self.y_pos - self.scroll[1]))
 
+        if self.opponent.current_picture:
+            screen.blit(
+                pygame.transform.flip(self.opponent.current_picture, True, False) if self.opponent.Look == 'left' else self.opponent.current_picture,
+                (self.opponent.x_pos - self.scroll[0], self.opponent.y_pos - self.scroll[1])
+            )
         pygame.display.update()
 
 def main():
