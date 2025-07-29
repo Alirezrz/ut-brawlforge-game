@@ -5,7 +5,7 @@ import json
 import os
 from src.levels import multiplayer_data, load_level_data
 from config import screen_width, screen_height
-
+from utils import get_my_local_ip
 # Initialize Pygame
 pygame.init()
 try:
@@ -42,7 +42,7 @@ except Exception as e:
     background = pygame.Surface((screen_width, screen_height))
     background.fill((0, 100, 200))  
 
-HOST = "172.20.10.3"
+HOST = get_my_local_ip()
 PORT = 9191
 
 class Client:
