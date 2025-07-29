@@ -5,7 +5,11 @@ import json
 import os
 from src.levels import multiplayer_data, load_level_data
 from config import screen_width, screen_height
+<<<<<<< HEAD
 from src.network_utils import get_my_local_ip
+=======
+from src.utils import get_my_local_ip
+>>>>>>> 1c731b1c055a032cd33ddd92037a79b31596c175
 # Initialize Pygame
 pygame.init()
 try:
@@ -73,6 +77,7 @@ class Client:
         self.frame_index=0
         self.current_picture=None
         self.scroll=[0,0]
+        self.bullets=[]
         if "idle_frames" in self.frames and len(self.frames["idle_frames"]) > 0:
             self.current_picture = self.frames["idle_frames"][0]
         else:
@@ -99,7 +104,41 @@ class Client:
 
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src","assets", "images")
         
+        try:
+            self.Roboman_bullet=pygame.transform.scale(pygame.image.load(
+                os.path.join(base_path,"RoboMan_pictures", "Bullet.png")
+            ),
+                (35,15)                                       
+            )
+            self.Roboman_rocket=pygame.transform.scale(pygame.image.load(
+                os.path.join(base_path,"RoboMan_pictures", "rocket.png")
+            ),
+                (43,25)                                       
+            )
+            self.Kunai=pygame.transform.scale(pygame.image.load(
+                os.path.join(base_path,"Ninja","Kunai.png")
+            ),
+                (60,12)                                       
+            )
+            self.Fired_Kunai=pygame.transform.scale(pygame.image.load(
+                os.path.join(base_path,"Ninja","FiredKunai.png")
+            ),
+                (70, 24)                                       
+            )
+            self.Arrow=pygame.transform.scale(pygame.image.load(
+                os.path.join(base_path,"Archer", "Arrow.png")
+            ),
+                (30,2)                                       
+            )
+            self.Fired_Arrow=pygame.transform.scale(pygame.image.load(
+                os.path.join(base_path,"Archer", "fired arrow.png")
+            ),
+                (30, 8)                                      
+            )
         
+        except:
+            print("unable to load bullet assets")
+            
         
         
         try:
@@ -526,6 +565,7 @@ class Client:
 
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
+
                         try:
                             parsed = json.loads(line)
                             selfdata = parsed["self"]
@@ -533,9 +573,14 @@ class Client:
                             self.y_pos = selfdata['y_pos']
                             self.health = selfdata['health']
                             self.Look = selfdata['look']
-                            self.username=selfdata['username']
-                            self.frame_source=selfdata['frame_source']
-                            self.frame_index=selfdata['frame_index']
+                            self.username = selfdata['username']
+                            self.frame_source = selfdata['frame_source']
+                            self.frame_index = selfdata['frame_index']
+
+                            # Fix index out of range crash
+                            frame_list = self.frames.get(self.frame_source, [])
+                            if frame_list:
+                                self.current_picture = frame_list[self.frame_index % len(frame_list)]
 
                             opp_data = parsed.get("opponent", {})
                             self.opponent.x_pos = opp_data.get('x_pos', 0)
@@ -550,21 +595,22 @@ class Client:
                             if opponent_char != self.opponent_character:
                                 self.opponent_character = opponent_char
                                 self.opponent_frames = self.load_opponent_assets(opponent_char)
+
+                            opp_frames = self.opponent_frames.get(self.opponent.frame_source, [])
+                            if opp_frames:
+                                self.opponent.current_picture = opp_frames[self.opponent.frame_index % len(opp_frames)]
+
+                            # Handle bullets
+                            self.bullets = parsed.get("bullets", [])
+                            
+
                         except Exception as e:
-                            print(f"Error decoding JSON: {e}") 
-                                           
-                try:
-                    self.current_picture=self.frames[self.frame_source][self.frame_index if self.frame_index>=-1 else 0]
-                except:
-                    print("not able to update the frame")
-                    self.current_picture = self.frames["idle_frames"][0]
-                    
-                print(f"x_pos={self.x_pos}   y_pos={self.y_pos}")
-                print(f"frame_source={self.frame_source}   frame_index={self.frame_index}")
-                print("-----------")
+                            print(f"Error decoding JSON or setting frames: {e}")
+
             except Exception as e:
                 print(f"Error receiving game state: {e}")
                 break
+
 
             
 
@@ -578,6 +624,10 @@ class Client:
             if self.opponent.frame_source in self.opponent_frames:
                  self.opponent.current_picture = self.opponent_frames[self.opponent.frame_source][self.opponent.frame_index]
         except Exception as e:
+<<<<<<< HEAD
+=======
+            #print(f"Error updating opponent frame: {e}")
+>>>>>>> 1c731b1c055a032cd33ddd92037a79b31596c175
             self.opponent.current_picture = self.opponent_frames["idle_frames"][0]
         
         mid_x = (self.x_pos + self.current_picture.get_width() // 2)
@@ -597,12 +647,62 @@ class Client:
             username_rect = username_surface.get_rect(center=(self.x_pos - self.scroll[0] + self_image.get_width() / 2, self.y_pos - self.scroll[1] - 15))
             screen.blit(username_surface, username_rect)
         if self.opponent.current_picture:
+<<<<<<< HEAD
             opponent_image = pygame.transform.flip(self.opponent.current_picture, True, False) if self.opponent.Look == 'left' else self.opponent.current_picture
             screen.blit(opponent_image, (self.opponent.x_pos - self.scroll[0], self.opponent.y_pos - self.scroll[1]))
             opp_username_surface = font.render(self.opponent.username, True, (255, 255, 0)) 
             opp_username_rect = opp_username_surface.get_rect(center=(self.opponent.x_pos - self.scroll[0] + opponent_image.get_width() / 2, self.opponent.y_pos - self.scroll[1] - 15))
             screen.blit(opp_username_surface, opp_username_rect)
 
+=======
+            screen.blit(
+                pygame.transform.flip(self.opponent.current_picture, True, False) if self.opponent.Look == 'left' else self.opponent.current_picture,
+                (self.opponent.x_pos - self.scroll[0], self.opponent.y_pos - self.scroll[1])
+            )
+            
+        for bullet in self.bullets:
+            if bullet['owner']=="Roboman":
+                if bullet['Look']=='right':
+                    if not bullet["Flag"]:
+                     screen.blit(self.Roboman_bullet,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                     screen.blit(self.Roboman_rocket,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                else:
+                    if not bullet["Flag"]:
+                     screen.blit(pygame.transform.flip(self.Roboman_bullet,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                     screen.blit(pygame.transform.flip(self.Roboman_rocket,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                        
+            elif bullet['owner']=="Ninja" or bullet['owner']=="NinjaGirl" :
+                if bullet['Look']=='right':
+                    if not bullet["Flag"]:
+                     screen.blit(self.Kunai,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                     screen.blit(self.Fired_Kunai,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                        
+                else:
+                    if not bullet["Flag"]:
+                     screen.blit(pygame.transform.flip(self.Kunai,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                     screen.blit(pygame.transform.flip(self.Fired_Kunai,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                        
+                     
+                     
+            elif bullet['owner']=="Archer" :
+                if bullet['Look']=='right':
+                    if not bullet["Flag"]:
+                        screen.blit(self.Arrow,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                        screen.blit(self.Fired_Arrow,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                        
+                else:
+                    if not bullet["Flag"]:
+                     screen.blit(pygame.transform.flip(self.Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                     screen.blit(pygame.transform.flip(self.Fired_Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    
+          
+>>>>>>> 1c731b1c055a032cd33ddd92037a79b31596c175
         pygame.display.update()
 
 def main():

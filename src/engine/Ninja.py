@@ -465,6 +465,9 @@ class Ninja:
             self.frame_address=["idle_frames",self.current_frame_index]
 
         self.update_attack()
+        print(f"sending from ninja ")
+        print(f"frame_adress={self.frame_address[0] }    {self.frame_address[1]}")
+        print("-------------------------------")
 
 
     def fire_kunai(self, shot_bullets):
@@ -568,6 +571,34 @@ class Ninja:
 
     def update_bullets(self, screen, shot_bullets,platforms,targets):
         self.update_drone()
+        
+        for bullet in self.bullets[:]:
+            bullet.update()
+            
+        for bullet in self.bullets:
+            if bullet not in shot_bullets:
+                self.bullets.remove(bullet)
+
+        for bullet in self.bullets:
+            for  platform in platforms:
+                if bullet.hitbox.colliderect(platform.rect):
+                    self.kunai_hit_platform_sound.play()
+
+                    if bullet in self.bullets:
+                        self.bullets.remove(bullet)
+                    if bullet in shot_bullets:
+                        shot_bullets.remove(bullet)
+                        
+        for target in targets:
+            for bullet in self.bullets:
+                if target.hitbox.colliderect(bullet.hitbox):
+                    target.health-=bullet.damage   # should be intialized ***** 
+                    target.hurt()
+                    if bullet in self.bullets:
+                        self.bullets.remove(bullet)
+                    if bullet in shot_bullets:
+                        shot_bullets.remove(bullet)
+    def update_bullets_online(self,shot_bullets,platforms,targets):
         
         for bullet in self.bullets[:]:
             bullet.update()
@@ -822,6 +853,7 @@ class Ninja:
                     # Add in handle_input
                     
     def handle_input_online(self, keys, gate, shot_bullets, bullet_class, trigger_shutter, mouse_buttons):
+            self.is_moving_horizontally = False
             if keys[pygame.K_d]:
                 self.move_right()
                 self.is_moving_horizontally = True
@@ -917,6 +949,8 @@ class Ninja:
         self.jump_under_platform(platforms)
         self.update_animation(shot_bullets)
         self.update_drone()
+        self.update_bullets_online(shot_bullets,platforms, targets)
+        
 
 
 
@@ -926,7 +960,8 @@ class Ninja:
         if hasattr(self, 'frame_address') and self.frame_address:
              frame_source_name = self.frame_address[0]
              frame_index_val = self.frame_address[1]
-        return {
+             
+        data={
             "x_pos": self.x_pos,
             "y_pos": self.y_pos,
             "look": self.Look,
@@ -936,6 +971,8 @@ class Ninja:
             "frame_index": frame_index_val,
             "character": getattr(self, 'character_name', 'Ninja')
         }
+        print(data)
+        return data
         
                       
 

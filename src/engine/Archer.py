@@ -400,6 +400,7 @@ class Archer:
             
             
     def handle_input_online(self, keys, gate, shot_bullets, bullet_class, trigger_shutter, mouse_buttons):
+            self.is_moving_horizontally = False
             if keys[pygame.K_d]:
                 self.move_right()
                 self.is_moving_horizontally = True
@@ -425,6 +426,33 @@ class Archer:
   
 
     def update_bullets(self, screen, global_bullet_list, platforms, targets):
+        
+        for arrow in self.bullets[:]:
+            if arrow not in global_bullet_list:
+                if arrow in self.bullets:
+                    self.bullets.remove(arrow)
+            arrow.update()
+
+
+
+            for target in targets:
+                if hasattr(target, 'hitbox') and arrow.hitbox.colliderect(target.hitbox):
+                    target.health -= arrow.damage
+                    target.hurt()
+                    if arrow in self.bullets:
+                        self.bullets.remove(arrow)
+                    if arrow in global_bullet_list:
+                        global_bullet_list.remove(arrow)
+                    break
+
+            for platform in platforms:
+                if arrow.hitbox.colliderect(platform.rect):
+                    if arrow in self.bullets:
+                        self.bullets.remove(arrow)
+                    if arrow in global_bullet_list:
+                        global_bullet_list.remove(arrow)
+                    break
+    def update_bullets_online(self, global_bullet_list, platforms, targets):
         
         for arrow in self.bullets[:]:
             if arrow not in global_bullet_list:
@@ -616,6 +644,7 @@ class Archer:
         self.jump_under_platform(platforms)
         self.update_animation(shot_bullets)
         self.update_drone()
+        self.update_bullets_online(shot_bullets,platforms,targets)
 
 
     def update_attack(self):
@@ -685,6 +714,7 @@ class Arrow:
         self.height = arrow_picture.get_height()
         self.status = 'in game'
         self.damage=damage
+        self.owner='archer'
         
        
         self.hitbox = pygame.Rect(
@@ -716,5 +746,18 @@ class Arrow:
 
     def is_off_screen(self, screen_width):
         return self.x_pos < -screen_width or self.x_pos > screen_width * 2
+    
+    def serialize(self):
+        Flag = False
+        if self.damage==35:
+         Flag = True
+        data={
+            "x_pos": self.x_pos,
+            "y_pos": self.y_pos,
+            "Look": self.direction,
+            "Flag": Flag,
+            "owner":self.owner
+        }
+        return data
     
         
