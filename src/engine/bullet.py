@@ -4,7 +4,8 @@ import pygame
 
 
 class Bullet:
-    def __init__(self, x, y, speed, direction, bullet_picture,owner="unkown",look='none',damage=20):
+    def __init__(self, x, y, speed, direction, bullet_picture,owner="unkown",look='none',damage=20,Flag=False):
+        self.Flag=Flag
         self.owner=owner
         self.status='in game'
         self.Look=look
@@ -51,12 +52,15 @@ class Bullet:
         screen.blit(explosion_picture, (self.x_pos, self.y_pos))
         
     def serialize(self):
-        frame_source_name = "default"
+        Flag = False
+        if self.Flag:
+            Flag = True
+            
         data={
             "x_pos": self.x_pos,
             "y_pos": self.y_pos,
             "Look": self.direction,
-            "frame_source": frame_source_name,
+            "Flag": Flag,
             "owner":self.owner
         }
         return data

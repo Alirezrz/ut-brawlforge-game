@@ -748,12 +748,14 @@ class Arrow:
         return self.x_pos < -screen_width or self.x_pos > screen_width * 2
     
     def serialize(self):
-        frame_source_name = "default"
+        Flag = False
+        if self.damage==35:
+         Flag = True
         data={
             "x_pos": self.x_pos,
             "y_pos": self.y_pos,
             "Look": self.direction,
-            "frame_source": frame_source_name,
+            "Flag": Flag,
             "owner":self.owner
         }
         return data

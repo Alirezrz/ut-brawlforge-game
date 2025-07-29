@@ -106,15 +106,30 @@ class Client:
             ),
                 (35,15)                                       
             )
+            self.Roboman_rocket=pygame.transform.scale(pygame.image.load(
+                os.path.join(base_path,"RoboMan_pictures", "rocket.png")
+            ),
+                (43,25)                                       
+            )
             self.Kunai=pygame.transform.scale(pygame.image.load(
                 os.path.join(base_path,"Ninja","Kunai.png")
             ),
                 (60,12)                                       
             )
+            self.Fired_Kunai=pygame.transform.scale(pygame.image.load(
+                os.path.join(base_path,"Ninja","FiredKunai.png")
+            ),
+                (70, 24)                                       
+            )
             self.Arrow=pygame.transform.scale(pygame.image.load(
                 os.path.join(base_path,"Archer", "Arrow.png")
             ),
                 (30,2)                                       
+            )
+            self.Fired_Arrow=pygame.transform.scale(pygame.image.load(
+                os.path.join(base_path,"Archer", "fired arrow.png")
+            ),
+                (30, 8)                                      
             )
         
         except:
@@ -629,19 +644,43 @@ class Client:
         for bullet in self.bullets:
             if bullet['owner']=="Roboman":
                 if bullet['Look']=='right':
-                    screen.blit(self.Roboman_bullet,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    if not bullet["Flag"]:
+                     screen.blit(self.Roboman_bullet,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                     screen.blit(self.Roboman_rocket,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                 else:
+                    if not bullet["Flag"]:
                      screen.blit(pygame.transform.flip(self.Roboman_bullet,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                     screen.blit(pygame.transform.flip(self.Roboman_rocket,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                        
             elif bullet['owner']=="Ninja" or bullet['owner']=="NinjaGirl" :
                 if bullet['Look']=='right':
-                    screen.blit(self.Kunai,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    if not bullet["Flag"]:
+                     screen.blit(self.Kunai,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                     screen.blit(self.Fired_Kunai,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                        
                 else:
+                    if not bullet["Flag"]:
                      screen.blit(pygame.transform.flip(self.Kunai,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                     screen.blit(pygame.transform.flip(self.Fired_Kunai,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                        
+                     
+                     
             elif bullet['owner']=="Archer" :
                 if bullet['Look']=='right':
-                    screen.blit(self.Arrow,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    if not bullet["Flag"]:
+                        screen.blit(self.Arrow,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                        screen.blit(self.Fired_Arrow,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                        
                 else:
+                    if not bullet["Flag"]:
                      screen.blit(pygame.transform.flip(self.Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                     screen.blit(pygame.transform.flip(self.Fired_Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                     
           
         pygame.display.update()
