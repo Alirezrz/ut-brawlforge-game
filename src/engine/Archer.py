@@ -100,6 +100,7 @@ class Archer:
         
     def hurt(self):
         self.hurt_sound.play()
+        self.events.append("archer hurt")
         if self.health <= 0:
             self.die()
 
@@ -193,6 +194,7 @@ class Archer:
         self.current_frame_index = 0
         self.attack_triggered = False
         self.melee_sound.play()
+        self.events.append("melee") 
         self.shooting = True  
         self.HIT_PER_ATTACK=0
         self.HIT_COUNTER=0
@@ -283,6 +285,7 @@ class Archer:
 
                 self.damage_nearby_targets()
                 self.melee_sound.play()
+                self.events.append("melee")
                 if self.current_frame_index >= len(self.attack_frames) - 1:
                     self.status = 'idle'
                     self.shooting = False
@@ -314,6 +317,7 @@ class Archer:
         damage = 35 if self.super_power_active else 25
         new_arrow = Arrow(arrow_x, arrow_y, direction, arrow_image, damage)
         self.shoot_sound.play()
+        self.events.append("shoot")
         self.bullets.append(new_arrow)
         shot_bullets.append(new_arrow)
         
@@ -694,7 +698,8 @@ class Archer:
             "username": self.username,
             "frame_source": frame_source_name,
             "frame_index": frame_index_val,
-            "character": getattr(self, 'character_name', 'Ninja')
+            "character": getattr(self, 'character_name', 'Ninja'),
+            "events": self.events if hasattr(self, "events") else []
            }
 
         
