@@ -46,9 +46,9 @@ class Roboman:
             self.jump_sound = pygame.mixer.Sound(
             os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "robot jump.MP3"))
             self.shoot_sound = pygame.mixer.Sound(
-            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shoot.wav"))
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shoot.mp3"))
             self.jetpack_sound = pygame.mixer.Sound(
-            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "jetpack.wav"))
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "jetpack.mp3"))
             self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))
             self.hero_profile_picture = pygame.image.load("src/assets/images/RoboMan_pictures/hero_profile.png")
             self.roboman_health_bar_frame = pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar_frame.png")
