@@ -60,6 +60,8 @@ class Client:
         self.hero = None
         self.opponent = None
         self.frames = {}
+        self.screen_width=screen_width
+        self.screen_height=screen_height
         self.load_assets()
         self.opponent_character = None
         self.opponent_frames = {"idle_frames": [pygame.Surface((50, 50))]}
