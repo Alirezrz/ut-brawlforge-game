@@ -621,6 +621,7 @@ class Client:
                             self.frame_source = selfdata['frame_source']
                             self.frame_index = selfdata['frame_index']
                             self.character_name = selfdata.get("character", "Ninja")
+                            self.load_ui_assets(self.character_name)
                             for event in selfdata.get("events", []):
                                  self.play_sound(event, self.character_name)
 
@@ -642,6 +643,7 @@ class Client:
                             if opponent_char != self.opponent_character:
                                 self.opponent_character = opponent_char
                                 self.opponent_frames = self.load_opponent_assets(opponent_char)
+                                self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame = self.load_ui_assets_for_opponent(opponent_char)
                             for event in opp_data.get("events", []):
                                 self.play_sound(event, opp_data.get("character", "Ninja"))
                             opp_frames = self.opponent_frames.get(self.opponent.frame_source, [])
