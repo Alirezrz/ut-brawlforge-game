@@ -639,6 +639,7 @@ class Ninja:
 
         if self.on_ground and self.jump_count == 0 and self.AllowJump_flag:
             self.jump_sound.play()
+            self.events.append("ninja jump")
             self.vertical_speed = self.jump_strenght 
             self.jump_count = 1
             self.on_ground = False
