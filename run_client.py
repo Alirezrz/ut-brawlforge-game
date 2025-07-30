@@ -639,7 +639,7 @@ class Client:
             health_bar_frame = pygame.Surface((health_bar_lenght + 2 * roboman_health_bar_frame_thickness, 22))
             health_bar_frame.fill((255, 255, 255))
 
-            return profile_picture,health_bar,health_bar_frame
+        return profile_picture,health_bar,health_bar_frame
                 
 
     def receive_state(self):
