@@ -586,7 +586,12 @@ class Client:
             self.health_bar.fill((255, 0, 0))
 
         try:
-            self.health_bar_frame = pygame.image.load(os.path.join(base_path, "health_bar_frame.png"))
+            if character_name=="Roboman":
+                self.health_bar_frame = pygame.image.load(os.path.join(base_path, "Roboman_health_bar_frame.png"))
+            elif character_name=="Ninja":
+                self.health_bar_frame = pygame.image.load(os.path.join(base_path, "Ninja_health_bar_frame.png"))
+            else:
+                self.health_bar_frame = pygame.image.load(os.path.join(base_path, "health_bar_frame.png"))
         except:
             self.health_bar_frame = pygame.Surface((health_bar_lenght + 2 * roboman_health_bar_frame_thickness, 22))
             self.health_bar_frame.fill((255, 255, 255))
