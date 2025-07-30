@@ -527,6 +527,7 @@ class Archer:
 
         if self.on_ground:
             self.jump_sound.play()
+            self.events.append("jump")
             self.vertical_speed = self.jump_strenght
             self.jump_count = 1
             self.on_ground = False
@@ -534,6 +535,7 @@ class Archer:
             self.last_jump_time = current_time
         elif self.jump_count == 1 and self.double_jump_allowed and self.DOUBLE_JUMP_FLAG:
             self.jump_sound.play()
+            self.events.append("jump")
             self.vertical_speed = self.jump_strenght
             self.jump_count = 2
             self.double_jump_allowed = False
