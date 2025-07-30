@@ -564,7 +564,12 @@ class Client:
             base_path = os.path.join("src", "assets", "images", character_name)
 
         try:
-            self.profile_picture = pygame.image.load(os.path.join(base_path, "profile.png"))
+            if character_name=="Roboman":
+                self.profile_picture = pygame.image.load(os.path.join(base_path, "hero_profile.png"))
+            elif character_name=="Ninja":
+                self.profile_picture = pygame.image.load(os.path.join(base_path, "ninja_profile.png"))    
+            else:
+                self.profile_picture = pygame.image.load(os.path.join(base_path, "profile.png"))
         except:
             self.profile_picture = pygame.Surface((profileSideSize, profileSideSize))
             self.profile_picture.fill((100, 100, 100))
