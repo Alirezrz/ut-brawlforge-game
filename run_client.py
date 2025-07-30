@@ -704,7 +704,48 @@ class Client:
 
 
             
+    def draw_health_bar(self, screen, health, profile_picture, health_bar, health_bar_frame, is_right_side, is_bottom):
+        if health < 0:
+            health = 0
+        scaled_frame_height = profileSideSize
+        frame_img = pygame.transform.scale(
+            health_bar_frame,
+            (health_bar_lenght + (2 * roboman_health_bar_frame_thickness), scaled_frame_height)
+        )
+        bar_img = pygame.transform.scale(
+            health_bar,
+            (
+                int(health_bar_lenght * (health / 100)),
+                scaled_frame_height - (2 * roboman_health_bar_frame_thickness)
+            )
+        )
 
+        if is_right_side:
+            bar_x = self.screen_width - health_bar_lenght - (2 * roboman_health_bar_frame_thickness) - profileSideSize
+            profile_x = self.screen_width - profileSideSize
+        else:
+            bar_x = profileSideSize
+            profile_x = 0
+
+        if is_bottom:
+            bar_y = self.screen_height - scaled_frame_height
+            profile_y = self.screen_height - profileSideSize
+        else:
+            bar_y = 0
+            profile_y = 0
+
+        health_x = bar_x + roboman_health_bar_frame_thickness
+        health_y = bar_y + roboman_health_bar_frame_thickness
+
+        screen.blit(frame_img, (bar_x, bar_y))
+        screen.blit(bar_img, (health_x, health_y))
+
+        if profile_picture:
+            if is_right_side:
+                profile_picture = pygame.transform.flip(profile_picture, True, False)
+            screen.blit(pygame.transform.scale(profile_picture, (profileSideSize, profileSideSize)), (profile_x, profile_y))
+            
+                            
     def render_game(self):
         screen.blit(background, (0, 0))
         try:
