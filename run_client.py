@@ -595,7 +595,48 @@ class Client:
         except:
             self.health_bar_frame = pygame.Surface((health_bar_lenght + 2 * roboman_health_bar_frame_thickness, 22))
             self.health_bar_frame.fill((255, 255, 255))
-        
+
+    def load_ui_assets(self, character_name):
+        if character_name=="Roboman":
+            base_path = os.path.join("src", "assets", "images", "RoboMan_pictures")
+        else:
+            base_path = os.path.join("src", "assets", "images", character_name)
+
+        try:
+            if character_name=="Roboman":
+                profile_picture = pygame.image.load(os.path.join(base_path, "hero_profile.png"))
+            elif character_name=="Ninja":
+                profile_picture = pygame.image.load(os.path.join(base_path, "ninja_profile.png"))    
+            else:
+                profile_picture = pygame.image.load(os.path.join(base_path, "profile.png"))
+        except:
+            profile_picture = pygame.Surface((profileSideSize, profileSideSize))
+            profile_picture.fill((100, 100, 100))
+
+        try:
+            if character_name=="Roboman":
+                health_bar = pygame.image.load(os.path.join(base_path, "Roboman_health_bar.png"))
+            elif character_name=="Ninja":
+                health_bar = pygame.image.load(os.path.join(base_path, "Ninja_health_bar.png"))
+            else:
+                health_bar = pygame.image.load(os.path.join(base_path, "health_bar.png"))
+        except:
+            health_bar = pygame.Surface((health_bar_lenght, 20))
+            health_bar.fill((255, 0, 0))
+
+        try:
+            if character_name=="Roboman":
+                health_bar_frame = pygame.image.load(os.path.join(base_path, "Roboman_health_bar_frame.png"))
+            elif character_name=="Ninja":
+                health_bar_frame = pygame.image.load(os.path.join(base_path, "Ninja_health_bar_frame.png"))
+            else:
+                health_bar_frame = pygame.image.load(os.path.join(base_path, "health_bar_frame.png"))
+        except:
+            health_bar_frame = pygame.Surface((health_bar_lenght + 2 * roboman_health_bar_frame_thickness, 22))
+            health_bar_frame.fill((255, 255, 255))
+
+            return profile_picture,health_bar,health_bar_frame
+                
 
     def receive_state(self):
         buffer = ""
