@@ -276,7 +276,7 @@ class Roboman:
 
     def hurt(self):
         self.hurt_sound.play()
-        self.events.append("hurt")
+        self.events.append("roboman hurt")
         if self.health <= 0:
             self.die()
 
@@ -765,7 +765,7 @@ class Roboman:
             self.frame_flag=True
             if self.jump_sound:
                 self.jump_sound.play()
-            self.events.append("jump")    
+            self.events.append("robot jump")    
             self.vertical_speed = self.jump_strenght
             self.on_ground = False
             self.current_platform = None
