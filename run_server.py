@@ -179,6 +179,8 @@ class MultiplayerGame:
                     "bullets": bullets_state
                 }).encode('utf-8') + b"\n")
 
+                hero1.events = []
+                hero2.events = []
                 print(f"Hero1 x_pos: {hero1.x_pos}, Hero2 x_pos: {hero2.x_pos}")
                 clock.tick(60)
 

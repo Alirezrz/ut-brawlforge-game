@@ -10,9 +10,10 @@ class NinjaGirl(Ninja):
         self.ninja_health_bar_frame =pygame.image.load("src/assets/images/NinjaGirl/health_bar_frame.png")
         self.ninja_profile_picture = pygame.image.load("src/assets/images/NinjaGirl/profile.png")
 
-        self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja girl", "ninjagirl hurt.mp3"))
+        self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "NinjaGirl", "ninjagirl hurt.mp3"))
     def hurt(self):
         self.hurt_sound.play()
+        self.events.append("ninjagirl hurt")
         if self.health <= 0:
             self.die()
 

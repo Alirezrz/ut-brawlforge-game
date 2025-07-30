@@ -46,9 +46,9 @@ class Roboman:
             self.jump_sound = pygame.mixer.Sound(
             os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "robot jump.MP3"))
             self.shoot_sound = pygame.mixer.Sound(
-            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shoot.wav"))
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shoot.mp3"))
             self.jetpack_sound = pygame.mixer.Sound(
-            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "jetpack.wav"))
+            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "jetpack.mp3"))
             self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))
             self.hero_profile_picture = pygame.image.load("src/assets/images/RoboMan_pictures/hero_profile.png")
             self.roboman_health_bar_frame = pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar_frame.png")
@@ -276,6 +276,7 @@ class Roboman:
 
     def hurt(self):
         self.hurt_sound.play()
+        self.events.append("roboman hurt")
         if self.health <= 0:
             self.die()
 
@@ -552,6 +553,7 @@ class Roboman:
         if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active:
             if self.shoot_sound:
                 self.shoot_sound.play()
+                self.events.append("shoot")
 
             self.Last__Shooting_time = current_time
             if not self.on_ground:
@@ -609,7 +611,7 @@ class Roboman:
         if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active and self.SUPER_POWER_FLAG:
             if self.shoot_sound:
                 self.shoot_sound.play()
-
+                self.events.append("shoot")
             self.Last__Shooting_time = current_time
             self.last_rocket_shot = current_time
 
@@ -705,6 +707,7 @@ class Roboman:
                     self.explosions.append(Explosion(bullet.x_pos,bullet.y_pos-65))
                     if self.shot_hit_platform_sound:
                         self.shot_hit_platform_sound.play()
+                        self.events.append("shot_hit_platform")
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
                     if bullet in shot_bullets:
@@ -735,6 +738,7 @@ class Roboman:
                     self.explosions.append(Explosion(bullet.x_pos,bullet.y_pos-65))
                     if self.shot_hit_platform_sound:
                         self.shot_hit_platform_sound.play()
+                        self.events.append("shot_hit_platform")
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
                     if bullet in shot_bullets:
@@ -761,6 +765,7 @@ class Roboman:
             self.frame_flag=True
             if self.jump_sound:
                 self.jump_sound.play()
+            self.events.append("robot jump")    
             self.vertical_speed = self.jump_strenght
             self.on_ground = False
             self.current_platform = None
@@ -776,6 +781,7 @@ class Roboman:
         if not self.on_ground and not self.jetpack_active and (current_time - self.last_jetpack_use_time >= self.jetpack_reload_duration) and self.DOUBLE_JUMP_FLAG:
             if self.jetpack_sound:
                 self.jetpack_sound.play()
+            self.events.append("jetpack")    
             self.jetpack_active = True
             self.jetpack_start_time = current_time
             self.last_jetpack_use_time = current_time
@@ -1009,7 +1015,8 @@ class Roboman:
             "username": self.username,
             "frame_source": frame_source_name,
             "frame_index": frame_index_val,
-            "character": getattr(self, 'character_name', 'Ninja')
+            "character": getattr(self, 'character_name', 'Ninja'),
+            "events": self.events if hasattr(self, "events") else []
         }
 
 

@@ -4,7 +4,7 @@ import socket
 import json
 import os
 from src.levels import multiplayer_data, load_level_data
-from config import screen_width, screen_height
+from config import screen_width, screen_height,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
 from src.utils import get_my_local_ip
 # Initialize Pygame
 pygame.init()
@@ -60,6 +60,8 @@ class Client:
         self.hero = None
         self.opponent = None
         self.frames = {}
+        self.screen_width=screen_width
+        self.screen_height=screen_height
         self.load_assets()
         self.opponent_character = None
         self.opponent_frames = {"idle_frames": [pygame.Surface((50, 50))]}
@@ -510,6 +512,9 @@ class Client:
     def send_initial_data(self):
         username = input("Enter your username: ")
         char_map = {1: "Roboman", 2: "Ninja", 3: "NinjaGirl", 4: "Archer"}
+        self.character_name = char_map.get(self.type, "Ninja")
+        self.load_ui_assets(self.character_name)
+        self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame = self.load_ui_assets_for_opponent("Ninja")
         initial_data = {"username": username, "character": char_map.get(self.type, "Ninja")}
         try:
             self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
@@ -548,6 +553,95 @@ class Client:
                 break
             clock.tick(60)
 
+    def play_sound(self, event_name, character_name="Ninja"):
+        try:
+            path = f"src/assets/sounds/{character_name}/{event_name}.mp3"
+            sound = pygame.mixer.Sound(path)
+            sound.play()
+        except Exception as e:
+            print(f"Error playing sound for {character_name} - {event_name}: {e}")
+
+
+    def load_ui_assets(self, character_name):
+        if character_name=="Roboman":
+            base_path = os.path.join("src", "assets", "images", "RoboMan_pictures")
+        else:
+            base_path = os.path.join("src", "assets", "images", character_name)
+
+        try:
+            if character_name=="Roboman":
+                self.profile_picture = pygame.image.load(os.path.join(base_path, "hero_profile.png"))
+            elif character_name=="Ninja":
+                self.profile_picture = pygame.image.load(os.path.join(base_path, "ninja_profile.png"))    
+            else:
+                self.profile_picture = pygame.image.load(os.path.join(base_path, "profile.png"))
+        except:
+            self.profile_picture = pygame.Surface((profileSideSize, profileSideSize))
+            self.profile_picture.fill((100, 100, 100))
+
+        try:
+            if character_name=="Roboman":
+                self.health_bar = pygame.image.load(os.path.join(base_path, "Roboman_health_bar.png"))
+            elif character_name=="Ninja":
+                self.health_bar = pygame.image.load(os.path.join(base_path, "Ninja_health_bar.png"))
+            else:
+                self.health_bar = pygame.image.load(os.path.join(base_path, "health_bar.png"))
+        except:
+            self.health_bar = pygame.Surface((health_bar_lenght, 20))
+            self.health_bar.fill((255, 0, 0))
+
+        try:
+            if character_name=="Roboman":
+                self.health_bar_frame = pygame.image.load(os.path.join(base_path, "Roboman_health_bar_frame.png"))
+            elif character_name=="Ninja":
+                self.health_bar_frame = pygame.image.load(os.path.join(base_path, "Ninja_health_bar_frame.png"))
+            else:
+                self.health_bar_frame = pygame.image.load(os.path.join(base_path, "health_bar_frame.png"))
+        except:
+            self.health_bar_frame = pygame.Surface((health_bar_lenght + 2 * roboman_health_bar_frame_thickness, 22))
+            self.health_bar_frame.fill((255, 255, 255))
+
+    def load_ui_assets_for_opponent(self, character_name):
+        if character_name=="Roboman":
+            base_path = os.path.join("src", "assets", "images", "RoboMan_pictures")
+        else:
+            base_path = os.path.join("src", "assets", "images", character_name)
+
+        try:
+            if character_name=="Roboman":
+                profile_picture = pygame.image.load(os.path.join(base_path, "hero_profile.png"))
+            elif character_name=="Ninja":
+                profile_picture = pygame.image.load(os.path.join(base_path, "ninja_profile.png"))    
+            else:
+                profile_picture = pygame.image.load(os.path.join(base_path, "profile.png"))
+        except:
+            profile_picture = pygame.Surface((profileSideSize, profileSideSize))
+            profile_picture.fill((100, 100, 100))
+
+        try:
+            if character_name=="Roboman":
+                health_bar = pygame.image.load(os.path.join(base_path, "Roboman_health_bar.png"))
+            elif character_name=="Ninja":
+                health_bar = pygame.image.load(os.path.join(base_path, "Ninja_health_bar.png"))
+            else:
+                health_bar = pygame.image.load(os.path.join(base_path, "health_bar.png"))
+        except:
+            health_bar = pygame.Surface((health_bar_lenght, 20))
+            health_bar.fill((255, 0, 0))
+
+        try:
+            if character_name=="Roboman":
+                health_bar_frame = pygame.image.load(os.path.join(base_path, "Roboman_health_bar_frame.png"))
+            elif character_name=="Ninja":
+                health_bar_frame = pygame.image.load(os.path.join(base_path, "Ninja_health_bar_frame.png"))
+            else:
+                health_bar_frame = pygame.image.load(os.path.join(base_path, "health_bar_frame.png"))
+        except:
+            health_bar_frame = pygame.Surface((health_bar_lenght + 2 * roboman_health_bar_frame_thickness, 22))
+            health_bar_frame.fill((255, 255, 255))
+
+        return profile_picture,health_bar,health_bar_frame
+                
 
     def receive_state(self):
         buffer = ""
@@ -572,6 +666,10 @@ class Client:
                             self.username = selfdata['username']
                             self.frame_source = selfdata['frame_source']
                             self.frame_index = selfdata['frame_index']
+                            self.character_name = selfdata.get("character", "Ninja")
+                            self.load_ui_assets(self.character_name)
+                            for event in selfdata.get("events", []):
+                                 self.play_sound(event, self.character_name)
 
                             # Fix index out of range crash
                             frame_list = self.frames.get(self.frame_source, [])
@@ -591,7 +689,9 @@ class Client:
                             if opponent_char != self.opponent_character:
                                 self.opponent_character = opponent_char
                                 self.opponent_frames = self.load_opponent_assets(opponent_char)
-
+                                self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame = self.load_ui_assets_for_opponent(opponent_char)
+                            for event in opp_data.get("events", []):
+                                self.play_sound(event, opp_data.get("character", "Ninja"))
                             opp_frames = self.opponent_frames.get(self.opponent.frame_source, [])
                             if opp_frames:
                                 self.opponent.current_picture = opp_frames[self.opponent.frame_index % len(opp_frames)]
@@ -609,8 +709,50 @@ class Client:
 
 
             
+    def draw_health_bar(self, screen, health, profile_picture, health_bar, health_bar_frame, is_right_side, is_bottom):
+        if health < 0:
+            health = 0
+        scaled_frame_height = profileSideSize
+        frame_img = pygame.transform.scale(
+            health_bar_frame,
+            (health_bar_lenght + (2 * roboman_health_bar_frame_thickness), scaled_frame_height)
+        )
+        bar_img = pygame.transform.scale(
+            health_bar,
+            (
+                int(health_bar_lenght * (health / 100)),
+                scaled_frame_height - (2 * roboman_health_bar_frame_thickness)
+            )
+        )
 
+        if is_right_side:
+            bar_x = self.screen_width - health_bar_lenght - (2 * roboman_health_bar_frame_thickness) - profileSideSize
+            profile_x = self.screen_width - profileSideSize
+        else:
+            bar_x = profileSideSize
+            profile_x = 0
+
+        if is_bottom:
+            bar_y = self.screen_height - scaled_frame_height
+            profile_y = self.screen_height - profileSideSize
+        else:
+            bar_y = 0
+            profile_y = 0
+
+        health_x = bar_x + roboman_health_bar_frame_thickness
+        health_y = bar_y + roboman_health_bar_frame_thickness
+
+        screen.blit(frame_img, (bar_x, bar_y))
+        screen.blit(bar_img, (health_x, health_y))
+
+        if profile_picture:
+            if is_right_side:
+                profile_picture = pygame.transform.flip(profile_picture, True, False)
+            screen.blit(pygame.transform.scale(profile_picture, (profileSideSize, profileSideSize)), (profile_x, profile_y))
+            
+                            
     def render_game(self):
+        
         screen.blit(background, (0, 0))
         try:
             font = pygame.font.Font("src/assets/fonts/VCR_OSD_MONO.ttf", 20)
@@ -685,8 +827,9 @@ class Client:
                      screen.blit(pygame.transform.flip(self.Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                     else:
                      screen.blit(pygame.transform.flip(self.Fired_Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
-                    
-          
+
+        self.draw_health_bar(screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, False, False)
+        self.draw_health_bar(screen, self.opponent.health, self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame, True, False)  
         pygame.display.update()
 
 def main():

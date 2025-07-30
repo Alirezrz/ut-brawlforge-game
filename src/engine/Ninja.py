@@ -216,6 +216,7 @@ class Ninja:
     
     def hurt(self):
         self.hurt_sound.play()
+        self.events.append("ninja hurt")
         if self.health <= 0:
             self.die()
     def die(self):
@@ -488,6 +489,7 @@ class Ninja:
         40 if self.Super_cofficent>1 else 20
         )
         self.throw_kunai_sound.play()
+        self.events.append("throw kunai")
 
         self.bullets.append(bullet)
         shot_bullets.append(bullet)
@@ -583,6 +585,7 @@ class Ninja:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
                     self.kunai_hit_platform_sound.play()
+                    self.events.append("kunai hit platofrm")
 
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
@@ -611,6 +614,7 @@ class Ninja:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
                     self.kunai_hit_platform_sound.play()
+                    self.events.append("kunai hit platofrm")
 
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
@@ -635,6 +639,7 @@ class Ninja:
 
         if self.on_ground and self.jump_count == 0 and self.AllowJump_flag:
             self.jump_sound.play()
+            self.events.append("ninja jump")
             self.vertical_speed = self.jump_strenght 
             self.jump_count = 1
             self.on_ground = False
@@ -651,6 +656,7 @@ class Ninja:
         current_time = pygame.time.get_ticks()
         self.vertical_speed = self.jump_strenght
         self.jump_sound.play()
+        self.events.append("ninja jump")
         self.on_ground = False
         self.current_platform = None
         self.current_frame_index=1
@@ -884,6 +890,7 @@ class Ninja:
             self.prev_status = self.status
             self.status = 'attack'
             self.melee_sound.play() 
+            self.events.append("sword")
             self.current_frame_index = 0
             self.attack_hit_registered = False
             self.ATTACK = False 
@@ -893,6 +900,7 @@ class Ninja:
             self.prev_status = self.status
             self.status = 'jumpattack'
             self.melee_sound.play() 
+            self.events.append("sword")
             self.current_frame_index = 0
             self.attack_hit_registered = False
             self.ATTACK = False 
@@ -969,7 +977,8 @@ class Ninja:
             "username": self.username,
             "frame_source": frame_source_name,
             "frame_index": frame_index_val,
-            "character": getattr(self, 'character_name', 'Ninja')
+            "character": getattr(self, 'character_name', 'Ninja'),
+            "events": self.events if hasattr(self, "events") else []
         }
         print(data)
         return data
