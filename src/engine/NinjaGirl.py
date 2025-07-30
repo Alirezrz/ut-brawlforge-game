@@ -13,6 +13,7 @@ class NinjaGirl(Ninja):
         self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "NinjaGirl", "ninjagirl hurt.mp3"))
     def hurt(self):
         self.hurt_sound.play()
+        self.events.append("ninjagirl hurt")
         if self.health <= 0:
             self.die()
 
