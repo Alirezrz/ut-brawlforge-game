@@ -512,6 +512,7 @@ class Client:
         char_map = {1: "Roboman", 2: "Ninja", 3: "NinjaGirl", 4: "Archer"}
         self.character_name = char_map.get(self.type, "Ninja")
         initial_data = {"username": username, "character": char_map.get(self.type, "Ninja")}
+        self.profile_picture, self.health_bar, self.health_bar_frame = self.load_ui_assets(self.character_name)
         try:
             self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
             data = self.socket.recv(1024).decode('utf-8')
@@ -597,7 +598,7 @@ class Client:
             self.health_bar_frame = pygame.Surface((health_bar_lenght + 2 * roboman_health_bar_frame_thickness, 22))
             self.health_bar_frame.fill((255, 255, 255))
 
-    def load_ui_assets(self, character_name):
+    def load_ui_assets_for_opponent(self, character_name):
         if character_name=="Roboman":
             base_path = os.path.join("src", "assets", "images", "RoboMan_pictures")
         else:
