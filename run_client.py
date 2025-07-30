@@ -4,7 +4,7 @@ import socket
 import json
 import os
 from src.levels import multiplayer_data, load_level_data
-from config import screen_width, screen_height
+from config import screen_width, screen_height,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
 from src.utils import get_my_local_ip
 # Initialize Pygame
 pygame.init()
@@ -555,6 +555,32 @@ class Client:
             sound.play()
         except Exception as e:
             print(f"Error playing sound for {character_name} - {event_name}: {e}")
+
+
+    def load_ui_assets(self, character_name):
+        if character_name=="Roboman":
+            base_path = os.path.join("src", "assets", "images", "RoboMan_pictures")
+        else:
+            base_path = os.path.join("src", "assets", "images", character_name)
+
+        try:
+            self.profile_picture = pygame.image.load(os.path.join(base_path, "profile.png"))
+        except:
+            self.profile_picture = pygame.Surface((profileSideSize, profileSideSize))
+            self.profile_picture.fill((100, 100, 100))
+
+        try:
+            self.health_bar = pygame.image.load(os.path.join(base_path, "health_bar.png"))
+        except:
+            self.health_bar = pygame.Surface((health_bar_lenght, 20))
+            self.health_bar.fill((255, 0, 0))
+
+        try:
+            self.health_bar_frame = pygame.image.load(os.path.join(base_path, "health_bar_frame.png"))
+        except:
+            self.health_bar_frame = pygame.Surface((health_bar_lenght + 2 * roboman_health_bar_frame_thickness, 22))
+            self.health_bar_frame.fill((255, 255, 255))
+        
 
     def receive_state(self):
         buffer = ""
