@@ -514,7 +514,6 @@ class Client:
         self.load_ui_assets(self.character_name)
         self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame = self.load_ui_assets_for_opponent("Ninja")
         initial_data = {"username": username, "character": char_map.get(self.type, "Ninja")}
-        self.profile_picture, self.health_bar, self.health_bar_frame = self.load_ui_assets(self.character_name)
         try:
             self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
             data = self.socket.recv(1024).decode('utf-8')
