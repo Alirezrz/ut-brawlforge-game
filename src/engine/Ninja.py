@@ -656,6 +656,7 @@ class Ninja:
         current_time = pygame.time.get_ticks()
         self.vertical_speed = self.jump_strenght
         self.jump_sound.play()
+        self.events.append("ninja jump")
         self.on_ground = False
         self.current_platform = None
         self.current_frame_index=1
@@ -889,6 +890,7 @@ class Ninja:
             self.prev_status = self.status
             self.status = 'attack'
             self.melee_sound.play() 
+            self.events.append("sword")
             self.current_frame_index = 0
             self.attack_hit_registered = False
             self.ATTACK = False 
@@ -898,6 +900,7 @@ class Ninja:
             self.prev_status = self.status
             self.status = 'jumpattack'
             self.melee_sound.play() 
+            self.events.append("sword")
             self.current_frame_index = 0
             self.attack_hit_registered = False
             self.ATTACK = False 
