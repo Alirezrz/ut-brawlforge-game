@@ -548,6 +548,13 @@ class Client:
                 break
             clock.tick(60)
 
+    def play_sound(self, event_name, character_name="Ninja"):
+        try:
+            path = f"src/assets/sounds/{character_name}/{event_name}.mp3"
+            sound = pygame.mixer.Sound(path)
+            sound.play()
+        except Exception as e:
+            print(f"Error playing sound for {character_name} - {event_name}: {e}")
 
     def receive_state(self):
         buffer = ""
@@ -572,6 +579,8 @@ class Client:
                             self.username = selfdata['username']
                             self.frame_source = selfdata['frame_source']
                             self.frame_index = selfdata['frame_index']
+                            for event in selfdata.get("events", []):
+                                 self.play_sound(event, self.character_name)
 
                             # Fix index out of range crash
                             frame_list = self.frames.get(self.frame_source, [])
@@ -591,7 +600,8 @@ class Client:
                             if opponent_char != self.opponent_character:
                                 self.opponent_character = opponent_char
                                 self.opponent_frames = self.load_opponent_assets(opponent_char)
-
+                            for event in opp_data.get("events", []):
+                                self.play_sound(event, opp_data.get("character", "Ninja"))
                             opp_frames = self.opponent_frames.get(self.opponent.frame_source, [])
                             if opp_frames:
                                 self.opponent.current_picture = opp_frames[self.opponent.frame_index % len(opp_frames)]
