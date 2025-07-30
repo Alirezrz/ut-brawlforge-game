@@ -216,6 +216,7 @@ class Ninja:
     
     def hurt(self):
         self.hurt_sound.play()
+        self.events.append("ninja hurt")
         if self.health <= 0:
             self.die()
     def die(self):
@@ -488,6 +489,7 @@ class Ninja:
         40 if self.Super_cofficent>1 else 20
         )
         self.throw_kunai_sound.play()
+        self.events.append("throw kunai")
 
         self.bullets.append(bullet)
         shot_bullets.append(bullet)
@@ -583,6 +585,7 @@ class Ninja:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
                     self.kunai_hit_platform_sound.play()
+                    self.events.append("kunai hit platofrm")
 
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
@@ -611,6 +614,7 @@ class Ninja:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
                     self.kunai_hit_platform_sound.play()
+                    self.events.append("kunai hit platofrm")
 
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
@@ -969,7 +973,8 @@ class Ninja:
             "username": self.username,
             "frame_source": frame_source_name,
             "frame_index": frame_index_val,
-            "character": getattr(self, 'character_name', 'Ninja')
+            "character": getattr(self, 'character_name', 'Ninja'),
+            "events": self.events if hasattr(self, "events") else []
         }
         print(data)
         return data
