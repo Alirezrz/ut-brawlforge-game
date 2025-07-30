@@ -747,6 +747,7 @@ class Client:
             
                             
     def render_game(self):
+        
         screen.blit(background, (0, 0))
         try:
             self.opponent.current_picture = self.opponent_frames[self.opponent.frame_source][self.opponent.frame_index]
@@ -817,8 +818,9 @@ class Client:
                      screen.blit(pygame.transform.flip(self.Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                     else:
                      screen.blit(pygame.transform.flip(self.Fired_Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
-                    
-          
+
+        self.draw_health_bar(screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, False, False)
+        self.draw_health_bar(screen, self.opponent.health, self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame, True, False)  
         pygame.display.update()
 
 def main():
