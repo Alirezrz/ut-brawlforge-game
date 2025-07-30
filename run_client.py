@@ -510,6 +510,7 @@ class Client:
     def send_initial_data(self):
         username = input("Enter your username: ")
         char_map = {1: "Roboman", 2: "Ninja", 3: "NinjaGirl", 4: "Archer"}
+        self.character_name = char_map.get(self.type, "Ninja")
         initial_data = {"username": username, "character": char_map.get(self.type, "Ninja")}
         try:
             self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
