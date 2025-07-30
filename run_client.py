@@ -512,6 +512,7 @@ class Client:
         char_map = {1: "Roboman", 2: "Ninja", 3: "NinjaGirl", 4: "Archer"}
         self.character_name = char_map.get(self.type, "Ninja")
         self.load_ui_assets(self.character_name)
+        self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame = self.load_ui_assets_for_opponent("Ninja")
         initial_data = {"username": username, "character": char_map.get(self.type, "Ninja")}
         self.profile_picture, self.health_bar, self.health_bar_frame = self.load_ui_assets(self.character_name)
         try:
