@@ -108,3 +108,25 @@ class NinjaGirl(Ninja):
                     sizes[i]
                 )
             )
+            
+            
+    def serialize(self):
+        frame_source_name = "idle_frames"
+        frame_index_val = 0
+        if hasattr(self, 'frame_address') and self.frame_address:
+             frame_source_name = self.frame_address[0]
+             frame_index_val = self.frame_address[1]
+             
+        data={
+            "x_pos": self.x_pos,
+            "y_pos": self.y_pos,
+            "look": self.Look,
+            "health": self.health,
+            "username": self.username,
+            "frame_source": frame_source_name,
+            "frame_index": frame_index_val,
+            "character": 'NinjaGirl',
+            "events": self.events if hasattr(self, "events") else []
+        }
+        print(data)
+        return data

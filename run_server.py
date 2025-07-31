@@ -50,7 +50,7 @@ HOST = "0.0.0.0"
 PORT = 9191
 
 class MultiplayerGame:
-    def __init__(self):
+    def __init__(self,type):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
@@ -66,6 +66,8 @@ class MultiplayerGame:
         self.platforms = platforms
         self.shot_bullets = []
         self.gates = []
+        self.type=type
+        self.TEAMS_SET=False
 
     def create_hero(self, char_name, x, y, index, username):
         print(f"Creating hero: {char_name} at ({x}, {y}) for player {index} ({username})")
@@ -87,6 +89,7 @@ class MultiplayerGame:
         except Exception as e:
             print(f"Error creating hero {char_name}: {e}")
             return Ninja(x, y, screen_width, screen_height, [], index, username)
+        
 
     def client_thread(self, conn, player_index):
         print(f"Player {player_index} connected")
@@ -117,6 +120,19 @@ class MultiplayerGame:
         self.heroes[player_index] = None
         self.player_inputs[player_index] = {}
         conn.close()
+        
+    def set_teams(self):
+        if self.TEAMS_SET:
+            return
+        if self.type=='1v1':
+            self.team_A=[self.heroes[0]]
+            self.team_B=[self.heroes[1]]
+            
+        else:
+            self.team_A=[self.heros[0],self.heroes[1]]
+            self.team_B=[self.heroes[2],self.heroes[3]]
+            
+        self.TEAMS_SET=True
 
     def game_loop(self):
         print("Game loop started")
@@ -125,63 +141,87 @@ class MultiplayerGame:
             if not all(self.heroes):
                 clock.tick(60)
                 continue
+            self.set_teams()
             print(f"bullets={len(self.shot_bullets)}")
             print(f"health1={self.heroes[0].health}   health2={self.heroes[1].health}")
             try:
-                hero1, hero2 = self.heroes[0], self.heroes[1]
-                inputs1 = self.player_inputs.get(0, {})
-                inputs2 = self.player_inputs.get(1, {})
+                if self.type == '1v1':
+                    hero1, hero2 = self.heroes[0], self.heroes[1]
+                    inputs1 = self.player_inputs.get(0, {})
+                    inputs2 = self.player_inputs.get(1, {})
 
-                keys1 = {
-                    pygame.K_a: inputs1.get("A", False),
-                    pygame.K_d: inputs1.get("D", False),
-                    pygame.K_w: inputs1.get("W", False),
-                    pygame.K_LSHIFT: inputs1.get("LSHIFT", False),
-                    pygame.K_g: inputs1.get("G", False),
-                    pygame.K_TAB: inputs1.get("TAB", False),
-                    pygame.K_RCTRL: inputs1.get("RCTRL", False),
-                    pygame.K_RALT: inputs1.get("RALT", False),
-                }
-                mouse1 = (inputs1.get("left_click", False), False, inputs1.get("right_click", False))
+                    keys1 = {k: inputs1.get(kname, False) for k, kname in [
+                        (pygame.K_a, "A"), (pygame.K_d, "D"), (pygame.K_w, "W"),
+                        (pygame.K_LSHIFT, "LSHIFT"), (pygame.K_g, "G"),
+                        (pygame.K_TAB, "TAB"), (pygame.K_RCTRL, "RCTRL"), (pygame.K_RALT, "RALT")]}
+                    mouse1 = (inputs1.get("left_click", False), False, inputs1.get("right_click", False))
 
-                keys2 = {
-                    pygame.K_a: inputs2.get("A", False),
-                    pygame.K_d: inputs2.get("D", False),
-                    pygame.K_w: inputs2.get("W", False),
-                    pygame.K_LSHIFT: inputs2.get("LSHIFT", False),
-                    pygame.K_g: inputs2.get("G", False),
-                    pygame.K_TAB: inputs2.get("TAB", False),
-                    pygame.K_RCTRL: inputs2.get("RCTRL", False),
-                    pygame.K_RALT: inputs2.get("RALT", False),
-                }
-                mouse2 = (inputs2.get("left_click", False), False, inputs2.get("right_click", False))
+                    keys2 = {k: inputs2.get(kname, False) for k, kname in keys1.items()}
+                    print("keys:")
+                    print(keys2)
+                    mouse2 = (inputs2.get("left_click", False), False, inputs2.get("right_click", False))
 
-                hero1.handle_input_online(keys1, self.gates, self.shot_bullets, bullet_class, None, mouse1)
-                hero2.handle_input_online(keys2, self.gates, self.shot_bullets, bullet_class, None, mouse2)
+                    hero1.handle_input_online(keys1, self.gates, self.shot_bullets, bullet_class, None, mouse1)
+                    hero2.handle_input_online(keys2, self.gates, self.shot_bullets, bullet_class, None, mouse2)
 
-                hero1.update_online(self.platforms, self.shot_bullets, [hero2], keys1, self.gates, None)
-                hero2.update_online(self.platforms, self.shot_bullets, [hero1], keys2, self.gates, None)
+                    hero1.update_online(self.platforms, self.shot_bullets, [hero2], keys1, self.gates, None)
+                    hero2.update_online(self.platforms, self.shot_bullets, [hero1], keys2, self.gates, None)
 
-                state_p1 = hero1.serialize()
-                state_p2 = hero2.serialize()
-                bullets_state = [bullet.serialize() for bullet in self.shot_bullets]
+                    state_p1 = hero1.serialize()
+                    state_p2 = hero2.serialize()
+                    bullets_state = [b.serialize() for b in self.shot_bullets]
 
-                # Send a single state update to each client
-                self.clients[0].sendall(json.dumps({
-                    "self": state_p1,
-                    "opponent": state_p2,
-                    "bullets": bullets_state
-                }).encode('utf-8') + b"\n")
+                    self.clients[0].sendall(json.dumps({
+                        "self": state_p1,
+                        "opponents": [state_p2],
+                        "bullets": bullets_state
+                    }).encode('utf-8') + b"\n")
 
-                self.clients[1].sendall(json.dumps({
-                    "self": state_p2,
-                    "opponent": state_p1,
-                    "bullets": bullets_state
-                }).encode('utf-8') + b"\n")
+                    self.clients[1].sendall(json.dumps({
+                        "self": state_p2,
+                        "opponents": [state_p1],
+                        "bullets": bullets_state
+                    }).encode('utf-8') + b"\n")
 
-                hero1.events = []
-                hero2.events = []
-                print(f"Hero1 x_pos: {hero1.x_pos}, Hero2 x_pos: {hero2.x_pos}")
+                    hero1.events = []
+                    hero2.events = []
+
+                elif self.type == '2v2':
+                    hero1, hero2, hero3, hero4 = self.heroes
+                    inputs = [self.player_inputs.get(i, {}) for i in range(4)]
+                    keys = [{k: inp.get(kname, False) for k, kname in [
+                        (pygame.K_a, "A"), (pygame.K_d, "D"), (pygame.K_w, "W"),
+                        (pygame.K_LSHIFT, "LSHIFT"), (pygame.K_g, "G"),
+                        (pygame.K_TAB, "TAB"), (pygame.K_RCTRL, "RCTRL"), (pygame.K_RALT, "RALT")]} for inp in inputs]
+                    mice = [(inp.get("left_click", False), False, inp.get("right_click", False)) for inp in inputs]
+
+                    heroes = [hero1, hero2, hero3, hero4]
+                    for i in range(4):
+                        heroes[i].handle_input_online(keys[i], self.gates, self.shot_bullets, bullet_class, None, mice[i])
+
+                    for i in range(4):
+                        targets = [h for j, h in enumerate(heroes) if j // 2 != i // 2]
+                        heroes[i].update_online(self.platforms, self.shot_bullets, targets, keys[i], self.gates, None)
+
+                    states = [h.serialize() for h in heroes]
+                    bullets_state = [b.serialize() for b in self.shot_bullets]
+
+                    # Players 0 and 1 are team A, 2 and 3 are team B
+                    team_data = [
+                        (0, 1, [states[2], states[3]]),
+                        (1, 0, [states[2], states[3]]),
+                        (2, 3, [states[0], states[1]]),
+                        (3, 2, [states[0], states[1]]),
+                    ]
+
+                    for idx, mate_idx, opponents in team_data:
+                        self.clients[idx].sendall(json.dumps({
+                            "self": states[idx],
+                            "teammate": states[mate_idx],
+                            "opponents": opponents,
+                            "bullets": bullets_state
+                        }).encode('utf-8') + b"\n")
+
                 clock.tick(60)
 
             except Exception as e:
@@ -189,10 +229,16 @@ class MultiplayerGame:
                 self.game_active = False
 
     def start(self):
-        self.server_socket.listen(2)
+        if self.type=='1v1': 
+            self.server_socket.listen(2)
+        else:
+            self.server_socket.listen(4)
         print(f"Server started on {HOST}:{PORT}, waiting for 2 players...")
-        self.clients = [None, None]  
-        self.player_inputs = {0: {}, 1: {}}
+        self.clients = [None, None]  *1 if self.type=='1v1' else 2
+        if self.type=='1v1':
+            self.player_inputs = {0: {}, 1: {}}
+        else:
+            self.player_inputs = {0: {}, 1: {},2:{},3:{}}
         self.game_active = True
         game_thread = threading.Thread(target=self.game_loop)
         game_thread.daemon = True
@@ -212,7 +258,9 @@ class MultiplayerGame:
         self.server_socket.close()
 
 def main():
-    game = MultiplayerGame()
+    print("1v1 or 2v2 :")
+    kind=input()
+    game = MultiplayerGame(kind)
     game.start()
 
 if __name__ == "__main__":

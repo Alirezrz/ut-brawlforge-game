@@ -59,7 +59,12 @@ class Client:
         self.type = None
         self.hero = None
         self.opponent = None
-        self.frames = {}
+        self.frames = {
+            "Roboman":{},
+            "Ninja":{},
+            "NinjaGirl":{},
+            "Archer":{}
+        }
         self.screen_width=screen_width
         self.screen_height=screen_height
         self.load_assets()
@@ -76,6 +81,7 @@ class Client:
         self.current_picture=None
         self.scroll=[0,0]
         self.bullets=[]
+        self.other_players_states=[]
         if "idle_frames" in self.frames and len(self.frames["idle_frames"]) > 0:
             self.current_picture = self.frames["idle_frames"][0]
         else:
@@ -140,295 +146,292 @@ class Client:
         
         
         try:
-            if self.type == 1:  # Roboman
                 base_path = os.path.join(base_path, "RoboMan_pictures")
-                self.frames['freezed_img']=pygame.transform.scale(pygame.image.load(os.path.join(base_path,"freezed.png")),(69,118))
-                self.frames["run_frames"] = []
+                self.frames["Roboman"]['freezed_img']=pygame.transform.scale(pygame.image.load(os.path.join(base_path,"freezed.png")),(69,118))
+                self.frames["Roboman"]["run_frames"] = []
                 sizes = [(63, 118), (62, 118), (82, 118), (77, 118), (73, 118), (80, 118), (92, 118), (79, 118)]
                 for i in range(1, 9):
                     img_path = os.path.join(base_path, "hero_run_frames", f"Run ({i}).png")
                     try:
-                        self.frames["run_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i-1]))
+                        self.frames["Roboman"]["run_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i-1]))
                     except Exception as e:
                         print(f"Error loading Roboman run frame 'Run ({i}).png': {e}")
-                        self.frames["run_frames"].append(pygame.Surface(sizes[i-1]))
-                self.frames["idle_frames"] = []
+                        self.frames["Roboman"]["run_frames"].append(pygame.Surface(sizes[i-1]))
+                self.frames["Roboman"]["idle_frames"] = []
                 for i in range(1, 11):
                     img_path = os.path.join(base_path, "idle", f"Idle ({i}).png")
                     try:
-                        self.frames["idle_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (70, 118)))
+                        self.frames["Roboman"]["idle_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (70, 118)))
                     except Exception as e:
                         print(f"Error loading Roboman idle frame 'Idle ({i}).png': {e}")
-                        self.frames["idle_frames"].append(pygame.Surface((70, 118)))
-                self.frames["jump_frames"] = []
+                        self.frames["Roboman"]["idle_frames"].append(pygame.Surface((70, 118)))
+                self.frames["Roboman"]["jump_frames"] = []
                 sizes = [(73, 118), (80, 118), (90, 118), (91, 118), (90, 118), (109, 118), (95, 118), (96, 118), (84, 118)]
                 for i in range(1, 10):
                     img_path = os.path.join(base_path, "jump", f"Jump ({i}).png")
                     try:
-                        self.frames["jump_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i-1]))
+                        self.frames["Roboman"]["jump_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i-1]))
                     except Exception as e:
                         print(f"Error loading Roboman jump frame 'Jump ({i}).png': {e}")
-                        self.frames["jump_frames"].append(pygame.Surface(sizes[i-1]))
-                self.frames["shoot_frames"] = []
+                        self.frames["Roboman"]["jump_frames"].append(pygame.Surface(sizes[i-1]))
+                self.frames["Roboman"]["shoot_frames"] = []
                 sizes = [(83, 118), (83, 118), (82, 118), (84, 118)]
                 for i in range(1, 5):
                     img_path = os.path.join(base_path, "Shoot", f"Shoot ({i}).png")
                     try:
-                        self.frames["shoot_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i-1]))
+                        self.frames["Roboman"]["shoot_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i-1]))
                     except Exception as e:
                         print(f"Error loading Roboman shoot frame 'Shoot ({i}).png': {e}")
-                        self.frames["shoot_frames"].append(pygame.Surface(sizes[i-1]))
-                self.frames["RunShoot_frames"] = []
+                        self.frames["Roboman"]["shoot_frames"].append(pygame.Surface(sizes[i-1]))
+                self.frames["Roboman"]["RunShoot_frames"] = []
                 sizes = [(83, 118), (87, 118), (93, 118), (97, 118), (88, 118), (90, 118), (100, 118), (89, 118)]
                 for i in range(1, 9):
                     img_path = os.path.join(base_path, "RunShoot", f"RunShoot ({i}).png")
                     try:
-                        self.frames["RunShoot_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i-1]))
+                        self.frames["Roboman"]["RunShoot_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i-1]))
                     except Exception as e:
                         print(f"Error loading Roboman RunShoot frame 'RunShoot ({i}).png': {e}")
-                        self.frames["RunShoot_frames"].append(pygame.Surface(sizes[i-1]))
-                self.frames["JumpShoot_frames"] = []
+                        self.frames["Roboman"]["RunShoot_frames"].append(pygame.Surface(sizes[i-1]))
+                self.frames["Roboman"]["JumpShoot_frames"] = []
                 sizes = [(97, 118), (97, 118), (98, 118), (95, 118), (97, 118)]
                 for i in range(1, 6):
                     img_path = os.path.join(base_path, "jump shoot", f"JumpShoot ({i}).png")
                     try:
-                        self.frames["JumpShoot_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i-1]))
+                        self.frames["Roboman"]["JumpShoot_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i-1]))
                     except Exception as e:
                         print(f"Error loading Roboman JumpShoot frame 'JumpShoot ({i}).png': {e}")
-                        self.frames["JumpShoot_frames"].append(pygame.Surface(sizes[i-1]))
-                self.frames["death_frames"] = []
+                        self.frames["Roboman"]["JumpShoot_frames"].append(pygame.Surface(sizes[i-1]))
+                self.frames["Roboman"]["death_frames"] = []
                 sizes = [(73, 118), (84, 118), (90, 100), (145, 90), (133, 90), (110, 61), (118, 56), (118, 52), (118, 53), (118, 53)]
                 for i in range(1, 11):
                     img_path = os.path.join(base_path, "death", f"Dead ({i}).png")
                     try:
-                        self.frames["death_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i-1]))
+                        self.frames["Roboman"]["death_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i-1]))
                     except Exception as e:
                         print(f"Error loading Roboman death frame 'Dead ({i}).png': {e}")
-                        self.frames["death_frames"].append(pygame.Surface(sizes[i-1]))
-                self.frames["jetpack_frame"] = pygame.transform.scale(
+                        self.frames["Roboman"]["death_frames"].append(pygame.Surface(sizes[i-1]))
+                self.frames["Roboman"]["jetpack_frame"] = pygame.transform.scale(
                     pygame.image.load(os.path.join(base_path, "jetpack.png")), (80, 118))
-
-            elif self.type == 2:  # Ninja
+                
+                base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src","assets", "images")
                 base_path = os.path.join(base_path, "Ninja")
-                self.frames["freezed_frame"] = pygame.transform.scale(
+                self.frames["Ninja"]["freezed_frame"] = pygame.transform.scale(
                     pygame.image.load(os.path.join(base_path, "freezed.png")), (62, 118))
-                self.frames["SuperPower_pic"] = pygame.transform.scale(
+                self.frames["Ninja"]["SuperPower_pic"] = pygame.transform.scale(
                     pygame.image.load(os.path.join(base_path, "SuperPower effect.png")), (100, 118))
-                self.frames["idle_frames"] = []
+                self.frames["Ninja"]["idle_frames"] = []
                 for i in range(10):
                     img_path = os.path.join(base_path, "Idle", f"Idle__00{i}.png")
                     try:
-                        self.frames["idle_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (62, 118)))
+                        self.frames["Ninja"]["idle_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (62, 118)))
                     except Exception as e:
                         print(f"Error loading Ninja idle frame 'Idle__00{i}.png': {e}")
-                        self.frames["idle_frames"].append(pygame.Surface((62, 118)))
-                self.frames["run_frames"] = []
+                        self.frames["Ninja"]["idle_frames"].append(pygame.Surface((62, 118)))
+                self.frames["Ninja"]["run_frames"] = []
                 for i in range(1, 10):
                     img_path = os.path.join(base_path, "Run", f"Run__00{i}.png")
                     try:
-                        self.frames["run_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (94, 118)))
+                        self.frames["Ninja"]["run_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (94, 118)))
                     except Exception as e:
                         print(f"Error loading Ninja run frame 'Run__00{i}.png': {e}")
-                        self.frames["run_frames"].append(pygame.Surface((94, 118)))
-                self.frames["jump_frames"] = []
+                        self.frames["Ninja"]["run_frames"].append(pygame.Surface((94, 118)))
+                self.frames["Ninja"]["jump_frames"] = []
                 sizes = [77, 69, 69, 71, 70, 70, 77, 84, 95, 93]
                 for i in range(10):
                     img_path = os.path.join(base_path, "Jump", f"Jump__00{i}.png")
                     try:
-                        self.frames["jump_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
+                        self.frames["Ninja"]["jump_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
                     except Exception as e:
                         print(f"Error loading Ninja jump frame 'Jump__00{i}.png': {e}")
-                        self.frames["jump_frames"].append(pygame.Surface((sizes[i], 118)))
-                self.frames["throw_frames"] = []
+                        self.frames["Ninja"]["jump_frames"].append(pygame.Surface((sizes[i], 118)))
+                self.frames["Ninja"]["throw_frames"] = []
                 sizes = [72, 66, 83, 81, 79, 79, 78, 86, 78, 66]
                 for i in range(10):
                     img_path = os.path.join(base_path, "Throw", f"Throw__00{i}.png")
                     try:
-                        self.frames["throw_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
+                        self.frames["Ninja"]["throw_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
                     except Exception as e:
                         print(f"Error loading Ninja throw frame 'Throw__00{i}.png': {e}")
-                        self.frames["throw_frames"].append(pygame.Surface((sizes[i], 118)))
-                self.frames["jumpThrow_frames"] = []
+                        self.frames["Ninja"]["throw_frames"].append(pygame.Surface((sizes[i], 118)))
+                self.frames["Ninja"]["jumpThrow_frames"] = []
                 sizes = [85, 88, 92, 99, 101, 104, 103, 96, 89, 89]
                 for i in range(10):
                     img_path = os.path.join(base_path, "JumpThrow", f"Jump_Throw__00{i}.png")
                     try:
-                        self.frames["jumpThrow_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
+                        self.frames["Ninja"]["jumpThrow_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
                     except Exception as e:
                         print(f"Error loading Ninja jumpThrow frame 'Jump_Throw__00{i}.png': {e}")
-                        self.frames["jumpThrow_frames"].append(pygame.Surface((sizes[i], 118)))
-                self.frames["Attack_frames"] = []
+                        self.frames["Ninja"]["jumpThrow_frames"].append(pygame.Surface((sizes[i], 118)))
+                self.frames["Ninja"]["Attack_frames"] = []
                 sizes = [78, 75, 85, 132, 136, 149, 149, 149, 147, 137]
                 for i in range(10):
                     img_path = os.path.join(base_path, "Attack", f"Attack__00{i}.png")
                     try:
-                        self.frames["Attack_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
+                        self.frames["Ninja"]["Attack_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
                     except Exception as e:
                         print(f"Error loading Ninja attack frame 'Attack__00{i}.png': {e}")
-                        self.frames["Attack_frames"].append(pygame.Surface((sizes[i], 118)))
-                self.frames["JumpAttack_frames"] = []
+                        self.frames["Ninja"]["Attack_frames"].append(pygame.Surface((sizes[i], 118)))
+                self.frames["Ninja"]["JumpAttack_frames"] = []
                 sizes = [(87, 118), (86, 118), (86, 118), (136, 118), (136, 118), (137, 138), (139, 138), (140, 138), (125, 170), (136, 118)]
                 for i in range(10):
                     img_path = os.path.join(base_path, "JumpAttack", f"Jump_Attack__00{i}.png")
                     try:
-                        self.frames["JumpAttack_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i]))
+                        self.frames["Ninja"]["JumpAttack_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i]))
                     except Exception as e:
                         print(f"Error loading Ninja jumpAttack frame 'Jump_Attack__00{i}.png': {e}")
-                        self.frames["JumpAttack_frames"].append(pygame.Surface(sizes[i]))
-                self.frames["death_frames"] = []
+                        self.frames["Ninja"]["JumpAttack_frames"].append(pygame.Surface(sizes[i]))
+                self.frames["Ninja"]["death_frames"] = []
                 sizes = [(63, 118), (74, 118), (127, 113), (111, 108), (140, 100), (157, 100), (152, 90), (157, 90), (160, 90), (156, 90)]
                 for i in range(10):
                     img_path = os.path.join(base_path, "death", f"Dead__00{i}.png")
                     try:
-                        self.frames["death_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i]))
+                        self.frames["Ninja"]["death_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i]))
                     except Exception as e:
                         print(f"Error loading Ninja death frame 'Dead__00{i}.png': {e}")
                         self.frames["death_frames"].append(pygame.Surface(sizes[i]))
-                self.frames["Kunai"] = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "Kunai.png")), (60, 12))
-                self.frames["Fired_kunai"] = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "FiredKunai.png")), (70, 24))
-
-            elif self.type == 3:  # NinjaGirl
+                self.frames["Ninja"]["Kunai"] = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "Kunai.png")), (60, 12))
+                self.frames["Ninja"]["Fired_kunai"] = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "FiredKunai.png")), (70, 24))
+                base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src","assets", "images")
                 base_path = os.path.join(base_path, "NinjaGirl")
-                self.frames["freezed_frame"] = pygame.transform.scale(
+                self.frames["NinjaGirl"]["freezed_frame"] = pygame.transform.scale(
                     pygame.image.load(os.path.join(base_path, "freezed.png")), (68, 118))
-                self.frames["SuperPower_pic"] = pygame.transform.scale(
+                self.frames["NinjaGirl"]["SuperPower_pic"] = pygame.transform.scale(
                     pygame.image.load(os.path.join(base_path, "super power.png")), (118, 118))
-                self.frames["idle_frames"] = []
+                self.frames["NinjaGirl"]["idle_frames"] = []
                 for i in range(10):
                     img_path = os.path.join(base_path, "Idle", f"Idle__00{i}.png")
                     try:
-                        self.frames["idle_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (68, 118)))
+                        self.frames["NinjaGirl"]["idle_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (68, 118)))
                     except Exception as e:
                         print(f"Error loading NinjaGirl idle frame 'Idle__00{i}.png': {e}")
-                        self.frames["idle_frames"].append(pygame.Surface((68, 118)))
-                self.frames["run_frames"] = []
+                        self.frames["NinjaGirl"]["idle_frames"].append(pygame.Surface((68, 118)))
+                self.frames["NinjaGirl"]["run_frames"] = []
                 sizes = [82, 77, 77, 90, 88, 82, 78, 78, 83]
                 for i in range(1, 10):
                     img_path = os.path.join(base_path, "Run", f"Run__00{i}.png")
                     try:
-                        self.frames["run_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i-1], 118)))
+                        self.frames["NinjaGirl"]["run_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i-1], 118)))
                     except Exception as e:
                         print(f"Error loading NinjaGirl run frame 'Run__00{i}.png': {e}")
-                        self.frames["run_frames"].append(pygame.Surface((sizes[i-1], 118)))
-                self.frames["jump_frames"] = []
+                        self.frames["NinjaGirl"]["run_frames"].append(pygame.Surface((sizes[i-1], 118)))
+                self.frames["NinjaGirl"]["jump_frames"] = []
                 sizes = [75, 70, 71, 71, 72, 71, 78, 77, 79, 79]
                 for i in range(10):
                     img_path = os.path.join(base_path, "Jump", f"Jump__00{i}.png")
                     try:
-                        self.frames["jump_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
+                        self.frames["NinjaGirl"]["jump_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
                     except Exception as e:
                         print(f"Error loading NinjaGirl jump frame 'Jump__00{i}.png': {e}")
-                        self.frames["jump_frames"].append(pygame.Surface((sizes[i], 118)))
-                self.frames["throw_frames"] = []
+                        self.frames["NinjaGirl"]["jump_frames"].append(pygame.Surface((sizes[i], 118)))
+                self.frames["NinjaGirl"]["throw_frames"] = []
                 sizes = [70, 68, 73, 85, 69, 68, 68, 77, 73, 67]
                 for i in range(10):
                     img_path = os.path.join(base_path, "Throw", f"Throw__00{i}.png")
                     try:
-                        self.frames["throw_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
+                        self.frames["NinjaGirl"]["throw_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
                     except Exception as e:
                         print(f"Error loading NinjaGirl throw frame 'Throw__00{i}.png': {e}")
-                        self.frames["throw_frames"].append(pygame.Surface((sizes[i], 118)))
-                self.frames["jumpThrow_frames"] = []
+                        self.frames["NinjaGirl"]["throw_frames"].append(pygame.Surface((sizes[i], 118)))
+                self.frames["NinjaGirl"]["jumpThrow_frames"] = []
                 sizes = [79, 77, 82, 92, 94, 97, 95, 89, 80, 79]
                 for i in range(10):
                     img_path = os.path.join(base_path, "JumpThrow", f"Jump_Throw__00{i}.png")
                     try:
-                        self.frames["jumpThrow_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
+                        self.frames["NinjaGirl"]["jumpThrow_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
                     except Exception as e:
                         print(f"Error loading NinjaGirl jumpThrow frame 'Jump_Throw__00{i}.png': {e}")
                         self.frames["jumpThrow_frames"].append(pygame.Surface((sizes[i], 118)))
-                self.frames["Attack_frames"] = []
+                self.frames["NinjaGirl"]["Attack_frames"] = []
                 sizes = [70, 70, 76, 118, 121, 130, 129, 127, 124, 118]
                 for i in range(10):
                     img_path = os.path.join(base_path, "Attack", f"Attack__00{i}.png")
                     try:
-                        self.frames["Attack_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
+                        self.frames["NinjaGirl"]["Attack_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 118)))
                     except Exception as e:
                         print(f"Error loading NinjaGirl attack frame 'Attack__00{i}.png': {e}")
-                        self.frames["Attack_frames"].append(pygame.Surface((sizes[i], 118)))
-                self.frames["JumpAttack_frames"] = []
+                        self.frames["NinjaGirl"]["Attack_frames"].append(pygame.Surface((sizes[i], 118)))
+                self.frames["NinjaGirl"]["JumpAttack_frames"] = []
                 sizes = [(71, 118), (67, 118), (68, 118), (108, 118), (108, 118), (115, 128), (118, 133), (119, 134), (118, 129), (92, 118)]
                 for i in range(10):
                     img_path = os.path.join(base_path, "JumpAttack", f"Jump_Attack__00{i}.png")
                     try:
-                        self.frames["JumpAttack_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i]))
+                        self.frames["NinjaGirl"]["JumpAttack_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i]))
                     except Exception as e:
                         print(f"Error loading NinjaGirl jumpAttack frame 'Jump_Attack__00{i}.png': {e}")
-                        self.frames["JumpAttack_frames"].append(pygame.Surface(sizes[i]))
-                self.frames["death_frames"] = []
+                        self.frames["NinjaGirl"]["JumpAttack_frames"].append(pygame.Surface(sizes[i]))
+                self.frames["NinjaGirl"]["death_frames"] = []
                 sizes = [(70, 118), (83, 118), (93, 108), (102, 90), (104, 70), (118, 78), (118, 73), (118, 78), (118, 78), (118, 79)]
                 for i in range(10):
                     img_path = os.path.join(base_path, "death", f"Dead__00{i}.png")
                     try:
-                        self.frames["death_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i]))
+                        self.frames["NinjaGirl"]["death_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i]))
                     except Exception as e:
                         print(f"Error loading NinjaGirl death frame 'Dead__00{i}.png': {e}")
                         self.frames["death_frames"].append(pygame.Surface(sizes[i]))
-                self.frames["Kunai"] = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "Kunai.png")), (60, 12))
-                self.frames["Fired_kunai"] = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "FiredKunai.png")), (70, 24))
-
-            elif self.type == 4:  # Archer
+                self.frames["NinjaGirl"]["Kunai"] = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "Kunai.png")), (60, 12))
+                self.frames["NinjaGirl"]["Fired_kunai"] = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "FiredKunai.png")), (70, 24))
+                base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src","assets", "images")
                 base_path = os.path.join(base_path, "Archer")
-                self.frames["freezed_img"] = pygame.transform.scale(
+                self.frames['Archer']["freezed_img"] = pygame.transform.scale(
                     pygame.image.load(os.path.join(base_path, "freezed.png")), (88, 100))
-                self.frames["super_power_effect_picture"] = pygame.transform.scale(
+                self.frames['Archer']["super_power_effect_picture"] = pygame.transform.scale(
                     pygame.image.load(os.path.join(base_path, "super power effect.png")), (88, 127))
-                self.frames["idle_frames"] = []
+                self.frames['Archer']["idle_frames"] = []
                 for i in range(6):
                     img_path = os.path.join(base_path, "idle", f"{i}.png")
                     try:
-                        self.frames["idle_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (88, 100)))
+                        self.frames['Archer']["idle_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (88, 100)))
                     except Exception as e:
                         print(f"Error loading Archer idle frame '{i}.png': {e}")
-                        self.frames["idle_frames"].append(pygame.Surface((88, 100)))
-                self.frames["run_frames"] = []
+                        self.frames['Archer']["idle_frames"].append(pygame.Surface((88, 100)))
+                self.frames['Archer']["run_frames"] = []
                 sizes = [89, 90, 91, 90, 89, 90, 96, 90]
                 for i in range(8):
                     img_path = os.path.join(base_path, "run", f"{i}.png")
                     try:
-                        self.frames["run_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 100)))
+                        self.frames['Archer']["run_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 100)))
                     except Exception as e:
                         print(f"Error loading Archer run frame '{i}.png': {e}")
-                        self.frames["run_frames"].append(pygame.Surface((sizes[i], 100)))
-                self.frames["jump_frames"] = []
+                        self.frames['Archer']["run_frames"].append(pygame.Surface((sizes[i], 100)))
+                self.frames['Archer']["jump_frames"] = []
                 sizes = [91, 93, 88, 90, 94, 89, 88, 90]
                 for i in range(8):
                     img_path = os.path.join(base_path, "jump", f"{i}.png")
                     try:
-                        self.frames["jump_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 100)))
+                        self.frames['Archer']["jump_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 100)))
                     except Exception as e:
                         print(f"Error loading Archer jump frame '{i}.png': {e}")
-                        self.frames["jump_frames"].append(pygame.Surface((sizes[i], 100)))
-                self.frames["shot_frames"] = []
+                        self.frames['Archer']["jump_frames"].append(pygame.Surface((sizes[i], 100)))
+                self.frames['Archer']["shot_frames"] = []
                 sizes = [90, 72, 72, 72, 72, 72, 97, 113, 106, 89, 77, 72, 70]
                 for i in range(13):
                     img_path = os.path.join(base_path, "shot", f"{i}.png")
                     try:
-                        self.frames["shot_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 100)))
+                        self.frames['Archer']["shot_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 100)))
                     except Exception as e:
                         print(f"Error loading Archer shot frame '{i}.png': {e}")
-                        self.frames["shot_frames"].append(pygame.Surface((sizes[i], 100)))
-                self.frames["attack_frames"] = []
+                        self.frames['Archer']["shot_frames"].append(pygame.Surface((sizes[i], 100)))
+                self.frames['Archer']["attack_frames"] = []
                 sizes = [78, 60, 132, 62]
                 for i in range(4):
                     img_path = os.path.join(base_path, "attack", f"{i}.png")
                     try:
-                        self.frames["attack_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 100)))
+                        self.frames['Archer']["attack_frames"].append(pygame.transform.scale(pygame.image.load(img_path), (sizes[i], 100)))
                     except Exception as e:
                         print(f"Error loading Archer attack frame '{i}.png': {e}")
                         self.frames["attack_frames"].append(pygame.Surface((sizes[i], 100)))
-                self.frames["death_frames"] = []
+                self.frames['Archer']["death_frames"] = []
                 sizes = [(98, 100), (102, 100), (150, 43)]
                 for i in range(3):
                     img_path = os.path.join(base_path, "death", f"{i}.png")
                     try:
-                        self.frames["death_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i]))
+                        self.frames['Archer']["death_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i]))
                     except Exception as e:
                         print(f"Error loading Archer death frame '{i}.png': {e}")
-                        self.frames["death_frames"].append(pygame.Surface(sizes[i]))
-                self.frames["arrow_pic"] = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "Arrow.png")), (30, 2))
-                self.frames["firedarrow_pic"] = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "fired arrow.png")), (30, 8))
-            print("Hero assets loaded successfully")
+                        self.frames['Archer']["death_frames"].append(pygame.Surface(sizes[i]))
+                self.frames['Archer']["arrow_pic"] = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "Arrow.png")), (30, 2))
+                self.frames['Archer']["firedarrow_pic"] = pygame.transform.scale(pygame.image.load(os.path.join(base_path, "fired arrow.png")), (30, 8))
+                print("Hero assets loaded successfully")
         except Exception as e:
             print(f"Error loading hero assets: {e}")
             self.frames = {key: [pygame.Surface((50, 50)) for _ in range(10)] for key in ["idle_frames", "run_frames", "jump_frames"]}
@@ -436,8 +439,8 @@ class Client:
         # hero and opponent
         self.hero = type('Hero', (), {
             'x_pos': 0, 'y_pos': 0, 'Look': 'right', 'health': 100,
-            'current_picture': self.frames["idle_frames"][0],
-            'hitbox': pygame.Rect(0, 0, self.frames["idle_frames"][0].get_width(), self.frames["idle_frames"][0].get_height())
+            'current_picture': self.frames['Roboman']["idle_frames"][0],
+            'hitbox': pygame.Rect(0, 0, self.frames['Roboman']["idle_frames"][0].get_width(), self.frames['Roboman']["idle_frames"][0].get_height())
         })()
         self.opponent = type('Hero', (), {
             'x_pos': 0,
@@ -447,66 +450,9 @@ class Client:
             'frame_source': 'idle_frames',
             'frame_index': 0,
             'username': '',
-            'current_picture': self.frames["idle_frames"][0],
-            'hitbox': pygame.Rect(0, 0, self.frames["idle_frames"][0].get_width(), self.frames["idle_frames"][0].get_height())
+            'current_picture': self.frames['Roboman']["idle_frames"][0],
+            'hitbox': pygame.Rect(0, 0, self.frames['Roboman']["idle_frames"][0].get_width(), self.frames['Roboman']["idle_frames"][0].get_height())
         })()
-
-
-    
-    def load_opponent_assets(self, character_name):
-        frames = {}
-        base_path = os.path.join("src", "assets", "images")
-
-        if character_name == "Roboman":
-            path = os.path.join(base_path, "RoboMan_pictures", "idle")
-            frames["idle_frames"] = []
-            for i in range(1, 11):
-                try:
-                    img = pygame.image.load(os.path.join(path, f"Idle ({i}).png")).convert_alpha()
-                    img = pygame.transform.scale(img, (70, 118))
-                    frames["idle_frames"].append(img)
-                except:
-                    frames["idle_frames"].append(pygame.Surface((70, 118)))
-
-        elif character_name == "Ninja":
-            path = os.path.join(base_path, "Ninja", "Idle")
-            frames["idle_frames"] = []
-            for i in range(10):
-                try:
-                    img = pygame.image.load(os.path.join(path, f"Idle__00{i}.png")).convert_alpha()
-                    img = pygame.transform.scale(img, (62, 118))
-                    frames["idle_frames"].append(img)
-                except:
-                    frames["idle_frames"].append(pygame.Surface((62, 118)))
-
-        elif character_name == "NinjaGirl":
-            path = os.path.join(base_path, "NinjaGirl", "Idle")
-            frames["idle_frames"] = []
-            for i in range(10):
-                try:
-                    img = pygame.image.load(os.path.join(path, f"Idle__00{i}.png")).convert_alpha()
-                    img = pygame.transform.scale(img, (68, 118))
-                    frames["idle_frames"].append(img)
-                except:
-                    frames["idle_frames"].append(pygame.Surface((68, 118)))
-
-        elif character_name == "Archer":
-            path = os.path.join(base_path, "Archer", "idle")
-            frames["idle_frames"] = []
-            for i in range(6):
-                try:
-                    img = pygame.image.load(os.path.join(path, f"{i}.png")).convert_alpha()
-                    img = pygame.transform.scale(img, (88, 100))
-                    frames["idle_frames"].append(img)
-                except:
-                    frames["idle_frames"].append(pygame.Surface((88, 100)))
-
-        else:
-            print(f"Unknown character '{character_name}', using blank placeholder.")
-            frames["idle_frames"] = [pygame.Surface((64, 64)) for _ in range(5)]
-
-        return frames
-
 
  
     def send_initial_data(self):
@@ -648,13 +594,14 @@ class Client:
         while True:
             try:
                 while True:
-                    chunk = self.socket.recv(1024)
+                    chunk = self.socket.recv(2048)
                     if not chunk:
                         break
                     buffer += chunk.decode('utf-8')
 
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
+                        print(line)
 
                         try:
                             parsed = json.loads(line)
@@ -667,46 +614,66 @@ class Client:
                             self.frame_source = selfdata['frame_source']
                             self.frame_index = selfdata['frame_index']
                             self.character_name = selfdata.get("character", "Ninja")
+
                             for event in selfdata.get("events", []):
-                                 self.play_sound(event, self.character_name)
+                                self.play_sound(event, self.character_name)
 
-                            # Fix index out of range crash
-                            frame_list = self.frames.get(self.frame_source, [])
+                            type_of_hero = selfdata['character']
+                            frame_source = selfdata['frame_source']
+                            frame_index = selfdata['frame_index']
+                            frame_list = self.frames[type_of_hero].get(frame_source, [])
                             if frame_list:
-                                self.current_picture = frame_list[self.frame_index % len(frame_list)]
-
-                            opp_data = parsed.get("opponent", {})
-                            self.opponent.x_pos = opp_data.get('x_pos', 0)
-                            self.opponent.y_pos = opp_data.get('y_pos', 0)
-                            self.opponent.health = opp_data.get('health', 100)
-                            self.opponent.Look = opp_data.get('look', 'right')
-                            self.opponent.username = opp_data.get('username', '')
-                            self.opponent.frame_source = opp_data.get('frame_source', 'idle_frames')
-                            self.opponent.frame_index = opp_data.get('frame_index', 0)
-
-                            opponent_char = opp_data.get("character", "Ninja")
-                            if opponent_char != self.opponent_character:
-                                self.opponent_character = opponent_char
-                                self.opponent_frames = self.load_opponent_assets(opponent_char)
-                                self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame = self.load_ui_assets_for_opponent(opponent_char)
-                            for event in opp_data.get("events", []):
-                                self.play_sound(event, opp_data.get("character", "Ninja"))
-                            opp_frames = self.opponent_frames.get(self.opponent.frame_source, [])
-                            if opp_frames:
-                                self.opponent.current_picture = opp_frames[self.opponent.frame_index % len(opp_frames)]
-
-                            # Handle bullets
-                            self.bullets = parsed.get("bullets", [])
+                                self.current_picture = frame_list[frame_index]
                             
 
+                            self.bullets = parsed.get("bullets", [])
+
+                            self.other_players_states = []
+                            # نکته :اطلاعات حریف ها و هم تیمی توی یک لیست دارن ذخیره میشن و اگر هم تیمی داشته باشیم ایندکس اخر لیست برای اون هست
+                            # Handle opponents (always present in both 1v1 and 2v2)
+                            opponents = parsed.get("opponents", [])
+                            for opponent_data in opponents:
+                                opponent_char = opponent_data.get("character", "Ninja")
+                                opponent_frame_source = opponent_data.get("frame_source", "idle_frames")
+                                opponent_frame_index = opponent_data.get("frame_index", 0)
+                                opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
+                                opponent_frame = opponent_frame_list[opponent_frame_index]
+
+                                
+                                self.other_players_states.append({
+                                    "x_pos": opponent_data.get("x_pos", 0),
+                                    "y_pos": opponent_data.get("y_pos", 0),
+                                    "frame_to_display": opponent_frame,
+                                    "health": opponent_data.get("health", 100),
+                                    "Look":opponent_data.get('look','right')
+                                })
+
+                               
+
+                            # Handle teammate (only present in 2v2 mode)
+                            teammate_data = parsed.get("teammate")
+                            if teammate_data:
+                                teammate_char = teammate_data.get("character", "Ninja")
+                                teammate_frame_source = teammate_data.get("frame_source", "idle_frames")
+                                teammate_frame_index = teammate_data.get("frame_index", 0)
+                                teammate_frame_list = self.frames[teammate_char].get(teammate_frame_source, [])
+                                teammate_frame = teammate_frame_list[teammate_frame_index] 
+
+                                self.other_players_states.append({
+                                    "x_pos": teammate_data.get("x_pos", 0),
+                                    "y_pos": teammate_data.get("y_pos", 0),
+                                    "frame_to_display": teammate_frame,
+                                    "health": teammate_data.get("health", 100),
+                                    "Look":teammate_data.get('look','right')
+                                })
+
                         except Exception as e:
-                            print(f"Error decoding JSON or setting frames: {e}")
+                            #print(f"Error decoding JSON or setting frames: {e}")
+                            print(" ")
 
             except Exception as e:
-                print(f"Error receiving game state: {e}")
-                break
-
-
+                    print(f"Error receiving game state: {e}")
+                    break
             
     def draw_health_bar(self, screen, health, profile_picture, health_bar, health_bar_frame, is_right_side, is_bottom):
         if health < 0:
@@ -780,11 +747,14 @@ class Client:
             username_surface = font.render(self.username, True, (255, 255, 255))
             username_rect = username_surface.get_rect(center=(self.x_pos - self.scroll[0] + self_image.get_width() / 2, self.y_pos - self.scroll[1] - 15))
             screen.blit(username_surface, username_rect)
-        if self.opponent.current_picture:
-            screen.blit(
-                pygame.transform.flip(self.opponent.current_picture, True, False) if self.opponent.Look == 'left' else self.opponent.current_picture,
-                (self.opponent.x_pos - self.scroll[0], self.opponent.y_pos - self.scroll[1])
-            )
+            
+            
+        # اینجا بقیه پلیر ها رو رندر میکنیم     
+        for data in self.other_players_states:
+            if data["Look"]=='right':
+                screen.blit(data['frame_to_display'],(data['x_pos']-self.scroll[0],data['y_pos']-self.scroll[1]))
+            else:
+                screen.blit(pygame.transform.flip(data['frame_to_display'],True,False),(data['x_pos']-self.scroll[0],data['y_pos']-self.scroll[1]))
             
         for bullet in self.bullets:
             if bullet['owner']=="Roboman":
@@ -826,9 +796,9 @@ class Client:
                      screen.blit(pygame.transform.flip(self.Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                     else:
                      screen.blit(pygame.transform.flip(self.Fired_Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
-
+        #باید عکس پروفایل های همه لود بشه و بعد دیسپلی بشن
         self.draw_health_bar(screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, False, False)
-        self.draw_health_bar(screen, self.opponent.health, self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame, True, False)  
+        # self.draw_health_bar(screen, self.opponent.health, self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame, True, False)  
         pygame.display.update()
 
 def main():

@@ -977,7 +977,7 @@ class Ninja:
             "username": self.username,
             "frame_source": frame_source_name,
             "frame_index": frame_index_val,
-            "character": getattr(self, 'character_name', 'Ninja'),
+            "character": 'Ninja',
             "events": self.events if hasattr(self, "events") else []
         }
         print(data)
