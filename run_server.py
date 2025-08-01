@@ -142,8 +142,6 @@ class MultiplayerGame:
                 clock.tick(60)
                 continue
             self.set_teams()
-            print(f"bullets={len(self.shot_bullets)}")
-            print(f"health1={self.heroes[0].health}   health2={self.heroes[1].health}")
             try:
                 if self.type == '1v1':
                     hero1, hero2 = self.heroes[0], self.heroes[1]
