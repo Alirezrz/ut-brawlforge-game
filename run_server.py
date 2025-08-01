@@ -148,19 +148,36 @@ class MultiplayerGame:
                     inputs1 = self.player_inputs.get(0, {})
                     inputs2 = self.player_inputs.get(1, {})
 
-                    keys1 = {k: inputs1.get(kname, False) for k, kname in [
-                        (pygame.K_a, "A"), (pygame.K_d, "D"), (pygame.K_w, "W"),
-                        (pygame.K_LSHIFT, "LSHIFT"), (pygame.K_g, "G"),
-                        (pygame.K_TAB, "TAB"), (pygame.K_RCTRL, "RCTRL"), (pygame.K_RALT, "RALT")]}
+                    inputs1 = self.player_inputs.get(0, {})
+                    inputs2 = self.player_inputs.get(1, {})
+
+                    keys1 = {
+                        pygame.K_a: inputs1.get("A", False),
+                        pygame.K_d: inputs1.get("D", False),
+                        pygame.K_w: inputs1.get("W", False),
+                        pygame.K_LSHIFT: inputs1.get("LSHIFT", False),
+                        pygame.K_g: inputs1.get("G", False),
+                        pygame.K_TAB: inputs1.get("TAB", False),
+                        pygame.K_RCTRL: inputs1.get("RCTRL", False),
+                        pygame.K_RALT: inputs1.get("RALT", False),
+                    }
                     mouse1 = (inputs1.get("left_click", False), False, inputs1.get("right_click", False))
 
-                    keys2 = {k: inputs2.get(kname, False) for k, kname in keys1.items()}
-                    print("keys:")
-                    print(keys2)
+                    keys2 = {
+                        pygame.K_a: inputs2.get("A", False),
+                        pygame.K_d: inputs2.get("D", False),
+                        pygame.K_w: inputs2.get("W", False),
+                        pygame.K_LSHIFT: inputs2.get("LSHIFT", False),
+                        pygame.K_g: inputs2.get("G", False),
+                        pygame.K_TAB: inputs2.get("TAB", False),
+                        pygame.K_RCTRL: inputs2.get("RCTRL", False),
+                        pygame.K_RALT: inputs2.get("RALT", False),
+                    }
                     mouse2 = (inputs2.get("left_click", False), False, inputs2.get("right_click", False))
 
                     hero1.handle_input_online(keys1, self.gates, self.shot_bullets, bullet_class, None, mouse1)
                     hero2.handle_input_online(keys2, self.gates, self.shot_bullets, bullet_class, None, mouse2)
+
 
                     hero1.update_online(self.platforms, self.shot_bullets, [hero2], keys1, self.gates, None)
                     hero2.update_online(self.platforms, self.shot_bullets, [hero1], keys2, self.gates, None)

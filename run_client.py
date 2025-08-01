@@ -602,6 +602,7 @@ class Client:
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
                         print(line)
+                        print("-----------------------------------------------")
 
                         try:
                             parsed = json.loads(line)
