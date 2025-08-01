@@ -61,7 +61,7 @@ class MultiplayerGame:
             exit()
         self.clients = []
         self.player_inputs = {}
-        self.heroes = [None, None]  
+        self.heroes = [None, None]  if type=='1v1' else  [None, None] *2 
         self.game_active = False
         self.platforms = platforms
         self.shot_bullets = []
@@ -120,19 +120,6 @@ class MultiplayerGame:
         self.heroes[player_index] = None
         self.player_inputs[player_index] = {}
         conn.close()
-        
-    def set_teams(self):
-        if self.TEAMS_SET:
-            return
-        if self.type=='1v1':
-            self.team_A=[self.heroes[0]]
-            self.team_B=[self.heroes[1]]
-            
-        else:
-            self.team_A=[self.heros[0],self.heroes[1]]
-            self.team_B=[self.heroes[2],self.heroes[3]]
-            
-        self.TEAMS_SET=True
 
     def game_loop(self):
         print("Game loop started")
@@ -141,15 +128,13 @@ class MultiplayerGame:
             if not all(self.heroes):
                 clock.tick(60)
                 continue
-            self.set_teams()
             try:
                 if self.type == '1v1':
                     hero1, hero2 = self.heroes[0], self.heroes[1]
                     inputs1 = self.player_inputs.get(0, {})
                     inputs2 = self.player_inputs.get(1, {})
 
-                    inputs1 = self.player_inputs.get(0, {})
-                    inputs2 = self.player_inputs.get(1, {})
+                    
 
                     keys1 = {
                         pygame.K_a: inputs1.get("A", False),
@@ -198,17 +183,29 @@ class MultiplayerGame:
                         "bullets": bullets_state
                     }).encode('utf-8') + b"\n")
 
-                    hero1.events = []
-                    hero2.events = []
+                    # hero1.events = []
+                    # hero2.events = []
 
                 elif self.type == '2v2':
                     hero1, hero2, hero3, hero4 = self.heroes
                     inputs = [self.player_inputs.get(i, {}) for i in range(4)]
-                    keys = [{k: inp.get(kname, False) for k, kname in [
-                        (pygame.K_a, "A"), (pygame.K_d, "D"), (pygame.K_w, "W"),
-                        (pygame.K_LSHIFT, "LSHIFT"), (pygame.K_g, "G"),
-                        (pygame.K_TAB, "TAB"), (pygame.K_RCTRL, "RCTRL"), (pygame.K_RALT, "RALT")]} for inp in inputs]
-                    mice = [(inp.get("left_click", False), False, inp.get("right_click", False)) for inp in inputs]
+                    keys=[]
+                    for i in range(4):
+                        keys.append({
+                        pygame.K_a: inputs[i].get("A", False),
+                        pygame.K_d: inputs[i].get("D", False),
+                        pygame.K_w: inputs[i].get("W", False),
+                        pygame.K_LSHIFT: inputs[i].get("LSHIFT", False),
+                        pygame.K_g: inputs[i].get("G", False),
+                        pygame.K_TAB: inputs[i].get("TAB", False),
+                        pygame.K_RCTRL: inputs[i].get("RCTRL", False),
+                        pygame.K_RALT: inputs[i].get("RALT", False),
+                    })
+                        
+                    mice=[]
+                    for i in range(4):
+                        mice.append((inputs[i].get("left_click", False), False, inputs[i].get("right_click", False)))
+                    
 
                     heroes = [hero1, hero2, hero3, hero4]
                     for i in range(4):
@@ -249,7 +246,7 @@ class MultiplayerGame:
         else:
             self.server_socket.listen(4)
         print(f"Server started on {HOST}:{PORT}, waiting for 2 players...")
-        self.clients = [None, None]  *1 if self.type=='1v1' else 2
+        self.clients = [None, None]  *1 if self.type=='1v1' else [None, None]  *2
         if self.type=='1v1':
             self.player_inputs = {0: {}, 1: {}}
         else:

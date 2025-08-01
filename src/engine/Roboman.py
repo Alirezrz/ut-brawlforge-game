@@ -11,7 +11,7 @@ class Roboman:
         self.username=username
         self.x_pos = x
         self.y_pos = y
-
+        self.events=[]
         self.on_platform = False
         self.current_platform = None
         self.status="idle"
@@ -1016,7 +1016,7 @@ class Roboman:
             "frame_source": frame_source_name,
             "frame_index": frame_index_val,
             "character": "Roboman",
-            "events": self.events if hasattr(self, "events") else []
+            "events": self.events 
         }
 
 

@@ -601,8 +601,7 @@ class Client:
 
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
-                        print(line)
-                        print("-----------------------------------------------")
+                       
 
                         try:
                             parsed = json.loads(line)
@@ -616,8 +615,7 @@ class Client:
                             self.frame_index = selfdata['frame_index']
                             self.character_name = selfdata.get("character", "Ninja")
 
-                            for event in selfdata.get("events", []):
-                                self.play_sound(event, self.character_name)
+                            
 
                             type_of_hero = selfdata['character']
                             frame_source = selfdata['frame_source']

@@ -17,6 +17,7 @@ class Archer:
         self.on_platform = False
         self.current_platform = None
         self.horizontal_auto_speed = 0
+        self.events=[]
         self.allow_move_right = True
         self.allow_move_left = True
         self.Look = 'right'
@@ -368,39 +369,7 @@ class Archer:
                 
             if keys[pygame.K_TAB]:
                 self.Send_teleport_request(gates)
-        if self.hero_creation_index==2:
-            if keys[pygame.K_LEFT] and self.status not in ('shot', 'attack'):
-                self.move_left()
-                self.is_moving_horizontally = True
-            if keys[pygame.K_RIGHT] and self.status not in ('shot', 'attack'):
-                self.move_right()
-                self.is_moving_horizontally = True
-            if keys[pygame.K_UP]:
-                self.jump()
-
-            if keys[pygame.K_RCTRL] and not self.shooting and self.status != 'attack':
-                self.shooting = True
-                self.status = 'shot'
-                self.current_frame_index = 0
-                self.shot_triggered = False
-
-            if keys[pygame.K_RALT] and self.status not in ('attack', 'shot'):
-                self.status = 'attack'
-                self.current_frame_index = 0
-                self.attack_triggered = False
-                self.attack_targets = self.targets
-
-            if keys[pygame.K_SLASH]:
-                self.call_drone()
-
-            if keys[pygame.K_RSHIFT]:
-                self.activate_super_power()
-                
-            if keys[pygame.K_RETURN]:
-                self.Send_teleport_request(gates)
-
-        if not self.is_moving_horizontally:
-            self.stop_horizontal_movement()
+        
             
             
     def handle_input_online(self, keys, gate, shot_bullets, bullet_class, trigger_shutter, mouse_buttons):
@@ -417,16 +386,22 @@ class Archer:
                 self.jump()
                 print("jump...")
             if keys[pygame.K_LSHIFT]:
-                self.activate_jetpack()
+                self.activate_super_power()
             if keys[pygame.K_TAB]:
                 self.Send_teleport_request(gate)
-            if mouse_buttons[0]:
-                self.shoot(shot_bullets, bullet_class)
+            if mouse_buttons[0] and not self.shooting and self.status != 'attack':
+                self.shooting = True
+                self.status = 'shot'
+                self.current_frame_index = 0
+                self.shot_triggered = False
 
             if keys[pygame.K_g]:
                 self.call_drone()
-            if mouse_buttons[2]:
-                self.shoot_rocket(shot_bullets, bullet_class)      
+            if mouse_buttons[2] and self.status not in ('attack', 'shot'):
+                self.status = 'attack'
+                self.current_frame_index = 0
+                self.attack_triggered = False
+                self.attack_targets = self.targets      
   
 
     def update_bullets(self, screen, global_bullet_list, platforms, targets):
@@ -701,7 +676,7 @@ class Archer:
             "frame_source": frame_source_name,
             "frame_index": frame_index_val,
             "character": 'Archer',
-            "events": self.events if hasattr(self, "events") else []
+            "events": self.events 
            }
 
         

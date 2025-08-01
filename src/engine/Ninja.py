@@ -10,7 +10,7 @@ class Ninja:
         self.frame_address=None
         self.ALIVE=True
         self.DEAD=False
-        
+        self.events = []
         
         self.frame_address=None
 
@@ -831,32 +831,7 @@ class Ninja:
             if keys[pygame.K_TAB]:
                 self.Send_teleport_request(gate)
 
-        if self.hero_creation_index==2:
-            if keys[pygame.K_RALT]:
-                self.attack()            
-            if keys[pygame.K_LEFT]:
-                self.move_left()
-                self.is_moving_horizontally = True
-            if keys[pygame.K_RIGHT]:
-                self.move_right()
-                self.is_moving_horizontally = True
-            if keys[pygame.K_UP]:
-                self.jump()
-            if keys[pygame.K_RSHIFT]:
-                if not self.Super_PowerFlag:
-                    if trigger_shutter:
-                        trigger_shutter(strength=10, duration=1500)
-                self.Activate_Super_Power()
-            if keys[pygame.K_RCTRL]:
-                self.shoot(shot_bullets, bullet_class)
-            if keys[pygame.K_RETURN]:
-                self.Send_teleport_request(gate)
-            if keys[pygame.K_SLASH]:
-                self.call_drone()
-
-        if not self.is_moving_horizontally:
-            self.stop_horizontal_movement()
-                    # Add in handle_input
+       
                     
     def handle_input_online(self, keys, gate, shot_bullets, bullet_class, trigger_shutter, mouse_buttons):
             self.is_moving_horizontally = False
@@ -872,7 +847,10 @@ class Ninja:
                 self.jump()
                 print("jump...")
             if keys[pygame.K_LSHIFT]:
-                self.activate_jetpack()
+                if not self.Super_PowerFlag:
+                    if trigger_shutter:
+                        trigger_shutter(strength=10, duration=1500)
+                self.Activate_Super_Power()
             if keys[pygame.K_TAB]:
                 self.Send_teleport_request(gate)
             if mouse_buttons[0]:
@@ -881,7 +859,7 @@ class Ninja:
             if keys[pygame.K_g]:
                 self.call_drone()
             if mouse_buttons[2]:
-                self.shoot_rocket(shot_bullets, bullet_class)      
+                self.attack()      
 
             
                 
@@ -978,7 +956,7 @@ class Ninja:
             "frame_source": frame_source_name,
             "frame_index": frame_index_val,
             "character": 'Ninja',
-            "events": self.events if hasattr(self, "events") else []
+            "events": self.events
         }
         print(data)
         return data

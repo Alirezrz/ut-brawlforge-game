@@ -126,7 +126,7 @@ class NinjaGirl(Ninja):
             "frame_source": frame_source_name,
             "frame_index": frame_index_val,
             "character": 'NinjaGirl',
-            "events": self.events if hasattr(self, "events") else []
+            "events": self.events
         }
         print(data)
         return data
