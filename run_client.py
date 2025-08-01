@@ -165,15 +165,15 @@ class Client:
                     except Exception as e:
                         print(f"Error loading Roboman idle frame 'Idle ({i}).png': {e}")
                         self.frames["Roboman"]["idle_frames"].append(pygame.Surface((70, 118)))
-                self.frames["Roboman"]["jump_frames"] = []
+                self.frames["Roboman"]["Jump_frames"] = []
                 sizes = [(73, 118), (80, 118), (90, 118), (91, 118), (90, 118), (109, 118), (95, 118), (96, 118), (84, 118)]
                 for i in range(1, 10):
                     img_path = os.path.join(base_path, "jump", f"Jump ({i}).png")
                     try:
-                        self.frames["Roboman"]["jump_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i-1]))
+                        self.frames["Roboman"]["Jump_frames"].append(pygame.transform.scale(pygame.image.load(img_path), sizes[i-1]))
                     except Exception as e:
                         print(f"Error loading Roboman jump frame 'Jump ({i}).png': {e}")
-                        self.frames["Roboman"]["jump_frames"].append(pygame.Surface(sizes[i-1]))
+                        self.frames["Roboman"]["Jump_frames"].append(pygame.Surface(sizes[i-1]))
                 self.frames["Roboman"]["shoot_frames"] = []
                 sizes = [(83, 118), (83, 118), (82, 118), (84, 118)]
                 for i in range(1, 5):
@@ -614,7 +614,7 @@ class Client:
                             self.frame_source = selfdata['frame_source']
                             self.frame_index = selfdata['frame_index']
                             self.character_name = selfdata.get("character", "Ninja")
-
+                            
                             
 
                             type_of_hero = selfdata['character']

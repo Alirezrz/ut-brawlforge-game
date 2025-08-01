@@ -497,9 +497,7 @@ class Roboman:
         else:
             print("Roboman frames not detected")
             
-        print(f"sending from ninja ")
-        print(f"frame_adress={self.frame_address[0] }    {self.frame_address[1]}")
-        print("-------------------------------")
+       
 
 
     def stop_horizontal_movement(self):

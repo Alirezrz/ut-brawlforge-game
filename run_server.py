@@ -126,9 +126,6 @@ class MultiplayerGame:
         
         clock = pygame.time.Clock()
         while self.game_active:
-            print("------------------------------")
-            print(f"number of bullets---->  {len(self.shot_bullets)}")
-            print("------------------------------")
             if not all(self.heroes):
                 clock.tick(60)
                 continue
