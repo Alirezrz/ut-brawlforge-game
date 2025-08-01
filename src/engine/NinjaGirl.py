@@ -128,5 +128,4 @@ class NinjaGirl(Ninja):
             "character": 'NinjaGirl',
             "events": self.events
         }
-        print(data)
         return data

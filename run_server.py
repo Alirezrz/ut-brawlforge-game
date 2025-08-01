@@ -123,8 +123,12 @@ class MultiplayerGame:
 
     def game_loop(self):
         print("Game loop started")
+        
         clock = pygame.time.Clock()
         while self.game_active:
+            print("------------------------------")
+            print(f"number of bullets---->  {len(self.shot_bullets)}")
+            print("------------------------------")
             if not all(self.heroes):
                 clock.tick(60)
                 continue
@@ -245,7 +249,7 @@ class MultiplayerGame:
             self.server_socket.listen(2)
         else:
             self.server_socket.listen(4)
-        print(f"Server started on {HOST}:{PORT}, waiting for 2 players...")
+        print(f"Server started on {HOST}:{PORT}, waiting for players...")
         self.clients = [None, None]  *1 if self.type=='1v1' else [None, None]  *2
         if self.type=='1v1':
             self.player_inputs = {0: {}, 1: {}}

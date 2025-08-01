@@ -958,7 +958,6 @@ class Ninja:
             "character": 'Ninja',
             "events": self.events
         }
-        print(data)
         return data
         
                       

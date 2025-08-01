@@ -696,7 +696,6 @@ class Arrow:
         self.height = arrow_picture.get_height()
         self.status = 'in game'
         self.damage=damage
-        self.owner='archer'
         
        
         self.hitbox = pygame.Rect(
