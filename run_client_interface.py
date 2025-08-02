@@ -8,10 +8,15 @@ from config import screen_width, screen_height,profileSideSize,health_bar_lenght
 from src.utils import get_my_local_ip
 # Initialize Pygame
 pygame.init()
+try:
+    screen = pygame.display.set_mode((screen_width, screen_height))
+    pygame.display.set_caption("BrawlForge Client")
+except Exception as e:
+    print(f"Error initializing Pygame screen: {e}")
+    exit()
 
 
 
-screen='will be initialized in main '
 
 
 HOST = get_my_local_ip()
@@ -54,7 +59,7 @@ class Client:
         self.scroll=[0,0]
         self.bullets=[]
         self.other_players_states=[]
-        self.screen=None
+        self.screen=screen
         if "idle_frames" in self.frames and len(self.frames["idle_frames"]) > 0:
             self.current_picture = self.frames["idle_frames"][0]
         else:
