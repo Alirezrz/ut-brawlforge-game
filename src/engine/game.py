@@ -233,21 +233,21 @@ class Game:
             if not game_is_over:
                 win_or_loss_triggered = False
                 if self.hero.DEAD:
-                    final_message = "You Lost!"
+                    final_message = "Wasted"
                     win_or_loss_triggered = True
                 elif self.map in [level_1_data, level_2_data, level_3_data]:
                     bomb_obj = self.objects_dict.get('bomb')
                     if bomb_obj:
                         if bomb_obj.timer <= 0 and not bomb_obj.is_defused:
-                            final_message = "You Lost! Time's Up!"
+                            final_message = "Time's Up!"
                             win_or_loss_triggered = True
                         elif bomb_obj.is_defused:
-                            final_message = "You Win! Bomb Defused!"
+                            final_message = "Bomb Defused!"
                             win_or_loss_triggered = True
                 elif self.map in [level_4_data, Boss_fight_level]:
                     boss = self.enemies_dict.get('dragonlord')
                     if boss and boss.DEAD:
-                        final_message = "You Win! Boss Defeated!"
+                        final_message = "Boss Defeated!"
                         win_or_loss_triggered = True
 
                 if win_or_loss_triggered:
