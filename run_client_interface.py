@@ -18,7 +18,7 @@ HOST = get_my_local_ip()
 PORT = 9191
 
 class Client:
-    def __init__(self):
+    def __init__(self,hero_type):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.socket.connect((HOST, PORT))
@@ -30,6 +30,7 @@ class Client:
         self.type = None
         self.hero = None
         self.opponent = None
+        self.hero_type=hero_type
         self.frames = {
             "Roboman":{},
             "Ninja":{},
@@ -62,11 +63,7 @@ class Client:
         
 
     def load_assets(self):
-        print("Select your hero type:")
-        print("1_ Roboman")
-        print("2_ Ninja")
-        print("3_ NinjaGirl")
-        print("4_ Archer")
+       
         
         # Load platform images
         platform_image_path = "src/assets/images/"
