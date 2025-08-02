@@ -8,39 +8,11 @@ from config import screen_width, screen_height,profileSideSize,health_bar_lenght
 from src.utils import get_my_local_ip
 # Initialize Pygame
 pygame.init()
-try:
-    screen = pygame.display.set_mode((screen_width, screen_height))
-    pygame.display.set_caption("BrawlForge Client")
-except Exception as e:
-    print(f"Error initializing Pygame screen: {e}")
-    exit()
 
-# Load platform images
-platform_image_path = "src/assets/images/"
-platform_images = {}
-try:
-    platform_images = {
-        'left': pygame.image.load(os.path.join(platform_image_path, "platform_left.png")).convert_alpha(),
-        'middle': pygame.image.load(os.path.join(platform_image_path, "platform_middle.png")).convert_alpha(),
-        'right': pygame.image.load(os.path.join(platform_image_path, "platform_right.png")).convert_alpha(),
-        'solid': pygame.image.load(os.path.join(platform_image_path, "platform_solid.png")).convert_alpha(),
-    }
-    print("Platform images loaded successfully")
-except Exception as e:
-    print(f"Error loading platform images: {e}")
-    platform_images = {key: pygame.Surface((100, 20)) for key in ['left', 'middle', 'right', 'solid']}
-    for surface in platform_images.values():
-        surface.fill((100, 100, 100)) 
 
-# Load background
-try:
-    background = pygame.image.load("src/assets/images/city1.png")
-    background = pygame.transform.scale(background, (screen_width, screen_height))
-    print("Background image loaded successfully")
-except Exception as e:
-    print(f"Error loading background: {e}")
-    background = pygame.Surface((screen_width, screen_height))
-    background.fill((0, 100, 200))  
+
+screen='will be initialized in main '
+
 
 HOST = get_my_local_ip()
 PORT = 9191
@@ -54,7 +26,6 @@ class Client:
         except Exception as e:
             print(f"Error connecting to server: {e}")
             exit()
-        self.platforms = load_level_data(multiplayer_data, platform_images)
         self.scroll = [0, 0]
         self.type = None
         self.hero = None
@@ -82,6 +53,7 @@ class Client:
         self.scroll=[0,0]
         self.bullets=[]
         self.other_players_states=[]
+        self.screen=None
         if "idle_frames" in self.frames and len(self.frames["idle_frames"]) > 0:
             self.current_picture = self.frames["idle_frames"][0]
         else:
@@ -95,6 +67,31 @@ class Client:
         print("2_ Ninja")
         print("3_ NinjaGirl")
         print("4_ Archer")
+        
+        # Load platform images
+        platform_image_path = "src/assets/images/"
+        platform_images = {}
+        try:
+            self.platform_images = {
+                'left': pygame.image.load(os.path.join(platform_image_path, "platform_left.png")).convert_alpha(),
+                'middle': pygame.image.load(os.path.join(platform_image_path, "platform_middle.png")).convert_alpha(),
+                'right': pygame.image.load(os.path.join(platform_image_path, "platform_right.png")).convert_alpha(),
+                'solid': pygame.image.load(os.path.join(platform_image_path, "platform_solid.png")).convert_alpha(),
+            }
+            self.platforms = load_level_data(multiplayer_data, platform_images)
+            print("Platform images loaded successfully")
+            
+        except Exception as e:
+            print(f"Error loading platform images: {e}")
+            self.platform_images = {key: pygame.Surface((100, 20)) for key in ['left', 'middle', 'right', 'solid']}
+        try:
+            self.background = pygame.image.load("src/assets/images/city1.png")
+            self.background = pygame.transform.scale(self.background, (screen_width, screen_height))
+            print("Background image loaded successfully")
+        except Exception as e:
+            print(f"Error loading background: {e}")
+              
+            
         
         try:
             self.type = int(input("Enter choice (1-4): "))
@@ -717,8 +714,10 @@ class Client:
             
                             
     def render_game(self):
-        
-        screen.blit(background, (0, 0))
+        if self.screen==None:
+            pygame.display.set_caption("BrawlForge Client")
+            
+        screen.blit(self.background, (0, 0))
         try:
             font = pygame.font.Font("src/assets/fonts/VCR_OSD_MONO.ttf", 20)
         except:
@@ -800,23 +799,3 @@ class Client:
         # self.draw_health_bar(screen, self.opponent.health, self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame, True, False)  
         pygame.display.update()
 
-def main():
-
-    client = Client()
-    threading.Thread(target=client.send_input, daemon=True).start()
-    threading.Thread(target=client.receive_state, daemon=True).start()
-
-    clock = pygame.time.Clock()
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                client.socket.close()
-                exit()
-        if client.current_picture!=None:
-            client.render_game()
-        
-        clock.tick(60)
-
-if __name__ == "__main__":
-    main()

@@ -270,12 +270,5 @@ class MultiplayerGame:
                 self.game_active = False
         self.server_socket.close()
 
-def main():
-    print("1v1 or 2v2 :")
-    kind=input()
-    game = MultiplayerGame(kind)
-    game.start()
 
-if __name__ == "__main__":
-    main()
     
