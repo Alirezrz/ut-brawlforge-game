@@ -22,7 +22,7 @@ class Server:
         self.broadcast_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
         self.connected_clients = []
-        self.lock = threading.Lock()  # For thread-safe access to shared data
+        self.lock = threading.Lock()  
 
         threading.Thread(target=self.accept_clients, daemon=True).start()
         threading.Thread(target=self.broadcast_presence, daemon=True).start()
@@ -97,7 +97,7 @@ class Server:
             option = client_socket.recv(1024).decode().strip()
             if option == "1":
                 self.handle_create_game(client_info)
-                self.handle_creator_session(client_info)  # Keep creator connected
+                self.handle_creator_session(client_info)  
             elif option == "2":
                 self.handle_join_game(client_info)
             else:
@@ -126,7 +126,6 @@ class Server:
         print(f"[SERVER] Game created by {client_info['username']} (ID: {creator_id}), type: {game_type}")
 
     def handle_creator_session(self, client_info):
-        """Keep the creator's socket open to handle join requests or other messages."""
         sock = client_info['socket']
         creator_id = client_info['id']
         try:
@@ -143,7 +142,7 @@ class Server:
 
     def handle_join_game(self, client_info):
         sock = client_info['socket']
-        sock.sendall(b"Choose the way to join the game:\n1. Search username or id\n2. Leave it on server\n(1 or 2):")
+        sock.sendall(b"Choose the way to join the game:\n1. Search username or id(creator of game id/username)\n2. Leave it on server\n(1 or 2):")
         choice = sock.recv(1024).decode().strip()
 
         creator_id = None
