@@ -65,7 +65,15 @@ class Client:
             self.current_picture = pygame.Surface((50, 50))
             self.current_picture.fill((255, 0, 0))
         
-
+    def get_character_name(self, hero_type):
+        if hero_type == 1: return "Roboman"
+        if hero_type == 2: return "Ninja"
+        if hero_type == 3: return "NinjaGirl"
+        if hero_type == 4: return "Archer"
+        return "Ninja"
+    
+    
+    
     def load_assets(self):
        
         
