@@ -245,4 +245,6 @@ class MultiplayerGame:
         self.clients = clients
         self.player_inputs = {i: {} for i in range(len(clients))}
         self.game_active = True
+        for idx, conn in enumerate(clients):
+            threading.Thread(target=self.client_thread, args=(conn, idx), daemon=True).start()
         threading.Thread(target=self.game_loop, daemon=True).start()
