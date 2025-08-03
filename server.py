@@ -162,7 +162,9 @@ class Server:
                             game.game_active = True
                             threading.Thread(target=game.game_loop, daemon=True).start()
 
-                            return
+                            break
+
+                            
                 if not self.is_socket_open(sock):
                     print(f"[SERVER] Creator {client_info['username']} (ID: {creator_id}) socket closed")
                     break

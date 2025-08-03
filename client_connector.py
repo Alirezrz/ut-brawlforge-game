@@ -140,7 +140,7 @@ if __name__ == '__main__':
             msg = connector.client_socket.recv(1024).decode()
             print(f"[SERVER] {msg}")
             
-            if "Game is starting" in msg :
+            if msg == "setup_complete":
                 print("[CLIENT] Starting local game client...")
                 print("game_client created")
                 game_client = Client(hero_type=2)  
