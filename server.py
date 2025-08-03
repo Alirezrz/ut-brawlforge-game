@@ -143,18 +143,25 @@ class Server:
                             print(f"[SERVER] Game {creator_id} is ready to start with {player_count} players.")
                             game_type_str = "1v1" if game_type == "1" else "2v2"
 
+                            for p in session['players']:
+                                try:
+                                    p['socket'].sendall(b"Game is starting") 
+                                except:
+                                    pass
+
+                            pygame.time.wait(3000)
+
+                            for p in session['players']:
+                                try:
+                                    p['socket'].sendall(b"setup_complete")
+                                except:
+                                    pass
+
                             game = MultiplayerGame(game_type_str)
                             game.set_players([p['socket'] for p in session['players']])
                             game.game_active = True
                             threading.Thread(target=game.game_loop, daemon=True).start()
 
-                            for p in session['players']:
-                                try:
-                                    p['socket'].sendall(b"Game is starting in 3 seconds...\n")
-                                except:
-                                    pass
-
-                            pygame.time.wait(3000)
                             return
                 if not self.is_socket_open(sock):
                     print(f"[SERVER] Creator {client_info['username']} (ID: {creator_id}) socket closed")
