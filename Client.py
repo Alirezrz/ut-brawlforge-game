@@ -85,7 +85,7 @@ class Client:
         platform_image_path = "src/assets/images/"
         platform_images = {}
         try:
-            self.platform_images = {
+            platform_images = {
                 'left': pygame.image.load(os.path.join(platform_image_path, "platform_left.png")).convert_alpha(),
                 'middle': pygame.image.load(os.path.join(platform_image_path, "platform_middle.png")).convert_alpha(),
                 'right': pygame.image.load(os.path.join(platform_image_path, "platform_right.png")).convert_alpha(),
@@ -97,10 +97,10 @@ class Client:
         except Exception as e:
             print(f"Error loading platform images: {e}")
             self.platform_images = {
-                'left': pygame.Surface((100, 20)),
-                'middle': pygame.Surface((100, 20)),
-                'right': pygame.Surface((100, 20)),
-                'solid': pygame.Surface((100, 20))
+                'left': pygame.Surface((64, 64)),
+                'middle': pygame.Surface((64, 64)),
+                'right': pygame.Surface((64, 64)),
+                'solid': pygame.Surface((64, 64))
             }
             self.platforms = load_level_data(multiplayer_data, self.platform_images)
         try:
