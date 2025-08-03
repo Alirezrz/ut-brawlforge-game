@@ -241,34 +241,8 @@ class MultiplayerGame:
                 print(f"Game loop error: {e}")
                 self.game_active = False
 
-    def start(self):
-        if self.type=='1v1': 
-            self.server_socket.listen(2)
-        else:
-            self.server_socket.listen(4)
-        print(f"Server started on {HOST}:{PORT}, waiting for players...")
-        self.clients = [None, None]  *1 if self.type=='1v1' else [None, None]  *2
-        if self.type=='1v1':
-            self.player_inputs = {0: {}, 1: {}}
-        else:
-            self.player_inputs = {0: {}, 1: {},2:{},3:{}}
+    def set_players(self, clients):
+        self.clients = clients
+        self.player_inputs = {i: {} for i in range(len(clients))}
         self.game_active = True
-        game_thread = threading.Thread(target=self.game_loop)
-        game_thread.daemon = True
-        game_thread.start()
-        while self.game_active:
-            try:
-                conn, addr = self.server_socket.accept()
-                index = self.clients.index(None)
-                self.clients[index] = conn
-                thread = threading.Thread(target=self.client_thread, args=(conn, index))
-                thread.daemon = True
-                thread.start()
-                print(f"Client connected: {addr}, assigned index: {index}")
-            except Exception as e:
-                print(f"Server error: {e}")
-                self.game_active = False
-        self.server_socket.close()
-
-
-    
+        threading.Thread(target=self.game_loop, daemon=True).start()
