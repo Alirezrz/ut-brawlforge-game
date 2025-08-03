@@ -3,6 +3,7 @@ import socket
 import threading
 import random
 
+from multiplayergame import MultiplayerGame
 HOST = '0.0.0.0'
 PORT = 9191
 BROADCAST_PORT = 9192
