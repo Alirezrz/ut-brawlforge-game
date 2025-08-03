@@ -138,6 +138,13 @@ if __name__ == '__main__':
         while True:
             pygame.time.wait(1000)
             print("client is alive")
+            game_client = Client(hero_type=2)  
+            threading.Thread(target=game_client.send_input, daemon=True).start()
+
+            threading.Thread(target=game_client.receive_state, daemon=True).start()
+
+            while True:
+                game_client.render_game()
     except KeyboardInterrupt:
         print("[CLIENT] Client terminated by user.")
         if connector.client_socket:
