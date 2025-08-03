@@ -18,10 +18,16 @@ except Exception as e:
 
 class Client:
     def __init__(self, sock, username, player_id, hero_type=2):
+        self.profile_picture = pygame.Surface((profileSideSize, profileSideSize))
+        self.profile_picture.fill((100, 100, 100))
+        self.health_bar = pygame.Surface((health_bar_lenght, 20))
+        self.health_bar.fill((255, 0, 0))
+        self.health_bar_frame = pygame.Surface((health_bar_lenght + 2 * roboman_health_bar_frame_thickness, 22))
+        self.health_bar_frame.fill((255, 255, 255))
         self.socket =sock
         self.username=username
         self.player_id=player_id
-    
+        self.hero_type=hero_type
         initial_data = {
             "username": self.username,
             "character": self.get_character_name(self.hero_type)
@@ -31,10 +37,9 @@ class Client:
         except Exception as e:
             print(f"Error sending initial data: {e}")
         self.scroll = [0, 0]
-        self.type = None
         self.hero = None
         self.opponent = None
-        self.hero_type=hero_type
+        
         self.frames = {
             "Roboman":{},
             "Ninja":{},
@@ -46,17 +51,16 @@ class Client:
         self.load_assets()
         self.opponent_character = ""
         self.opponent_frames = {"idle_frames": [pygame.Surface((50, 50))]}
-        self.send_initial_data()
         self.x_pos=0
         self.y_pos=0
         self.health=100
         self.Look='right'
-        self.username=None
         self.frame_source='idle'
         self.frame_index=0
         self.current_picture=None
         self.scroll=[0,0]
         self.bullets=[]
+        self.platforms = []
         self.other_players_states=[]
         self.screen=screen
         if "idle_frames" in self.frames and len(self.frames["idle_frames"]) > 0:
@@ -92,7 +96,13 @@ class Client:
             
         except Exception as e:
             print(f"Error loading platform images: {e}")
-            self.platform_images = {key: pygame.Surface((100, 20)) for key in ['left', 'middle', 'right', 'solid']}
+            self.platform_images = {
+                'left': pygame.Surface((100, 20)),
+                'middle': pygame.Surface((100, 20)),
+                'right': pygame.Surface((100, 20)),
+                'solid': pygame.Surface((100, 20))
+            }
+            self.platforms = load_level_data(multiplayer_data, self.platform_images)
         try:
             self.background = pygame.image.load("src/assets/images/city1.png")
             self.background = pygame.transform.scale(self.background, (screen_width, screen_height))
@@ -103,7 +113,7 @@ class Client:
             
         
         try:
-            self.type = int(input("Enter choice (1-4): "))
+            self.type = self.hero_type
             if self.type not in [1, 2, 3, 4]:
                 raise ValueError("Invalid hero type")
         except ValueError:
@@ -442,6 +452,8 @@ class Client:
             print(f"Error loading hero assets: {e}")
             self.frames = {key: [pygame.Surface((50, 50)) for _ in range(10)] for key in ["idle_frames", "run_frames", "jump_frames"]}
 
+        self.load_ui_assets(self.get_character_name(self.hero_type))
+
         # hero and opponent
         self.hero = type('Hero', (), {
             'x_pos': 0, 'y_pos': 0, 'Look': 'right', 'health': 100,
@@ -461,13 +473,12 @@ class Client:
         })()
 
  
-    def send_initial_data(self):
-        username = input("Enter your username: ")
+    '''def send_initial_data(self):
         char_map = {1: "Roboman", 2: "Ninja", 3: "NinjaGirl", 4: "Archer"}
         self.character_name = char_map.get(self.type, "Ninja")
         self.load_ui_assets(self.character_name)
         self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame = self.load_ui_assets_for_opponent("Ninja")
-        initial_data = {"username": username, "character": char_map.get(self.type, "Ninja")}
+        initial_data = {"username": self.username, "character": char_map.get(self.type, "Ninja")}
         try:
             self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
             data = self.socket.recv(1024).decode('utf-8')
@@ -479,7 +490,7 @@ class Client:
         except Exception as e:
             print(f"Error sending initial data: {e}")
             exit()
-
+'''
     def send_input(self):
         clock = pygame.time.Clock()
         while True:
@@ -673,8 +684,7 @@ class Client:
                                 })
 
                         except Exception as e:
-                            #print(f"Error decoding JSON or setting frames: {e}")
-                            print(" ")
+                            print(f"Error decoding JSON or setting frames: {e}")
 
             except Exception as e:
                     print(f"Error receiving game state: {e}")
