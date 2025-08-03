@@ -132,6 +132,33 @@ class Server:
         try:
             sock.sendall(b"Game created. Waiting for players to join...")
             while True:
+                with self.lock:
+                    session = game_sessions.get(creator_id)
+                    if session:
+                        player_count = len(session['players'])
+                        game_type = session['type']
+                        required_players = 2 if game_type == "1" else 4
+
+                        if player_count == required_players:
+                            print(f"[SERVER] Game {creator_id} is ready to start with {player_count} players.")
+                            # تبدیل به نام مشخص برای گیم‌تایپ
+                            game_type_str = "1v1" if game_type == "1" else "2v2"
+
+                            # ساخت بازی
+                            game = MultiplayerGame(game_type_str)
+                            game.set_players([p['socket'] for p in session['players']])
+                            game.game_active = True
+                            threading.Thread(target=game.game_loop, daemon=True).start()
+
+                            # اطلاع‌رسانی به بازیکنان
+                            for p in session['players']:
+                                try:
+                                    p['socket'].sendall(b"Game is starting in 3 seconds...\n")
+                                except:
+                                    pass
+
+                            pygame.time.wait(3000)
+                            return
                 if not self.is_socket_open(sock):
                     print(f"[SERVER] Creator {client_info['username']} (ID: {creator_id}) socket closed")
                     break
