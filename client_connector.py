@@ -117,7 +117,9 @@ class ClientConnector:
                             self.client_socket.settimeout(30.0)
                             message = self.client_socket.recv(1024).decode()
                             print(f"[SERVER] {message}")
-                            if "Accept? (yes/no)" in message:
+                            if "Game is starting" in message:
+                                break
+                            elif "Accept? (yes/no)" in message:
                                 response = input("Enter yes/no: ")
                                 self.client_socket.sendall(response.encode())
                         except socket.timeout:
