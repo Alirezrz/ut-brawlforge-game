@@ -143,7 +143,12 @@ if __name__ == '__main__':
             if msg == "setup_complete":
                 print("[CLIENT] Starting local game client...")
                 print("game_client created")
-                game_client = Client(hero_type=2)  
+                game_client = Client(
+                connector.client_socket,  
+                connector.username,
+                connector.client_id,
+                hero_type=2
+            ) 
                 threading.Thread(target=game_client.send_input, daemon=True).start()
                 threading.Thread(target=game_client.receive_state, daemon=True).start()
 

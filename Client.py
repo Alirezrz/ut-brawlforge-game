@@ -16,21 +16,20 @@ except Exception as e:
     exit()
 
 
-
-
-
-HOST = get_my_local_ip()
-PORT = 9191
-
 class Client:
-    def __init__(self,hero_type):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    def __init__(self, sock, username, player_id, hero_type=2):
+        self.socket =sock
+        self.username=username
+        self.player_id=player_id
+    
+        initial_data = {
+            "username": self.username,
+            "character": self.get_character_name(self.hero_type)
+        }
         try:
-            self.socket.connect((HOST, PORT))
-            print(f"Connected to server at {HOST}:{PORT}")
+           self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
         except Exception as e:
-            print(f"Error connecting to server: {e}")
-            exit()
+            print(f"Error sending initial data: {e}")
         self.scroll = [0, 0]
         self.type = None
         self.hero = None
