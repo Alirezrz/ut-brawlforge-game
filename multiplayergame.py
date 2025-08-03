@@ -46,19 +46,11 @@ except Exception as e:
     print(f"Error loading platforms: {e}")
     platforms = []
 
-HOST = "0.0.0.0"
-PORT = 9191
+
 
 class MultiplayerGame:
     def __init__(self,type):
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        try:
-            self.server_socket.bind((HOST, PORT))
-            print(f"Server socket bound to {HOST}:{PORT}")
-        except Exception as e:
-            print(f"Error binding server socket: {e}")
-            exit()
+
         self.clients = []
         self.player_inputs = {}
         self.heroes = [None, None]  if type=='1v1' else  [None, None] *2 
@@ -109,10 +101,11 @@ class MultiplayerGame:
             return
         while True:
             try:
-                data = conn.recv(2048).decode('utf-8')
+                data = conn.recv(1024).decode('utf-8')
                 if not data:
                     break
                 self.player_inputs[player_index] = json.loads(data)
+                print(f"[SERVER] Received from client {player_index}: {data}")
             except Exception as e:
                 print(f"Client {player_index} error: {e}")
                 break

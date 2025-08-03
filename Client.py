@@ -512,6 +512,7 @@ class Client:
             }
             try:
                 self.socket.sendall(json.dumps(input_data).encode('utf-8'))
+                print(f"[CLIENT] Sent input: {input_data}")
             except Exception as e:
                 print(f"Connection lost: {e}")
                 break
@@ -612,11 +613,11 @@ class Client:
         while True:
             try:
                 while True:
-                    chunk = self.socket.recv(2048)
+                    chunk = self.socket.recv(1024)
                     if not chunk:
                         break
                     buffer += chunk.decode('utf-8')
-
+                    print(f"[CLIENT] Received state: {chunk.decode('utf-8')}")
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
                        
