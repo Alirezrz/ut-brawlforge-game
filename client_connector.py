@@ -135,16 +135,19 @@ if __name__ == '__main__':
     connector = ClientConnector()
 
     try:
+        print("[CLIENT] Waiting for game start from server...")
         while True:
-            pygame.time.wait(1000)
-            print("client is alive")
-            game_client = Client(hero_type=2)  
-            threading.Thread(target=game_client.send_input, daemon=True).start()
+            msg = connector.client_socket.recv(1024).decode()
+            print(f"[SERVER] {msg}")
+            
+            if "Game is starting" in msg or "setup_complete" in msg:
+                print("[CLIENT] Starting local game client...")
+                game_client = Client(hero_type=2)  # انتخاب کاراکتر
+                threading.Thread(target=game_client.send_input, daemon=True).start()
+                threading.Thread(target=game_client.receive_state, daemon=True).start()
 
-            threading.Thread(target=game_client.receive_state, daemon=True).start()
-
-            while True:
-                game_client.render_game()
+                while True:
+                    game_client.render_game()
     except KeyboardInterrupt:
         print("[CLIENT] Client terminated by user.")
         if connector.client_socket:
