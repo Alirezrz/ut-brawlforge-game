@@ -95,6 +95,7 @@ class MultiplayerGame:
         print(f"Player {player_index} connected")
         try:
             initial_data = json.loads(conn.recv(1024).decode('utf-8'))
+            print(f"[CLIENT THREAD] Received initial data for player {player_index}: {initial_data}")
             username = initial_data.get("username", f"Player{player_index+1}")
             char_choice = initial_data.get("character", "Ninja")
             hero = self.create_hero(char_choice, 58*64, -2000, player_index + 1, username)

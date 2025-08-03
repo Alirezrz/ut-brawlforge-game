@@ -32,6 +32,7 @@ class Client:
             "username": self.username,
             "character": self.get_character_name(self.hero_type)
         }
+        print(f"[CLIENT] Sending initial data: {initial_data}")
         try:
            self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
         except Exception as e:

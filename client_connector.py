@@ -136,6 +136,7 @@ if __name__ == '__main__':
 
     try:
         print("[CLIENT] Waiting for game start from server...")
+        connector.client_socket.settimeout(30.0)
         while True:
             msg = connector.client_socket.recv(1024).decode()
             print(f"[SERVER] {msg}")
