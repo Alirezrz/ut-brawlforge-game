@@ -141,16 +141,13 @@ class Server:
 
                         if player_count == required_players:
                             print(f"[SERVER] Game {creator_id} is ready to start with {player_count} players.")
-                            # تبدیل به نام مشخص برای گیم‌تایپ
                             game_type_str = "1v1" if game_type == "1" else "2v2"
 
-                            # ساخت بازی
                             game = MultiplayerGame(game_type_str)
                             game.set_players([p['socket'] for p in session['players']])
                             game.game_active = True
                             threading.Thread(target=game.game_loop, daemon=True).start()
 
-                            # اطلاع‌رسانی به بازیکنان
                             for p in session['players']:
                                 try:
                                     p['socket'].sendall(b"Game is starting in 3 seconds...\n")

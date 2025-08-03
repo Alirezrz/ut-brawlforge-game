@@ -1,6 +1,7 @@
 import pygame
 import socket
 import threading
+from Client import Client
 
 BROADCAST_PORT = 9192
 BROADCAST_MSG = b"DISCOVER_SERVER"
