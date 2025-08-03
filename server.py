@@ -138,41 +138,31 @@ class Server:
                         player_count = len(session['players'])
                         game_type = session['type']
                         required_players = 2 if game_type == "1" else 4
-
                         if player_count == required_players:
                             print(f"[SERVER] Game {creator_id} is ready to start with {player_count} players.")
                             game_type_str = "1v1" if game_type == "1" else "2v2"
-
                             for p in session['players']:
                                 try:
                                     p['socket'].sendall(b"Game is starting") 
                                 except:
                                     pass
-
                             pygame.time.wait(3000)
-
                             for p in session['players']:
                                 try:
                                     p['socket'].sendall(b"setup_complete")
                                 except:
                                     pass
-
                             game = MultiplayerGame(game_type_str)
                             game.set_players([p['socket'] for p in session['players']])
                             game.game_active = True
                             threading.Thread(target=game.game_loop, daemon=True).start()
-
-                            break
-
-                            
-                if not self.is_socket_open(sock):
-                    print(f"[SERVER] Creator {client_info['username']} (ID: {creator_id}) socket closed")
-                    break
-                pygame.time.wait(100)  
+                            break  
+                    if not self.is_socket_open(sock):
+                        print(f"[SERVER] Creator {client_info['username']} (ID: {creator_id}) socket closed")
+                        break
+                    pygame.time.wait(100)  
         except Exception as e:
             print(f"[SERVER] Error in creator session for {client_info['username']}: {e}")
-        finally:
-            self.cleanup_client(client_info)
 
     def handle_join_game(self, client_info):
         sock = client_info['socket']
