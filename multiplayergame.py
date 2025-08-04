@@ -105,7 +105,7 @@ class MultiplayerGame:
                 if not data:
                     break
                 self.player_inputs[player_index] = json.loads(data)
-                print(f"[SERVER] Received from client {player_index}: {data}")
+                #print(f"[SERVER] Received from client {player_index}: {data}")
             except Exception as e:
                 print(f"Client {player_index} error: {e}")
                 break
@@ -121,7 +121,7 @@ class MultiplayerGame:
         clock = pygame.time.Clock()
         while self.game_active:
             if not all(self.heroes):
-                clock.tick(60)
+                clock.tick(30)
                 continue
             try:
                 if self.type == '1v1':
@@ -229,7 +229,7 @@ class MultiplayerGame:
                             "bullets": bullets_state
                         }).encode('utf-8') + b"\n")
 
-                clock.tick(60)
+                clock.tick(30)
 
             except Exception as e:
                 print(f"Game loop error: {e}")

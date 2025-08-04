@@ -145,14 +145,18 @@ if __name__ == '__main__':
             
             if msg == "setup_complete":
                 print("[CLIENT] Starting local game client...")
+                type=int(input("Enter your hero type:\n1 _ Roboman\n2_Ninja\n3_ NinjaGirl\n4_Archer\n"))
+                map={1:"Roboman",2:"Ninja",3:"NinjaGirl",4:"Archer"}
+                type=map[type]
                 print("game_client created")
                 game_client = Client(
                 connector.client_socket,  
                 connector.username,
                 connector.client_id,
-                hero_type=2
+                hero_type=type
             ) 
-                game_client.start()
+                break
+        game_client.start()
     except KeyboardInterrupt:
         print("[CLIENT] Client terminated by user.")
         if connector.client_socket:

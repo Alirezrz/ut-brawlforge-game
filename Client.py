@@ -11,7 +11,7 @@ pygame.init()
 
 
 class Client:
-    def __init__(self, sock, username, player_id, hero_type=2):
+    def __init__(self, sock, username, player_id, hero_type):
         self.profile_picture = pygame.Surface((profileSideSize, profileSideSize))
         self.profile_picture.fill((100, 100, 100))
         self.health_bar = pygame.Surface((health_bar_lenght, 20))
@@ -24,7 +24,7 @@ class Client:
         self.hero_type=hero_type
         initial_data = {
             "username": self.username,
-            "character": self.get_character_name(self.hero_type)
+            "character":self.hero_type
         }
         #print(f"[CLIENT] Sending initial data: {initial_data}")
         try:
@@ -77,7 +77,6 @@ class Client:
         if hero_type == 2: return "Ninja"
         if hero_type == 3: return "NinjaGirl"
         if hero_type == 4: return "Archer"
-        return "Ninja"
     
     
     
@@ -117,8 +116,6 @@ class Client:
         
         try:
             self.type = self.hero_type
-            if self.type not in [1, 2, 3, 4]:
-                raise ValueError("Invalid hero type")
         except ValueError:
             print("Invalid input, defaulting to Ninja")
             self.type = 2
@@ -455,7 +452,7 @@ class Client:
             print(f"Error loading hero assets: {e}")
             self.frames = {key: [pygame.Surface((50, 50)) for _ in range(10)] for key in ["idle_frames", "run_frames", "jump_frames"]}
 
-        self.load_ui_assets(self.get_character_name(self.hero_type))
+        self.load_ui_assets(self.hero_type)
 
         # hero and opponent
         self.hero = type('Hero', (), {
@@ -518,7 +515,7 @@ class Client:
             except Exception as e:
                 print(f"Connection lost: {e}")
                 break
-            clock.tick(60)
+            clock.tick(30)
 
     def play_sound(self, event_name, character_name="Ninja"):
         try:
@@ -835,6 +832,6 @@ class Client:
                     exit()
 
             self.render_game()
-            clock.tick(60)
+            clock.tick(30)
         
 
