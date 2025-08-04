@@ -8,12 +8,6 @@ from config import screen_width, screen_height,profileSideSize,health_bar_lenght
 from src.utils import get_my_local_ip
 # Initialize Pygame
 pygame.init()
-try:
-    screen = pygame.display.set_mode((screen_width, screen_height))
-    pygame.display.set_caption("BrawlForge Client")
-except Exception as e:
-    print(f"Error initializing Pygame screen: {e}")
-    exit()
 
 
 class Client:
@@ -63,6 +57,13 @@ class Client:
         self.bullets=[]
         self.platforms = []
         self.other_players_states=[]
+        try:
+            screen = pygame.display.set_mode((screen_width, screen_height))
+            pygame.display.set_caption("BrawlForge Client")
+        except Exception as e:
+            print(f"Error initializing Pygame screen: {e}")
+            exit()
+
         self.screen=screen
         if "idle_frames" in self.frames and len(self.frames["idle_frames"]) > 0:
             self.current_picture = self.frames["idle_frames"][0]
@@ -738,7 +739,7 @@ class Client:
         if self.screen==None:
             pygame.display.set_caption("BrawlForge Client")
             
-        screen.blit(self.background, (0, 0))
+        self.screen.blit(self.background, (0, 0))
         try:
             font = pygame.font.Font("src/assets/fonts/VCR_OSD_MONO.ttf", 20)
         except:
@@ -757,66 +758,66 @@ class Client:
 
         for platform in self.platforms:
             try:
-                 platform.draw(screen, self.scroll)
+                 platform.draw(self.screen, self.scroll)
             except Exception as e:
                  print(f"Error drawing platform: {e}")
         if self.current_picture:
             self_image = pygame.transform.flip(self.current_picture, True, False) if self.Look == 'left' else self.current_picture
-            screen.blit(self_image, (self.x_pos - self.scroll[0], self.y_pos - self.scroll[1]))
+            self.screen.blit(self_image, (self.x_pos - self.scroll[0], self.y_pos - self.scroll[1]))
             username_surface = font.render(self.username, True, (255, 255, 255))
             username_rect = username_surface.get_rect(center=(self.x_pos - self.scroll[0] + self_image.get_width() / 2, self.y_pos - self.scroll[1] - 15))
-            screen.blit(username_surface, username_rect)
+            self.screen.blit(username_surface, username_rect)
             
             
         # اینجا بقیه پلیر ها رو رندر میکنیم     
         for data in self.other_players_states:
             if data["Look"]=='right':
-                screen.blit(data['frame_to_display'],(data['x_pos']-self.scroll[0],data['y_pos']-self.scroll[1]))
+                self.screen.blit(data['frame_to_display'],(data['x_pos']-self.scroll[0],data['y_pos']-self.scroll[1]))
             else:
-                screen.blit(pygame.transform.flip(data['frame_to_display'],True,False),(data['x_pos']-self.scroll[0],data['y_pos']-self.scroll[1]))
+                self.screen.blit(pygame.transform.flip(data['frame_to_display'],True,False),(data['x_pos']-self.scroll[0],data['y_pos']-self.scroll[1]))
             
         for bullet in self.bullets:
             if bullet['owner']=="Roboman":
                 if bullet['Look']=='right':
                     if not bullet["Flag"]:
-                     screen.blit(self.Roboman_bullet,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                     self.screen.blit(self.Roboman_bullet,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                     else:
-                     screen.blit(self.Roboman_rocket,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                     self.screen.blit(self.Roboman_rocket,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                 else:
                     if not bullet["Flag"]:
-                     screen.blit(pygame.transform.flip(self.Roboman_bullet,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                     self.screen.blit(pygame.transform.flip(self.Roboman_bullet,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                     else:
-                     screen.blit(pygame.transform.flip(self.Roboman_rocket,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                     self.screen.blit(pygame.transform.flip(self.Roboman_rocket,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                         
             elif bullet['owner']=="Ninja" or bullet['owner']=="NinjaGirl" :
                 if bullet['Look']=='right':
                     if not bullet["Flag"]:
-                     screen.blit(self.Kunai,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                     self.screen.blit(self.Kunai,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                     else:
-                     screen.blit(self.Fired_Kunai,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                     self.screen.blit(self.Fired_Kunai,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                         
                 else:
                     if not bullet["Flag"]:
-                     screen.blit(pygame.transform.flip(self.Kunai,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                     self.screen.blit(pygame.transform.flip(self.Kunai,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                     else:
-                     screen.blit(pygame.transform.flip(self.Fired_Kunai,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                     self.screen.blit(pygame.transform.flip(self.Fired_Kunai,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                         
                      
                      
             elif bullet['owner']=="Archer" :
                 if bullet['Look']=='right':
                     if not bullet["Flag"]:
-                        screen.blit(self.Arrow,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                        self.screen.blit(self.Arrow,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                     else:
-                        screen.blit(self.Fired_Arrow,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                        self.screen.blit(self.Fired_Arrow,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                         
                 else:
                     if not bullet["Flag"]:
-                     screen.blit(pygame.transform.flip(self.Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                     self.screen.blit(pygame.transform.flip(self.Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                     else:
-                     screen.blit(pygame.transform.flip(self.Fired_Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                     self.screen.blit(pygame.transform.flip(self.Fired_Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
         #باید عکس پروفایل های همه لود بشه و بعد دیسپلی بشن
-        self.draw_health_bar(screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, False, False)
+        self.draw_health_bar(self.screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, False, False)
         # self.draw_health_bar(screen, self.opponent.health, self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame, True, False)  
         pygame.display.update()
 
