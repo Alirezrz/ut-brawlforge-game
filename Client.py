@@ -632,6 +632,8 @@ class Client:
                             self.frame_source = selfdata['frame_source']
                             self.frame_index = selfdata['frame_index']
                             self.character_name = selfdata.get("character", "Ninja")
+                            for event in selfdata.get("events", []):
+                                self.play_sound(event, self.character_name)
                             
                             
 

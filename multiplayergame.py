@@ -178,8 +178,8 @@ class MultiplayerGame:
                         "bullets": bullets_state
                     }).encode('utf-8') + b"\n")
 
-                    # hero1.events = []
-                    # hero2.events = []
+                    hero1.events = []
+                    hero2.events = []
 
                 elif self.type == '2v2':
                     hero1, hero2, hero3, hero4 = self.heroes
