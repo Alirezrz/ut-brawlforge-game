@@ -849,6 +849,22 @@ class Client:
         #باید عکس پروفایل های همه لود بشه و بعد دیسپلی بشن
         is_right_side, is_bottom = self.get_bar_position_from_index(self.creation_index)
         self.draw_health_bar(self.screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, is_right_side, is_bottom)
+        for other_state in self.other_players_states:
+            idx = other_state.get("creation_index", 0)  
+            is_right_side, is_bottom = self.get_bar_position_from_index(
+                idx,
+                len(self.other_players_states)
+            )
+
+            self.draw_health_bar(
+                self.screen,
+                other_state["health"],
+                other_state["profile_picture"],  
+                self.health_bar,                
+                self.health_bar_frame,
+                is_right_side,
+                is_bottom
+            )
 
         pygame.display.update()
         
