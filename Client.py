@@ -26,7 +26,7 @@ class Client:
             "username": self.username,
             "character": self.get_character_name(self.hero_type)
         }
-        print(f"[CLIENT] Sending initial data: {initial_data}")
+        #print(f"[CLIENT] Sending initial data: {initial_data}")
         try:
            self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
         except Exception as e:
@@ -514,7 +514,7 @@ class Client:
             }
             try:
                 self.socket.sendall(json.dumps(input_data).encode('utf-8'))
-                print(f"[CLIENT] Sent input: {input_data}")
+                #print(f"[CLIENT] Sent input: {input_data}")
             except Exception as e:
                 print(f"Connection lost: {e}")
                 break
@@ -619,7 +619,7 @@ class Client:
                     if not chunk:
                         break
                     buffer += chunk.decode('utf-8')
-                    print(f"[CLIENT] Received state: {chunk.decode('utf-8')}")
+                    #print(f"[CLIENT] Received state: {chunk.decode('utf-8')}")
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
                        
