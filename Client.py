@@ -654,6 +654,8 @@ class Client:
                             # Handle opponents (always present in both 1v1 and 2v2)
                             opponents = parsed.get("opponents", [])
                             for opponent_data in opponents:
+                                
+
                                 opponent_char = opponent_data.get("character", "Ninja")
                                 creation_index = opponent_data.get("creation_index", -1)
                                 opponent_frame_source = opponent_data.get("frame_source", "idle_frames")
@@ -662,7 +664,7 @@ class Client:
                                 opponent_frame = opponent_frame_list[opponent_frame_index]
                                 for event in opponent_data.get("events", []):
                                     self.play_sound(event, opponent_char)
-
+                                opp_profile, opp_health_bar, opp_health_bar_frame = self.load_ui_assets_for_opponent(opponent_char)
 
                                 
                                 self.other_players_states.append({
@@ -670,7 +672,11 @@ class Client:
                                     "y_pos": opponent_data.get("y_pos", 0),
                                     "frame_to_display": opponent_frame,
                                     "health": opponent_data.get("health", 100),
-                                    "Look":opponent_data.get('look','right')
+                                    "profile_picture": opp_profile,
+                                    "health_bar": opp_health_bar,
+                                    "health_bar_frame": opp_health_bar_frame,
+                                    "Look":opponent_data.get('look','right'),
+                                    "creation_index": opponent_data.get("creation_index", 0)
                                 })
 
                                
@@ -687,13 +693,17 @@ class Client:
                                 teammate_frame = teammate_frame_list[teammate_frame_index] 
                                 for event in teammate_data.get("events", []):
                                     self.play_sound(event, teammate_char)
-
+                                opp_profile, opp_health_bar, opp_health_bar_frame = self.load_ui_assets_for_opponent(opponent_char)
                                 self.other_players_states.append({
                                     "x_pos": teammate_data.get("x_pos", 0),
                                     "y_pos": teammate_data.get("y_pos", 0),
                                     "frame_to_display": teammate_frame,
                                     "health": teammate_data.get("health", 100),
-                                    "Look":teammate_data.get('look','right')
+                                    "Look":teammate_data.get('look','right'),
+                                    "profile_picture": opp_profile,
+                                    "health_bar": opp_health_bar,
+                                    "health_bar_frame": opp_health_bar_frame,
+                                    "creation_index": opponent_data.get("creation_index", 0)
                                 })
 
                         except Exception as e:
@@ -702,7 +712,7 @@ class Client:
             except Exception as e:
                     print(f"Error receiving game state: {e}")
                     break
-    def get_bar_position_from_index(index,opponents_count):
+    def get_bar_position_from_index(self,index,opponents_count):
         # حالت 1v1
         if opponents_count == 1:
             if index == 1:
@@ -848,7 +858,7 @@ class Client:
                     else:
                      self.screen.blit(pygame.transform.flip(self.Fired_Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
         #باید عکس پروفایل های همه لود بشه و بعد دیسپلی بشن
-        is_right_side, is_bottom = self.get_bar_position_from_index(self.creation_index)
+        is_right_side, is_bottom = self.get_bar_position_from_index(self.creation_index,len(self.other_players_states))
         self.draw_health_bar(self.screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, is_right_side, is_bottom)
         for other_state in self.other_players_states:
             idx = other_state.get("creation_index", 0)  
