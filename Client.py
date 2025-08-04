@@ -821,4 +821,20 @@ class Client:
         self.draw_health_bar(self.screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, False, False)
         # self.draw_health_bar(screen, self.opponent.health, self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame, True, False)  
         pygame.display.update()
+        
+    def start(self):
+        print("starting")
+        threading.Thread(target=self.send_input, daemon=True).start()
+        threading.Thread(target=self.receive_state, daemon=True).start()
+
+        clock = pygame.time.Clock()
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+
+            self.render_game()
+            clock.tick(60)
+        
 
