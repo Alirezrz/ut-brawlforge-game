@@ -654,7 +654,7 @@ class Client:
                             opponents = parsed.get("opponents", [])
                             for opponent_data in opponents:
                                 opponent_char = opponent_data.get("character", "Ninja")
-                                opponent_creation_index = opponent_data.get("creation_index", -1)
+                                creation_index = opponent_data.get("creation_index", -1)
                                 opponent_frame_source = opponent_data.get("frame_source", "idle_frames")
                                 opponent_frame_index = opponent_data.get("frame_index", 0)
                                 opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
@@ -680,7 +680,7 @@ class Client:
                                 teammate_char = teammate_data.get("character", "Ninja")
                                 teammate_frame_source = teammate_data.get("frame_source", "idle_frames")
                                 teammate_frame_index = teammate_data.get("frame_index", 0)
-                                teammate_creation_index = teammate_data.get("creation_index", -1)
+                                creation_index = teammate_data.get("creation_index", -1)
 
                                 teammate_frame_list = self.frames[teammate_char].get(teammate_frame_source, [])
                                 teammate_frame = teammate_frame_list[teammate_frame_index] 
@@ -849,7 +849,7 @@ class Client:
         #باید عکس پروفایل های همه لود بشه و بعد دیسپلی بشن
         is_right_side, is_bottom = self.get_bar_position_from_index(self.creation_index)
         self.draw_health_bar(self.screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, is_right_side, is_bottom)
-        # self.draw_health_bar(screen, self.opponent.health, self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame, True, False)  
+
         pygame.display.update()
         
     def start(self):
