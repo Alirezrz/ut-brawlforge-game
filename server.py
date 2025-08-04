@@ -2,6 +2,8 @@ import pygame
 import socket
 import threading
 import random
+import json
+import time
 
 from multiplayergame import MultiplayerGame
 HOST = '0.0.0.0'
@@ -18,13 +20,10 @@ class Server:
         self.socket.bind((HOST, PORT))
         self.socket.listen()
         print(f"[SERVER] Listening for clients on {HOST}:{PORT}")
-
         self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.broadcast_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-
         self.connected_clients = []
-        self.lock = threading.Lock()  
-
+        self.lock = threading.Lock()
         threading.Thread(target=self.accept_clients, daemon=True).start()
         threading.Thread(target=self.broadcast_presence, daemon=True).start()
 
@@ -34,224 +33,176 @@ class Server:
             if new_id not in existing_ids:
                 return new_id
 
-    def is_socket_open(self, sock):
-        """Check if a socket is still open and valid."""
-        try:
-            sock.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
-            return True
-        except socket.error:
-            return False
-
     def cleanup_client(self, client_info):
-        """Remove a client from connected_clients and game_sessions if disconnected."""
         with self.lock:
             if client_info in self.connected_clients:
                 self.connected_clients.remove(client_info)
-                print(f"[SERVER] Removed client {client_info['username']} (ID: {client_info['id']}) from connected clients")
+                print(f"[SERVER] Removed client {client_info['username']} (ID: {client_info['id']})")
             
-            creator_id = client_info['id']
-            if creator_id in game_sessions:
-                del game_sessions[creator_id]
-                print(f"[SERVER] Removed game session {creator_id} due to creator disconnection")
+            sessions_to_remove = []
+            for game_id, session in game_sessions.items():
+                if client_info in session['players']:
+                    session['players'].remove(client_info)
+                    if client_info['id'] == game_id:
+                        sessions_to_remove.append(game_id)
+                        for player in session['players']:
+                             try:
+                                 player['socket'].sendall(json.dumps({"type": "error", "message": "Host disconnected."}).encode('utf-8'))
+                             except: pass
+                    else:
+                        self.broadcast_lobby_update(session)
+
+            for game_id in sessions_to_remove:
+                del game_sessions[game_id]
+                print(f"[SERVER] Removed game session {game_id}")
             
             try:
-                if self.is_socket_open(client_info['socket']):
-                    client_info['socket'].close()
-            except:
-                pass
+                client_info['socket'].close()
+            except: pass
 
     def accept_clients(self):
         while True:
-            try:
-                client_socket, addr = self.socket.accept()
-                print(f"[SERVER] Client connected from {addr}")
-                threading.Thread(target=self.handle_client, args=(client_socket, addr), daemon=True).start()
-            except Exception as e:
-                print(f"[SERVER] Error accepting client: {e}")
+            client_socket, addr = self.socket.accept()
+            print(f"[SERVER] Client connected from {addr}")
+            threading.Thread(target=self.handle_client, args=(client_socket, addr), daemon=True).start()
 
     def handle_client(self, client_socket, addr):
         client_info = None
         try:
-            client_socket.settimeout(30.0)
-            client_socket.sendall(b"Please enter your username:")
-            username = client_socket.recv(1024).decode().strip()
+            initial_data_raw = client_socket.recv(1024).decode('utf-8')
+            initial_data = json.loads(initial_data_raw)
+            username = initial_data.get("username")
             if not username:
-                print(f"[SERVER] Client {addr} disconnected during username input")
                 client_socket.close()
                 return
 
             with self.lock:
-                existing_ids = [client['id'] for client in self.connected_clients]
-                client_id = self.generate_unique_id(existing_ids)
-
-            client_socket.sendall(client_id.encode())
-
-            client_info = {
-                "socket": client_socket,
-                "address": addr,
-                "username": username,
-                "id": client_id
-            }
+                client_id = self.generate_unique_id([c['id'] for c in self.connected_clients])
+            client_info = {"socket": client_socket, "address": addr, "username": username, "id": client_id}
             with self.lock:
                 self.connected_clients.append(client_info)
+            client_socket.sendall(json.dumps({"type": "connection_success", "id": client_id}).encode('utf-8'))
 
-            option = client_socket.recv(1024).decode().strip()
-            if option == "1":
-                self.handle_create_game(client_info)
-                self.handle_creator_session(client_info)  
-            elif option == "2":
-                self.handle_join_game(client_info)
-            else:
-                client_socket.sendall(b"Invalid option selected.")
-        except socket.timeout:
-            print(f"[SERVER] Timeout for client {addr}")
-        except Exception as e:
-            print(f"[SERVER] Error handling client {addr}: {e}")
+            while True:
+                request_raw = client_socket.recv(1024).decode('utf-8')
+                if not request_raw: break
+                request = json.loads(request_raw)
+                
+                action = request.get("action")
+                if action == "create_game":
+                    self.handle_create_game(client_info, request.get("game_type"))
+                elif action == "join_game":
+                    self.handle_join_game(client_info, request.get("game_id"))
+                elif action == "host_decision":
+                    self.handle_host_decision(client_info, request)
+
+        except (socket.error, json.JSONDecodeError, ConnectionResetError) as e:
+            print(f"[SERVER] Error with client {addr}: {e}")
         finally:
-            if client_info and (not self.is_socket_open(client_socket) or option not in ["1", "2"]):
-                self.cleanup_client(client_info)
+            if client_info: self.cleanup_client(client_info)
 
-    def handle_create_game(self, client_info):
-        sock = client_info['socket']
-        sock.sendall(b"Choose game type:\n1. 1v1\n2. 2v2")
-        game_type = sock.recv(1024).decode().strip()
+    def handle_create_game(self, client_info, game_type):
         creator_id = client_info['id']
         with self.lock:
             game_sessions[creator_id] = {
-                'creator_socket': sock,
-                'creator_id': creator_id,
-                'creator_username': client_info['username'],
+                'creator_info': client_info,
                 'players': [client_info],
-                'type': game_type
+                'type': game_type,
+                'pending_join_request': None
             }
         print(f"[SERVER] Game created by {client_info['username']} (ID: {creator_id}), type: {game_type}")
+        response = {"type": "lobby_created", "game_id": creator_id, "players": [p['username'] for p in game_sessions[creator_id]['players']]}
+        client_info['socket'].sendall(json.dumps(response).encode('utf-8'))
 
-    def handle_creator_session(self, client_info):
-        sock = client_info['socket']
-        creator_id = client_info['id']
-        try:
-            sock.sendall(b"Game created. Waiting for players to join...")
-            while True:
-                with self.lock:
-                    session = game_sessions.get(creator_id)
-                    if session:
-                        player_count = len(session['players'])
-                        game_type = session['type']
-                        required_players = 2 if game_type == "1" else 4
-                        if player_count == required_players:
-                            print(f"[SERVER] Game {creator_id} is ready to start with {player_count} players.")
-                            game_type_str = "1v1" if game_type == "1" else "2v2"
-                            for p in session['players']:
-                                try:
-                                    p['socket'].sendall(b"Game is starting") 
-                                except:
-                                    pass
-                            pygame.time.wait(3000)
-                            for p in session['players']:
-                                try:
-                                    p['socket'].sendall(b"setup_complete")
-                                except:
-                                    pass
-                            game = MultiplayerGame(game_type_str)
-                            game.set_players([p['socket'] for p in session['players']])
-                            game.game_active = True
-                            threading.Thread(target=game.game_loop, daemon=True).start()
-                            break  
-                    if not self.is_socket_open(sock):
-                        print(f"[SERVER] Creator {client_info['username']} (ID: {creator_id}) socket closed")
-                        break
-                    pygame.time.wait(100)  
-        except Exception as e:
-            print(f"[SERVER] Error in creator session for {client_info['username']}: {e}")
-
-    def handle_join_game(self, client_info):
-        sock = client_info['socket']
-        sock.sendall(b"Choose the way to join the game:\n1. Search username or id(creator of game id/username)\n2. Leave it on server\n(1 or 2):")
-        choice = sock.recv(1024).decode().strip()
-
-        creator_id = None
-        if choice == "1":
-            sock.sendall(b"Enter username or id of game creator:")
-            creator_address = sock.recv(1024).decode().strip()
-            with self.lock:
-                for cid, session in game_sessions.items():
-                    if creator_address == session['creator_id'] or creator_address == session['creator_username']:
-                        creator_id = cid
-                        break
-            if not creator_id:
-                sock.sendall(b"Invalid id/username")
-                print(f"[SERVER] Invalid creator id/username {creator_address} for {client_info['username']}")
-                return
-        else:
-            with self.lock:
-                creator_id = random.choice(list(game_sessions.keys())) if game_sessions else None
-            if not creator_id:
-                sock.sendall(b"No games available.")
-                print(f"[SERVER] No games available for {client_info['username']}")
-                return
-
+    def handle_join_game(self, joiner_info, game_id):
         with self.lock:
-            if creator_id not in game_sessions:
-                sock.sendall(b"No such game found.")
-                print(f"[SERVER] Game {creator_id} not found for {client_info['username']}")
+            session = game_sessions.get(game_id)
+            if not session:
+                joiner_info['socket'].sendall(json.dumps({"type": "error", "message": "Game ID not found."}).encode('utf-8'))
                 return
-            creator_socket = game_sessions[creator_id]['creator_socket']
+            if session['pending_join_request']:
+                joiner_info['socket'].sendall(json.dumps({"type": "error", "message": "Host is busy."}).encode('utf-8'))
+                return
+            
+            required_players = 2 if session['type'] == "1v1" else 4
+            if len(session['players']) >= required_players:
+                joiner_info['socket'].sendall(json.dumps({"type": "error", "message": "Game is full."}).encode('utf-8'))
+                return
+            
+            session['pending_join_request'] = joiner_info
+            host_socket = session['creator_info']['socket']
 
-        if not self.is_socket_open(creator_socket):
-            sock.sendall(b"Game creator is no longer connected.")
-            print(f"[SERVER] Creator {creator_id} socket closed for joiner {client_info['username']}")
-            with self.lock:
-                if creator_id in game_sessions:
-                    del game_sessions[creator_id]
-                    print(f"[SERVER] Removed game session {creator_id} due to invalid creator socket")
-            return
-
-        msg = f"Player {client_info['username']} (ID: {client_info['id']}) wants to join the game. Accept? (yes/no):"
         try:
-            creator_socket.settimeout(30.0)
-            creator_socket.sendall(msg.encode())
-            answer = creator_socket.recv(1024).decode().strip().lower()
-            creator_socket.settimeout(None)
-            if answer == "yes":
-                with self.lock:
-                    game_sessions[creator_id]['players'].append(client_info)
-                sock.sendall(b"You have been accepted to game")
-                print(f"[SERVER] {client_info['username']} accepted into game {creator_id}")
-            else:
-                sock.sendall(b"You have been denied from game")
-                print(f"[SERVER] {client_info['username']}'s join request denied by creator {creator_id}")
-        except socket.timeout:
-            sock.sendall(b"Game creator did not respond in time.")
-            print(f"[SERVER] Timeout waiting for response from creator {creator_id}")
-        except Exception as e:
-            sock.sendall(b"Error communicating with game creator.")
-            print(f"[SERVER] Error handling join request for {client_info['username']}: {e}")
-            if not self.is_socket_open(creator_socket):
-                with self.lock:
-                    if creator_id in game_sessions:
-                        del game_sessions[creator_id]
-                        print(f"[SERVER] Removed game session {creator_id} due to invalid creator socket")
+            request_to_host = {"type": "join_request", "username": joiner_info['username']}
+            host_socket.sendall(json.dumps(request_to_host).encode('utf-8'))
+        except socket.error as e:
+            print(f"Error sending join request to host: {e}")
+            with self.lock:
+                session['pending_join_request'] = None
+
+    def handle_host_decision(self, host_info, response):
+        game_id = host_info['id']
+        with self.lock:
+            session = game_sessions.get(game_id)
+            if not session or not session['pending_join_request']:
+                return
+            joiner_info = session.pop('pending_join_request')
+
+        if response.get("decision") == "yes":
+            with self.lock:
+                session['players'].append(joiner_info)
+            joiner_info['socket'].sendall(json.dumps({"type": "join_accepted", "game_id": game_id, "players": [p['username'] for p in session['players']]}).encode('utf-8'))
+            self.broadcast_lobby_update(session)
+            self.check_game_start(session)
+        else:
+            joiner_info['socket'].sendall(json.dumps({"type": "join_denied"}).encode('utf-8'))
+
+    def broadcast_lobby_update(self, session):
+        with self.lock:
+            player_list = [p['username'] for p in session['players']]
+            update_message = json.dumps({"type": "lobby_update", "players": player_list})
+        for player in session['players']:
+            try:
+                player['socket'].sendall(update_message.encode('utf-8'))
+            except socket.error:
+                print(f"Could not send lobby update to {player['username']}")
+
+    def check_game_start(self, session):
+        with self.lock:
+            player_count = len(session['players'])
+            required_players = 2 if session['type'] == "1v1" else 4
+            if player_count == required_players:
+                game_id = session['creator_info']['id']
+                print(f"[SERVER] Game {game_id} is ready to start.")
+                start_message = json.dumps({"type": "match_starting"}).encode('utf-8')
+                for p in session['players']:
+                    p['socket'].sendall(start_message)
+                threading.Thread(target=self.start_game_thread, args=(session,)).start()
+                
+                if game_id in game_sessions:
+                    del game_sessions[game_id]
+    
+    def start_game_thread(self, session):
+        game_type = session['type']
+        player_sockets = [p['socket'] for p in session['players']]
+        for sock in player_sockets:
+            sock.sendall(json.dumps({"type": "select_character"}).encode('utf-8'))
+
+        game = MultiplayerGame(game_type)
+        game.set_players(player_sockets)
+        game.game_loop()
 
     def broadcast_presence(self):
         while True:
             try:
                 self.broadcast_socket.sendto(BROADCAST_MSG, ('<broadcast>', BROADCAST_PORT))
-                pygame.time.wait(1000)
-            except Exception as e:
-                print(f"[SERVER] Error broadcasting presence: {e}")
+                time.sleep(2)
+            except: pass
 
 if __name__ == '__main__':
-    pygame.init()
     server = Server()
     try:
-        while True:
-            pygame.time.wait(1000)
+        while True: time.sleep(1)
     except KeyboardInterrupt:
-        print("[SERVER] Server terminated by user.")
-        for client in server.connected_clients:
-            try:
-                client['socket'].close()
-            except:
-                pass
+        print("[SERVER] Shutting down.")
         server.socket.close()
-        server.broadcast_socket.close()

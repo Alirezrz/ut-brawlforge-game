@@ -21,7 +21,8 @@ background = pygame.transform.scale(background, (screen_width, screen_height))
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("BrawlForge")
 
-HOST = "172.20.10.3"  # server IP
+
+HOST = "127.0.0.1"
 PORT = 9191
 
 class Client:

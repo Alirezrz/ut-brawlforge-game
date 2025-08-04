@@ -1,6 +1,7 @@
 import pygame
 import socket
 import threading
+import json
 from Client import Client
 
 BROADCAST_PORT = 9192
@@ -16,13 +17,13 @@ class ClientConnector:
         self.client_socket.settimeout(timeout)
         self.username = None
         self.client_id = None
-
+        self.is_connected = False
         self.find_server()
 
         if self.server_address:
-            self.connect_to_server()
-            self.exchange_user_info()
-            self.send_request_option()
+            if self.connect_to_server():
+                if self.exchange_user_info():
+                    self.send_request_option()
         else:
             print("[CLIENT] No server found on local network.")
 
@@ -35,12 +36,10 @@ class ClientConnector:
         udp_socket.settimeout(timeout)
 
         try:
-            while True:
-                data, addr = udp_socket.recvfrom(1024)
-                if data == BROADCAST_MSG:
-                    print(f"[CLIENT] Server discovered at {addr[0]}")
-                    self.server_address = addr[0]
-                    break
+            data, addr = udp_socket.recvfrom(1024)
+            if data == BROADCAST_MSG:
+                print(f"[CLIENT] Server discovered at {addr[0]}")
+                self.server_address = addr[0]
         except socket.timeout:
             print("[CLIENT] Server discovery timed out.")
         finally:
@@ -50,26 +49,42 @@ class ClientConnector:
         try:
             self.client_socket.connect((self.server_address, SERVER_PORT))
             print(f"[CLIENT] Connected to server at {self.server_address}:{SERVER_PORT}")
+            self.is_connected = True
+            return True
         except Exception as e:
             print(f"[CLIENT] Failed to connect to server: {e}")
             self.client_socket.close()
+            self.is_connected = False
+            return False
 
     def exchange_user_info(self):
         try:
-            prompt = self.client_socket.recv(1024).decode()
-            print(f"[SERVER] {prompt}")
             self.username = input("Enter your username: ")
             if not self.username:
                 print("[CLIENT] Username cannot be empty.")
                 self.client_socket.close()
-                return
-            self.client_socket.sendall(self.username.encode())
+                self.is_connected = False
+                return False
+            initial_data = {"username": self.username}
+            self.client_socket.sendall(json.dumps(initial_data).encode('utf-8'))
+            response_raw = self.client_socket.recv(1024).decode('utf-8')
+            response = json.loads(response_raw)
 
-            self.client_id = self.client_socket.recv(1024).decode()
-            print(f"[CLIENT] Your assigned ID: {self.client_id}")
-        except Exception as e:
+            if response.get("type") == "connection_success":
+                self.client_id = response.get("id")
+                print(f"[CLIENT] Your assigned ID: {self.client_id}")
+                return True
+            else:
+                print(f"[CLIENT] Failed to get confirmation from server.")
+                self.client_socket.close()
+                self.is_connected = False
+                return False
+
+        except (socket.timeout, json.JSONDecodeError, ConnectionResetError) as e:
             print(f"[CLIENT] Failed to exchange user info: {e}")
             self.client_socket.close()
+            self.is_connected = False
+            return False
 
     def send_request_option(self):
         try:
@@ -77,87 +92,123 @@ class ClientConnector:
             print("1. Create a game")
             print("2. Join a game")
             option = input("Enter 1 or 2: ")
-            if option not in ["1", "2"]:
+
+            if option == "1":
+                game_type_choice = input("Choose game type:\n1. 1v1\n2. 2v2\n")
+                game_type = "1v1" if game_type_choice == "1" else "2v2"
+                request = {"action": "create_game", "game_type": game_type}
+                self.client_socket.sendall(json.dumps(request).encode('utf-8'))
+                print(f"[CLIENT] Sent request to create a {game_type} game.")
+            
+            elif option == "2":
+                game_id = input("Enter the Game ID of the host to join: ")
+                request = {"action": "join_game", "game_id": game_id}
+                self.client_socket.sendall(json.dumps(request).encode('utf-8'))
+                print(f"[CLIENT] Sent request to join game {game_id}.")
+
+            else:
                 print("[CLIENT] Invalid option.")
                 self.client_socket.close()
-                return
+                self.is_connected = False
 
-            self.client_socket.sendall(option.encode())
-            print(f"[CLIENT] Sent option {option} to server.")
-
-            server_prompt = self.client_socket.recv(1024).decode()
-            print(f"[SERVER] {server_prompt}")
-            sub_option = input("Enter your choice: ")
-            self.client_socket.sendall(sub_option.encode())
-
-            if option == "2":
-                if sub_option == "1":
-                    id_prompt = self.client_socket.recv(1024).decode()
-                    print(f"[SERVER] {id_prompt}")
-                    game_id = input("Enter Game ID or username: ")
-                    self.client_socket.sendall(game_id.encode())
-
-                print("[CLIENT] Waiting for approval from the game creator...")
-                try:
-                    self.client_socket.settimeout(30.0)
-                    result = self.client_socket.recv(1024).decode()
-                    print(f"[SERVER] {result}")
-                except socket.timeout:
-                    print("[CLIENT] Timed out waiting for approval from game creator.")
-                except Exception as e:
-                    print(f"[CLIENT] Error while waiting for approval: {e}")
-                finally:
-                    self.client_socket.settimeout(timeout)
-            else:
-                try:
-                    result = self.client_socket.recv(1024).decode()
-                    print(f"[SERVER] {result}")
-                    while True:
-                        try:
-                            self.client_socket.settimeout(30.0)
-                            message = self.client_socket.recv(1024).decode()
-                            print(f"[SERVER] {message}")
-                            if "Game is starting" in message:
-                                break
-                            elif "Accept? (yes/no)" in message:
-                                response = input("Enter yes/no: ")
-                                self.client_socket.sendall(response.encode())
-                        except socket.timeout:
-                            continue  
-                        except Exception as e:
-                            print(f"[CLIENT] Error in creator session: {e}")
-                            break
-                except Exception as e:
-                    print(f"[CLIENT] Error after game creation: {e}")
-        except Exception as e:
+        except (socket.error, json.JSONDecodeError) as e:
             print(f"[CLIENT] Error during option selection: {e}")
             self.client_socket.close()
+            self.is_connected = False
+        #     self.client_socket.sendall(option.encode())
+        #     print(f"[CLIENT] Sent option {option} to server.")
+
+        #     server_prompt = self.client_socket.recv(1024).decode()
+        #     print(f"[SERVER] {server_prompt}")
+        #     sub_option = input("Enter your choice: ")
+        #     self.client_socket.sendall(sub_option.encode())
+
+        #     if option == "2":
+        #         if sub_option == "1":
+        #             id_prompt = self.client_socket.recv(1024).decode()
+        #             print(f"[SERVER] {id_prompt}")
+        #             game_id = input("Enter Game ID or username: ")
+        #             self.client_socket.sendall(game_id.encode())
+
+        #         print("[CLIENT] Waiting for approval from the game creator...")
+        #         try:
+        #             self.client_socket.settimeout(30.0)
+        #             result = self.client_socket.recv(1024).decode()
+        #             print(f"[SERVER] {result}")
+        #         except socket.timeout:
+        #             print("[CLIENT] Timed out waiting for approval from game creator.")
+        #         except Exception as e:
+        #             print(f"[CLIENT] Error while waiting for approval: {e}")
+        #         finally:
+        #             self.client_socket.settimeout(timeout)
+        #     else:
+        #         try:
+        #             result = self.client_socket.recv(1024).decode()
+        #             print(f"[SERVER] {result}")
+        #             while True:
+        #                 try:
+        #                     self.client_socket.settimeout(30.0)
+        #                     message = self.client_socket.recv(1024).decode()
+        #                     print(f"[SERVER] {message}")
+        #                     if "Game is starting" in message:
+        #                         break
+        #                     elif "Accept? (yes/no)" in message:
+        #                         response = input("Enter yes/no: ")
+        #                         self.client_socket.sendall(response.encode())
+        #                 except socket.timeout:
+        #                     continue  
+        #                 except Exception as e:
+        #                     print(f"[CLIENT] Error in creator session: {e}")
+        #                     break
+        #         except Exception as e:
+        #             print(f"[CLIENT] Error after game creation: {e}")
+        # except Exception as e:
+        #     print(f"[CLIENT] Error during option selection: {e}")
+        #     self.client_socket.close()
 
 if __name__ == '__main__':
     connector = ClientConnector()
 
-    try:
-        print("[CLIENT] Waiting for game start from server...")
-        connector.client_socket.settimeout(120.0)
-        while True:
-            msg = connector.client_socket.recv(1024).decode()
-            print(f"[SERVER] {msg}")
-            
-            if msg == "setup_complete":
-                print("[CLIENT] Starting local game client...")
-                type=int(input("Enter your hero type:\n1 _ Roboman\n2_Ninja\n3_ NinjaGirl\n4_Archer\n"))
-                map={1:"Roboman",2:"Ninja",3:"NinjaGirl",4:"Archer"}
-                type=map[type]
-                print("game_client created")
-                game_client = Client(
-                connector.client_socket,  
-                connector.username,
-                connector.client_id,
-                hero_type=type
-            ) 
-                break
-        game_client.start()
-    except KeyboardInterrupt:
-        print("[CLIENT] Client terminated by user.")
-        if connector.client_socket:
-            connector.client_socket.close()
+    if connector.is_connected:
+        try:
+            print("[CLIENT] Waiting for server messages...")
+            connector.client_socket.settimeout(None) 
+
+            while True:
+                response_raw = connector.client_socket.recv(4096).decode('utf-8')
+                if not response_raw:
+                    print("[CLIENT] Disconnected from server.")
+                    break
+                
+                response = json.loads(response_raw)
+                msg_type = response.get("type")
+                print(f"[SERVER RESPONSE] {response}")
+
+                if msg_type == "join_request":
+                    answer = input(f"Player '{response['username']}' wants to join. Accept? (yes/no): ")
+                    decision = {"decision": answer.lower()}
+                    connector.client_socket.sendall(json.dumps(decision).encode('utf-8'))
+
+                elif msg_type == "match_starting":
+                    print("[CLIENT] Match is starting! Initializing game client...")
+                    
+                    type_num = int(input("Enter your hero type:\n1 _ Roboman\n2_Ninja\n3_ NinjaGirl\n4_Archer\n"))
+                    type_map = {1:"Roboman", 2:"Ninja", 3:"NinjaGirl", 4:"Archer"}
+                    hero_type = type_map[type_num]
+                    
+                    game_client = Client(
+                        connector.client_socket,
+                        connector.username,
+                        connector.client_id,
+                        hero_type=hero_type
+                    )
+                    game_client.start()
+                    exit()
+
+        except (OSError, socket.error, json.JSONDecodeError) as e:
+            print(f"[CLIENT] Connection error: {e}")
+        except KeyboardInterrupt:
+            print("[CLIENT] Client terminated by user.")
+        finally:
+            if connector.client_socket:
+                connector.client_socket.close()

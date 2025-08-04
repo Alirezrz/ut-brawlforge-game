@@ -5,9 +5,11 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 from config import screen_width, screen_height,explode_side_size,enenmy_health_bar_height,enenmy_health_bar_width
 from src.engine.game import Game
-from src.engine.menu import Menu, GameModeMenu, MapCharacterMenu,MultiplayerMapCharacterMenu, GameOverMenu,MatchmakingMenu,NetworkMenu
+from src.engine.menu import Menu, GameModeMenu, MapCharacterMenu,MultiplayerMapCharacterMenu, GameOverMenu,MatchmakingMenu,NetworkMenu,LobbyMenu,JoinGameMenu,MultiplayerCharacterSelectMenu
 from src.engine.multiplayer_game import Game_2
 from src.engine.network import Network
+from Client import Client
+
 pygame.init()
 pygame.mixer.init()
 
@@ -70,22 +72,44 @@ while True:
             elif mode == "multi":
                 network_handler = Network()
                 network_menu = NetworkMenu(screen, background, network_handler)
-                connection_result = network_menu.run()
                 
-                if connection_result == "connected":
-                    match_menu = MatchmakingMenu(screen, background, network_handler)
-                    match_result = match_menu.run()
-
-                    if match_result == "match_found":
-                        print("Test successful! Match was found on the server.")
+                if network_menu.run() == "connected":
+                    multiplayer_active = True
+                    while multiplayer_active:
+                        match_menu = MatchmakingMenu(screen, background, network_handler)
+                        action, data = match_menu.run()
                         
-                        continue
-                    else:
-                        network_handler.disconnect()
-                        break
-                else:
-                    break
+                        lobby_result = None
+                        if action == "lobby":
+                            lobby_menu = LobbyMenu(screen, background, network_handler, data, is_host=True)
+                            lobby_result = lobby_menu.run()
+                        elif action == "join_menu":
+                            join_menu = JoinGameMenu(screen, background, network_handler)
+                            join_action, _ = join_menu.run()
+                            if join_action == "wait_for_acceptance":
+                                lobby_menu = LobbyMenu(screen, background, network_handler, {"game_id": join_menu.game_id, "players":[]}, is_host=False)
+                                lobby_result = lobby_menu.run()
+                        
+                        if lobby_result == "start_game":
+                            char_select_menu = MultiplayerCharacterSelectMenu(screen, background)
+                            selected_hero = char_select_menu.run()
 
+                            if selected_hero:
+                                game_client = Client(
+                                    network_handler.client,
+                                    network_handler.username,
+                                    network_handler.player_id,
+                                    selected_hero
+                                )
+                                game_client.start()
+                                multiplayer_active = False
+                            else:
+                                multiplayer_active = False 
+                        else:
+                            multiplayer_active = False 
+                
+                network_handler.disconnect()
+                
             if game: 
                 status, message = game.run()
                 if status == "game_over":
