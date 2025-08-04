@@ -607,7 +607,11 @@ class Client:
 
         return profile_picture,health_bar,health_bar_frame
                 
-
+    def get_ui_assets_cached(self, character_name):
+        if character_name not in self.ui_cache:
+            self.ui_cache[character_name] = self.load_ui_assets_for_opponent(character_name)
+        return self.ui_cache[character_name]
+    
     def receive_state(self):
         buffer = ""
         while True:
@@ -664,7 +668,7 @@ class Client:
                                 opponent_frame = opponent_frame_list[opponent_frame_index]
                                 for event in opponent_data.get("events", []):
                                     self.play_sound(event, opponent_char)
-                                opp_profile, opp_health_bar, opp_health_bar_frame = self.load_ui_assets_for_opponent(opponent_char)
+                                opp_profile, opp_health_bar, opp_health_bar_frame = self.get_ui_assets_cached(opponent_char)
 
                                 
                                 self.other_players_states.append({
@@ -693,7 +697,7 @@ class Client:
                                 teammate_frame = teammate_frame_list[teammate_frame_index] 
                                 for event in teammate_data.get("events", []):
                                     self.play_sound(event, teammate_char)
-                                opp_profile, opp_health_bar, opp_health_bar_frame = self.load_ui_assets_for_opponent(opponent_char)
+                                opp_profile, opp_health_bar, opp_health_bar_frame = self.get_ui_assets_cached(teammate_char)
                                 self.other_players_states.append({
                                     "x_pos": teammate_data.get("x_pos", 0),
                                     "y_pos": teammate_data.get("y_pos", 0),
