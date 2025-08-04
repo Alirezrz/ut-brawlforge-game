@@ -956,7 +956,8 @@ class Ninja:
             "frame_source": frame_source_name,
             "frame_index": frame_index_val,
             "character": 'Ninja',
-            "events": self.events
+            "events": self.events,
+            "creation_index": self.hero_creation_index
         }
         return data
         
