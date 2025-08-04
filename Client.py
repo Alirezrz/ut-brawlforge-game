@@ -43,7 +43,7 @@ class Client:
         }
         self.screen_width=screen_width
         self.screen_height=screen_height
-        self.load_assets()
+        
         self.opponent_character = ""
         self.opponent_frames = {"idle_frames": [pygame.Surface((50, 50))]}
         self.x_pos=0
@@ -65,6 +65,7 @@ class Client:
             exit()
 
         self.screen=screen
+        self.load_assets()
         if "idle_frames" in self.frames and len(self.frames["idle_frames"]) > 0:
             self.current_picture = self.frames["idle_frames"][0]
         else:
