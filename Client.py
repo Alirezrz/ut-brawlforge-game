@@ -21,6 +21,8 @@ class Client:
         self.socket =sock
         self.username=username
         self.player_id=player_id
+        self.ui_cache = {}
+
         self.hero_type=hero_type
         self.creation_index=-1
         initial_data = {
@@ -816,6 +818,8 @@ class Client:
             
         # اینجا بقیه پلیر ها رو رندر میکنیم     
         for data in self.other_players_states:
+            print("Drawing other:", data["x_pos"], data["y_pos"])
+
             if data["Look"]=='right':
                 self.screen.blit(data['frame_to_display'],(data['x_pos']-self.scroll[0],data['y_pos']-self.scroll[1]))
             else:
