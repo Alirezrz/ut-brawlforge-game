@@ -657,6 +657,9 @@ class Client:
                                 opponent_frame_index = opponent_data.get("frame_index", 0)
                                 opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
                                 opponent_frame = opponent_frame_list[opponent_frame_index]
+                                for event in opponent_data.get("events", []):
+                                    self.play_sound(event, opponent_char)
+
 
                                 
                                 self.other_players_states.append({
@@ -677,6 +680,8 @@ class Client:
                                 teammate_frame_index = teammate_data.get("frame_index", 0)
                                 teammate_frame_list = self.frames[teammate_char].get(teammate_frame_source, [])
                                 teammate_frame = teammate_frame_list[teammate_frame_index] 
+                                for event in teammate_data.get("events", []):
+                                    self.play_sound(event, teammate_char)
 
                                 self.other_players_states.append({
                                     "x_pos": teammate_data.get("x_pos", 0),
