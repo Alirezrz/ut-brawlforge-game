@@ -677,7 +677,7 @@ class Archer:
             "frame_index": frame_index_val,
             "character": 'Archer',
             "events": self.events ,
-            "creation_index": getattr(self, "hero_creation_index", -1)
+            "creation_index": self.hero_creation_index
            }
 
         
