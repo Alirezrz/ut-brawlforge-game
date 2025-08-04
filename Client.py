@@ -22,6 +22,7 @@ class Client:
         self.username=username
         self.player_id=player_id
         self.hero_type=hero_type
+        self.creation_index=-1
         initial_data = {
             "username": self.username,
             "character":self.hero_type
