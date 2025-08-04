@@ -879,8 +879,8 @@ class Client:
                 self.screen,
                 other_state["health"],
                 other_state["profile_picture"],  
-                self.health_bar,                
-                self.health_bar_frame,
+                other_state["health_bar"],                
+                other_state["health_bar_frame"],
                 is_right_side,
                 is_bottom
             )
