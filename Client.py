@@ -701,7 +701,28 @@ class Client:
             except Exception as e:
                     print(f"Error receiving game state: {e}")
                     break
-            
+    def get_bar_position_from_index(index,opponents_count):
+        # حالت 1v1
+        if opponents_count == 1:
+            if index == 1:
+                return False, False  # پلیر اول → چپ بالا
+            elif index == 2:
+                return True, False   # پلیر دوم → راست بالا
+            else:
+                return False, False
+
+        # حالت 2v2
+        else:
+            if index == 1:
+                return False, False  # چپ بالا
+            elif index == 2:
+                return False, True   # چپ پایین
+            elif index == 3:
+                return True, False   # راست بالا
+            elif index == 4:
+                return True, True    # راست پایین
+            else:
+                return False, False    
     def draw_health_bar(self, screen, health, profile_picture, health_bar, health_bar_frame, is_right_side, is_bottom):
         if health < 0:
             health = 0
@@ -826,7 +847,8 @@ class Client:
                     else:
                      self.screen.blit(pygame.transform.flip(self.Fired_Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
         #باید عکس پروفایل های همه لود بشه و بعد دیسپلی بشن
-        self.draw_health_bar(self.screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, False, False)
+        is_right_side, is_bottom = self.get_bar_position_from_index(self.creation_index)
+        self.draw_health_bar(self.screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, is_right_side, is_bottom)
         # self.draw_health_bar(screen, self.opponent.health, self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame, True, False)  
         pygame.display.update()
         
