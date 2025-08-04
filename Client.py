@@ -632,6 +632,7 @@ class Client:
                             self.frame_source = selfdata['frame_source']
                             self.frame_index = selfdata['frame_index']
                             self.character_name = selfdata.get("character", "Ninja")
+                            self.creation_index = selfdata.get("creation_index", -1)
                             for event in selfdata.get("events", []):
                                 self.play_sound(event, self.character_name)
                             
@@ -653,6 +654,7 @@ class Client:
                             opponents = parsed.get("opponents", [])
                             for opponent_data in opponents:
                                 opponent_char = opponent_data.get("character", "Ninja")
+                                opponent_creation_index = opponent_data.get("creation_index", -1)
                                 opponent_frame_source = opponent_data.get("frame_source", "idle_frames")
                                 opponent_frame_index = opponent_data.get("frame_index", 0)
                                 opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
@@ -678,6 +680,8 @@ class Client:
                                 teammate_char = teammate_data.get("character", "Ninja")
                                 teammate_frame_source = teammate_data.get("frame_source", "idle_frames")
                                 teammate_frame_index = teammate_data.get("frame_index", 0)
+                                teammate_creation_index = teammate_data.get("creation_index", -1)
+
                                 teammate_frame_list = self.frames[teammate_char].get(teammate_frame_source, [])
                                 teammate_frame = teammate_frame_list[teammate_frame_index] 
                                 for event in teammate_data.get("events", []):
