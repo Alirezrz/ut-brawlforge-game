@@ -181,8 +181,6 @@ class MultiplayerGame:
                     hero1.events.clear()
                     hero2.events.clear()
 
-                    
-
                 elif self.type == '2v2':
                     hero1, hero2, hero3, hero4 = self.heroes
                     inputs = [self.player_inputs.get(i, {}) for i in range(4)]
