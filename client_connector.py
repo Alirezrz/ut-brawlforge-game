@@ -115,56 +115,7 @@ class ClientConnector:
             print(f"[CLIENT] Error during option selection: {e}")
             self.client_socket.close()
             self.is_connected = False
-        #     self.client_socket.sendall(option.encode())
-        #     print(f"[CLIENT] Sent option {option} to server.")
 
-        #     server_prompt = self.client_socket.recv(1024).decode()
-        #     print(f"[SERVER] {server_prompt}")
-        #     sub_option = input("Enter your choice: ")
-        #     self.client_socket.sendall(sub_option.encode())
-
-        #     if option == "2":
-        #         if sub_option == "1":
-        #             id_prompt = self.client_socket.recv(1024).decode()
-        #             print(f"[SERVER] {id_prompt}")
-        #             game_id = input("Enter Game ID or username: ")
-        #             self.client_socket.sendall(game_id.encode())
-
-        #         print("[CLIENT] Waiting for approval from the game creator...")
-        #         try:
-        #             self.client_socket.settimeout(30.0)
-        #             result = self.client_socket.recv(1024).decode()
-        #             print(f"[SERVER] {result}")
-        #         except socket.timeout:
-        #             print("[CLIENT] Timed out waiting for approval from game creator.")
-        #         except Exception as e:
-        #             print(f"[CLIENT] Error while waiting for approval: {e}")
-        #         finally:
-        #             self.client_socket.settimeout(timeout)
-        #     else:
-        #         try:
-        #             result = self.client_socket.recv(1024).decode()
-        #             print(f"[SERVER] {result}")
-        #             while True:
-        #                 try:
-        #                     self.client_socket.settimeout(30.0)
-        #                     message = self.client_socket.recv(1024).decode()
-        #                     print(f"[SERVER] {message}")
-        #                     if "Game is starting" in message:
-        #                         break
-        #                     elif "Accept? (yes/no)" in message:
-        #                         response = input("Enter yes/no: ")
-        #                         self.client_socket.sendall(response.encode())
-        #                 except socket.timeout:
-        #                     continue  
-        #                 except Exception as e:
-        #                     print(f"[CLIENT] Error in creator session: {e}")
-        #                     break
-        #         except Exception as e:
-        #             print(f"[CLIENT] Error after game creation: {e}")
-        # except Exception as e:
-        #     print(f"[CLIENT] Error during option selection: {e}")
-        #     self.client_socket.close()
 
 if __name__ == '__main__':
     connector = ClientConnector()

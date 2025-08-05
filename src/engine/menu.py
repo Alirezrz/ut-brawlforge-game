@@ -608,19 +608,13 @@ class NetworkMenu:
         
         msg_surf = self.font.render(self.message, True, self.message_color)
         self.screen.blit(msg_surf, msg_surf.get_rect(center=(self.screen.get_width()//2, 250)))
-
-        # Input Box
         color = (255, 165, 0) if self.active_input else (255, 255, 255)
         pygame.draw.rect(self.screen, color, self.input_box, 2)
         text_surface = self.font.render(self.username, True, (255, 255, 255))
         self.screen.blit(text_surface, (self.input_box.x + 5, self.input_box.y + 5))
-
-        # Connect Button
         pygame.draw.rect(self.screen, (0, 150, 0), self.connect_button)
         connect_text = self.font.render("Connect", True, (255, 255, 255))
         self.screen.blit(connect_text, connect_text.get_rect(center=self.connect_button.center))
-
-        # Exit Button
         pygame.draw.rect(self.screen, (150, 0, 0), self.exit_button)
         exit_text = self.font.render("Back", True, (255, 255, 255))
         self.screen.blit(exit_text, exit_text.get_rect(center=self.exit_button.center))
@@ -643,7 +637,7 @@ class MatchmakingMenu:
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return "exit", None
+                    return "exit",None
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = event.pos
                     for button in self.buttons:
@@ -657,41 +651,11 @@ class MatchmakingMenu:
                                 if response and response.get("type") == "lobby_created":
                                     return "lobby", response
                             elif button["action"] == "join":
-                                print("Join game functionality not implemented yet.")
+                                return "join_menu",None
+
 
             self.draw()
             pygame.display.flip()
-
-    # def wait_for_match(self):
-        
-    #     waiting = True
-    #     while waiting:
-    #         self.screen.blit(self.background, (0,0))
-    #         wait_text = self.title_font.render("Waiting for match...", True, (255, 255, 255))
-    #         self.screen.blit(wait_text, wait_text.get_rect(center=(self.screen.get_width()//2, 300)))
-    #         pygame.display.flip()
-
-         
-    #         try:
-                
-    #             self.network.client.settimeout(0.1) 
-    #             response_data = self.network.client.recv(2048).decode('utf-8')
-    #             response = json.loads(response_data)
-                
-    #             if response.get("type") == "match_found":
-    #                 print("Match Found!", response["payload"])
-    #                 self.network.client.settimeout(None) 
-    #                 return "match_found" 
-    #         except socket.timeout:
-    #             pass
-    #         except Exception as e:
-    #             print(f"Error while waiting: {e}")
-    #             self.network.client.settimeout(None) 
-    #             return "exit"
-    #         for event in pygame.event.get():
-    #             if event.type == pygame.QUIT:
-    #                 return "exit"
-
     def draw(self):
         self.screen.blit(self.background, (0,0))
         title_surf = self.title_font.render("Find a Game", True, (255, 255, 255))
@@ -731,18 +695,17 @@ class JoinGameMenu:
                         action, data = self.try_join()
                         if action: return action, data
                     if self.back_button.collidepoint(event.pos): return "back", None
-                    if self.input_box.collidepoint(event.pos):
-                        self.active_input = True
-                    else:
-                        self.active_input = False
+                    
+                    self.active_input = self.input_box.collidepoint(event.pos)
+
                 if event.type == pygame.KEYDOWN and self.active_input:
                     if event.key == pygame.K_RETURN:
                         action, data = self.try_join()
                         if action: return action, data
-                    elif event.key == pygame.K_BACKSPACE: self.game_id = self.game_id[:-1]
-                    else:
-                        if event.unicode.isdigit():
-                            self.game_id += event.unicode
+                    elif event.key == pygame.K_BACKSPACE: 
+                        self.game_id = self.game_id[:-1]
+                    elif event.unicode.isdigit() and len(self.game_id) < 4: 
+                        self.game_id += event.unicode
             self.draw()
             pygame.display.flip()
 
@@ -764,7 +727,7 @@ class JoinGameMenu:
         color = (255, 165, 0) if self.active_input else (255, 255, 255)
         pygame.draw.rect(self.screen, color, self.input_box, 2, border_radius=5)
         text_surface = self.font.render(self.game_id, True, (255, 255, 255))
-        self.screen.blit(text_surface, (self.input_box.x + 10, self.input_box.y + 10))
+        self.screen.blit(text_surface, (self.input_box.x + 10, self.input_box.y + 5))
         pygame.draw.rect(self.screen, (0, 150, 0), self.join_button, border_radius=10)
         join_text = self.font.render("Join", True, (255, 255, 255))
         self.screen.blit(join_text, join_text.get_rect(center=self.join_button.center))
@@ -793,30 +756,43 @@ class LobbyMenu:
                     return "exit"
                 if self.join_request_popup and event.type == pygame.MOUSEBUTTONDOWN:
                     self.handle_popup_click(event.pos)
-
-            self.check_server_messages()
+            result = self.check_server_messages()
+            if result: 
+                return result
             self.draw()
             pygame.display.flip()
             pygame.time.Clock().tick(10)
 
     def check_server_messages(self):
         try:
-            response_raw = self.network.client.recv(2048).decode('utf-8')
-            response = json.loads(response_raw)
-            msg_type = response.get("type")
+            full_data = self.network.client.recv(4096).decode('utf-8')
+            if not full_data: 
+                return "exit"
 
-            if msg_type in ["lobby_update", "join_accepted"]:
-                self.players = response.get("players", [])
-            elif msg_type == "join_request" and self.is_host:
-                self.join_request_popup = {"username": response["username"], "visible": True}
-            elif msg_type == "match_starting":
-                self.network.client.setblocking(True)
-                return "start_game"
-            elif msg_type == "join_denied":
-                return "matchmaking_menu" 
+            for response_raw in full_data.strip().split('\n'):
+                if not response_raw: continue
+                
+                response = json.loads(response_raw)
+                msg_type = response.get("type")
+
+                if msg_type in ["lobby_update", "join_accepted", "lobby_created"]:
+                    self.players = response.get("players", [])
+                elif msg_type == "join_request" and self.is_host:
+                    self.join_request_popup = {"username": response["username"], "visible": True}
+                elif msg_type == "match_starting":
+                    self.network.client.setblocking(True)
+                    return "start_game"
+                elif msg_type == "join_denied":
+                    return "matchmaking_menu"
+                elif msg_type == "error":
+                    print(f"Server Error: {response.get('message')}")
+                    return "exit"
                 
         except BlockingIOError: pass
-        except (json.JSONDecodeError, socket.error): return "exit"
+        except (json.JSONDecodeError, socket.error, ConnectionResetError) as e:
+            print(f"Error in lobby: {e}")
+            return "exit"
+        return None
 
     def handle_popup_click(self, pos):
         yes_rect = pygame.Rect(self.screen.get_width()//2 - 120, 450, 100, 50)
@@ -837,22 +813,32 @@ class LobbyMenu:
         title_surf = self.title_font.render(f"Lobby - Game ID: {self.game_id}", True, (255, 255, 255))
         self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width()//2, 100)))
 
+        status_text = "Waiting for players to join..." if self.is_host else "Waiting for host to start..."
+        status_surf = self.font.render(status_text, True, (200, 200, 200))
+        self.screen.blit(status_surf, status_surf.get_rect(center=(self.screen.get_width()//2, 200)))
+
+        for i, player_name in enumerate(self.players):
+            player_surf = self.font.render(f"Player {i+1}: {player_name}", True, (255, 255, 255))
+            player_rect = player_surf.get_rect(center=(self.screen.get_width()//2, 300 + i * 60))
+            self.screen.blit(player_surf, player_rect)
+
         if self.join_request_popup:
             self.draw_popup()
 
     def draw_popup(self):
 
-        s = pygame.Surface((500, 200))
-        s.set_alpha(200)
-        s.fill((0,0,0))
+        s = pygame.Surface((500, 200), pygame.SRCALPHA)
+        s.fill((0,0,0, 200))
         self.screen.blit(s, (self.screen.get_width()//2 - 250, 300))
+        
         req_text = f"Player '{self.join_request_popup['username']}' wants to join."
         text_surf = self.font.render(req_text, True, (255, 255, 255))
         self.screen.blit(text_surf, text_surf.get_rect(center=(self.screen.get_width()//2, 350)))
+        
         yes_rect = pygame.Rect(self.screen.get_width()//2 - 120, 450, 100, 50)
         no_rect = pygame.Rect(self.screen.get_width()//2 + 20, 450, 100, 50)
-        pygame.draw.rect(self.screen, (0, 150, 0), yes_rect)
-        pygame.draw.rect(self.screen, (150, 0, 0), no_rect)
+        pygame.draw.rect(self.screen, (0, 150, 0), yes_rect, border_radius=10)
+        pygame.draw.rect(self.screen, (150, 0, 0), no_rect, border_radius=10)
         yes_text = self.font.render("Yes", True, (255,255,255))
         no_text = self.font.render("No", True, (255,255,255))
         self.screen.blit(yes_text, yes_text.get_rect(center=yes_rect.center))
