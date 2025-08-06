@@ -609,6 +609,7 @@ class Client:
                                 self.other_players_states.append({
                                     "x_pos": opponent_data.get("x_pos", 0),
                                     "y_pos": opponent_data.get("y_pos", 0),
+                                    "username": opponent_data.get("username", "Player"),
                                     "frame_to_display": opponent_frame,
                                     "health": opponent_data.get("health", 100),
                                     "profile_picture": opp_profile,
@@ -636,6 +637,7 @@ class Client:
                                 self.other_players_states.append({
                                     "x_pos": teammate_data.get("x_pos", 0),
                                     "y_pos": teammate_data.get("y_pos", 0),
+                                    "username": teammate_data.get("username", "Player"),
                                     "frame_to_display": teammate_frame,
                                     "health": teammate_data.get("health", 100),
                                     "Look":teammate_data.get('look','right'),
