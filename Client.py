@@ -775,22 +775,23 @@ class Client:
                 
         for player_state in self.other_players_states:
             char = player_state.get("character", "Ninja")
-            src = player_state.get("frame_source", "idle_frames")
-            idx = player_state.get("frame_index", 0)
-            
-            opponent_image = pygame.Surface((70, 118), pygame.SRCALPHA)
-            char_frames = self.frames.get(char, {})
-            frame_list = char_frames.get(src, [])
-            if frame_list and -1 < idx < len(frame_list):
-                opponent_image = frame_list[idx]
-
-            px, py = player_state['x_pos'], player_state['y_pos']
-            p_look = player_state.get('look', 'right')
-            
+            opponent_image = player_state["frame_to_display"]
+            px = player_state.get("x_pos", 0)
+            py = player_state.get("y_pos", 0)
+            p_look = player_state.get('Look', 'right')
+        # (فرض می‌کنیم نام کاربری حریف در اطلاعات ارسالی از سرور وجود دارد)
+            p_username = player_state.get('username', 'Player') 
+        
             if p_look == 'left':
-                opponent_image = pygame.transform.flip(opponent_image, True, False)
-            
+               opponent_image = pygame.transform.flip(opponent_image, True, False)
+        
+        # ترسیم کاراکتر حریف
             self.screen.blit(opponent_image, (px - self.scroll[0], py - self.scroll[1]))
+        
+        # ترسیم نام کاربری حریف
+            other_username_surface = font.render(p_username, True, (220, 220, 220))
+            other_username_rect = other_username_surface.get_rect(center=(px - self.scroll[0] + opponent_image.get_width() / 2, py - self.scroll[1] - 15))
+            self.screen.blit(other_username_surface, other_username_rect)
             
         for bullet in self.bullets:
             if bullet['owner']=="Roboman":
