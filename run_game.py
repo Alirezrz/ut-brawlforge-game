@@ -110,6 +110,7 @@ while True:
                         if lobby_result == "start_game":
                             char_select_menu = MultiplayerCharacterSelectMenu(screen, background)
                             selected_hero = char_select_menu.run()
+                            print(f"DEBUG [run_game.py]: Character selected from menu is '{selected_hero}'")
                             if selected_hero:
                                 print("[CLIENT DEBUG] Character selected. Starting game client...") # DEBUG PRINT
                         

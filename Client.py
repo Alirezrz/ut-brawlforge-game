@@ -555,13 +555,14 @@ class Client:
                     if not chunk:
                         break
                     buffer += chunk.decode('utf-8')
-                    print(f"[CLIENT] Received state: {buffer}")
+                    # print(f"[CLIENT] Received state: {buffer}")
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
                        
 
                         try:
                             parsed = json.loads(line)
+                            # print(f"Client received: {json.dumps(parsed, indent=2)}")
                             selfdata = parsed["self"]
                             self.x_pos = selfdata['x_pos']
                             self.y_pos = selfdata['y_pos']
@@ -861,6 +862,7 @@ class Client:
             print("Connection to server lost.")    
     def start(self):
         initial_data = {"username": self.username, "character": self.hero_type}
+        print(f"DEBUG [Client.py]: Sending initial character data to server: {initial_data}")
         self.send_json(initial_data)
 
       

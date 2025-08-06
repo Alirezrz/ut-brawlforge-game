@@ -47,12 +47,18 @@ def client_handler(conn):
 
         send_json(conn, {"type": "connection_success", "id": player_id})
         print(f"[+] {username} (ID: {player_id}) connected.")
-
+        conn.settimeout(0.5)
         buffer = ""
         while True:
-            data = conn.recv(4096).decode('utf-8')
-            if not data: break
-            buffer += data
+            if clients.get(conn) and clients[conn]["in_game"]:
+                print(f"Handing off connection for in-game player {username} (ID: {player_id}).")
+                break
+            try:
+               data = conn.recv(4096).decode('utf-8')
+               if not data: break
+               buffer += data
+            except socket.timeout:
+                continue
             while '\n' in buffer:
                 message_raw, buffer = buffer.split('\n', 1)
                 if not message_raw: continue
@@ -129,6 +135,7 @@ def client_handler(conn):
         print(f"Error with client {player_id} ({username}): {e}")
 
     finally:
+        conn.settimeout(None)
         if client_info and not client_info.get("in_game"):
 
             print(f"[-] Client {player_id} ({username}) disconnected before game start.")

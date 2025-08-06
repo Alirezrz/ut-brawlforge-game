@@ -36,6 +36,8 @@ class MultiplayerGame:
         self.gates = []
         self.type = game_type
     def create_hero(self, char_name, x, y, index, username):
+        print(f"DEBUG [create_hero]: Received char_name is: '{char_name}'")
+        print(f"DEBUG [create_hero]: Does it match 'Archer'? -> {char_name == 'Archer'}")
         print(f"Creating hero on server: {char_name} for player index {index} ({username})")
         if char_name == "Roboman":
             print("--Robo---")
@@ -56,6 +58,7 @@ class MultiplayerGame:
 
     def client_thread(self, conn, player_session_index):
         print(f"Game thread started for player index {player_session_index}.")
+        conn.settimeout(None)
         buffer = ""
         try:
     
@@ -144,6 +147,8 @@ class MultiplayerGame:
                     if client_conn and all_states[i] is not None:
                         opponents_states = [s for j, s in enumerate(all_states) if i != j and s is not None]
                         game_state = {"self": all_states[i], "opponents": opponents_states, "bullets": bullets_state}
+                        # if i ==0:
+                        #     print(f"Server sending to client {i+1}: {json.dumps(game_state, indent=2)}")
                         send_json(client_conn, game_state)
 
                 for h in active_heroes: h.events.clear()
