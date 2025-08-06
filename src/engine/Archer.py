@@ -677,7 +677,8 @@ class Archer:
             "frame_index": frame_index_val,
             "character": 'Archer',
             "events": self.events ,
-            "creation_index": self.hero_creation_index
+            "creation_index": self.hero_creation_index,
+            "is_dead": self.DEAD 
            }
 
         

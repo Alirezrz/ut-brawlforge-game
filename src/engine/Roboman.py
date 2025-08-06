@@ -293,7 +293,7 @@ class Roboman:
         self.allow_move_right = False
         self.y_pos += 30
         self.previous_center = (self.x_pos + self.width // 2, self.y_pos + self.height)
-        self.DEAD = True
+        # self.DEAD = True
         if self.current_platform:
             self.y_pos = self.current_platform.y_pos - self.height
         else:
@@ -380,7 +380,27 @@ class Roboman:
         screen.blit(pygame.transform.scale(self.hero_profile_picture, (profileSideSize, profileSideSize)), (profile_x, profile_y))
     def update_animation(self, shot_bullets):
         current_time = pygame.time.get_ticks()
+        if not self.ALIVE:
+         if self.current_frame_index < len(self.death_frames):
+            self.current_picture = self.death_frames[self.current_frame_index]
+            self.frame_address = ("death_frames", self.current_frame_index)
+        
+            new_width, new_height = self.current_picture.get_size()
+            if self.current_frame_index == 0:
+                self.previous_center = (self.x_pos + self.width // 2, self.y_pos + self.height)
+            self.x_pos = self.previous_center[0] - new_width // 2
+            self.y_pos = self.previous_center[1] - new_height
+            self.hitbox = pygame.Rect(self.x_pos, self.y_pos, new_width, new_height)
 
+            if current_time - self.last_frame_update_time > 100:
+                self.current_frame_index += 1
+                self.last_frame_update_time = current_time
+         else:
+            
+            self.current_picture = self.death_frames[-1]
+            self.frame_address = ("death_frames", -1)
+            self.DEAD = True
+         return
         if hasattr(self, "DEAD") and self.DEAD:
             if hasattr(self, "death_frames") and self.death_frames:
                 if self.current_frame_index < len(self.death_frames):
@@ -1015,7 +1035,8 @@ class Roboman:
             "frame_index": frame_index_val,
             "character": "Roboman",
             "events": self.events ,
-            "creation_index": self.hero_creation_index
+            "creation_index": self.hero_creation_index,
+            "is_dead": self.DEAD 
         }
 
 

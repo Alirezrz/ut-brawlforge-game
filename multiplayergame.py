@@ -129,6 +129,8 @@ class MultiplayerGame:
                 for hero in active_heroes:
                     player_id = hero.hero_creation_index
                     inputs = self.player_inputs.get(player_id, {})
+                    if hero.health <= 0 and hero.ALIVE:
+                        hero.die()
                     keys = {
                         pygame.K_d: inputs.get("D", False), pygame.K_a: inputs.get("A", False), 
                         pygame.K_w: inputs.get("W", False), pygame.K_LSHIFT: inputs.get("LSHIFT", False),

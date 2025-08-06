@@ -18,6 +18,7 @@ class Client:
         self.hero_type = hero_type
         self.screen_height=screen_height
         self.screen_width=screen_width
+        self.is_dead=False
         self.screen = pygame.display.set_mode((screen_width, screen_height))
         pygame.display.set_caption(f"BrawlForge - {username}")
 
@@ -555,17 +556,16 @@ class Client:
                     if not chunk:
                         break
                     buffer += chunk.decode('utf-8')
-                    # print(f"[CLIENT] Received state: {buffer}")
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
                        
 
                         try:
                             parsed = json.loads(line)
-                            # print(f"Client received: {json.dumps(parsed, indent=2)}")
                             selfdata = parsed["self"]
                             self.x_pos = selfdata['x_pos']
                             self.y_pos = selfdata['y_pos']
+                            self.is_dead = selfdata.get("is_dead", False)
                             self.health = selfdata['health']
                             self.Look = selfdata['look']
                             self.username = selfdata['username']
@@ -616,7 +616,8 @@ class Client:
                                     "health_bar": opp_health_bar,
                                     "health_bar_frame": opp_health_bar_frame,
                                     "Look":opponent_data.get('look','right'),
-                                    "creation_index": opponent_data.get("creation_index", 0)
+                                    "creation_index": opponent_data.get("creation_index", 0),
+                                    "is_dead": opponent_data.get("is_dead", False)
                                 })
 
                                
@@ -714,43 +715,7 @@ class Client:
         if profile_picture:
             if is_right_side:
                 profile_picture = pygame.transform.flip(profile_picture, True, False)
-            screen.blit(pygame.transform.scale(profile_picture, (profileSideSize, profileSideSize)), (profile_x, profile_y))          
-    # def receive_state_loop(self):
-    #     """Continuously receives and updates game state from the server."""
-    #     buffer = ""
-    #     while True:
-    #         try:
-    #             data = self.socket.recv(4096).decode('utf-8')
-    #             if not data: break
-    #             buffer += data
-    #             while '\n' in buffer:
-    #                 message_raw, buffer = buffer.split('\n', 1)
-    #                 if not message_raw: continue
-                    
-    #                 state = json.loads(message_raw)
-                    
-    #                 self_state = state.get("self")
-    #                 if self_state:
-    #                     self.x_pos = self_state['x_pos']
-    #                     self.y_pos = self_state['y_pos']
-    #                     self.health = self_state['health']
-    #                     self.Look = self_state['look']
-    #                     self.character_name = self_state.get("character", "Ninja")
-    #                     self.creation_index = self_state.get("creation_index", 1)
-                        
-    #                     frame_source = self_state.get('frame_source', 'idle_frames')
-    #                     frame_index = self_state.get('frame_index', 0)
-    #                     if self.character_name in self.frames and frame_source in self.frames[self.character_name]:
-    #                        frame_list = self.frames[self.character_name][frame_source]
-    #                        if -1 < frame_index < len(frame_list):
-    #                             self.current_picture = pygame.Surface((50, 100))
-
-    #                 self.other_players_states = state.get("opponents", [])
-    #                 self.bullets = state.get("bullets", [])
-
-    #         except (socket.error, json.JSONDecodeError, IndexError, KeyError) as e:
-    #             print(f"Error receiving/processing state: {e}")
-    #             break                      
+            screen.blit(pygame.transform.scale(profile_picture, (profileSideSize, profileSideSize)), (profile_x, profile_y))                               
     def render_game(self):
         if self.screen==None:
             pygame.display.set_caption("BrawlForge Client")
@@ -772,7 +737,7 @@ class Client:
                  platform.draw(self.screen, self.scroll)
             except Exception as e:
                  print(f"Error drawing platform: {e}")
-        if self.current_picture:
+        if self.current_picture and  not self.is_dead:
             self_image = pygame.transform.flip(self.current_picture, True, False) if self.Look == 'left' else self.current_picture
             self.screen.blit(self_image, (self.x_pos - self.scroll[0], self.y_pos - self.scroll[1]))
             
@@ -781,6 +746,7 @@ class Client:
             self.screen.blit(username_surface, username_rect)
                 
         for player_state in self.other_players_states:
+          if not player_state.get("is_dead",False):
             opponent_image = player_state["frame_to_display"]
             px = player_state.get("x_pos", 0)
             py = player_state.get("y_pos", 0)
