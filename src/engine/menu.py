@@ -746,6 +746,8 @@ class LobbyMenu:
         self.network.client.setblocking(False)
         self.join_request_popup = None
         self.buffer = ""
+        self.yes_button_rect = None
+        self.no_button_rect = None
         if self.is_host:
             self.start_button = pygame.Rect(screen.get_width() - 250, screen.get_height() - 100, 200, 50)
 
@@ -758,7 +760,6 @@ class LobbyMenu:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.join_request_popup:
                         self.handle_popup_click(event.pos)
-                    
                     if self.is_host and self.start_button.collidepoint(event.pos):
                         max_players = 2 if self.game_type == '1v1' else 4
                         
@@ -777,7 +778,7 @@ class LobbyMenu:
                 return result
             self.draw()
             pygame.display.flip()
-            pygame.time.Clock().tick(15)
+            pygame.time.Clock().tick(15) 
 
     def check_server_messages(self):
         try:
@@ -804,7 +805,7 @@ class LobbyMenu:
                     return "start_game"
                 elif msg_type == "join_denied":
                     print(f"Join denied: {response.get('message')}")
-                    return "matchmaking_menu" # Go back
+                    return "matchmaking_menu" 
                 elif msg_type == "error":
                     print(f"Server Error: {response.get('message')}")
                     return "exit"
@@ -816,16 +817,12 @@ class LobbyMenu:
         return None
 
     def handle_popup_click(self, pos):
-        yes_rect = pygame.Rect(self.screen.get_width()//2 - 120, 450, 100, 50)
-        no_rect = pygame.Rect(self.screen.get_width()//2 + 20, 450, 100, 50)
-        decision = None
-        if yes_rect.collidepoint(pos):
+        if self.yes_button_rect and self.yes_button_rect.collidepoint(pos):
             decision = "yes"
-        elif no_rect.collidepoint(pos):
+        elif self.no_button_rect and self.no_button_rect.collidepoint(pos):
             decision = "no"
         
         if decision:
-           
             self.network.client.setblocking(True)
             self.network.send_json({"action": "host_decision", "decision": decision})
             self.network.client.setblocking(False)
@@ -836,7 +833,6 @@ class LobbyMenu:
         title_surf = self.title_font.render(f"Lobby - Game ID: {self.game_id}", True, (255, 255, 255))
         self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width()//2, 100)))
 
-       
         for i, player_name in enumerate(self.players):
             player_surf = self.font.render(f"Player {i+1}: {player_name}", True, (255, 255, 255))
             player_rect = player_surf.get_rect(center=(self.screen.get_width()//2, 250 + i * 60))
@@ -845,10 +841,10 @@ class LobbyMenu:
         if self.is_host:
             max_players = 2 if self.game_type == '1v1' else 4
             if len(self.players) == max_players:
-                color = (0, 200, 0)
+                color = (0, 200, 0) 
                 text = "Start Game"
             else:
-                color = (100, 100, 100)
+                color = (100, 100, 100) 
                 text = f"Waiting... ({len(self.players)}/{max_players})"
             
             pygame.draw.rect(self.screen, color, self.start_button, border_radius=10)
@@ -868,17 +864,18 @@ class LobbyMenu:
         text_surf = self.font.render(req_text, True, (255, 255, 255))
         self.screen.blit(text_surf, text_surf.get_rect(center=(popup_rect.centerx, popup_rect.centery - 50)))
         
-        yes_rect = pygame.Rect(0, 0, 100, 50)
-        yes_rect.center = (popup_rect.centerx - 80, popup_rect.centery + 50)
-        no_rect = pygame.Rect(0, 0, 100, 50)
-        no_rect.center = (popup_rect.centerx + 80, popup_rect.centery + 50)
-
-        pygame.draw.rect(self.screen, (0, 150, 0), yes_rect, border_radius=10)
-        pygame.draw.rect(self.screen, (150, 0, 0), no_rect, border_radius=10)
+        self.yes_button_rect = pygame.Rect(0, 0, 120, 50)
+        self.yes_button_rect.center = (popup_rect.centerx - 90, popup_rect.centery + 50)
+        
+        self.no_button_rect = pygame.Rect(0, 0, 120, 50)
+        self.no_button_rect.center = (popup_rect.centerx + 90, popup_rect.centery + 50)
+        pygame.draw.rect(self.screen, (0, 150, 0), self.yes_button_rect, border_radius=10)
+        pygame.draw.rect(self.screen, (150, 0, 0), self.no_button_rect, border_radius=10)
+        
         yes_text = self.font.render("Accept", True, (255,255,255))
         no_text = self.font.render("Deny", True, (255,255,255))
-        self.screen.blit(yes_text, yes_text.get_rect(center=yes_rect.center))
-        self.screen.blit(no_text, no_text.get_rect(center=no_rect.center))
+        self.screen.blit(yes_text, yes_text.get_rect(center=self.yes_button_rect.center))
+        self.screen.blit(no_text, no_text.get_rect(center=self.no_button_rect.center))
 class MultiplayerCharacterSelectMenu:
     def __init__(self, screen, background):
         self.screen = screen
