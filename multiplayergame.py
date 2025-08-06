@@ -144,7 +144,7 @@ class MultiplayerGame:
                     print("All clients have disconnected. Stopping game.")
                     self.game_active = False
 
-                clock.tick(30) 
+                clock.tick(60) 
 
             except Exception as e:
                 print(f"FATAL GAME LOOP ERROR: {e}")
