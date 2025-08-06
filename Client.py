@@ -555,7 +555,7 @@ class Client:
                     if not chunk:
                         break
                     buffer += chunk.decode('utf-8')
-                    #print(f"[CLIENT] Received state: {chunk.decode('utf-8')}")
+                    print(f"[CLIENT] Received state: {buffer}")
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
                        

@@ -38,14 +38,20 @@ class MultiplayerGame:
     def create_hero(self, char_name, x, y, index, username):
         print(f"Creating hero on server: {char_name} for player index {index} ({username})")
         if char_name == "Roboman":
+            print("--Robo---")
             return Roboman(x, y, screen_width, screen_height, index, username, LOAD_FLAG=True)
+            
         elif char_name == "Ninja":
+            print("--ninja---")
             return Ninja(x, y, screen_width, screen_height, [], index, username, LOAD_FLAG=True)
         elif char_name == "NinjaGirl":
+            print("--Girl---")
             return NinjaGirl(x, y, screen_width, screen_height, [], index, username)
         elif char_name == "Archer":
+            print("--archer---")
             return Archer(x, y, [], index, username)
         
+        print("--ninjabiron---")
         return Ninja(x, y, screen_width, screen_height, [], index, username, LOAD_FLAG=True)
 
     def client_thread(self, conn, player_session_index):
