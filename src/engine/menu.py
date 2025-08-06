@@ -632,38 +632,38 @@ class MatchmakingMenu:
             {"text": "Join Game by ID", "pos": (screen.get_width() // 2, 500), "action": "join"}
         ]
         self.status_message = f"Connected as {self.network.username} (ID: {self.network.player_id})"
-    
+
     def run(self):
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return "exit",None
+                    return "exit", None
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = event.pos
                     for button in self.buttons:
-                        button_rect = pygame.Rect(0,0,400,50)
+                        button_rect = pygame.Rect(0, 0, 400, 50)
                         button_rect.center = button["pos"]
                         if button_rect.collidepoint(mouse_pos):
                             if "create" in button["action"]:
                                 game_type = "1v1" if "1v1" in button["action"] else "2v2"
                                 request = {"action": "create_game", "game_type": game_type}
-                                response = self.network.send_request(request)
+                                
+                                self.network.send_json(request)
+                                response = self.network.recv_json()
+                                
                                 if response and response.get("type") == "lobby_created":
                                     return "lobby", response
                             elif button["action"] == "join":
-                                return "join_menu",None
-
-
+                                return "join_menu", None
             self.draw()
             pygame.display.flip()
+    
     def draw(self):
         self.screen.blit(self.background, (0,0))
         title_surf = self.title_font.render("Find a Game", True, (255, 255, 255))
         self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width()//2, 150)))
-        
         status_surf = self.font.render(self.status_message, True, (200, 200, 200))
         self.screen.blit(status_surf, status_surf.get_rect(center=(self.screen.get_width()//2, 220)))
-
         mouse_pos = pygame.mouse.get_pos()
         for button in self.buttons:
             button_rect = pygame.Rect(0,0,400,50)
@@ -695,16 +695,13 @@ class JoinGameMenu:
                         action, data = self.try_join()
                         if action: return action, data
                     if self.back_button.collidepoint(event.pos): return "back", None
-                    
                     self.active_input = self.input_box.collidepoint(event.pos)
-
                 if event.type == pygame.KEYDOWN and self.active_input:
                     if event.key == pygame.K_RETURN:
                         action, data = self.try_join()
                         if action: return action, data
-                    elif event.key == pygame.K_BACKSPACE: 
-                        self.game_id = self.game_id[:-1]
-                    elif event.unicode.isdigit() and len(self.game_id) < 4: 
+                    elif event.key == pygame.K_BACKSPACE: self.game_id = self.game_id[:-1]
+                    elif event.unicode.isdigit() and len(self.game_id) < 4:
                         self.game_id += event.unicode
             self.draw()
             pygame.display.flip()
@@ -712,7 +709,7 @@ class JoinGameMenu:
     def try_join(self):
         if self.game_id:
             request = {"action": "join_game", "game_id": self.game_id}
-            self.network.client.sendall(json.dumps(request).encode('utf-8'))
+            self.network.send_json(request)
             return "wait_for_acceptance", None
         else:
             self.message = "Please enter a Game ID."
@@ -742,11 +739,15 @@ class LobbyMenu:
         self.network = network_handler
         self.game_id = lobby_data.get("game_id")
         self.players = lobby_data.get("players", [])
+        self.game_type = lobby_data.get("game_type", "1v1") 
         self.is_host = is_host
         self.font = pygame.font.Font(None, 50)
         self.title_font = pygame.font.Font(None, 74)
         self.network.client.setblocking(False)
         self.join_request_popup = None
+        self.buffer = ""
+        if self.is_host:
+            self.start_button = pygame.Rect(screen.get_width() - 250, screen.get_height() - 100, 200, 50)
 
     def run(self):
         while True:
@@ -754,25 +755,43 @@ class LobbyMenu:
                 if event.type == pygame.QUIT:
                     self.network.disconnect()
                     return "exit"
-                if self.join_request_popup and event.type == pygame.MOUSEBUTTONDOWN:
-                    self.handle_popup_click(event.pos)
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.join_request_popup:
+                        self.handle_popup_click(event.pos)
+                    
+                    if self.is_host and self.start_button.collidepoint(event.pos):
+                        max_players = 2 if self.game_type == '1v1' else 4
+                        
+                        if len(self.players) == max_players:
+                            print("[CLIENT DEBUG] 'Start Game' button clicked. Sending action to server...")
+                            self.network.client.setblocking(True)
+                            
+
+                            self.network.send_json({"action": "start_game"})
+                           
+                            self.network.client.setblocking(False)
+                            print("[CLIENT DEBUG] 'start_game' action sent.")
+
             result = self.check_server_messages()
             if result: 
                 return result
             self.draw()
             pygame.display.flip()
-            pygame.time.Clock().tick(10)
+            pygame.time.Clock().tick(15)
 
     def check_server_messages(self):
         try:
-            full_data = self.network.client.recv(4096).decode('utf-8')
-            if not full_data: 
+            data = self.network.client.recv(4096).decode('utf-8')
+            if not data:
                 return "exit"
+            self.buffer += data
 
-            for response_raw in full_data.strip().split('\n'):
-                if not response_raw: continue
-                
-                response = json.loads(response_raw)
+            while '\n' in self.buffer:
+                message_raw, self.buffer = self.buffer.split('\n', 1)
+                if not message_raw:
+                    continue
+                print(f"[CLIENT DEBUG] Received raw message from server: {message_raw}")
+                response = json.loads(message_raw)
                 msg_type = response.get("type")
 
                 if msg_type in ["lobby_update", "join_accepted", "lobby_created"]:
@@ -780,10 +799,12 @@ class LobbyMenu:
                 elif msg_type == "join_request" and self.is_host:
                     self.join_request_popup = {"username": response["username"], "visible": True}
                 elif msg_type == "match_starting":
+                    print("[CLIENT DEBUG] 'match_starting' message received! Exiting lobby...") 
                     self.network.client.setblocking(True)
                     return "start_game"
                 elif msg_type == "join_denied":
-                    return "matchmaking_menu"
+                    print(f"Join denied: {response.get('message')}")
+                    return "matchmaking_menu" # Go back
                 elif msg_type == "error":
                     print(f"Server Error: {response.get('message')}")
                     return "exit"
@@ -804,8 +825,10 @@ class LobbyMenu:
             decision = "no"
         
         if decision:
-            response = {"action": "host_decision", "decision": decision}
-            self.network.client.sendall(json.dumps(response).encode('utf-8'))
+           
+            self.network.client.setblocking(True)
+            self.network.send_json({"action": "host_decision", "decision": decision})
+            self.network.client.setblocking(False)
             self.join_request_popup = None
 
     def draw(self):
@@ -813,34 +836,47 @@ class LobbyMenu:
         title_surf = self.title_font.render(f"Lobby - Game ID: {self.game_id}", True, (255, 255, 255))
         self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width()//2, 100)))
 
-        status_text = "Waiting for players to join..." if self.is_host else "Waiting for host to start..."
-        status_surf = self.font.render(status_text, True, (200, 200, 200))
-        self.screen.blit(status_surf, status_surf.get_rect(center=(self.screen.get_width()//2, 200)))
-
+       
         for i, player_name in enumerate(self.players):
             player_surf = self.font.render(f"Player {i+1}: {player_name}", True, (255, 255, 255))
-            player_rect = player_surf.get_rect(center=(self.screen.get_width()//2, 300 + i * 60))
+            player_rect = player_surf.get_rect(center=(self.screen.get_width()//2, 250 + i * 60))
             self.screen.blit(player_surf, player_rect)
+
+        if self.is_host:
+            max_players = 2 if self.game_type == '1v1' else 4
+            if len(self.players) == max_players:
+                color = (0, 200, 0)
+                text = "Start Game"
+            else:
+                color = (100, 100, 100)
+                text = f"Waiting... ({len(self.players)}/{max_players})"
+            
+            pygame.draw.rect(self.screen, color, self.start_button, border_radius=10)
+            text_surf = self.font.render(text, True, (255, 255, 255))
+            self.screen.blit(text_surf, text_surf.get_rect(center=self.start_button.center))
 
         if self.join_request_popup:
             self.draw_popup()
 
     def draw_popup(self):
-
-        s = pygame.Surface((500, 200), pygame.SRCALPHA)
+        s = pygame.Surface((600, 250), pygame.SRCALPHA)
         s.fill((0,0,0, 200))
-        self.screen.blit(s, (self.screen.get_width()//2 - 250, 300))
+        popup_rect = s.get_rect(center=(self.screen.get_width()//2, self.screen.get_height()//2))
+        self.screen.blit(s, popup_rect.topleft)
         
         req_text = f"Player '{self.join_request_popup['username']}' wants to join."
         text_surf = self.font.render(req_text, True, (255, 255, 255))
-        self.screen.blit(text_surf, text_surf.get_rect(center=(self.screen.get_width()//2, 350)))
+        self.screen.blit(text_surf, text_surf.get_rect(center=(popup_rect.centerx, popup_rect.centery - 50)))
         
-        yes_rect = pygame.Rect(self.screen.get_width()//2 - 120, 450, 100, 50)
-        no_rect = pygame.Rect(self.screen.get_width()//2 + 20, 450, 100, 50)
+        yes_rect = pygame.Rect(0, 0, 100, 50)
+        yes_rect.center = (popup_rect.centerx - 80, popup_rect.centery + 50)
+        no_rect = pygame.Rect(0, 0, 100, 50)
+        no_rect.center = (popup_rect.centerx + 80, popup_rect.centery + 50)
+
         pygame.draw.rect(self.screen, (0, 150, 0), yes_rect, border_radius=10)
         pygame.draw.rect(self.screen, (150, 0, 0), no_rect, border_radius=10)
-        yes_text = self.font.render("Yes", True, (255,255,255))
-        no_text = self.font.render("No", True, (255,255,255))
+        yes_text = self.font.render("Accept", True, (255,255,255))
+        no_text = self.font.render("Deny", True, (255,255,255))
         self.screen.blit(yes_text, yes_text.get_rect(center=yes_rect.center))
         self.screen.blit(no_text, no_text.get_rect(center=no_rect.center))
 class MultiplayerCharacterSelectMenu:

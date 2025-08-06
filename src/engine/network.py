@@ -8,30 +8,45 @@ class Network:
         self.port = 9191
         self.addr = (self.host, self.port)
         self.player_id = None
-    def connect(self,username):
+        self.username = None
+        self.buffer = ""
+
+    def connect(self, username):
         try:
             self.client.connect(self.addr)
             self.username = username
-            self.client.sendall(json.dumps({"username": username}).encode('utf-8'))
-            response_raw = self.client.recv(1024).decode('utf-8')
-            response = json.loads(response_raw)
-            if response.get("type") == "connection_success":
+            self.send_json({"username": username})
+            response = self.recv_json()
+            if response and response.get("type") == "connection_success":
                 self.player_id = response.get("id")
                 print(f"Connected to server as {self.username} with ID {self.player_id}")
                 return True
-            else:
-                print(f"Connection failed: {response.get('message')}")
-                return False
-        except (socket.error, json.JSONDecodeError) as e:
-            print(f"Could not connect to server: {e}")
+            self.disconnect()
             return False
-    def send_request(self, request_data):
+        except Exception as e:
+            print(f"Could not connect to server: {e}")
+            self.disconnect()
+            return False
+
+    def send_json(self, data):
         try:
-            self.client.sendall(json.dumps(request_data).encode('utf-8'))
-            response_raw = self.client.recv(2048).decode('utf-8')
-            return json.loads(response_raw)
-        except (socket.error, json.JSONDecodeError) as e:
-            print(f"Error sending/receiving data: {e}")
-            return None
+            message = json.dumps(data) + '\n'
+            self.client.sendall(message.encode('utf-8'))
+        except socket.error as e:
+            print(f"Error sending data: {e}")
+
+    def recv_json(self):
+        while '\n' not in self.buffer:
+            try:
+                data = self.client.recv(2048).decode('utf-8')
+                if not data: return None
+                self.buffer += data
+            except socket.error as e:
+                print(f"Error receiving data: {e}")
+                return None
+        message_raw, self.buffer = self.buffer.split('\n', 1)
+        return json.loads(message_raw)
+
     def disconnect(self):
-        self.client.close()
+        try: self.client.close()
+        except: pass

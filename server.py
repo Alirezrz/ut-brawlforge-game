@@ -1,208 +1,161 @@
-import pygame
 import socket
 import threading
-import random
 import json
+import random
 import time
-
 from multiplayergame import MultiplayerGame
+
 HOST = '0.0.0.0'
 PORT = 9191
-BROADCAST_PORT = 9192
-BROADCAST_MSG = b"DISCOVER_SERVER"
+SERVER_ADDRESS = (HOST, PORT)
 
-game_sessions = {}  # creator_id -> {'creator_socket': socket, 'players': [client_info], 'type': game_type}
+clients = {}
+lobbies = {}
+active_games = {}
 
-class Server:
-    def __init__(self):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.bind((HOST, PORT))
-        self.socket.listen()
-        print(f"[SERVER] Listening for clients on {HOST}:{PORT}")
-        self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.broadcast_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        self.connected_clients = []
-        self.lock = threading.Lock()
-        threading.Thread(target=self.accept_clients, daemon=True).start()
-        threading.Thread(target=self.broadcast_presence, daemon=True).start()
-
-    def generate_unique_id(self, existing_ids):
-        while True:
-            new_id = str(random.randint(1000, 9999))
-            if new_id not in existing_ids:
-                return new_id
-
-    def cleanup_client(self, client_info):
-        with self.lock:
-            if client_info in self.connected_clients:
-                self.connected_clients.remove(client_info)
-                print(f"[SERVER] Removed client {client_info['username']} (ID: {client_info['id']})")
-            
-            sessions_to_remove = []
-            for game_id, session in game_sessions.items():
-                if client_info in session['players']:
-                    session['players'].remove(client_info)
-                    if client_info['id'] == game_id:
-                        sessions_to_remove.append(game_id)
-                        for player in session['players']:
-                             try:
-                                 player['socket'].sendall(json.dumps({"type": "error", "message": "Host disconnected."}).encode('utf-8'))
-                             except: pass
-                    else:
-                        self.broadcast_lobby_update(session)
-
-            for game_id in sessions_to_remove:
-                del game_sessions[game_id]
-                print(f"[SERVER] Removed game session {game_id}")
-            
-            try:
-                client_info['socket'].close()
-            except: pass
-
-    def accept_clients(self):
-        while True:
-            client_socket, addr = self.socket.accept()
-            print(f"[SERVER] Client connected from {addr}")
-            threading.Thread(target=self.handle_client, args=(client_socket, addr), daemon=True).start()
-
-    def handle_client(self, client_socket, addr):
-        client_info = None
-        try:
-            initial_data_raw = client_socket.recv(1024).decode('utf-8')
-            initial_data = json.loads(initial_data_raw)
-            username = initial_data.get("username")
-            if not username:
-                client_socket.close()
-                return
-
-            with self.lock:
-                client_id = self.generate_unique_id([c['id'] for c in self.connected_clients])
-            client_info = {"socket": client_socket, "address": addr, "username": username, "id": client_id}
-            with self.lock:
-                self.connected_clients.append(client_info)
-            client_socket.sendall(json.dumps({"type": "connection_success", "id": client_id}).encode('utf-8'))
-
-            while True:
-                request_raw = client_socket.recv(1024).decode('utf-8')
-                if not request_raw: break
-                request = json.loads(request_raw)
-                
-                action = request.get("action")
-                if action == "create_game":
-                    self.handle_create_game(client_info, request.get("game_type"))
-                elif action == "join_game":
-                    self.handle_join_game(client_info, request.get("game_id"))
-                elif action == "host_decision":
-                    self.handle_host_decision(client_info, request)
-
-        except (socket.error, json.JSONDecodeError, ConnectionResetError) as e:
-            print(f"[SERVER] Error with client {addr}: {e}")
-        finally:
-            if client_info: self.cleanup_client(client_info)
-
-    def handle_create_game(self, client_info, game_type):
-        creator_id = client_info['id']
-        with self.lock:
-            game_sessions[creator_id] = {
-                'creator_info': client_info,
-                'players': [client_info],
-                'type': game_type,
-                'pending_join_request': None
-            }
-        print(f"[SERVER] Game created by {client_info['username']} (ID: {creator_id}), type: {game_type}")
-        response = {"type": "lobby_created", "game_id": creator_id, "players": [p['username'] for p in game_sessions[creator_id]['players']]}
-        client_info['socket'].sendall(json.dumps(response).encode('utf-8'))
-
-    def handle_join_game(self, joiner_info, game_id):
-        with self.lock:
-            session = game_sessions.get(game_id)
-            if not session:
-                joiner_info['socket'].sendall(json.dumps({"type": "error", "message": "Game ID not found."}).encode('utf-8'))
-                return
-            if session['pending_join_request']:
-                joiner_info['socket'].sendall(json.dumps({"type": "error", "message": "Host is busy."}).encode('utf-8'))
-                return
-            
-            required_players = 2 if session['type'] == "1v1" else 4
-            if len(session['players']) >= required_players:
-                joiner_info['socket'].sendall(json.dumps({"type": "error", "message": "Game is full."}).encode('utf-8'))
-                return
-            
-            session['pending_join_request'] = joiner_info
-            host_socket = session['creator_info']['socket']
-
-        try:
-            request_to_host = {"type": "join_request", "username": joiner_info['username']}
-            host_socket.sendall(json.dumps(request_to_host).encode('utf-8'))
-        except socket.error as e:
-            print(f"Error sending join request to host: {e}")
-            with self.lock:
-                session['pending_join_request'] = None
-
-    def handle_host_decision(self, host_info, response):
-        game_id = host_info['id']
-        with self.lock:
-            session = game_sessions.get(game_id)
-            if not session or not session['pending_join_request']:
-                return
-            joiner_info = session.pop('pending_join_request')
-
-        if response.get("decision") == "yes":
-            with self.lock:
-                session['players'].append(joiner_info)
-            joiner_info['socket'].sendall(json.dumps({"type": "join_accepted", "game_id": game_id, "players": [p['username'] for p in session['players']]}).encode('utf-8'))
-            self.broadcast_lobby_update(session)
-            self.check_game_start(session)
-        else:
-            joiner_info['socket'].sendall(json.dumps({"type": "join_denied"}).encode('utf-8'))
-
-    def broadcast_lobby_update(self, session):
-        with self.lock:
-            player_list = [p['username'] for p in session['players']]
-            update_message = json.dumps({"type": "lobby_update", "players": player_list})
-        for player in session['players']:
-            try:
-                player['socket'].sendall(update_message.encode('utf-8'))
-            except socket.error:
-                print(f"Could not send lobby update to {player['username']}")
-
-    def check_game_start(self, session):
-        with self.lock:
-            player_count = len(session['players'])
-            required_players = 2 if session['type'] == "1v1" else 4
-            if player_count == required_players:
-                game_id = session['creator_info']['id']
-                print(f"[SERVER] Game {game_id} is ready to start.")
-                start_message = json.dumps({"type": "match_starting"}).encode('utf-8')
-                for p in session['players']:
-                    p['socket'].sendall(start_message)
-                threading.Thread(target=self.start_game_thread, args=(session,)).start()
-                
-                if game_id in game_sessions:
-                    del game_sessions[game_id]
-    
-    def start_game_thread(self, session):
-        game_type = session['type']
-        player_sockets = [p['socket'] for p in session['players']]
-        for sock in player_sockets:
-            sock.sendall(json.dumps({"type": "select_character"}).encode('utf-8'))
-
-        game = MultiplayerGame(game_type)
-        game.set_players(player_sockets)
-        game.game_loop()
-
-    def broadcast_presence(self):
-        while True:
-            try:
-                self.broadcast_socket.sendto(BROADCAST_MSG, ('<broadcast>', BROADCAST_PORT))
-                time.sleep(2)
-            except: pass
-
-if __name__ == '__main__':
-    server = Server()
+def send_json(conn, data):
     try:
-        while True: time.sleep(1)
-    except KeyboardInterrupt:
-        print("[SERVER] Shutting down.")
-        server.socket.close()
+        message = json.dumps(data) + '\n'
+        conn.sendall(message.encode('utf-8'))
+    except (socket.error, BrokenPipeError) as e:
+        print(f"Could not send data: {e}")
+
+def broadcast_lobby_update(lobby_id):
+    if lobby_id in lobbies:
+        lobby = lobbies[lobby_id]
+        player_list = [clients[conn]["username"] for conn in lobby["players"]]
+        update_message = {"type": "lobby_update", "players": player_list}
+        for conn in lobby["players"]:
+            send_json(conn, update_message)
+
+def client_handler(conn):
+    player_id = "0"
+    username = "Guest"
+    client_info = None
+
+    try:
+        initial_data_str = conn.recv(1024).decode('utf-8').strip()
+        initial_data = json.loads(initial_data_str)
+        username = initial_data.get("username", f"Guest_{random.randint(100,999)}")
+        
+        player_id = str(random.randint(1000, 9999))
+        while player_id in [c['id'] for c in clients.values()]:
+            player_id = str(random.randint(1000, 9999))
+
+        client_info = {"id": player_id, "username": username, "lobby": None, "in_game": False}
+        clients[conn] = client_info
+
+        send_json(conn, {"type": "connection_success", "id": player_id})
+        print(f"[+] {username} (ID: {player_id}) connected.")
+
+        buffer = ""
+        while True:
+            data = conn.recv(4096).decode('utf-8')
+            if not data: break
+            buffer += data
+            while '\n' in buffer:
+                message_raw, buffer = buffer.split('\n', 1)
+                if not message_raw: continue
+                
+                request = json.loads(message_raw)
+                action = request.get("action")
+
+                if action == "create_game":
+                    game_type = request.get("game_type", "1v1")
+                    lobby_id = str(random.randint(1000, 9999))
+                    lobbies[lobby_id] = {
+                        "host": conn,
+                        "players": {conn: player_id},
+                        "game_type": game_type,
+                        "pending_joiner": None
+                    }
+                    clients[conn]["lobby"] = lobby_id
+                    send_json(conn, {"type": "lobby_created", "game_id": lobby_id, "players": [username], "game_type": game_type})
+                    print(f"Lobby {lobby_id} ({game_type}) created by {username}.")
+
+                elif action == "join_game":
+                    game_id = request.get("game_id")
+                    if game_id in lobbies:
+                        lobby = lobbies[game_id]
+                        max_players = 2 if lobby['game_type'] == '1v1' else 4
+                        if len(lobby['players']) >= max_players:
+                            send_json(conn, {"type": "join_denied", "message": "Lobby is full."}); continue
+                        lobby["pending_joiner"] = conn
+                        send_json(lobby["host"], {"type": "join_request", "username": username})
+                    else:
+                        send_json(conn, {"type": "join_denied", "message": "Lobby not found."})
+
+                elif action == "host_decision":
+                    lobby_id = clients[conn]["lobby"]
+                    if lobby_id in lobbies and lobbies[lobby_id]["host"] == conn:
+                        lobby = lobbies[lobby_id]
+                        joiner_conn = lobby.get("pending_joiner")
+                        if joiner_conn:
+                            if request.get("decision") == "yes":
+                                joiner_id = clients[joiner_conn]["id"]
+                                lobby["players"][joiner_conn] = joiner_id
+                                clients[joiner_conn]["lobby"] = lobby_id
+                                send_json(joiner_conn, {"type": "join_accepted", "game_id": lobby_id, "players": [clients[c]["username"] for c in lobby["players"]], "game_type": lobby["game_type"]})
+                                broadcast_lobby_update(lobby_id)
+                            else:
+                                send_json(joiner_conn, {"type": "join_denied", "message": "Host denied your request."})
+                            lobby["pending_joiner"] = None
+
+                elif action == "start_game":
+                    lobby_id = clients[conn]["lobby"]
+                    if lobby_id in lobbies and lobbies[lobby_id]["host"] == conn:
+                        lobby = lobbies[lobby_id]
+                        print(f"Host {username} is starting game for lobby {lobby_id}...")
+                        
+                        for player_conn in lobby["players"]:
+                            clients[player_conn]["in_game"] = True
+                        players_with_session_indices = {}
+                        session_index = 1
+                        for player_conn in lobby["players"]:
+                            players_with_session_indices[player_conn] = session_index
+                            session_index += 1
+                       
+
+                        game = MultiplayerGame(lobby["game_type"])
+                        active_games[lobby_id] = game
+                        game.set_players(players_with_session_indices)
+
+                        for player_conn in lobby["players"]:
+                            send_json(player_conn, {"type": "match_starting"})
+                        
+                        return 
+
+    except Exception as e:
+        print(f"Error with client {player_id} ({username}): {e}")
+
+    finally:
+        if client_info and not client_info.get("in_game"):
+
+            print(f"[-] Client {player_id} ({username}) disconnected before game start.")
+            lobby_id = client_info.get("lobby")
+            if lobby_id and lobby_id in lobbies:
+                lobby = lobbies[lobby_id]
+                lobby["players"].pop(conn, None)
+                if not lobby["players"] or lobby["host"] == conn:
+                    print(f"Host left or lobby empty, closing lobby {lobby_id}.")
+                    for player_conn in lobby["players"]:
+                        if player_conn != conn:
+                            send_json(player_conn, {"type": "error", "message": "Host disconnected."})
+                    lobbies.pop(lobby_id, None)
+                else:
+                    broadcast_lobby_update(lobby_id)
+            clients.pop(conn, None)
+            try: conn.close()
+            except: pass
+        elif client_info and client_info.get("in_game"):
+             print(f"[+] Client {username} (ID: {player_id}) has entered a game. Handing off connection.")
+
+def main():
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM); server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server.bind(SERVER_ADDRESS); server.listen(5); print(f"[*] Lobby server listening on {HOST}:{PORT}")
+    while True:
+        conn, addr = server.accept()
+        thread = threading.Thread(target=client_handler, args=(conn,)); thread.daemon = True; thread.start()
+
+if __name__ == "__main__":
+    main()

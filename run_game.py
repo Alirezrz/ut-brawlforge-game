@@ -52,19 +52,21 @@ while True:
         print("Settings menu not implemented yet!")
         continue 
     if menu_action == "start":
-        while True:
+        start_menu_running = True
+        while start_menu_running:
             mode_menu = GameModeMenu(screen, background)
             mode = mode_menu.run()
-            game = None
 
             if mode == "exit":
                 break
+
+            game = None
 
             if mode == "single":
                 single_player_menu = MapCharacterMenu(screen, background, hero_profile_picture)
                 result = single_player_menu.run()
                 if result[0] == "exit":
-                    break
+                    continue
                 selected_char, selected_map, _ = result
                 game = Game(screen, platform_images, background, selected_char, selected_map)
 
@@ -87,26 +89,41 @@ while True:
                             join_menu = JoinGameMenu(screen, background, network_handler)
                             join_action, _ = join_menu.run()
                             if join_action == "wait_for_acceptance":
-                                lobby_menu = LobbyMenu(screen, background, network_handler, {"game_id": join_menu.game_id, "players":[]}, is_host=False)
-                                lobby_result = lobby_menu.run()
-                        
+                                waiting_for_response = True
+                                while waiting_for_response:
+                                    screen.blit(background, (0, 0))
+                                    font = pygame.font.Font(None, 60)
+                                    wait_text = font.render("Waiting for host to accept...", True, (255, 255, 255))
+                                    screen.blit(wait_text, wait_text.get_rect(center=(screen_width/2, screen_height/2)))
+                                    pygame.display.flip()
+
+                                    response = network_handler.recv_json() 
+                                    if response:
+                                        waiting_for_response = False
+                                        if response.get("type") == "join_accepted":
+                                            lobby_menu = LobbyMenu(screen, background, network_handler, response, is_host=False)
+                                            lobby_result = lobby_menu.run()
+                                        else:
+                                            print(f"Could not join lobby: {response.get('message')}")
+                                            lobby_result = "exit"
+                        print(f"[CLIENT DEBUG] LobbyMenu finished and returned: {lobby_result}") # DEBUG PRINT
                         if lobby_result == "start_game":
                             char_select_menu = MultiplayerCharacterSelectMenu(screen, background)
                             selected_hero = char_select_menu.run()
-
                             if selected_hero:
-                                game_client = Client(
-                                    network_handler.client,
-                                    network_handler.username,
-                                    network_handler.player_id,
-                                    selected_hero
-                                )
-                                game_client.start()
+                                print("[CLIENT DEBUG] Character selected. Starting game client...") # DEBUG PRINT
+                        
+                                game_client = Client(network_handler.client, network_handler.username, network_handler.player_id, selected_hero)
+                                game_client.start() 
+
                                 multiplayer_active = False
+                                start_menu_running = False 
                             else:
-                                multiplayer_active = False 
+                               
+                                multiplayer_active = False
                         else:
-                            multiplayer_active = False 
+                           
+                            multiplayer_active = False
                 
                 network_handler.disconnect()
                 
@@ -117,14 +134,16 @@ while True:
                     game_over_action = game_over_menu.run()
                     if game_over_action == "menu":
                         continue
-                    else:
-                        pygame.quit()
-                        sys.exit()
+                    else: 
+                        start_menu_running = False
+                        menu_action = "exit"
                 elif status == "menu":
-                    break
+                    continue
                 elif status == "exit":
-                    pygame.quit()
-                    sys.exit()
-
+                    start_menu_running = False
+                    menu_action = "exit"
+            
+            if menu_action == "exit":
+                break
 pygame.quit()
 sys.exit()
