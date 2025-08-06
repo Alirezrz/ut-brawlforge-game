@@ -36,6 +36,10 @@ class Client:
         self.creation_index = 1
         
         self.load_assets()
+        try:
+            self.current_picture = self.frames[self.hero_type]['idle_frames'][0]
+        except (KeyError, IndexError):
+           self.current_picture = pygame.Surface((70, 118), pygame.SRCALPHA)
     
     
     
@@ -449,13 +453,13 @@ class Client:
             self.send_json(input_data)
             clock.tick(30)
 
-    # def play_sound(self, event_name, character_name="Ninja"):
-    #     try:
-    #         path = f"src/assets/sounds/{character_name}/{event_name}.mp3"
-    #         sound = pygame.mixer.Sound(path)
-    #         sound.play()
-    #     except Exception as e:
-    #         print(f"Error playing sound for {character_name} - {event_name}: {e}")
+    def play_sound(self, event_name, character_name="Ninja"):
+        try:
+            path = f"src/assets/sounds/{character_name}/{event_name}.mp3"
+            sound = pygame.mixer.Sound(path)
+            sound.play()
+        except Exception as e:
+            print(f"Error playing sound for {character_name} - {event_name}: {e}")
 
 
     def load_ui_assets(self, character_name):
@@ -774,21 +778,16 @@ class Client:
             self.screen.blit(username_surface, username_rect)
                 
         for player_state in self.other_players_states:
-            char = player_state.get("character", "Ninja")
             opponent_image = player_state["frame_to_display"]
             px = player_state.get("x_pos", 0)
             py = player_state.get("y_pos", 0)
             p_look = player_state.get('Look', 'right')
-        # (فرض می‌کنیم نام کاربری حریف در اطلاعات ارسالی از سرور وجود دارد)
             p_username = player_state.get('username', 'Player') 
         
             if p_look == 'left':
                opponent_image = pygame.transform.flip(opponent_image, True, False)
-        
-        # ترسیم کاراکتر حریف
+    
             self.screen.blit(opponent_image, (px - self.scroll[0], py - self.scroll[1]))
-        
-        # ترسیم نام کاربری حریف
             other_username_surface = font.render(p_username, True, (220, 220, 220))
             other_username_rect = other_username_surface.get_rect(center=(px - self.scroll[0] + opponent_image.get_width() / 2, py - self.scroll[1] - 15))
             self.screen.blit(other_username_surface, other_username_rect)
