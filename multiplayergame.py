@@ -12,6 +12,7 @@ from config import screen_width, screen_height
 from src.levels import multiplayer_data, load_level_data
 from src.engine.bullet import Bullet
 pygame.init()
+pygame.display.set_mode((800,600))
 platform_image_path = "src/assets/images/"
 platform_images = {key: pygame.Surface((64, 64)) for key in ['left', 'middle', 'right', 'solid']}
 platforms = load_level_data(multiplayer_data, platform_images)
@@ -34,19 +35,18 @@ class MultiplayerGame:
         self.shot_bullets = []
         self.gates = []
         self.type = game_type
-
     def create_hero(self, char_name, x, y, index, username):
         print(f"Creating hero on server: {char_name} for player index {index} ({username})")
         if char_name == "Roboman":
-            return Roboman(x, y, screen_width, screen_height, index, username, LOAD_FLAG=False)
+            return Roboman(x, y, screen_width, screen_height, index, username, LOAD_FLAG=True)
         elif char_name == "Ninja":
-            return Ninja(x, y, screen_width, screen_height, [], index, username, LOAD_FLAG=False)
+            return Ninja(x, y, screen_width, screen_height, [], index, username, LOAD_FLAG=True)
         elif char_name == "NinjaGirl":
             return NinjaGirl(x, y, screen_width, screen_height, [], index, username)
         elif char_name == "Archer":
             return Archer(x, y, [], index, username)
         
-        return Ninja(x, y, screen_width, screen_height, [], index, username, LOAD_FLAG=False)
+        return Ninja(x, y, screen_width, screen_height, [], index, username, LOAD_FLAG=True)
 
     def client_thread(self, conn, player_session_index):
         print(f"Game thread started for player index {player_session_index}.")

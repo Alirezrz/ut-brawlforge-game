@@ -16,7 +16,8 @@ class Client:
         self.username = username
         self.player_id = player_id
         self.hero_type = hero_type
-        
+        self.screen_height=screen_height
+        self.screen_width=screen_width
         self.screen = pygame.display.set_mode((screen_width, screen_height))
         pygame.display.set_caption(f"BrawlForge - {username}")
 
@@ -542,109 +543,109 @@ class Client:
             self.ui_cache[character_name] = self.load_ui_assets_for_opponent(character_name)
         return self.ui_cache[character_name]
     
-    # def receive_state_loop(self):
-    #     buffer = ""
-        # while True:
-        #     try:
-        #             chunk = self.socket.recv(1024)
-        #             if not chunk:
-        #                 break
-        #             buffer += chunk.decode('utf-8')
-        #             #print(f"[CLIENT] Received state: {chunk.decode('utf-8')}")
-        #             while '\n' in buffer:
-        #                 line, buffer = buffer.split('\n', 1)
+    def receive_state_loop(self):
+        buffer = ""
+        while True:
+            try:
+                    chunk = self.socket.recv(1024)
+                    if not chunk:
+                        break
+                    buffer += chunk.decode('utf-8')
+                    #print(f"[CLIENT] Received state: {chunk.decode('utf-8')}")
+                    while '\n' in buffer:
+                        line, buffer = buffer.split('\n', 1)
                        
 
-        #                 try:
-        #                     parsed = json.loads(line)
-        #                     selfdata = parsed["self"]
-        #                     self.x_pos = selfdata['x_pos']
-        #                     self.y_pos = selfdata['y_pos']
-        #                     self.health = selfdata['health']
-        #                     self.Look = selfdata['look']
-        #                     self.username = selfdata['username']
-        #                     self.frame_source = selfdata['frame_source']
-        #                     self.frame_index = selfdata['frame_index']
-        #                     self.character_name = selfdata.get("character", "Ninja")
-        #                     self.creation_index = selfdata.get("creation_index", -1)
-        #                     for event in selfdata.get("events", []):
-        #                         self.play_sound(event, self.character_name)
+                        try:
+                            parsed = json.loads(line)
+                            selfdata = parsed["self"]
+                            self.x_pos = selfdata['x_pos']
+                            self.y_pos = selfdata['y_pos']
+                            self.health = selfdata['health']
+                            self.Look = selfdata['look']
+                            self.username = selfdata['username']
+                            self.frame_source = selfdata['frame_source']
+                            self.frame_index = selfdata['frame_index']
+                            self.character_name = selfdata.get("character", "Ninja")
+                            self.creation_index = selfdata.get("creation_index", -1)
+                            for event in selfdata.get("events", []):
+                                self.play_sound(event, self.character_name)
                             
                             
 
-        #                     type_of_hero = selfdata['character']
-        #                     frame_source = selfdata['frame_source']
-        #                     frame_index = selfdata['frame_index']
-        #                     frame_list = self.frames[type_of_hero].get(frame_source, [])
-        #                     if frame_list:
-        #                         self.current_picture = frame_list[frame_index]
+                            type_of_hero = selfdata['character']
+                            frame_source = selfdata['frame_source']
+                            frame_index = selfdata['frame_index']
+                            frame_list = self.frames[type_of_hero].get(frame_source, [])
+                            if frame_list:
+                                self.current_picture = frame_list[frame_index]
                             
 
-        #                     self.bullets = parsed.get("bullets", [])
+                            self.bullets = parsed.get("bullets", [])
 
-        #                     self.other_players_states = []
-        #                     # نکته :اطلاعات حریف ها و هم تیمی توی یک لیست دارن ذخیره میشن و اگر هم تیمی داشته باشیم ایندکس اخر لیست برای اون هست
-        #                     # Handle opponents (always present in both 1v1 and 2v2)
-        #                     opponents = parsed.get("opponents", [])
-        #                     for opponent_data in opponents:
+                            self.other_players_states = []
+                            # نکته :اطلاعات حریف ها و هم تیمی توی یک لیست دارن ذخیره میشن و اگر هم تیمی داشته باشیم ایندکس اخر لیست برای اون هست
+                            # Handle opponents (always present in both 1v1 and 2v2)
+                            opponents = parsed.get("opponents", [])
+                            for opponent_data in opponents:
                                 
 
-        #                         opponent_char = opponent_data.get("character", "Ninja")
-        #                         creation_index = opponent_data.get("creation_index", -1)
-        #                         opponent_frame_source = opponent_data.get("frame_source", "idle_frames")
-        #                         opponent_frame_index = opponent_data.get("frame_index", 0)
-        #                         opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
-        #                         opponent_frame = opponent_frame_list[opponent_frame_index]
-        #                         for event in opponent_data.get("events", []):
-        #                             self.play_sound(event, opponent_char)
-        #                         opp_profile, opp_health_bar, opp_health_bar_frame = self.get_ui_assets_cached(opponent_char)
+                                opponent_char = opponent_data.get("character", "Ninja")
+                                creation_index = opponent_data.get("creation_index", -1)
+                                opponent_frame_source = opponent_data.get("frame_source", "idle_frames")
+                                opponent_frame_index = opponent_data.get("frame_index", 0)
+                                opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
+                                opponent_frame = opponent_frame_list[opponent_frame_index]
+                                for event in opponent_data.get("events", []):
+                                    self.play_sound(event, opponent_char)
+                                opp_profile, opp_health_bar, opp_health_bar_frame = self.get_ui_assets_cached(opponent_char)
 
                                 
-        #                         self.other_players_states.append({
-        #                             "x_pos": opponent_data.get("x_pos", 0),
-        #                             "y_pos": opponent_data.get("y_pos", 0),
-        #                             "frame_to_display": opponent_frame,
-        #                             "health": opponent_data.get("health", 100),
-        #                             "profile_picture": opp_profile,
-        #                             "health_bar": opp_health_bar,
-        #                             "health_bar_frame": opp_health_bar_frame,
-        #                             "Look":opponent_data.get('look','right'),
-        #                             "creation_index": opponent_data.get("creation_index", 0)
-        #                         })
+                                self.other_players_states.append({
+                                    "x_pos": opponent_data.get("x_pos", 0),
+                                    "y_pos": opponent_data.get("y_pos", 0),
+                                    "frame_to_display": opponent_frame,
+                                    "health": opponent_data.get("health", 100),
+                                    "profile_picture": opp_profile,
+                                    "health_bar": opp_health_bar,
+                                    "health_bar_frame": opp_health_bar_frame,
+                                    "Look":opponent_data.get('look','right'),
+                                    "creation_index": opponent_data.get("creation_index", 0)
+                                })
 
                                
 
-        #                     # Handle teammate (only present in 2v2 mode)
-        #                     teammate_data = parsed.get("teammate")
-        #                     if teammate_data:
-        #                         teammate_char = teammate_data.get("character", "Ninja")
-        #                         teammate_frame_source = teammate_data.get("frame_source", "idle_frames")
-        #                         teammate_frame_index = teammate_data.get("frame_index", 0)
-        #                         creation_index = teammate_data.get("creation_index", -1)
+                            # Handle teammate (only present in 2v2 mode)
+                            teammate_data = parsed.get("teammate")
+                            if teammate_data:
+                                teammate_char = teammate_data.get("character", "Ninja")
+                                teammate_frame_source = teammate_data.get("frame_source", "idle_frames")
+                                teammate_frame_index = teammate_data.get("frame_index", 0)
+                                creation_index = teammate_data.get("creation_index", -1)
 
-        #                         teammate_frame_list = self.frames[teammate_char].get(teammate_frame_source, [])
-        #                         teammate_frame = teammate_frame_list[teammate_frame_index] 
-        #                         for event in teammate_data.get("events", []):
-        #                             self.play_sound(event, teammate_char)
-        #                         opp_profile, opp_health_bar, opp_health_bar_frame = self.get_ui_assets_cached(teammate_char)
-        #                         self.other_players_states.append({
-        #                             "x_pos": teammate_data.get("x_pos", 0),
-        #                             "y_pos": teammate_data.get("y_pos", 0),
-        #                             "frame_to_display": teammate_frame,
-        #                             "health": teammate_data.get("health", 100),
-        #                             "Look":teammate_data.get('look','right'),
-        #                             "profile_picture": opp_profile,
-        #                             "health_bar": opp_health_bar,
-        #                             "health_bar_frame": opp_health_bar_frame,
-        #                             "creation_index": opponent_data.get("creation_index", 0)
-        #                         })
+                                teammate_frame_list = self.frames[teammate_char].get(teammate_frame_source, [])
+                                teammate_frame = teammate_frame_list[teammate_frame_index] 
+                                for event in teammate_data.get("events", []):
+                                    self.play_sound(event, teammate_char)
+                                opp_profile, opp_health_bar, opp_health_bar_frame = self.get_ui_assets_cached(teammate_char)
+                                self.other_players_states.append({
+                                    "x_pos": teammate_data.get("x_pos", 0),
+                                    "y_pos": teammate_data.get("y_pos", 0),
+                                    "frame_to_display": teammate_frame,
+                                    "health": teammate_data.get("health", 100),
+                                    "Look":teammate_data.get('look','right'),
+                                    "profile_picture": opp_profile,
+                                    "health_bar": opp_health_bar,
+                                    "health_bar_frame": opp_health_bar_frame,
+                                    "creation_index": opponent_data.get("creation_index", 0)
+                                })
 
-        #                 except Exception as e:
-        #                     print(f"Error decoding JSON or setting frames: {e}")
+                        except Exception as e:
+                            print(f"Error decoding JSON or setting frames: {e}")
 
-        #     except Exception as e:
-        #             print(f"Error receiving game state: {e}")
-        #             break
+            except Exception as e:
+                    print(f"Error receiving game state: {e}")
+                    break
     def get_bar_position_from_index(self,index,opponents_count):
         # حالت 1v1
         if opponents_count == 1:
@@ -707,42 +708,42 @@ class Client:
             if is_right_side:
                 profile_picture = pygame.transform.flip(profile_picture, True, False)
             screen.blit(pygame.transform.scale(profile_picture, (profileSideSize, profileSideSize)), (profile_x, profile_y))          
-    def receive_state_loop(self):
-        """Continuously receives and updates game state from the server."""
-        buffer = ""
-        while True:
-            try:
-                data = self.socket.recv(4096).decode('utf-8')
-                if not data: break
-                buffer += data
-                while '\n' in buffer:
-                    message_raw, buffer = buffer.split('\n', 1)
-                    if not message_raw: continue
+    # def receive_state_loop(self):
+    #     """Continuously receives and updates game state from the server."""
+    #     buffer = ""
+    #     while True:
+    #         try:
+    #             data = self.socket.recv(4096).decode('utf-8')
+    #             if not data: break
+    #             buffer += data
+    #             while '\n' in buffer:
+    #                 message_raw, buffer = buffer.split('\n', 1)
+    #                 if not message_raw: continue
                     
-                    state = json.loads(message_raw)
+    #                 state = json.loads(message_raw)
                     
-                    self_state = state.get("self")
-                    if self_state:
-                        self.x_pos = self_state['x_pos']
-                        self.y_pos = self_state['y_pos']
-                        self.health = self_state['health']
-                        self.Look = self_state['look']
-                        self.character_name = self_state.get("character", "Ninja")
-                        self.creation_index = self_state.get("creation_index", 1)
+    #                 self_state = state.get("self")
+    #                 if self_state:
+    #                     self.x_pos = self_state['x_pos']
+    #                     self.y_pos = self_state['y_pos']
+    #                     self.health = self_state['health']
+    #                     self.Look = self_state['look']
+    #                     self.character_name = self_state.get("character", "Ninja")
+    #                     self.creation_index = self_state.get("creation_index", 1)
                         
-                        frame_source = self_state.get('frame_source', 'idle_frames')
-                        frame_index = self_state.get('frame_index', 0)
-                        if self.character_name in self.frames and frame_source in self.frames[self.character_name]:
-                           frame_list = self.frames[self.character_name][frame_source]
-                           if -1 < frame_index < len(frame_list):
-                                self.current_picture = pygame.Surface((50, 100))
+    #                     frame_source = self_state.get('frame_source', 'idle_frames')
+    #                     frame_index = self_state.get('frame_index', 0)
+    #                     if self.character_name in self.frames and frame_source in self.frames[self.character_name]:
+    #                        frame_list = self.frames[self.character_name][frame_source]
+    #                        if -1 < frame_index < len(frame_list):
+    #                             self.current_picture = pygame.Surface((50, 100))
 
-                    self.other_players_states = state.get("opponents", [])
-                    self.bullets = state.get("bullets", [])
+    #                 self.other_players_states = state.get("opponents", [])
+    #                 self.bullets = state.get("bullets", [])
 
-            except (socket.error, json.JSONDecodeError, IndexError, KeyError) as e:
-                print(f"Error receiving/processing state: {e}")
-                break                      
+    #         except (socket.error, json.JSONDecodeError, IndexError, KeyError) as e:
+    #             print(f"Error receiving/processing state: {e}")
+    #             break                      
     def render_game(self):
         if self.screen==None:
             pygame.display.set_caption("BrawlForge Client")
