@@ -65,6 +65,9 @@ class MultiplayerGame:
             initial_data = json.loads(message_raw)
             
             username = initial_data.get("username", f"Player{player_session_index}")
+            print("------------------------------------------------------")
+            print(initial_data)
+            print("------------------------------------------------------")
             char_choice = initial_data.get("character", "Ninja")
             
             hero = self.create_hero(char_choice, 58*64, 400, player_session_index, username)
