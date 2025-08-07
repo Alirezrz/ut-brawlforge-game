@@ -21,7 +21,7 @@ class Client:
         self.is_dead=False
         self.screen = pygame.display.set_mode((screen_width, screen_height))
         pygame.display.set_caption(f"BrawlForge - {username}")
-
+        self.drone={}
         self.frames = {
             "Roboman": {}, "Ninja": {}, "NinjaGirl": {}, "Archer": {}
         }
@@ -72,7 +72,18 @@ class Client:
             print("Background image loaded successfully")
         except Exception as e:
             print(f"Error loading background: {e}")
-              
+        try:
+            base_path = os.path.join('src', "assets", "images", "Guard Drone")
+            self.drone_idle_frames = [pygame.transform.scale(
+            pygame.image.load(os.path.join(base_path, 'idle', f"{i}.png")), (50, 35)) for i in range(8)]
+            self.drone_forward_frames = [pygame.transform.scale(
+            pygame.image.load(os.path.join(base_path, 'walk', f"{i}.png")), (50, 35)) for i in range(8)]
+            self.drone_backward_frames = [pygame.transform.flip(pygame.transform.scale(
+            pygame.image.load(os.path.join(base_path, 'walk', f"{i}.png")), (50, 35)),True,False) for i in range(8)]
+
+        except e:
+            print(e)
+            
         try:
             self.base_path = os.path.join("src", "assets", "images", "Gate")
             self.DoorOpen_pic = pygame.transform.scale(pygame.image.load(os.path.join(self.base_path, "DoorOpen.png")), (91, 150))
@@ -492,6 +503,7 @@ class Client:
                 "left_click": mouse[0],
                 "right_click": mouse[2]
             }
+            print(f"sending ={input_data}\n\n\n")
             self.send_json(input_data)
             clock.tick(30)
 
@@ -601,10 +613,14 @@ class Client:
                         line, buffer = buffer.split('\n', 1)
                         print(line)
 
+
+
                         try:
                             parsed = json.loads(line)
                             self.objects = parsed.get('objects', [])
                             selfdata = parsed["self"]
+                            self.drone=selfdata.get("drone","empty")
+                           
                             self.x_pos = selfdata['x_pos']
                             self.y_pos = selfdata['y_pos']
                             self.is_dead = selfdata.get("is_dead", False)
@@ -689,8 +705,7 @@ class Client:
                                     "health_bar_frame": opp_health_bar_frame,
                                     "creation_index": opponent_data.get("creation_index", 0)
                                 })
-                            print(self.objects)
-                            print("-----------------------------")
+                           
                         except Exception as e:
                             print(f"Error decoding JSON or setting frames: {e}")
 
@@ -821,7 +836,13 @@ class Client:
         if self.current_picture and  not self.is_dead:
             self_image = pygame.transform.flip(self.current_picture, True, False) if self.Look == 'left' else self.current_picture
             self.screen.blit(self_image, (self.x_pos - self.scroll[0], self.y_pos - self.scroll[1]))
-            
+            if isinstance(self.drone, dict) and 'frame_source' in self.drone:
+                if self.drone['frame_source']=="idle_frames":
+                    self.screen.blit(self.drone_idle_frames[self.drone['frame_index']],(self.drone['x_pos']-self.scroll[0],self.drone['y_pos']-self.scroll[1]))
+                elif self.drone['frame_source']=="forward":
+                    self.screen.blit(self.drone_forward_frames[self.drone['frame_index']],(self.drone['x_pos']-self.scroll[0],self.drone['y_pos']-self.scroll[1]))
+                elif self.drone['frame_source']=="backward":
+                    self.screen.blit(self.drone_backward_frames[self.drone['frame_index']],(self.drone['x_pos']-self.scroll[0],self.drone['y_pos']-self.scroll[1]))                    
             username_surface = font.render(self.username, True, (255, 255, 255))
             username_rect = username_surface.get_rect(center=(self.x_pos - self.scroll[0] + self_image.get_width() / 2, self.y_pos - self.scroll[1] - 15))
             self.screen.blit(username_surface, username_rect)

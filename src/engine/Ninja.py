@@ -795,6 +795,7 @@ class Ninja:
         if len(self.guard_drone) == 1:
             current_time = pygame.time.get_ticks()
             drone = self.guard_drone[0]
+            drone.update_pos()
             if current_time - self.last_guard_call >= self.drone_duration:
                 if drone.status != 'departing':
                     drone.status = 'departing'
@@ -921,6 +922,7 @@ class Ninja:
         self.update_drone()
         
     def update_online(self, platforms, shot_bullets, targets, keys, gate, trigger_shutter=None):
+        print(f"number of drones----->{len(self.guard_drone)}\n\n")
         if hasattr(self, "ALIVE") and not self.ALIVE:
             self.update_animation(shot_bullets)
             return
