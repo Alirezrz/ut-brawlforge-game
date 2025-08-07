@@ -147,7 +147,6 @@ class MultiplayerGame:
                     hero.update_online(self.platforms, self.shot_bullets, other_players, keys, self.gates, None)
 
                 all_states = [h.serialize() if h else None for h in self.heroes]
-                print(f"allstates:\n{all_states}")
                 bullets_state = [b.serialize() for b in self.shot_bullets]
                 objs_state = []
                 for obj in self.objects:
