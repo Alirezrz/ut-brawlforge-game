@@ -138,6 +138,8 @@ class Client:
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src","assets", "images")
         
         try:
+            path = os.path.join('src', "assets", "images", "Guard Drone", "fire.png")
+            self.drone_lazer= pygame.transform.scale(pygame.image.load(path), (10, 10))
             self.Roboman_bullet=pygame.transform.scale(pygame.image.load(
                 os.path.join(base_path,"RoboMan_pictures", "Bullet.png")
             ),
@@ -920,6 +922,9 @@ class Client:
                      self.screen.blit(pygame.transform.flip(self.Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                     else:
                      self.screen.blit(pygame.transform.flip(self.Fired_Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+            elif bullet['owner']=='drone':
+                self.screen.blit(self.drone_lazer,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    
         #باید عکس پروفایل های همه لود بشه و بعد دیسپلی بشن
         is_right_side, is_bottom = self.get_bar_position_from_index(self.creation_index,len(self.other_players_states))
         self.draw_health_bar(self.screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, is_right_side, is_bottom)

@@ -116,11 +116,11 @@ class Guard_Drone:
             d = math.sqrt((self.player.x_pos - bullet.x_pos) ** 2 + (self.player.y_pos - bullet.y_pos) ** 2)
             if bullet.username=="Player"or bullet.username=="gunman" :
                 if d < 400 and bullet.owner != self.owner and bullet not in self.tracked_targets:
-                    self.shoot(bullet)
+                    self.shoot(bullet,shot_bullets)
                     self.tracked_targets.append(bullet)
             else:
                 if d < 400 and bullet.username != self.player.username and bullet not in self.tracked_targets:
-                    self.shoot(bullet)
+                    self.shoot(bullet,shot_bullets)
                     self.tracked_targets.append(bullet)
                     
 
@@ -137,8 +137,10 @@ class Guard_Drone:
                     if bullet in self.tracked_targets:
                         self.tracked_targets.remove(bullet)
 
-    def shoot(self, target):
-        self.bullets.append(laser(self.x_pos, self.y_pos + 30, target))
+    def shoot(self, target,shot_bullets):
+        lazer=laser(self.x_pos, self.y_pos + 30, target)
+        self.bullets.append(lazer)
+        shot_bullets.append(lazer)
         self.shoot_sound.play()
         
         
@@ -170,7 +172,7 @@ class laser:
         self.speed = 30
         self.travel_distance = 0
         self.max_distance = 800  # Distance after which the laser is removed
-
+        self.owner='drone'
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Guard Drone", "fire.png")
         self.image = pygame.transform.scale(pygame.image.load(path), (10, 10))
 
