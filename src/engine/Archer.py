@@ -316,7 +316,7 @@ class Archer:
         direction = self.Look
         arrow_image = self.firedarrow_pic if self.super_power_active else self.arrow_pic
         damage = 35 if self.super_power_active else 25
-        new_arrow = Arrow(arrow_x, arrow_y, direction, arrow_image, damage)
+        new_arrow = Arrow(self.username,arrow_x, arrow_y, direction, arrow_image, damage)
         self.shoot_sound.play()
         self.events.append("shoot")
         self.bullets.append(new_arrow)
@@ -687,7 +687,8 @@ class Archer:
 
 
 class Arrow:
-    def __init__(self, x, y, direction, arrow_picture,damage):
+    def __init__(self,username, x, y, direction, arrow_picture,damage):
+        self.username=username
         self.x_pos = x
         self.owner = 'Archer'
         self.y_pos = y

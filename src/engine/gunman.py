@@ -226,7 +226,7 @@ class Gunman:
 
     def shoot(self, shot_bullets):
         x = self.x_pos + self.display_frame.get_width() if self.Look == 'right' else self.x_pos
-        bullet = Bullet(x, self.y_pos + 50, 8, self.Look, self.bullet_pic, 'gunman',self.Look)
+        bullet = Bullet('gunamn',x, self.y_pos + 50, 8, self.Look, self.bullet_pic, 'gunman',self.Look)
         self.shot_bullets.append(bullet)
         self.shoot_sound.play()
         shot_bullets.append(bullet)
@@ -240,7 +240,7 @@ class Gunman:
                 bullet.draw(screen, offset)
 
             for hero in self.targets:
-                if bullet.hitbox.colliderect(hero.hitbox):
+                if bullet.hitbox.colliderect(hero.hitbox) and bullet in shot_bullets:
                     hero.health -= 20
                     hero.hurt()
                     if bullet in self.shot_bullets:

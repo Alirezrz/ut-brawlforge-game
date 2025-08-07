@@ -480,6 +480,7 @@ class Ninja:
             bullet_x += 20
 
         bullet = Bullet(
+            self.username,
         bullet_x,
         bullet_y,
         15*self.Super_cofficent,

@@ -96,9 +96,15 @@ class Guard_Drone:
     def Vision(self, shot_bullets):
         for bullet in shot_bullets:
             d = math.sqrt((self.player.x_pos - bullet.x_pos) ** 2 + (self.player.y_pos - bullet.y_pos) ** 2)
-            if d < 400 and bullet.owner != self.owner and bullet not in self.tracked_targets:
-                self.shoot(bullet)
-                self.tracked_targets.append(bullet)
+            if bullet.username=="Player"or bullet.username=="gunman" :
+                if d < 400 and bullet.owner != self.owner and bullet not in self.tracked_targets:
+                    self.shoot(bullet)
+                    self.tracked_targets.append(bullet)
+            else:
+                if d < 400 and bullet.username != self.player.username and bullet not in self.tracked_targets:
+                    self.shoot(bullet)
+                    self.tracked_targets.append(bullet)
+                    
 
         for laser in self.bullets[:]:
             for bullet in shot_bullets[:]:
