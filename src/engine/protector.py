@@ -75,7 +75,7 @@ class Guard_Drone:
             if smoke.status == 'dead':
                 self.smokes.remove(smoke)
                 
-    def Update_onlline(self, shot_bullets):
+    def Update_online(self, shot_bullets):
         self.Vision(shot_bullets)
         self.update_pos()
         self.update_animation()
