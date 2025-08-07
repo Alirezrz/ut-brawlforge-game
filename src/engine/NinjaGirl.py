@@ -130,6 +130,7 @@ class NinjaGirl(Ninja):
             "frame_source": frame_source_name,
             "frame_index": frame_index_val,
             "character": 'NinjaGirl',
+            "creation_index": self.hero_creation_index,
             "events": self.events,
             "drone":drone_data,
         }
