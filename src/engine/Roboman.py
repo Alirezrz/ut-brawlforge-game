@@ -1023,6 +1023,12 @@ class Roboman:
     def serialize(self):
         frame_source_name = "idle_frames"
         frame_index_val = 0
+        
+        if len(self.guard_drone)==1:
+            drone_data=self.guard_drone[0].serialize()
+        else:
+            drone_data='None'
+        
         if hasattr(self, 'frame_address') and self.frame_address:
              frame_source_name = self.frame_address[0]
              frame_index_val = self.frame_address[1]
@@ -1037,7 +1043,8 @@ class Roboman:
             "character": "Roboman",
             "events": self.events ,
             "creation_index": self.hero_creation_index,
-            "is_dead": self.DEAD 
+            "is_dead": self.DEAD ,
+            "drone":drone_data,
         }
 
 

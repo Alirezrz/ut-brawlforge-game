@@ -6,6 +6,7 @@ import math
 
 class Guard_Drone:
     def __init__(self, player, owner="unknown"):
+        self.frame_address=("idle_frames",0)
         self.player = player
         self.x_pos = self.player.x_pos
         self.y_pos = self.player.y_pos-1000
@@ -44,12 +45,15 @@ class Guard_Drone:
             if self.status == 'idle':
                 self.frame_index = (self.frame_index + 1) % len(self.idle_frames)
                 self.display_frame = self.idle_frames[self.frame_index]
+                self.frame_address=("idle_frames",self.frame_index)
             elif self.status == 'forward':
                 self.frame_index = (self.frame_index + 1) % len(self.walk_frames)
                 self.display_frame = self.walk_frames[self.frame_index]
+                self.frame_address=("forward",self.frame_index)
             elif self.status == 'backward':
                 self.frame_index = (self.frame_index + 1) % len(self.walk_frames)
                 self.display_frame = pygame.transform.flip(self.walk_frames[self.frame_index], True, False)
+                self.frame_address=("backward",self.frame_index)
 
             self.last_animation_update = current_time
 
@@ -126,6 +130,21 @@ class Guard_Drone:
         
     def is_off_screen_exit(self):
         return self.x_pos > screen_width or self.y_pos + 40 < 0
+    
+    def serialize(self):
+        frame_source_name = "idle_frames"
+        frame_index_val = 0
+        if hasattr(self, 'frame_address') and self.frame_address:
+             frame_source_name = self.frame_address[0]
+             frame_index_val = self.frame_address[1]
+             
+        data={
+            "x_pos": self.x_pos,
+            "y_pos": self.y_pos,
+            "frame_source": frame_source_name,
+            "frame_index": frame_index_val,
+        }
+        return data
 
 
 class laser:

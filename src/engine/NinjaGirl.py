@@ -113,6 +113,10 @@ class NinjaGirl(Ninja):
     def serialize(self):
         frame_source_name = "idle_frames"
         frame_index_val = 0
+        if len(self.guard_drone)==1:
+            drone_data=self.guard_drone[0].serialize()
+        else:
+            drone_data='None'
         if hasattr(self, 'frame_address') and self.frame_address:
              frame_source_name = self.frame_address[0]
              frame_index_val = self.frame_address[1]
@@ -126,6 +130,7 @@ class NinjaGirl(Ninja):
             "frame_source": frame_source_name,
             "frame_index": frame_index_val,
             "character": 'NinjaGirl',
-            "events": self.events
+            "events": self.events,
+            "drone":drone_data,
         }
         return data
