@@ -657,6 +657,7 @@ class Roboman:
                 bullet_start_x = self.x_pos - self.bullet_picture.get_width() + bullet_offset_x
 
             rocket = Bullet_Class(
+                self.username,
                 bullet_start_x,
                 bullet_start_y + 18,
                 30,
