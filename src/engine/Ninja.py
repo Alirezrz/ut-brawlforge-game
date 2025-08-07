@@ -922,6 +922,10 @@ class Ninja:
         self.update_drone()
         
     def update_online(self, platforms, shot_bullets, targets, keys, gate, trigger_shutter=None):
+        self.update_drone()  
+        if self.guard_drone:
+            for drone in self.guard_drone:
+             drone.Update_onlline(shot_bullets)
         print(f"number of drones----->{len(self.guard_drone)}\n\n")
         if hasattr(self, "ALIVE") and not self.ALIVE:
             self.update_animation(shot_bullets)

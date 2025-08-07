@@ -862,6 +862,14 @@ class Client:
             other_username_surface = font.render(p_username, True, (220, 220, 220))
             other_username_rect = other_username_surface.get_rect(center=(px - self.scroll[0] + opponent_image.get_width() / 2, py - self.scroll[1] - 15))
             self.screen.blit(other_username_surface, other_username_rect)
+            drone = player_state.get('drone', 'None')
+            if drone != 'None':
+                if drone['frame_source'] == "idle_frames":
+                    self.screen.blit(self.drone_idle_frames[drone['frame_index']], (drone['x_pos'] - self.scroll[0], drone['y_pos'] - self.scroll[1]))
+                elif drone['frame_source'] == "forward":
+                    self.screen.blit(self.drone_forward_frames[drone['frame_index']], (drone['x_pos'] - self.scroll[0], drone['y_pos'] - self.scroll[1]))
+                elif drone['frame_source'] == "backward":
+                    self.screen.blit(self.drone_backward_frames[drone['frame_index']], (drone['x_pos'] - self.scroll[0], drone['y_pos'] - self.scroll[1]))
             
         for bullet in self.bullets:
             if bullet['owner']=="Roboman":
