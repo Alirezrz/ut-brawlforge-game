@@ -503,7 +503,6 @@ class Client:
                 "left_click": mouse[0],
                 "right_click": mouse[2]
             }
-            print(f"sending ={input_data}\n\n\n")
             self.send_json(input_data)
             clock.tick(30)
 
@@ -611,7 +610,6 @@ class Client:
                     buffer += chunk.decode('utf-8')
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
-                        print(line)
 
 
 
@@ -640,7 +638,9 @@ class Client:
                             frame_source = selfdata['frame_source']
                             frame_index = selfdata['frame_index']
                             frame_list = self.frames[type_of_hero].get(frame_source, [])
-                            if frame_list:
+                            if frame_index==-2:
+                                self.current_picture=self.frames[self.character_name][self.frame_source]
+                            elif frame_list:
                                 self.current_picture = frame_list[frame_index]
                             
 
@@ -657,8 +657,11 @@ class Client:
                                 creation_index = opponent_data.get("creation_index", -1)
                                 opponent_frame_source = opponent_data.get("frame_source", "idle_frames")
                                 opponent_frame_index = opponent_data.get("frame_index", 0)
-                                opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
-                                opponent_frame = opponent_frame_list[opponent_frame_index]
+                                if opponent_frame_index==-2:
+                                    opponent_frame=self.frames[opponent_char][opponent_frame_source]
+                                else:
+                                    opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
+                                    opponent_frame = opponent_frame_list[opponent_frame_index]
                                 for event in opponent_data.get("events", []):
                                     self.play_sound(event, opponent_char)
                                 opp_profile, opp_health_bar, opp_health_bar_frame = self.get_ui_assets_cached(opponent_char)
@@ -685,11 +688,15 @@ class Client:
                             if teammate_data:
                                 teammate_char = teammate_data.get("character", "Ninja")
                                 teammate_frame_source = teammate_data.get("frame_source", "idle_frames")
+                                
                                 teammate_frame_index = teammate_data.get("frame_index", 0)
+                                
                                 creation_index = teammate_data.get("creation_index", -1)
-
-                                teammate_frame_list = self.frames[teammate_char].get(teammate_frame_source, [])
-                                teammate_frame = teammate_frame_list[teammate_frame_index] 
+                                if teammate_frame_index==-2:
+                                    teammate_frame=self.frames[teammate_char][teammate_frame_source]
+                                else:
+                                    teammate_frame_list = self.frames[teammate_char].get(teammate_frame_source, [])
+                                    teammate_frame = teammate_frame_list[teammate_frame_index] 
                                 for event in teammate_data.get("events", []):
                                     self.play_sound(event, teammate_char)
                                 opp_profile, opp_health_bar, opp_health_bar_frame = self.get_ui_assets_cached(teammate_char)

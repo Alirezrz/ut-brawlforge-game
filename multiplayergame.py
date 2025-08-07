@@ -45,24 +45,17 @@ class MultiplayerGame:
                 obj.targets=self.heroes
             
     def create_hero(self, char_name, x, y, index, username):
-        print(f"DEBUG [create_hero]: Received char_name is: '{char_name}'")
-        print(f"DEBUG [create_hero]: Does it match 'Archer'? -> {char_name == 'Archer'}")
         print(f"Creating hero on server: {char_name} for player index {index} ({username})")
         if char_name == "Roboman":
-            print("--Robo---")
             return Roboman(x, y, screen_width, screen_height, index, username, LOAD_FLAG=True)
             
         elif char_name == "Ninja":
-            print("--ninja---")
             return Ninja(x, y, screen_width, screen_height, [], index, username, LOAD_FLAG=True)
         elif char_name == "NinjaGirl":
-            print("--Girl---")
             return NinjaGirl(x, y, screen_width, screen_height, [], index, username)
         elif char_name == "Archer":
-            print("--archer---")
             return Archer(x, y, [], index, username)
         
-        print("--ninjabiron---")
         return Ninja(x, y, screen_width, screen_height, [], index, username, LOAD_FLAG=True)
 
     def client_thread(self, conn, player_session_index):
@@ -98,7 +91,6 @@ class MultiplayerGame:
                     message_raw, buffer = buffer.split('\n', 1)
                     if not message_raw: continue
                     self.player_inputs[player_session_index] = json.loads(message_raw)
-                    print(f"inputs=\n{self.player_inputs}\n\n\n")
             except (socket.error, json.JSONDecodeError, IndexError):
                 break
         
@@ -163,7 +155,6 @@ class MultiplayerGame:
                             objs_state.append(obj.serialize())
                         except Exception as e:
                             print(f"Serialization error for object {obj}: {e}")
-                print(objs_state)
                 
                 for i, client_conn in enumerate(self.clients):
                     if client_conn and all_states[i] is not None:
