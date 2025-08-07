@@ -129,8 +129,10 @@ class Guard_Drone:
                     collision_y = (laser.y_pos + bullet.y_pos) // 2
                     self.smokes.append(Smoke(collision_x, collision_y))
                     bullet.status='removed'
-                    shot_bullets.remove(bullet)
-                    self.bullets.remove(laser)
+                    if bullet in shot_bullets:
+                        shot_bullets.remove(bullet)
+                    if laser in self.bullets:
+                        self.bullets.remove(laser)
                     if bullet in self.tracked_targets:
                         self.tracked_targets.remove(bullet)
 
