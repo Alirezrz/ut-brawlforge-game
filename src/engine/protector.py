@@ -74,6 +74,7 @@ class Guard_Drone:
             smoke.display(screen, offset)
             if smoke.status == 'dead':
                 self.smokes.remove(smoke)
+                
     def Update_onlline(self, shot_bullets):
         self.Vision(shot_bullets)
         self.update_pos()
@@ -81,13 +82,9 @@ class Guard_Drone:
 
         for b in self.bullets[:]:
             b.update()
-            if b.is_off_screen():
-                self.bullets.remove(b)
+            
 
-        for smoke in self.smokes[:]:
-            smoke.update()
-            if smoke.status == 'dead':
-                self.smokes.remove(smoke)
+        
 
     def update_pos(self):
         if self.status == 'departing':
@@ -165,6 +162,7 @@ class Guard_Drone:
 
 class laser:
     def __init__(self, x, y, target):
+        self.username="guard drone"
         self.x_pos = x
         self.y_pos = y
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, 10, 10)
@@ -193,6 +191,17 @@ class laser:
 
     def is_off_screen(self):
         return self.travel_distance > self.max_distance
+    
+    def serialize(self):
+            
+        data={
+            "x_pos": self.x_pos,
+            "y_pos": self.y_pos,
+            "Look": "right",
+            "Flag": False,
+            "owner":"drone"
+        }
+        return data
 
 
 class Smoke:

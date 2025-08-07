@@ -179,7 +179,7 @@ class Archer:
             screen.blit(flipped_picture, (self.x_pos - offset[0], y - offset[1]))
 
         for drone in self.guard_drone:
-            drone.Update(screen, offset, shot_bullets)
+            drone.Update_online(shot_bullets)
 
 
         self.update_drone()
@@ -613,7 +613,7 @@ class Archer:
         self.update_drone()  
         if self.guard_drone:
             for drone in self.guard_drone:
-             drone.Update_onlline(shot_bullets)
+             drone.Update_online(shot_bullets)
         if hasattr(self, "ALIVE") and not self.ALIVE:
             self.update_animation(shot_bullets)
             return

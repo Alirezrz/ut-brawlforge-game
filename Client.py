@@ -647,6 +647,7 @@ class Client:
                             
 
                             self.bullets = parsed.get("bullets", [])
+                            print(f"client bullet=\n{self.bullets}\n")
 
                             self.other_players_states = []
                             # نکته :اطلاعات حریف ها و هم تیمی توی یک لیست دارن ذخیره میشن و اگر هم تیمی داشته باشیم ایندکس اخر لیست برای اون هست
