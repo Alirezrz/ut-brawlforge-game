@@ -7,7 +7,7 @@ class Gates:
         self.A_y = y1
         self.B_x = x2
         self.B_y = y2
-
+        
         self.ninja = ninja
 
         self.base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Gate")
@@ -69,3 +69,20 @@ class Gates:
             self.last_teleport_time = current_time
     def Update(self,screen,scroll):
         return
+    def Update_online(self):
+        return
+
+
+    def serialze(self):
+        current_time=pygame.time.get_ticks()
+        in_cooldown = current_time - self.last_teleport_time < self.cooldown
+        return{
+            'A_x':self.A_x,
+            'A_y':self.A_y,
+            "B_x":self.B_x,
+            'B_y':self.B_y,
+            'A_state':"open" if self.open_a else 'close',
+            'B_state':"open" if self.open_a else 'close',
+            "flag":'RedFalg_pic' if in_cooldown else 'GreenFalg'
+            
+        }

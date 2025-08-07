@@ -99,6 +99,11 @@ class Pumpkin:
         self.update_status()
         self.update_animation()
         self.display(screen,offset)
+        
+    def Update_online(self):
+        self.update_status()
+        self.update_animation()
+        
             
                 
         

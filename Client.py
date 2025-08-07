@@ -30,7 +30,7 @@ class Client:
         self.bullets = []
         self.scroll = [0, 0]
         
-       
+        self.objects=[]
         self.x_pos, self.y_pos, self.health, self.Look = 0, 0, 100, 'right'
         self.current_picture = pygame.Surface((50, 100)) 
         self.character_name = "Ninja"
@@ -73,6 +73,47 @@ class Client:
         except Exception as e:
             print(f"Error loading background: {e}")
               
+        try:
+            self.base_path = os.path.join("src", "assets", "images", "Gate")
+            self.DoorOpen_pic = pygame.transform.scale(pygame.image.load(os.path.join(self.base_path, "DoorOpen.png")), (91, 150))
+            self.DoorClose_pic = pygame.transform.scale(pygame.image.load(os.path.join(self.base_path, "DoorLocked.png")), (91, 150))
+            self.GreenFalg_pic = pygame.transform.scale(pygame.image.load(os.path.join(self.base_path, "Switch (1).png")), (21, 75))
+            self.RedFalg_pic = pygame.transform.scale(pygame.image.load(os.path.join(self.base_path, "Switch (2).png")), (21, 75))
+        except  e :
+            print(e)
+            
+        try:
+            base_path = os.path.join("src", "assets", "images", "power ups")
+            self.double_jump_powerup_frame=pygame.transform.scale(
+                pygame.image.load(
+                    os.path.join(base_path, "double jump.png")
+                ),
+                (60, 60)
+            )
+            self.guard_drone_powerup_frame=pygame.transform.scale(
+                pygame.image.load(
+                    os.path.join(base_path, "guard drone.png")
+                ),
+                (60, 60)
+            )
+            self.superpower_powerup_frame=pygame.transform.scale(
+                pygame.image.load(
+                    os.path.join(base_path, "super power.png")
+                ),
+                (60, 60)
+            )
+        except e:
+            print(e)
+            
+        try:
+            path = os.path.join("src", "assets", "images", "Objects","health_box","Box.png")
+
+            self.health_box_frame=pygame.transform.scale(
+            pygame.image.load(path),
+            (57,45)
+            )
+        except e:
+            print(e)
             
         
         try:
@@ -558,10 +599,11 @@ class Client:
                     buffer += chunk.decode('utf-8')
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
-                       
+                        print(line)
 
                         try:
                             parsed = json.loads(line)
+                            self.objects = parsed.get('objects', [])
                             selfdata = parsed["self"]
                             self.x_pos = selfdata['x_pos']
                             self.y_pos = selfdata['y_pos']
@@ -647,7 +689,8 @@ class Client:
                                     "health_bar_frame": opp_health_bar_frame,
                                     "creation_index": opponent_data.get("creation_index", 0)
                                 })
-
+                            print(self.objects)
+                            print("-----------------------------")
                         except Exception as e:
                             print(f"Error decoding JSON or setting frames: {e}")
 
@@ -731,6 +774,44 @@ class Client:
         mid_y = (self.y_pos + self.current_picture.get_height() // 2)
         self.scroll[0] += (mid_x - screen_width / 2 - self.scroll[0]) / 15
         self.scroll[1] += (mid_y - screen_height / 2 - self.scroll[1]) / 15
+        
+        for obj in self.objects:
+         try:
+            if obj.get("status") == "used":
+                continue  
+            x_pos = obj.get("x_pos", 0)
+            y_pos = obj.get("y_pos", 0)
+            obj_type = obj.get("type", "")
+
+            if obj_type == "gates":
+                a_x = obj.get("A_x", 0)
+                a_y = obj.get("A_y", 0)
+                b_x = obj.get("B_x", 0)
+                b_y = obj.get("B_y", 0)
+                a_state = obj.get("A_state", "close")
+                b_state = obj.get("B_state", "close")
+                flag = obj.get("flag", "GreenFlag")
+
+                a_pic = self.DoorOpen_pic if a_state == "open" else self.DoorClose_pic
+                b_pic = self.DoorOpen_pic if b_state == "open" else self.DoorClose_pic
+                flag_pic = self.RedFlag_pic if flag == "RedFlag" else self.GreenFlag_pic
+
+                self.screen.blit(a_pic, (a_x - self.scroll[0], a_y - self.scroll[1]))
+                self.screen.blit(b_pic, (b_x - self.scroll[0], b_y - self.scroll[1]))
+                self.screen.blit(flag_pic, (a_x - 30 - self.scroll[0], a_y + 75 - self.scroll[1]))
+                self.screen.blit(flag_pic, (b_x - 30 - self.scroll[0], b_y + 75 - self.scroll[1]))
+
+            elif obj_type == "double jump":
+                self.screen.blit(self.double_jump_powerup_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
+            elif obj_type == "guard drone":
+                self.screen.blit(self.guard_drone_powerup_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
+            elif obj_type == "super power":
+                self.screen.blit(self.superpower_powerup_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
+            elif obj_type == "health_box":
+                self.screen.blit(self.health_box_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
+
+         except Exception as e:
+            print(f"Error rendering object {obj}: {e}")
 
         for platform in self.platforms:
             try:

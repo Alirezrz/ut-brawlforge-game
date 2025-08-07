@@ -9,8 +9,9 @@ from src.engine.Ninja import Ninja
 from src.engine.NinjaGirl import NinjaGirl
 from src.engine.Archer import Archer
 from config import screen_width, screen_height
-from src.levels import multiplayer_data, load_level_data
+from src.levels import multiplayer_data, load_level_data,build_objects
 from src.engine.bullet import Bullet
+from src.engine.power_ups import Power_up
 pygame.init()
 pygame.display.set_mode((800,600))
 platform_image_path = "src/assets/images/"
@@ -35,6 +36,14 @@ class MultiplayerGame:
         self.shot_bullets = []
         self.gates = []
         self.type = game_type
+        self.objects_dict= build_objects(multiplayer_data, self.heroes)
+        self.objects=self.objects_dict['misc'] + \
+            self.objects_dict['gates'] + \
+            self.objects_dict['power ups']
+        for obj in self.objects:
+            if type(obj)==Power_up:
+                obj.targets=self.heroes
+            
     def create_hero(self, char_name, x, y, index, username):
         print(f"DEBUG [create_hero]: Received char_name is: '{char_name}'")
         print(f"DEBUG [create_hero]: Does it match 'Archer'? -> {char_name == 'Archer'}")
@@ -68,9 +77,6 @@ class MultiplayerGame:
             initial_data = json.loads(message_raw)
             
             username = initial_data.get("username", f"Player{player_session_index}")
-            print("------------------------------------------------------")
-            print(initial_data)
-            print("------------------------------------------------------")
             char_choice = initial_data.get("character", "Ninja")
             
             hero = self.create_hero(char_choice, 58*64, 400, player_session_index, username)
@@ -125,6 +131,11 @@ class MultiplayerGame:
         print("All players ready. Starting main game simulation.")
         while self.game_active:
             try:
+                #updating objs:
+                for obj in self.objects:
+                    obj.Update_online()
+                    
+                    
                 active_heroes = [h for h in self.heroes if h is not None]
                 for hero in active_heroes:
                     player_id = hero.hero_creation_index
@@ -144,11 +155,19 @@ class MultiplayerGame:
 
                 all_states = [h.serialize() if h else None for h in self.heroes]
                 bullets_state = [b.serialize() for b in self.shot_bullets]
+                objs_state = []
+                for obj in self.objects:
+                    if hasattr(obj, 'serialize'):
+                        try:
+                            objs_state.append(obj.serialize())
+                        except Exception as e:
+                            print(f"Serialization error for object {obj}: {e}")
+                print(objs_state)
                 
                 for i, client_conn in enumerate(self.clients):
                     if client_conn and all_states[i] is not None:
                         opponents_states = [s for j, s in enumerate(all_states) if i != j and s is not None]
-                        game_state = {"self": all_states[i], "opponents": opponents_states, "bullets": bullets_state}
+                        game_state = {"self": all_states[i], "opponents": opponents_states, "bullets": bullets_state,"objects": objs_state,}
                         # if i ==0:
                         #     print(f"Server sending to client {i+1}: {json.dumps(game_state, indent=2)}")
                         send_json(client_conn, game_state)

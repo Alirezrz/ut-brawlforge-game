@@ -35,4 +35,21 @@ class PowerBox:
                     t.health=100
                     self.status='used'
                     
+    def Update_online(self):
+        for t in self.targets:
+            if t.hitbox.colliderect(self.hitbox) and self.status!='used':
+                if t.health<=70:
+                    t.health+=30
+                    self.status='used'
+                elif t.health<100:
+                    t.health=100
+                    self.status='used'
                 
+                
+    def serialize(self):
+        return{
+            "x_pos":self.x_pos,
+            "y_pos":self.y_pos,
+            "type":"health_box",
+            "status":self.status,
+        }

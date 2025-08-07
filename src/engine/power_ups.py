@@ -69,3 +69,32 @@ class Power_up:
                         self.USED = True
 
         self.display(screen, offset)
+        
+    def Update_online(self):
+        if not self.USED:
+            self.float_angle += self.float_speed
+            target_y = self.base_y + math.cos(self.float_angle) * self.float_amplitude
+            self.y_pos += (target_y - self.y_pos) * 0.05  
+
+            self.hitbox.topleft = (self.x_pos, self.y_pos)
+
+            for target in self.targets:
+                if target.hitbox.colliderect(self.hitbox):
+                    if self.type == 'double jump' and not target.DOUBLE_JUMP_FLAG:
+                        target.DOUBLE_JUMP_FLAG = True
+                        self.USED = True
+                    elif self.type == 'super power' and not target.SUPER_POWER_FLAG:
+                        target.SUPER_POWER_FLAG = True
+                        self.USED = True
+                    elif self.type == 'guard drone' and not target.GUARD_DRONE_FLAG:
+                        target.GUARD_DRONE_FLAG = True
+                        self.USED = True
+                        
+                    
+    def serialize(self):
+        return{
+            "x_pos":self.x_pos,
+            "y_pos":self.y_pos,
+            "type":self.type,
+            "status":"exist"if not self.USED else "used"
+        }
