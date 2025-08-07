@@ -680,13 +680,13 @@ class Roboman:
 
         if not self.super_power_active:
                 bullet = Bullet_Class(
+                    self.username,
                 bullet_start_x,
                 bullet_start_y + 18,
                 15,
                 self.Look,
                 self.bullet_picture,
-                "Roboman"
-            )
+                "Roboman")
         else:
                 bullet = Bullet_Class(
                 bullet_start_x,
