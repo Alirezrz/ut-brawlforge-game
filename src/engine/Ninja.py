@@ -922,6 +922,9 @@ class Ninja:
         self.update_drone()
         
     def update_online(self, platforms, shot_bullets, targets, keys, gate, trigger_shutter=None):
+        for bullet in self.bullets:
+            if bullet not in shot_bullets:
+                self.bullets.remove(bullet)
         self.update_drone()  
         if self.guard_drone:
             for drone in self.guard_drone:

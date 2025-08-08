@@ -766,7 +766,7 @@ class Roboman:
 
         for target in targets:
             for bullet in self.bullets:
-                if target.hitbox.colliderect(bullet.hitbox):
+                if target.hitbox.colliderect(bullet.hitbox) and bullet in shot_bullets:
                     target.health-=bullet.damage   
                     target.hurt()
 
@@ -1002,6 +1002,10 @@ class Roboman:
         self.update_drone()
 
     def update_online(self, platforms, shot_bullets, targets, keys, gate, trigger_shutter=None):
+        for bullet in self.bullets:
+            if bullet not in shot_bullets:
+                if bullet in self.bullets:
+                    self.bullets.remove(bullet)
         self.update_drone()  
         if self.guard_drone:
             for drone in self.guard_drone:

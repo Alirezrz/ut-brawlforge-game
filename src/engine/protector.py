@@ -124,23 +124,40 @@ class Guard_Drone:
         for laser in self.bullets[:]:
             for bullet in shot_bullets[:]:
                 if laser.hitbox.colliderect(bullet.hitbox) and bullet.owner != self.owner:
+                    print("**********-----bulletdestroyed----********")
                     self.shot_hit_sound.play()
                     collision_x = (laser.x_pos + bullet.x_pos) // 2
                     collision_y = (laser.y_pos + bullet.y_pos) // 2
                     self.smokes.append(Smoke(collision_x, collision_y))
                     bullet.status='removed'
+                    print(f"len_self.bullets_before= {len(self.bullets)}")
+                    print(f"len_shot_bullets_before= {len(shot_bullets)}\n")
                     if bullet in shot_bullets:
+                        print("inshotbullets")
                         shot_bullets.remove(bullet)
                     if laser in self.bullets:
                         self.bullets.remove(laser)
                     if bullet in self.tracked_targets:
                         self.tracked_targets.remove(bullet)
+                    print('after')
+                print(f"len_self.bullets= {len(self.bullets)}")
+                print(f"len_shot_bullets= {len(shot_bullets)}\n\n----------------")
+                print("*********************************************")   
 
     def shoot(self, target,shot_bullets):
-        lazer=laser(self.x_pos, self.y_pos + 30, target)
-        self.bullets.append(lazer)
-        shot_bullets.append(lazer)
-        self.shoot_sound.play()
+        current_time=pygame.time.get_ticks()
+        if current_time - self.last_shot>1000:
+            print("\n<-----shooting---->\n")
+            lazer=laser(self.x_pos, self.y_pos + 30, target)
+            print(f"len_self.bullets_before= {len(self.bullets)}")
+            print(f"len_shot_bullets_before= {len(shot_bullets)}\n")
+            self.bullets.append(lazer)
+            shot_bullets.append(lazer)
+            print('after')
+            print(f"len_self.bullets= {len(self.bullets)}")
+            print(f"len_shot_bullets= {len(shot_bullets)}\n\n----------------")
+            self.last_shot=current_time
+            self.shoot_sound.play()
         
         
     def is_off_screen_exit(self):
