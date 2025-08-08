@@ -34,7 +34,7 @@ class Roboman:
 
         
         self.Bullet_Class_ref = None
-        
+        self.attack_targets =None # این باید باشه 
         if LOAD_FLAG:
             
             self.shot_hit_enemy_sound = pygame.mixer.Sound(

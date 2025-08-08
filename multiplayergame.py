@@ -143,6 +143,7 @@ class MultiplayerGame:
                     }
                     mouse = (inputs.get("left_click", False), False, inputs.get("right_click", False))
                     other_players = [h for h in active_heroes if h is not hero]
+                    hero.attack_targets = other_players
 
                     hero.handle_input_online(keys, self.gates, self.shot_bullets, Bullet, None, mouse)
                     hero.update_online(self.platforms, self.shot_bullets, other_players, keys, self.gates, None)

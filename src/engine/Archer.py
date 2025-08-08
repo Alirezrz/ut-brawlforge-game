@@ -97,6 +97,7 @@ class Archer:
         self.SUPER_POWER_FLAG=False
         self.GUARD_DRONE_FLAG=False
         self.DOUBLE_JUMP_FLAG=False
+        self.attack_targets =None # این باید باشه 
         
         
     def hurt(self):

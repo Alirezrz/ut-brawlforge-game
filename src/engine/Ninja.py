@@ -99,7 +99,7 @@ class Ninja:
         self.shutter_alpha = 0
         self.shutter_direction = 1 
         self.is_first_time=True          
-        
+
         if LOAD_FLAG:
             self.jump_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja jump.MP3"))
             self.kunai_hit_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit.mp3"))
