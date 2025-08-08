@@ -147,15 +147,7 @@ class MultiplayerGame:
                     hero.handle_input_online(keys, self.gates, self.shot_bullets, Bullet, None, mouse)
                     hero.update_online(self.platforms, self.shot_bullets, other_players, keys, self.gates, None)
                     
-                    for bullet_1 in self.shot_bullets:
-                        for bullet_2 in self.shot_bullets:
-                           if bullet_1!=bullet_2: 
-                            if bullet_1.hitbox.colliderect(bullet_2.hitbox):
-                                if bullet_1 in self.shot_bullets:
-                                    self.shot_bullets.remove(bullet_1)
-                                if bullet_2 in self.shot_bullets:
-                                    self.shot_bullets.remove(bullet_2)
-                                print("\n\n&&&&&&&&&&&&&&&&&&&&&&&removing in game &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n\n")
+                    
 
                 all_states = [h.serialize() if h else None for h in self.heroes]
                 bullets_state = [b.serialize() for b in self.shot_bullets]

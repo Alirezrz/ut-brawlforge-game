@@ -858,8 +858,7 @@ class Ninja:
             if mouse_buttons[0]:
                 self.shoot(shot_bullets, bullet_class)
 
-            if keys[pygame.K_g]:
-                self.call_drone()
+            
             if mouse_buttons[2]:
                 self.attack()      
 

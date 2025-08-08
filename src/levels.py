@@ -375,7 +375,6 @@ multiplayer_data = {
 
         {'type': 'power ups', 'x':  58*64 -400, 'y':400, 'subtype': 'double jump'},
             {'type': 'power ups', 'x':58*64-100, 'y': 400, 'subtype': 'super power'},
-            {'type': 'power ups', 'x': 58*64-200, 'y': 400, 'subtype': 'guard drone'},
             {'type': 'defusekit', 'x': 58*64-300, 'y': 400},
             {'type': 'powerbox',  'x': 58*64-500, 'y': 400},
             {'type': 'powerbox',  'x': 58*64-600, 'y': 400},

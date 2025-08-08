@@ -6,7 +6,6 @@ import math
 
 class Guard_Drone:
     def __init__(self, player, owner="unknown"):
-        self.frame_address=("idle_frames",0)
         self.player = player
         self.x_pos = self.player.x_pos
         self.y_pos = self.player.y_pos-1000
@@ -45,15 +44,12 @@ class Guard_Drone:
             if self.status == 'idle':
                 self.frame_index = (self.frame_index + 1) % len(self.idle_frames)
                 self.display_frame = self.idle_frames[self.frame_index]
-                self.frame_address=("idle_frames",self.frame_index)
             elif self.status == 'forward':
                 self.frame_index = (self.frame_index + 1) % len(self.walk_frames)
                 self.display_frame = self.walk_frames[self.frame_index]
-                self.frame_address=("forward",self.frame_index)
             elif self.status == 'backward':
                 self.frame_index = (self.frame_index + 1) % len(self.walk_frames)
                 self.display_frame = pygame.transform.flip(self.walk_frames[self.frame_index], True, False)
-                self.frame_address=("backward",self.frame_index)
 
             self.last_animation_update = current_time
 
@@ -74,17 +70,6 @@ class Guard_Drone:
             smoke.display(screen, offset)
             if smoke.status == 'dead':
                 self.smokes.remove(smoke)
-                
-    def Update_online(self, shot_bullets):
-        self.Vision(shot_bullets)
-        self.update_pos()
-        self.update_animation()
-
-        for b in self.bullets[:]:
-            b.update()
-            
-
-        
 
     def update_pos(self):
         if self.status == 'departing':
@@ -111,77 +96,34 @@ class Guard_Drone:
     def Vision(self, shot_bullets):
         for bullet in shot_bullets:
             d = math.sqrt((self.player.x_pos - bullet.x_pos) ** 2 + (self.player.y_pos - bullet.y_pos) ** 2)
-            if bullet.username=="Player"or bullet.username=="gunman" :
-                if d < 400 and bullet.owner != self.owner and bullet not in self.tracked_targets:
-                    self.shoot(bullet,shot_bullets)
-                    self.tracked_targets.append(bullet)
-            else:
-                if d < 400 and bullet.username != self.player.username and bullet not in self.tracked_targets:
-                    self.shoot(bullet,shot_bullets)
-                    self.tracked_targets.append(bullet)
-                    
+            if d < 400 and bullet.owner != self.owner and bullet not in self.tracked_targets:
+                self.shoot(bullet)
+                self.tracked_targets.append(bullet)
 
         for laser in self.bullets[:]:
             for bullet in shot_bullets[:]:
                 if laser.hitbox.colliderect(bullet.hitbox) and bullet.owner != self.owner:
-                    print("**********-----bulletdestroyed----********")
                     self.shot_hit_sound.play()
                     collision_x = (laser.x_pos + bullet.x_pos) // 2
                     collision_y = (laser.y_pos + bullet.y_pos) // 2
                     self.smokes.append(Smoke(collision_x, collision_y))
                     bullet.status='removed'
-                    print(f"len_self.bullets_before= {len(self.bullets)}")
-                    print(f"len_shot_bullets_before= {len(shot_bullets)}\n")
-                    if bullet in shot_bullets:
-                        print("inshotbullets")
-                        shot_bullets.remove(bullet)
-                    if laser in self.bullets:
-                        self.bullets.remove(laser)
+                    shot_bullets.remove(bullet)
+                    self.bullets.remove(laser)
                     if bullet in self.tracked_targets:
                         self.tracked_targets.remove(bullet)
-                    print('after')
-                print(f"len_self.bullets= {len(self.bullets)}")
-                print(f"len_shot_bullets= {len(shot_bullets)}\n\n----------------")
-                print("*********************************************")   
 
-    def shoot(self, target,shot_bullets):
-        current_time=pygame.time.get_ticks()
-        if current_time - self.last_shot>1000:
-            print("\n<-----shooting---->\n")
-            lazer=laser(self.x_pos, self.y_pos + 30, target)
-            print(f"len_self.bullets_before= {len(self.bullets)}")
-            print(f"len_shot_bullets_before= {len(shot_bullets)}\n")
-            self.bullets.append(lazer)
-            shot_bullets.append(lazer)
-            print('after')
-            print(f"len_self.bullets= {len(self.bullets)}")
-            print(f"len_shot_bullets= {len(shot_bullets)}\n\n----------------")
-            self.last_shot=current_time
-            self.shoot_sound.play()
+    def shoot(self, target):
+        self.bullets.append(laser(self.x_pos, self.y_pos + 30, target))
+        self.shoot_sound.play()
         
         
     def is_off_screen_exit(self):
         return self.x_pos > screen_width or self.y_pos + 40 < 0
-    
-    def serialize(self):
-        frame_source_name = "idle_frames"
-        frame_index_val = 0
-        if hasattr(self, 'frame_address') and self.frame_address:
-             frame_source_name = self.frame_address[0]
-             frame_index_val = self.frame_address[1]
-             
-        data={
-            "x_pos": self.x_pos,
-            "y_pos": self.y_pos,
-            "frame_source": frame_source_name,
-            "frame_index": frame_index_val,
-        }
-        return data
 
 
 class laser:
     def __init__(self, x, y, target):
-        self.username="guard drone"
         self.x_pos = x
         self.y_pos = y
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, 10, 10)
@@ -189,7 +131,7 @@ class laser:
         self.speed = 30
         self.travel_distance = 0
         self.max_distance = 800  # Distance after which the laser is removed
-        self.owner='drone'
+
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Guard Drone", "fire.png")
         self.image = pygame.transform.scale(pygame.image.load(path), (10, 10))
 
@@ -210,17 +152,6 @@ class laser:
 
     def is_off_screen(self):
         return self.travel_distance > self.max_distance
-    
-    def serialize(self):
-            
-        data={
-            "x_pos": self.x_pos,
-            "y_pos": self.y_pos,
-            "Look": "right",
-            "Flag": False,
-            "owner":"drone"
-        }
-        return data
 
 
 class Smoke:

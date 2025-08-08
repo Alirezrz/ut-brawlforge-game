@@ -395,8 +395,7 @@ class Archer:
                 self.current_frame_index = 0
                 self.shot_triggered = False
 
-            if keys[pygame.K_g]:
-                self.call_drone()
+            
             if mouse_buttons[2] and self.status not in ('attack', 'shot'):
                 self.status = 'attack'
                 self.current_frame_index = 0
