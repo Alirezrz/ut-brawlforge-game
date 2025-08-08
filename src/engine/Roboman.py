@@ -1005,9 +1005,7 @@ class Roboman:
                 if bullet in self.bullets:
                     self.bullets.remove(bullet)
         self.update_drone()  
-        if self.guard_drone:
-            for drone in self.guard_drone:
-             drone.Update_online(shot_bullets)
+       
         if hasattr(self, "ALIVE") and not self.ALIVE:
             self.update_animation(shot_bullets)
             return

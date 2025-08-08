@@ -301,9 +301,8 @@ class Ninja:
         self.Update_SuperPower() 
         self.Super_Power_effect()
         for drone in self.guard_drone:
-            drone.Update_online( shot_bullets)
+            drone.Update( screen,offset,shot_bullets)
 
-            drone.Update_online(shot_bullets)
         
         
         
@@ -925,9 +924,7 @@ class Ninja:
             if bullet not in shot_bullets:
                 self.bullets.remove(bullet)
         self.update_drone()  
-        if self.guard_drone:
-            for drone in self.guard_drone:
-             drone.Update_online(shot_bullets)
+       
         print(f"number of drones----->{len(self.guard_drone)}\n\n")
         if hasattr(self, "ALIVE") and not self.ALIVE:
             self.update_animation(shot_bullets)
