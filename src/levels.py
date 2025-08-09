@@ -394,6 +394,9 @@ online_multiplayer_data = {
             {'x': 8*TILE_SIZE, 'y': 0 * TILE_SIZE, 'tiles': 1},
             {'x': 52*TILE_SIZE, 'y': 0 * TILE_SIZE, 'tiles': 1},
             {'x': 10*TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 40},
+            {'x': 27*TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 3},
+
+
 
 
 
@@ -422,7 +425,7 @@ online_multiplayer_data = {
 
         ],
         'moving': [
-            {'x': 27 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 4,'range':9*TILE_SIZE, 'direction': 1},            
+            
 ]
     }
 }
