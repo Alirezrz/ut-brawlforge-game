@@ -106,30 +106,84 @@ def client_handler(conn):
                             else:
                                 send_json(joiner_conn, {"type": "join_denied", "message": "Host denied your request."})
                             lobby["pending_joiner"] = None
-
+                elif action == "response_to_request":
+                    target_id = request.get("target_id")
+                    requester_info = clients[conn]
+                    target_conn = None
+                    for c, info in clients.items():
+                        if info["id"] == target_id:
+                            target_conn = c
+                            break
+                    if target_conn is None:
+                        send_json(conn, {"type": "error", "message": "Player ID not found."})
+                    elif clients[target_conn]["lobby"] or clients[target_conn]["in_game"]:
+                        send_json(conn, {"type": "error", "message": "Player is currently busy."})
+                    else:
+                         send_json(target_conn, {
+                            "type": "direct_game_request", 
+                            "from_username": requester_info["username"],
+                            "from_id": requester_info["id"]
+                        })  
+                elif action == "respond_to_request":
+                    requester_id = request.get("from_id")
+                    decision = request.get("decision")
+                    responder_info = clients[conn]
+                    requester_conn = None
+                    for c, info in clients.items():
+                        if info["id"] == requester_id:
+                            requester_conn = c
+                            break
+                    
+                    if requester_conn:
+                        if decision == "accept":
+                            lobby_id = str(random.randint(1000, 9999))
+                            lobbies[lobby_id] = {
+                                "host": requester_conn,
+                                "players": {requester_conn: requester_id, conn: responder_info["id"]},
+                                "game_type": "1v1",
+                            }
+                            clients[requester_conn]["lobby"] = lobby_id
+                            clients[conn]["lobby"] = lobby_id
+                            player_list = [clients[c]["username"] for c in lobbies[lobby_id]["players"]]
+                            lobby_info = {"type": "lobby_created", "game_id": lobby_id, "players": player_list, "game_type": "1v1"}
+                            send_json(requester_conn, lobby_info)
+                            send_json(conn, lobby_info)
+                        else:
+                            
+                            send_json(requester_conn, {"type": "error", "message": f"{responder_info['username']} denied your request."})                     
                 elif action == "start_game":
                     lobby_id = clients[conn]["lobby"]
                     if lobby_id in lobbies and lobbies[lobby_id]["host"] == conn:
                         lobby = lobbies[lobby_id]
+                        max_players = 2 if lobby['game_type'] == '1v1' else 4
+                        if len(lobby["players"]) != max_players:
+                            send_json(conn, {"type": "error", "message": f"Need {max_players} players to start."})
+                            continue
+                        # =======================================================
+                        
                         print(f"Host {username} is starting game for lobby {lobby_id}...")
                         
                         for player_conn in lobby["players"]:
                             clients[player_conn]["in_game"] = True
-                        players_with_session_indices = {}
-                        session_index = 1
-                        for player_conn in lobby["players"]:
-                            players_with_session_indices[player_conn] = session_index
-                            session_index += 1
-                       
+                        
+                        # ==== منطق جدید برای تیم‌بندی ====
+                        player_connections = list(lobby["players"].keys())
+                        teams = {1: [], 2: []}
+                        if lobby["game_type"] == "2v2":
+                            teams[1] = [player_connections[0], player_connections[1]]
+                            teams[2] = [player_connections[2], player_connections[3]]
+                        # ===============================
 
                         game = MultiplayerGame(lobby["game_type"])
                         active_games[lobby_id] = game
-                        game.set_players(players_with_session_indices)
+                        
+                        # ارسال کانکشن‌ها و تیم‌ها به کلاس بازی
+                        game.set_players(player_connections, teams)
 
                         for player_conn in lobby["players"]:
                             send_json(player_conn, {"type": "match_starting"})
                         
-                        return 
+                        return
 
     except Exception as e:
         print(f"Error with client {player_id} ({username}): {e}")

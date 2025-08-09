@@ -176,10 +176,22 @@ class MultiplayerGame:
                 
                 for i, client_conn in enumerate(self.clients):
                     if client_conn and all_states[i] is not None:
-                        opponents_states = [s for j, s in enumerate(all_states) if i != j and s is not None]
-                        game_state = {"self": all_states[i], "opponents": opponents_states, "bullets": bullets_state,"objects": objs_state,}
-                        # if i ==0:
-                        #     print(f"Server sending to client {i+1}: {json.dumps(game_state, indent=2)}")
+                        my_team_num = 1 if client_conn in self.teams.get(1, []) else 2
+                        opponent_team_num = 2 if my_team_num == 1 else 1
+                        teammate_conn = None
+                        if self.type == '2v2':
+                            for conn in self.teams[my_team_num]:
+                                if conn != client_conn:
+                                    teammate_conn = conn
+                        opponents_conns = self.teams.get(opponent_team_num, [])            
+                        opponents_states = [all_states[self.clients.index(c)] for c in opponents_conns if c in self.clients and all_states[self.clients.index(c)] is not None]
+                        teammate_state = all_states[self.clients.index(teammate_conn)] if teammate_conn and teammate_conn in self.clients else None
+                        game_state = {
+                           "self": all_states[i], 
+                           "opponents": opponents_states, 
+                           "teammate": teammate_state, 
+                           "bullets": bullets_state
+                        } 
                         send_json(client_conn, game_state)
 
                 for h in active_heroes: h.events.clear()
@@ -195,17 +207,30 @@ class MultiplayerGame:
                 print(f"FATAL GAME LOOP ERROR: {e}")
                 self.game_active = False
 
-    def set_players(self, clients_with_indices):
-        num_players = len(clients_with_indices)
-        self.clients = [None] * num_players
+    # def set_players(self, clients_with_indices,teams):
+    #     num_players = len(clients_with_indices)
+    #     self.clients = [None] * num_players
+    #     self.teams = teams
         
-        for conn, player_session_index in clients_with_indices.items():
-            self.clients[player_session_index - 1] = conn
+    #     for conn, player_session_index in clients_with_indices.items():
+    #         self.clients[player_session_index - 1] = conn
         
+    #     self.game_active = True
+        
+    #     for conn, player_session_index in clients_with_indices.items():
+    #         thread = threading.Thread(target=self.client_thread, args=(conn, player_session_index), daemon=True)
+    #         thread.start()
+        
+    #     threading.Thread(target=self.game_loop, daemon=True).start()
+    # multiplayergame.py -> class MultiplayerGame
+
+    def set_players(self, connections, teams):
+        self.clients = connections
+        self.teams = teams 
         self.game_active = True
-        
-        for conn, player_session_index in clients_with_indices.items():
-            thread = threading.Thread(target=self.client_thread, args=(conn, player_session_index), daemon=True)
-            thread.start()
-        
+
+        for i, conn in enumerate(self.clients):
+           thread = threading.Thread(target=self.client_thread, args=(conn, i + 1), daemon=True)
+           thread.start()
+
         threading.Thread(target=self.game_loop, daemon=True).start()

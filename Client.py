@@ -468,8 +468,6 @@ class Client:
             self.frames = {key: [pygame.Surface((50, 50)) for _ in range(10)] for key in ["idle_frames", "run_frames", "jump_frames"]}
 
         self.load_ui_assets(self.hero_type)
-
-        # hero and opponent
         self.hero = type('Hero', (), {
             'x_pos': 0, 'y_pos': 0, 'Look': 'right', 'health': 100,
             'current_picture': self.frames['Roboman']["idle_frames"][0],
@@ -715,7 +713,8 @@ class Client:
                                     "health_bar": opp_health_bar,
                                     "health_bar_frame": opp_health_bar_frame,
                                     "creation_index": opponent_data.get("creation_index", 0),
-                                    "drone": teammate_data.get("drone", "None") 
+                                    "drone": teammate_data.get("drone", "None") ,
+                                    "is_teammate": True
                                 })
                            
                         except Exception as e:
@@ -866,12 +865,13 @@ class Client:
             py = player_state.get("y_pos", 0)
             p_look = player_state.get('Look', 'right')
             p_username = player_state.get('username', 'Player') 
-        
+            is_teammate = player_state.get("is_teammate", False)
             if p_look == 'left':
                opponent_image = pygame.transform.flip(opponent_image, True, False)
     
             self.screen.blit(opponent_image, (px - self.scroll[0], py - self.scroll[1]))
-            other_username_surface = font.render(p_username, True, (220, 220, 220))
+            username_color = (150, 255, 150) if is_teammate else (220, 220, 220)
+            other_username_surface = font.render(p_username, True, username_color)
             other_username_rect = other_username_surface.get_rect(center=(px - self.scroll[0] + opponent_image.get_width() / 2, py - self.scroll[1] - 15))
             self.screen.blit(other_username_surface, other_username_rect)
             drone = player_state.get('drone', 'None')

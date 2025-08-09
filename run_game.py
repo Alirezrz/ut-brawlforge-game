@@ -5,7 +5,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 from config import screen_width, screen_height,explode_side_size,enenmy_health_bar_height,enenmy_health_bar_width
 from src.engine.game import Game
-from src.engine.menu import Menu, GameModeMenu, MapCharacterMenu,MultiplayerMapCharacterMenu, GameOverMenu,MatchmakingMenu,NetworkMenu,LobbyMenu,JoinGameMenu,MultiplayerCharacterSelectMenu
+from src.engine.menu import Menu, GameModeMenu, MapCharacterMenu,MultiplayerMapCharacterMenu, GameOverMenu,MatchmakingMenu,NetworkMenu,LobbyMenu,JoinGameMenu,MultiplayerCharacterSelectMenu,SearchPlayerMenu
 from src.engine.multiplayer_game import Game_2
 from src.engine.network import Network
 from Client import Client
@@ -102,6 +102,13 @@ while True:
                                         else:
                                             print(f"Could not join lobby: {response.get('message')}")
                                             lobby_result = "exit"
+                        elif action == "search_player":
+                            search_menu = SearchPlayerMenu(screen, background, network_handler)
+                            search_action, _ = search_menu.run()
+                            if search_action == "wait_for_response":
+                                print("Request sent. Waiting for player to respond...")
+                                continue
+
                         print(f"[CLIENT DEBUG] LobbyMenu finished and returned: {lobby_result}") # DEBUG PRINT
                         if lobby_result == "start_game":
                             char_select_menu = MultiplayerCharacterSelectMenu(screen, background)
