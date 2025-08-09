@@ -748,7 +748,7 @@ class LobbyMenu:
         self.yes_button_rect = None
         self.no_button_rect = None
         if self.is_host:
-            self.start_button = pygame.Rect(screen.get_width() - 250, screen.get_height() - 100, 200, 50)
+            self.start_button = pygame.Rect(screen.get_width() - 380, screen.get_height() - 110, 350, 70)
 
     def run(self):
         while True:
