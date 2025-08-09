@@ -14,6 +14,7 @@ from src.engine.bullet import Bullet
 from src.engine.power_ups import Power_up
 pygame.init()
 pygame.mixer.init()
+pygame.display.set_mode((800,600))
 platform_image_path = "src/assets/images/"
 platform_images = {key: pygame.Surface((64, 64)) for key in ['left', 'middle', 'right', 'solid']}
 platforms = load_level_data(online_multiplayer_data , platform_images)
