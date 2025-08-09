@@ -362,6 +362,9 @@ level_4_data = {
     }
 }
 online_multiplayer_data = {
+    'player_start': {'x': 58*64, 'y':400},
+    'player2_start': {'x': 54*64, 'y':400},
+
     '1v1player1_start': {'x': 54*64, 'y':400},
     '1v1player2_start': {'x': 56*64, 'y':400},
     '2v2player1_start': {'x': 54*64, 'y':400},
