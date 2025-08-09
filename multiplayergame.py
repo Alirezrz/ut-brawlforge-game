@@ -2,6 +2,7 @@ import socket
 import threading
 import json
 import pygame
+import random
 import os
 import time
 from src.engine.Roboman import Roboman
@@ -11,9 +12,11 @@ from src.engine.Archer import Archer
 from config import screen_width, screen_height
 from src.levels import online_multiplayer_data , load_level_data,build_objects
 from src.engine.bullet import Bullet
+from src.engine.heatlh_box import PowerBox
 from src.engine.power_ups import Power_up
 pygame.init()
 pygame.mixer.init()
+pygame.display.set_mode((800,600))
 platform_image_path = "src/assets/images/"
 platform_images = {key: pygame.Surface((64, 64)) for key in ['left', 'middle', 'right', 'solid']}
 platforms = load_level_data(online_multiplayer_data , platform_images)
@@ -37,9 +40,14 @@ class MultiplayerGame:
         self.gates = []
         self.type = game_type
         self.objects_dict= build_objects(online_multiplayer_data , self.heroes)
-        self.objects=self.objects_dict['misc'] + \
-            self.objects_dict['gates'] + \
-            self.objects_dict['power ups']
+        health_boxes = [obj for obj in self.objects_dict['misc'] if isinstance(obj, PowerBox)]
+        selected_health_boxes = random.sample(health_boxes, min(4, len(health_boxes)))
+        power_ups = [obj for obj in self.objects_dict['power ups'] if isinstance(obj, Power_up)]
+        selected_power_ups = random.sample(power_ups, min(5, len(power_ups)))
+        other_misc = [obj for obj in self.objects_dict['misc'] 
+                    if not isinstance(obj, PowerBox) and not isinstance(obj, Power_up)]        
+        self.objects = selected_health_boxes + self.objects_dict['gates'] + selected_power_ups + other_misc
+
         for obj in self.objects:
             if type(obj)==Power_up:
                 obj.targets=self.heroes
