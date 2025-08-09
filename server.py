@@ -159,25 +159,21 @@ def client_handler(conn):
                         if len(lobby["players"]) != max_players:
                             send_json(conn, {"type": "error", "message": f"Need {max_players} players to start."})
                             continue
-                        # =======================================================
+            
                         
                         print(f"Host {username} is starting game for lobby {lobby_id}...")
                         
                         for player_conn in lobby["players"]:
                             clients[player_conn]["in_game"] = True
                         
-                        # ==== منطق جدید برای تیم‌بندی ====
                         player_connections = list(lobby["players"].keys())
                         teams = {1: [], 2: []}
                         if lobby["game_type"] == "2v2":
                             teams[1] = [player_connections[0], player_connections[1]]
                             teams[2] = [player_connections[2], player_connections[3]]
-                        # ===============================
 
                         game = MultiplayerGame(lobby["game_type"])
                         active_games[lobby_id] = game
-                        
-                        # ارسال کانکشن‌ها و تیم‌ها به کلاس بازی
                         game.set_players(player_connections, teams)
 
                         for player_conn in lobby["players"]:
