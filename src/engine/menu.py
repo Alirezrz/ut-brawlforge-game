@@ -1,5 +1,6 @@
 import pygame
 import os
+import math
 import time
 import json
 import socket
@@ -10,9 +11,23 @@ class Menu:
         self.font = pygame.font.Font(None, 74)  
         self.small_font = pygame.font.Font(None, 50)
         self.running = True
+        try:
+            logo_path = os.path.join("src", "assets", "images", "ut brawlforge icon.webp") 
+            self.logo = pygame.image.load(logo_path).convert_alpha()
+            self.logo = pygame.transform.scale(self.logo, (400, 400))
+        except pygame.error as e:
+            print(f"Error loading logo: {e}")
+            self.logo = None
+        self.logo_base_y = screen.get_height() // 2 - 100
+        if self.logo:
+            self.logo_rect = self.logo.get_rect(center=(screen.get_width() // 2, self.logo_base_y))
+        self.float_angle = 0
+        self.float_speed = 0.03
+        self.float_amplitude = 15
+        logo_bottom = self.logo_base_y+200
         self.buttons = [
-            {"text": "Start Game", "pos": (screen.get_width() // 2, 300), "action": "start"},
-            {"text": "Exit", "pos": (screen.get_width() // 2, 400), "action": "exit"}
+           {"text": "Start Game", "pos": (screen.get_width() // 2, logo_bottom + 80), "action": "start"},
+           {"text": "Exit", "pos": (screen.get_width() // 2, logo_bottom + 150), "action": "exit"}
         ]
         self.button_color = (255,255,255)  
         self.button_hover_color = (255,165,0) 
@@ -26,7 +41,11 @@ class Menu:
     def run(self):
         while self.running:
             self.screen.blit(self.background,(0,0))
-            self.draw_text("BrawlForge", self.font, (255, 255, 255), (self.screen.get_width() // 2, 150))
+            if self.logo:
+                self.float_angle +=self.float_speed
+                offset_y = math.sin(self.float_angle) * self.float_amplitude
+                self.logo_rect.centery = self.logo_base_y + int(offset_y)
+                self.screen.blit(self.logo, self.logo_rect)
             mouse_pos = pygame.mouse.get_pos()
             for button in self.buttons:
                 color = self.button_hover_color if self.is_hovered(button["pos"], mouse_pos) else self.button_color
