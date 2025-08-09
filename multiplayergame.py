@@ -72,8 +72,22 @@ class MultiplayerGame:
             
             username = initial_data.get("username", f"Player{player_session_index}")
             char_choice = initial_data.get("character", "Ninja")
-            
-            hero = self.create_hero(char_choice, 58*64, 400, player_session_index, username)
+            if self.type == "1v1":
+                if player_session_index==1:
+                    player_start=online_multiplayer_data['1v1player1_start']
+                else :
+                    player_start=online_multiplayer_data['1v1player2_start']    
+            else:
+                if player_session_index==1:
+                    player_start=online_multiplayer_data['2v2player1_start']             
+                if player_session_index==2:
+                    player_start=online_multiplayer_data['2v2player2_start']               
+                if player_session_index==3:
+                    player_start=online_multiplayer_data['2v2player3_start']
+                else:
+                    player_start=online_multiplayer_data['2v2player4_start']
+
+            hero = self.create_hero(char_choice, player_start['x'],  player_start['y'], player_session_index, username)
             self.heroes[player_session_index - 1] = hero
             self.player_inputs[player_session_index] = {}
             print(f"Player {player_session_index} setup complete: {username} as {char_choice}")
