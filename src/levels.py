@@ -361,7 +361,63 @@ level_4_data = {
 ]
     }
 }
+online_multiplayer_data = {
+    '1v1player1_start': {'x': 54*64, 'y':400},
+    '1v1player2_start': {'x': 56*64, 'y':400},
+    '2v2player1_start': {'x': 54*64, 'y':400},
+    '2v2player2_start': {'x': 55*64, 'y':400},
+    '2v2player3_start': {'x': 56*64, 'y':400},
+    '2v2player4_start': {'x': 57*64, 'y':400},
 
+    'enemies': [
+       
+    ],
+
+    'objects': [
+
+    ],
+    'platforms': {
+        'standard': [
+            {'x': 0, 'y': 8 * TILE_SIZE, 'tiles': 60},
+            {'x': 7*TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 15},
+            {'x': 38*TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 15},
+            {'x': 10*TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
+            {'x': 40*TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
+            {'x': 8*TILE_SIZE, 'y': 0 * TILE_SIZE, 'tiles': 1},
+            {'x': 52*TILE_SIZE, 'y': 0 * TILE_SIZE, 'tiles': 1},
+            {'x': 10*TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 40},
+
+
+
+
+            
+
+
+
+
+
+
+
+
+
+        ],
+        'solid': [
+           
+
+            
+            {'x': 30 * TILE_SIZE, 'y': 7* TILE_SIZE, 'repeat': 1},
+            {'x': 30 * TILE_SIZE, 'y': 6* TILE_SIZE, 'repeat': 1},
+            {'x': 30 * TILE_SIZE, 'y': 5* TILE_SIZE, 'repeat': 1},
+            
+
+
+
+        ],
+        'moving': [
+            {'x': 27 * TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 4,'range':9*TILE_SIZE, 'direction': 1},            
+]
+    }
+}
 
 multiplayer_data = {
     'player_start': {'x': 58*64, 'y':400},
