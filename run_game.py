@@ -47,10 +47,6 @@ while True:
 
     if menu_action == "exit":
         break 
-
-    if menu_action == "settings":
-        print("Settings menu not implemented yet!")
-        continue 
     if menu_action == "start":
         start_menu_running = True
         while start_menu_running:

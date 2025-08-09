@@ -12,8 +12,7 @@ class Menu:
         self.running = True
         self.buttons = [
             {"text": "Start Game", "pos": (screen.get_width() // 2, 300), "action": "start"},
-            {"text": "Settings", "pos": (screen.get_width() // 2, 400), "action": "settings"},
-            {"text": "Exit", "pos": (screen.get_width() // 2, 500), "action": "exit"}
+            {"text": "Exit", "pos": (screen.get_width() // 2, 400), "action": "exit"}
         ]
         self.button_color = (255,255,255)  
         self.button_hover_color = (255,165,0) 
