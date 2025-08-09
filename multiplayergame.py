@@ -9,7 +9,7 @@ from src.engine.Ninja import Ninja
 from src.engine.NinjaGirl import NinjaGirl
 from src.engine.Archer import Archer
 from config import screen_width, screen_height
-from src.levels import multiplayer_data, load_level_data,build_objects
+from src.levels import online_multiplayer_data , load_level_data,build_objects
 from src.engine.bullet import Bullet
 from src.engine.power_ups import Power_up
 pygame.init()
@@ -17,7 +17,7 @@ pygame.mixer.init()
 pygame.display.set_mode((800,600))
 platform_image_path = "src/assets/images/"
 platform_images = {key: pygame.Surface((64, 64)) for key in ['left', 'middle', 'right', 'solid']}
-platforms = load_level_data(multiplayer_data, platform_images)
+platforms = load_level_data(online_multiplayer_data , platform_images)
 
 def send_json(conn, data):
     """Safely sends a JSON object with a newline terminator."""
@@ -37,7 +37,7 @@ class MultiplayerGame:
         self.shot_bullets = []
         self.gates = []
         self.type = game_type
-        self.objects_dict= build_objects(multiplayer_data, self.heroes)
+        self.objects_dict= build_objects(online_multiplayer_data , self.heroes)
         self.objects=self.objects_dict['misc'] + \
             self.objects_dict['gates'] + \
             self.objects_dict['power ups']
