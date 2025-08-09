@@ -365,12 +365,12 @@ online_multiplayer_data = {
     'player_start': {'x': 58*64, 'y':400},
     'player2_start': {'x': 54*64, 'y':400},
 
-    '1v1player1_start': {'x': 54*64, 'y':400},
-    '1v1player2_start': {'x': 56*64, 'y':400},
-    '2v2player1_start': {'x': 54*64, 'y':400},
-    '2v2player2_start': {'x': 55*64, 'y':400},
-    '2v2player3_start': {'x': 56*64, 'y':400},
-    '2v2player4_start': {'x': 57*64, 'y':400},
+    '1v1player1_start': {'x': 1*64, 'y':400},
+    '1v1player2_start': {'x': 58*64, 'y':400},
+    '2v2player1_start': {'x': 1*64, 'y':400},
+    '2v2player2_start': {'x': 11*64, 'y':-2*TILE_SIZE - 100},
+    '2v2player3_start': {'x': 58*64, 'y':400},
+    '2v2player4_start': {'x': 48*64, 'y':-2*TILE_SIZE - 100},
 
     'enemies': [
        
