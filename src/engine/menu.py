@@ -601,6 +601,11 @@ class NetworkMenu:
         self.message = "Enter Your Username"
         self.message_color = (255, 255, 255)
         self.active_input = False
+        try:
+            self.click_sound = pygame.mixer.Sound("src/assets/sounds/menu/click.wav")
+        except pygame.error as e:
+            print(f"Cannot load click sound in NetworkMenu: {e}")
+            self.click_sound = None    
     def run(self):
         running = True
         while running:
@@ -614,10 +619,14 @@ class NetworkMenu:
                         self.active_input = False
                     
                     if self.connect_button.collidepoint(event.pos):
+                        if self.click_sound:
+                            self.click_sound.play()
                         if self.try_connect():
                            return "connected"
                     
                     if self.exit_button.collidepoint(event.pos):
+                        if self.click_sound:
+                            self.click_sound.play()
                         return "exit"
 
                 if event.type == pygame.KEYDOWN and self.active_input:
@@ -677,7 +686,11 @@ class MatchmakingMenu:
             {"text": "Join Game by ID", "pos": (screen.get_width() // 2, 500), "action": "join"}
         ]
         self.status_message = f"Connected as {self.network.username} (ID: {self.network.player_id})"
-
+        try:
+            self.click_sound = pygame.mixer.Sound("src/assets/sounds/menu/click.wav")
+        except pygame.error as e:
+            print(f"Cannot load click sound in NetworkMenu: {e}")
+            self.click_sound = None   
     def run(self):
         while True:
             for event in pygame.event.get():
@@ -689,6 +702,8 @@ class MatchmakingMenu:
                         button_rect = pygame.Rect(0, 0, 400, 50)
                         button_rect.center = button["pos"]
                         if button_rect.collidepoint(mouse_pos):
+                            if self.click_sound:
+                                self.click_sound.play()
                             if "create" in button["action"]:
                                 game_type = "1v1" if "1v1" in button["action"] else "2v2"
                                 request = {"action": "create_game", "game_type": game_type}
@@ -730,6 +745,11 @@ class JoinGameMenu:
         self.message = "Enter Game ID"
         self.message_color = (255, 255, 255)
         self.active_input = True
+        try:
+            self.click_sound = pygame.mixer.Sound("src/assets/sounds/menu/click.wav")
+        except pygame.error as e:
+            print(f"Cannot load click sound in NetworkMenu: {e}")
+            self.click_sound = None      
 
     def run(self):
         while True:
@@ -737,6 +757,8 @@ class JoinGameMenu:
                 if event.type == pygame.QUIT: return "back", None
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.join_button.collidepoint(event.pos):
+                        if self.click_sound:
+                            self.click_sound.play()
                         action, data = self.try_join()
                         if action: return action, data
                     if self.back_button.collidepoint(event.pos): return "back", None
@@ -795,6 +817,11 @@ class LobbyMenu:
         self.no_button_rect = None
         if self.is_host:
             self.start_button = pygame.Rect(screen.get_width() - 380, screen.get_height() - 110, 350, 70)
+        try:
+            self.click_sound = pygame.mixer.Sound("src/assets/sounds/menu/click.wav")
+        except pygame.error as e:
+            print(f"Cannot load click sound in NetworkMenu: {e}")
+            self.click_sound = None   
 
     def run(self):
         while True:
@@ -807,8 +834,9 @@ class LobbyMenu:
                         self.handle_popup_click(event.pos)
                     if self.is_host and self.start_button.collidepoint(event.pos):
                         max_players = 2 if self.game_type == '1v1' else 4
-                        
                         if len(self.players) == max_players:
+                            if self.click_sound:
+                                self.click_sound.play()
                             print("[CLIENT DEBUG] 'Start Game' button clicked. Sending action to server...")
                             self.network.client.setblocking(True)
                             
@@ -868,6 +896,8 @@ class LobbyMenu:
             decision = "no"
         
         if decision:
+            if self.click_sound:
+                self.click_sound.play()
             self.network.client.setblocking(True)
             self.network.send_json({"action": "host_decision", "decision": decision})
             self.network.client.setblocking(False)
