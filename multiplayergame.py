@@ -79,10 +79,10 @@ class MultiplayerGame:
                     player_start=online_multiplayer_data['1v1player2_start']    
             else:
                 if player_session_index==1:
-                    player_start=online_multiplayer_data['2v2player1_start']             
-                if player_session_index==2:
+                    player_start=online_multiplayer_data['2v2player1_start']  
+                elif player_session_index==2:
                     player_start=online_multiplayer_data['2v2player2_start']               
-                if player_session_index==3:
+                elif player_session_index==3:
                     player_start=online_multiplayer_data['2v2player3_start']
                 else:
                     player_start=online_multiplayer_data['2v2player4_start']
