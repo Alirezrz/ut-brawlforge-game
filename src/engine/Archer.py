@@ -356,11 +356,7 @@ class Archer:
                 self.current_frame_index = 0
                 self.shot_triggered = False
 
-            if mouse_bottons[2] and self.status not in ('attack', 'shot'):
-                self.status = 'attack'
-                self.current_frame_index = 0
-                self.attack_triggered = False
-                self.attack_targets = self.targets
+            
 
             if keys[pygame.K_g]:
                 self.call_drone()
@@ -397,12 +393,6 @@ class Archer:
                 self.shot_triggered = False
 
             
-            if mouse_buttons[2] and self.status not in ('attack', 'shot'):
-                self.status = 'attack'
-                self.current_frame_index = 0
-                self.attack_triggered = False
-                self.attack_targets = self.targets      
-  
 
     def update_bullets(self, screen, global_bullet_list, platforms, targets):
         
