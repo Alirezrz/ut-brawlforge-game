@@ -796,15 +796,21 @@ class Client:
             font = pygame.font.SysFont("arial", 20)
 
         # --- CAMERA FOCUS LOGIC ---
+        camera_target_width = self.current_picture.get_width()
+        camera_target_height = self.current_picture.get_height()
         camera_x, camera_y = self.x_pos, self.y_pos
-        if self.is_dead:
-            # Check if we have a teammate in 2v2
+
+        if self.health <= 0:
             teammate = next((p for p in self.other_players_states if p.get("is_teammate", False) and not p.get("is_dead", False)), None)
             if teammate:
                 camera_x, camera_y = teammate["x_pos"], teammate["y_pos"]
-        
-        mid_x = camera_x + self.current_picture.get_width() // 2
-        mid_y = camera_y + self.current_picture.get_height() // 2
+                frame = teammate.get("frame_to_display")
+                if frame:  
+                    camera_target_width = frame.get_width()
+                    camera_target_height = frame.get_height()
+
+        mid_x = camera_x + camera_target_width // 2
+        mid_y = camera_y + camera_target_height // 2
         self.scroll[0] += (mid_x - screen_width / 2 - self.scroll[0]) / 15
         self.scroll[1] += (mid_y - screen_height / 2 - self.scroll[1]) / 15
 
