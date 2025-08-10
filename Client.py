@@ -712,7 +712,7 @@ class Client:
                                     "profile_picture": opp_profile,
                                     "health_bar": opp_health_bar,
                                     "health_bar_frame": opp_health_bar_frame,
-                                    "creation_index": opponent_data.get("creation_index", 0),
+                                    "creation_index": teammate_data.get("creation_index", 0),
                                     "drone": teammate_data.get("drone", "None") ,
                                     "is_teammate": True
                                 })
