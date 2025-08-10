@@ -40,7 +40,7 @@ class Archer:
         self.health_bar = pygame.image.load("src/assets/images/Archer/health_bar.png")
         self.username = username
         self.health=100
-        self.targets = targets
+        self.attack_targets = targets
         self.profile_picture = pygame.image.load("src/assets/images/Archer/profile.png")
         self.width = 88
         self.height = 100
@@ -295,7 +295,7 @@ class Archer:
             self.current_frame_index += 1
             self.update_attack()
             if self.status=='attack':
-                for target in self.targets:
+                for target in self.attack_targets:
                     if target.hitbox.colliderect(self.hitbox) and self.HIT_COUNTER==0:
                         target.health-=30
                         target.hurt()
@@ -306,7 +306,7 @@ class Archer:
         self.hitbox=pygame.Rect(self.x_pos,self.y_pos,self.current_picture.get_width(),self.current_picture.get_height())
     def damage_nearby_targets(self):
         
-        for target in self.targets:
+        for target in self.attack_targets:
             if hasattr(target, 'hitbox') and self.hitbox.colliderect(target.hitbox):
                 target.health -= 50
                 target.hurt()

@@ -163,11 +163,18 @@ class MultiplayerGame:
                         pygame.K_g: inputs.get("G", False), pygame.K_TAB: inputs.get("TAB", False),
                     }
                     mouse = (inputs.get("left_click", False), False, inputs.get("right_click", False))
-                    other_players = [h for h in active_heroes if h is not hero]
-                    hero.attack_targets = other_players
+                    # --- TEAM-BASED TARGETING ---
+                    if self.type == '2v2':
+                        if hero.hero_creation_index in (1, 2):  # Team 1
+                            targets = [h for h in active_heroes if h.hero_creation_index in (3, 4)]
+                        else:  # Team 2
+                            targets = [h for h in active_heroes if h.hero_creation_index in (1, 2)]
+                    else:
+                        targets = [h for h in active_heroes if h is not hero]
 
+                    hero.attack_targets = targets
                     hero.handle_input_online(keys, self.gates, self.shot_bullets, Bullet, None, mouse)
-                    hero.update_online(self.platforms, self.shot_bullets, other_players, keys, self.gates, None)
+                    hero.update_online(self.platforms, self.shot_bullets, targets, keys, self.gates, None)
                     
                     
 

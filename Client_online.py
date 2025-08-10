@@ -5,10 +5,25 @@ import json
 import os
 from src.levels import online_multiplayer_data , load_level_data
 from config import screen_width, screen_height,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
+from src.engine.network import Network
 
 
 pygame.init()
 
+action=input("1_Signup\n2_login\nchoose(1/2):")
+if action=='1':
+    name=input("username:")
+    password=input("password:")
+    
+    
+elif action =='2':
+    name=input("username:")
+    password=input("password:")
+    
+    
+    
+    
+    
 
 class Client:
     def __init__(self, sock, username, player_id, hero_type):
@@ -468,6 +483,8 @@ class Client:
             self.frames = {key: [pygame.Surface((50, 50)) for _ in range(10)] for key in ["idle_frames", "run_frames", "jump_frames"]}
 
         self.load_ui_assets(self.hero_type)
+
+        # hero and opponent
         self.hero = type('Hero', (), {
             'x_pos': 0, 'y_pos': 0, 'Look': 'right', 'health': 100,
             'current_picture': self.frames['Roboman']["idle_frames"][0],
@@ -713,8 +730,7 @@ class Client:
                                     "health_bar": opp_health_bar,
                                     "health_bar_frame": opp_health_bar_frame,
                                     "creation_index": opponent_data.get("creation_index", 0),
-                                    "drone": teammate_data.get("drone", "None") ,
-                                    "is_teammate": True
+                                    "drone": teammate_data.get("drone", "None") 
                                 })
                            
                         except Exception as e:
@@ -794,20 +810,12 @@ class Client:
             font = pygame.font.Font("src/assets/fonts/VCR_OSD_MONO.ttf", 20)
         except:
             font = pygame.font.SysFont("arial", 20)
-
-        # --- CAMERA FOCUS LOGIC ---
-        camera_x, camera_y = self.x_pos, self.y_pos
-        if self.is_dead:
-            # Check if we have a teammate in 2v2
-            teammate = next((p for p in self.other_players_states if p.get("is_teammate", False) and not p.get("is_dead", False)), None)
-            if teammate:
-                camera_x, camera_y = teammate["x_pos"], teammate["y_pos"]
+       
         
-        mid_x = camera_x + self.current_picture.get_width() // 2
-        mid_y = camera_y + self.current_picture.get_height() // 2
+        mid_x = (self.x_pos + self.current_picture.get_width() // 2)
+        mid_y = (self.y_pos + self.current_picture.get_height() // 2)
         self.scroll[0] += (mid_x - screen_width / 2 - self.scroll[0]) / 15
         self.scroll[1] += (mid_y - screen_height / 2 - self.scroll[1]) / 15
-
         
         for obj in self.objects:
          try:
@@ -873,13 +881,12 @@ class Client:
             py = player_state.get("y_pos", 0)
             p_look = player_state.get('Look', 'right')
             p_username = player_state.get('username', 'Player') 
-            is_teammate = player_state.get("is_teammate", False)
+        
             if p_look == 'left':
                opponent_image = pygame.transform.flip(opponent_image, True, False)
     
             self.screen.blit(opponent_image, (px - self.scroll[0], py - self.scroll[1]))
-            username_color = (150, 255, 150) if is_teammate else (220, 220, 220)
-            other_username_surface = font.render(p_username, True, username_color)
+            other_username_surface = font.render(p_username, True, (220, 220, 220))
             other_username_rect = other_username_surface.get_rect(center=(px - self.scroll[0] + opponent_image.get_width() / 2, py - self.scroll[1] - 15))
             self.screen.blit(other_username_surface, other_username_rect)
             drone = player_state.get('drone', 'None')
@@ -933,6 +940,8 @@ class Client:
                      self.screen.blit(pygame.transform.flip(self.Fired_Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
             elif bullet['owner']=='drone':
                 self.screen.blit(self.drone_lazer,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    
+        #باید عکس پروفایل های همه لود بشه و بعد دیسپلی بشن
         is_right_side, is_bottom = self.get_bar_position_from_index(self.creation_index,len(self.other_players_states))
         self.draw_health_bar(self.screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, is_right_side, is_bottom)
         for other_state in self.other_players_states:
@@ -982,4 +991,7 @@ class Client:
         except:
             pass
         pygame.quit()
+        
+        
+if
 
