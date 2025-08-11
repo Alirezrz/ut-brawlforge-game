@@ -66,15 +66,20 @@ class MultiplayerGame:
         try:
             if char_name == "Roboman":
                 hero = Roboman(x, y, screen_width, screen_height, index, username)
+                hero.SOUND_FLAG=False
             elif char_name == "Ninja":
                 hero = Ninja(x, y, screen_width, screen_height, [], index, username)
+                hero.SOUND_FLAG=False
             elif char_name == "NinjaGirl":
                 hero = NinjaGirl(x, y, screen_width, screen_height, [], index, username)
+                hero.SOUND_FLAG=False
             elif char_name == "Archer":
                 hero = Archer(x, y, [], index, username)
+                hero.SOUND_FLAG=False
             else:
                 print(f"Unknown character {char_name}, defaulting to Ninja")
                 hero = Ninja(x, y, screen_width, screen_height, [], index, username)
+                hero.SOUND_FLAG=False
 
             hero.character_name = char_name
             return hero
