@@ -168,7 +168,10 @@ def client_handler(conn):
                         
                         player_connections = list(lobby["players"].keys())
                         teams = {1: [], 2: []}
-                        if lobby["game_type"] == "2v2":
+                        if lobby["game_type"] == "1v1" and len(player_connections) == 2:
+                            teams[1].append(player_connections[0]) 
+                            teams[2].append(player_connections[1]) 
+                        elif lobby["game_type"] == "2v2" and len(player_connections) == 4:
                             teams[1] = [player_connections[0], player_connections[1]]
                             teams[2] = [player_connections[2], player_connections[3]]
 
@@ -179,7 +182,7 @@ def client_handler(conn):
                         for player_conn in lobby["players"]:
                             send_json(player_conn, {"type": "match_starting"})
                         
-                        return
+                        
 
     except Exception as e:
         print(f"Error with client {player_id} ({username}): {e}")
