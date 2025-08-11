@@ -7,7 +7,7 @@ from src.engine.bullet import Bullet
 
 class Roboman:
 
-    def __init__(self, x, y, screen_width, screen_height, hero_creation_index=1,username='Player',LOAD_FLAG=True):
+    def __init__(self, x, y, screen_width, screen_height, hero_creation_index=1,username='Player',LOAD_FLAG=True,Soundeffect_flag=True):
         self.username=username
         self.x_pos = x
         self.y_pos = y
@@ -21,7 +21,7 @@ class Roboman:
         self.freezed=False
         self.last_freezed=0
         self.is_first_time=True
-        
+        self.SOUND_FLAG=Soundeffect_flag
         self.has_defuse_kit=False
         self.username =username
 
@@ -275,7 +275,8 @@ class Roboman:
 
 
     def hurt(self):
-        self.hurt_sound.play()
+        if self.SOUND_FLAG:
+            self.hurt_sound.play()
         self.events.append("roboman hurt")
         if self.health <= 0:
             self.die()
@@ -569,7 +570,7 @@ class Roboman:
         current_time = pygame.time.get_ticks()
 
         if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active:
-            if self.shoot_sound:
+            if self.shoot_sound and self.SOUND_FLAG:
                 self.shoot_sound.play()
                 self.events.append("shoot")
 
@@ -628,7 +629,7 @@ class Roboman:
             return  # rocket still cooling down
 
         if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active and self.SUPER_POWER_FLAG:
-            if self.shoot_sound:
+            if self.shoot_sound and self.SOUND_FLAG:
                 self.shoot_sound.play()
                 self.events.append("shoot")
             self.Last__Shooting_time = current_time
@@ -725,7 +726,7 @@ class Roboman:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
                     self.explosions.append(Explosion(bullet.x_pos,bullet.y_pos-65))
-                    if self.shot_hit_platform_sound:
+                    if self.shot_hit_platform_sound and self.SOUND_FLAG:
                         self.shot_hit_platform_sound.play()
                         self.events.append("shot_hit_platform")
                     if bullet in self.bullets:
@@ -756,7 +757,7 @@ class Roboman:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
                     self.explosions.append(Explosion(bullet.x_pos,bullet.y_pos-65))
-                    if self.shot_hit_platform_sound:
+                    if self.shot_hit_platform_sound and self.SOUND_FLAG:
                         self.shot_hit_platform_sound.play()
                         self.events.append("shot_hit_platform")
                     if bullet in self.bullets:
@@ -783,7 +784,7 @@ class Roboman:
     def jump(self):
         if self.on_ground :
             self.frame_flag=True
-            if self.jump_sound:
+            if self.jump_sound and self.SOUND_FLAG:
                 self.jump_sound.play()
             self.events.append("robot jump")    
             self.vertical_speed = self.jump_strenght
@@ -799,7 +800,7 @@ class Roboman:
     def activate_jetpack(self):
         current_time = pygame.time.get_ticks()
         if not self.on_ground and not self.jetpack_active and (current_time - self.last_jetpack_use_time >= self.jetpack_reload_duration) and self.DOUBLE_JUMP_FLAG:
-            if self.jetpack_sound:
+            if self.jetpack_sound and self.SOUND_FLAG:
                 self.jetpack_sound.play()
             self.events.append("jetpack")    
             self.jetpack_active = True

@@ -5,13 +5,13 @@ from config import Ninja_width, Ninja_height,profileSideSize, health_bar_lenght,
 from src.engine.protector import Guard_Drone
 ## must be done -->  1- list of enemies for hit when attacking must be fixed 
 class Ninja:
-    def __init__(self, x, y, screen_width, screen_height, targets, hero_creation_index=2,username='Player',LOAD_FLAG=True):
+    def __init__(self, x, y, screen_width, screen_height, targets, hero_creation_index=2,username='Player',LOAD_FLAG=True,soundeffect_flag=True):
         self.username=username
         self.frame_address=None
         self.ALIVE=True
         self.DEAD=False
         self.events = []
-        
+        self.SOUND_FLAG=soundeffect_flag
         self.frame_address=None
 
         self.x_pos = x
@@ -215,7 +215,8 @@ class Ninja:
 
     
     def hurt(self):
-        self.hurt_sound.play()
+        if self.SOUND_FLAG:
+            self.hurt_sound.play()
         self.events.append("ninja hurt")
         if self.health <= 0:
             self.die()
@@ -488,7 +489,8 @@ class Ninja:
         "Ninja",
         40 if self.Super_cofficent>1 else 20
         )
-        self.throw_kunai_sound.play()
+        if self.SOUND_FLAG:
+            self.throw_kunai_sound.play()
         self.events.append("throw kunai")
 
         self.bullets.append(bullet)
@@ -584,7 +586,8 @@ class Ninja:
         for bullet in self.bullets:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
-                    self.kunai_hit_platform_sound.play()
+                    if self.SOUND_FLAG:
+                        self.kunai_hit_platform_sound.play()
                     self.events.append("kunai hit platofrm")
 
                     if bullet in self.bullets:
@@ -613,7 +616,8 @@ class Ninja:
         for bullet in self.bullets:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
-                    self.kunai_hit_platform_sound.play()
+                    if self.SOUND_FLAG:
+                        self.kunai_hit_platform_sound.play()
                     self.events.append("kunai hit platofrm")
 
                     if bullet in self.bullets:
@@ -638,7 +642,8 @@ class Ninja:
             return
 
         if self.on_ground and self.jump_count == 0 and self.AllowJump_flag:
-            self.jump_sound.play()
+            if self.SOUND_FLAG:
+                self.jump_sound.play()
             self.events.append("ninja jump")
             self.vertical_speed = self.jump_strenght 
             self.jump_count = 1
@@ -655,7 +660,8 @@ class Ninja:
     def double_jump(self):
         current_time = pygame.time.get_ticks()
         self.vertical_speed = self.jump_strenght
-        self.jump_sound.play()
+        if self.SOUND_FLAG:
+            self.jump_sound.play()
         self.events.append("ninja jump")
         self.on_ground = False
         self.current_platform = None
@@ -867,7 +873,8 @@ class Ninja:
         if self.ATTACK and self.vertical_speed==0 and self.current_platform!=None:
             self.prev_status = self.status
             self.status = 'attack'
-            self.melee_sound.play() 
+            if self.SOUND_FLAG:
+                self.melee_sound.play() 
             self.events.append("sword")
             self.current_frame_index = 0
             self.attack_hit_registered = False
@@ -877,7 +884,8 @@ class Ninja:
         elif self.ATTACK:
             self.prev_status = self.status
             self.status = 'jumpattack'
-            self.melee_sound.play() 
+            if self.SOUND_FLAG:
+                self.melee_sound.play() 
             self.events.append("sword")
             self.current_frame_index = 0
             self.attack_hit_registered = False

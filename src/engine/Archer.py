@@ -6,8 +6,9 @@ from src.engine.protector import Guard_Drone
 from src.engine.bullet import Bullet
 
 class Archer:
-    def __init__(self, x, y, targets,index=3,username='Player'):
+    def __init__(self, x, y, targets,index=3,username='Player',soundflag=True):
         self.username=username
+        self.SOUND_FLAG=soundflag
         self.frame_address=None
         self.hero_creation_index=index
         self.x_pos = x
@@ -101,7 +102,8 @@ class Archer:
         
         
     def hurt(self):
-        self.hurt_sound.play()
+        if self.SOUND_FLAG:
+            self.hurt_sound.play()
         self.events.append("archer hurt")
         if self.health <= 0:
             self.die()
@@ -195,7 +197,8 @@ class Archer:
         self.status = 'attack'
         self.current_frame_index = 0
         self.attack_triggered = False
-        self.melee_sound.play()
+        if self.SOUND_FLAG:
+            self.melee_sound.play()
         self.events.append("melee") 
         self.shooting = True  
         self.HIT_PER_ATTACK=0
@@ -286,7 +289,8 @@ class Archer:
                 self.frame_address=["attack_frames",self.current_frame_index % len(self.attack_frames)]
 
                 self.damage_nearby_targets()
-                self.melee_sound.play()
+                if self.SOUND_FLAG:
+                    self.melee_sound.play()
                 self.events.append("melee")
                 if self.current_frame_index >= len(self.attack_frames) - 1:
                     self.status = 'idle'
@@ -318,7 +322,8 @@ class Archer:
         arrow_image = self.firedarrow_pic if self.super_power_active else self.arrow_pic
         damage = 35 if self.super_power_active else 25
         new_arrow = Arrow(self.username,arrow_x, arrow_y, direction, arrow_image, damage)
-        self.shoot_sound.play()
+        if self.SOUND_FLAG:
+            self.shoot_sound.play()
         self.events.append("shoot")
         self.bullets.append(new_arrow)
         shot_bullets.append(new_arrow)
@@ -491,7 +496,8 @@ class Archer:
             return
 
         if self.on_ground:
-            self.jump_sound.play()
+            if self.SOUND_FLAG:
+                self.jump_sound.play()
             self.events.append("jump")
             self.vertical_speed = self.jump_strenght
             self.jump_count = 1
@@ -499,7 +505,8 @@ class Archer:
             self.current_platform = None
             self.last_jump_time = current_time
         elif self.jump_count == 1 and self.double_jump_allowed and self.DOUBLE_JUMP_FLAG:
-            self.jump_sound.play()
+            if self.SOUND_FLAG:
+             self.jump_sound.play()
             self.events.append("jump")
             self.vertical_speed = self.jump_strenght
             self.jump_count = 2

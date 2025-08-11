@@ -1,0 +1,14 @@
+FROM python:3.13-slim
+
+EXPOSE 5555
+
+ENV PYTHONUNBUFFERED=1
+
+COPY requirements.txt requirements.txt
+
+RUN pip3 install -r requirements.txt
+
+COPY . .
+
+# اینجا مسیر فایلی که اگر اجرا بشه سرور شروع به گوش دادن خواهد کرد رو قرار بدید.
+CMD ["python", "./server.py"] 
