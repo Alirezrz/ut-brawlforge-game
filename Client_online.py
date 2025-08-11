@@ -8,14 +8,58 @@ from config import screen_width, screen_height,profileSideSize,health_bar_lenght
 from src.engine.network import Network
 
 pygame.init()
+users = [
+    {
+        "username": 'alireza',
+        'password': '0000',  
+        'id': 1,
+    }
+]
 
-action=input("1_Signup\n2_login\nchoose(1/2):")
-if action=='1':
-    name=input("username:")
-    password=input("password:")
-elif action =='2':
-    name=input("username:")
-    password=input("password:")       
+action = input("1_Signup\n2_Login\nChoose (1/2): ")
+
+if action == '1':  # Signup
+    while True:
+        name = input("Username: ")
+        password = input("Password: ")
+
+        exists = False
+        for user in users:
+            if user['username'] == name:
+                exists = True
+                break
+        
+        if exists:
+            print("Username already taken! Try again.")
+        else:
+            new_id = users[-1]['id'] + 1 if users else 1
+            users.append({
+                'username': name,
+                'password': password,
+                'id': new_id
+            })
+            print(f"Signup successful! Welcome, {name}.")
+            break
+
+elif action == '2':  # Login
+    name = input("Username: ")
+    password = input("Password: ")
+
+    found = False
+    for user in users:
+        if user['username'] == name and user['password'] == password:
+            found = True
+            print(f"Login successful! Welcome back, {name}.")
+            break
+    
+    if not found:
+        print("Invalid username or password.")
+
+else:
+    print("Invalid choice. Please restart.") 
+    
+    
+         
 class Client:
     def __init__(self, sock, username, player_id, hero_type):
         self.socket = sock
