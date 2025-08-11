@@ -3,98 +3,87 @@ import threading
 import socket
 import json
 import os
-from src.levels import online_multiplayer_data , load_level_data
+from src.levels import multiplayer_data, load_level_data
 from config import screen_width, screen_height,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
-from src.engine.network import Network
-
+from src.utils import get_my_local_ip
+# Initialize Pygame
 pygame.init()
-users = [
-    {
-        "username": 'alireza',
-        'password': '0000',  
-        'id': 1,
-    }
-]
 
-action = input("1_Signup\n2_Login\nChoose (1/2): ")
 
-if action == '1':  # Signup
-    while True:
-        name = input("Username: ")
-        password = input("Password: ")
-
-        exists = False
-        for user in users:
-            if user['username'] == name:
-                exists = True
-                break
-        
-        if exists:
-            print("Username already taken! Try again.")
-        else:
-            new_id = users[-1]['id'] + 1 if users else 1
-            users.append({
-                'username': name,
-                'password': password,
-                'id': new_id
-            })
-            print(f"Signup successful! Welcome, {name}.")
-            break
-
-elif action == '2':  # Login
-    name = input("Username: ")
-    password = input("Password: ")
-
-    found = False
-    for user in users:
-        if user['username'] == name and user['password'] == password:
-            found = True
-            print(f"Login successful! Welcome back, {name}.")
-            break
-    
-    if not found:
-        print("Invalid username or password.")
-
-else:
-    print("Invalid choice. Please restart.") 
-    
-    
-         
 class Client:
     def __init__(self, sock, username, player_id, hero_type):
-        self.socket = sock
-        self.username = username
-        self.player_id = player_id
-        self.hero_type = hero_type
-        self.screen_height=screen_height
-        self.screen_width=screen_width
-        self.is_dead=False
-        self.screen = pygame.display.set_mode((screen_width, screen_height))
-        pygame.display.set_caption(f"BrawlForge - {username}")
-        self.drone={}
-        self.frames = {
-            "Roboman": {}, "Ninja": {}, "NinjaGirl": {}, "Archer": {}
+        self.profile_picture = pygame.Surface((profileSideSize, profileSideSize))
+        self.profile_picture.fill((100, 100, 100))
+        self.health_bar = pygame.Surface((health_bar_lenght, 20))
+        self.health_bar.fill((255, 0, 0))
+        self.health_bar_frame = pygame.Surface((health_bar_lenght + 2 * roboman_health_bar_frame_thickness, 22))
+        self.health_bar_frame.fill((255, 255, 255))
+        self.socket =sock
+        self.username=username
+        self.player_id=player_id
+        self.hero_type=hero_type
+        initial_data = {
+            "username": self.username,
+            "character":self.hero_type
         }
-        self.ui_cache = {}
-        self.other_players_states = []
-        self.bullets = []
-        self.scroll = [0, 0]
-        
-        self.objects=[]
-        self.x_pos, self.y_pos, self.health, self.Look = 0, 0, 100, 'right'
-        self.current_picture = pygame.Surface((50, 100)) 
-        self.character_name = "Ninja"
-        self.creation_index = 1
-        
-        self.load_assets()
+        #print(f"[CLIENT] Sending initial data: {initial_data}")
         try:
-            self.current_picture = self.frames[self.hero_type]['idle_frames'][0]
-        except (KeyError, IndexError):
-           self.current_picture = pygame.Surface((70, 118), pygame.SRCALPHA)
+           self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
+        except Exception as e:
+            print(f"Error sending initial data: {e}")
+        self.scroll = [0, 0]
+        self.hero = None
+        self.opponent = None
+        
+        self.frames = {
+            "Roboman":{},
+            "Ninja":{},
+            "NinjaGirl":{},
+            "Archer":{}
+        }
+        self.screen_width=screen_width
+        self.screen_height=screen_height
+        
+        self.opponent_character = ""
+        self.opponent_frames = {"idle_frames": [pygame.Surface((50, 50))]}
+        self.x_pos=0
+        self.y_pos=0
+        self.health=100
+        self.Look='right'
+        self.frame_source='idle'
+        self.frame_index=0
+        self.current_picture=None
+        self.scroll=[0,0]
+        self.bullets=[]
+        self.platforms = []
+        self.other_players_states=[]
+        try:
+            screen = pygame.display.set_mode((screen_width, screen_height))
+            pygame.display.set_caption("BrawlForge Client")
+        except Exception as e:
+            print(f"Error initializing Pygame screen: {e}")
+            exit()
+
+        self.screen=screen
+        self.load_assets()
+        if "idle_frames" in self.frames and len(self.frames["idle_frames"]) > 0:
+            self.current_picture = self.frames["idle_frames"][0]
+        else:
+            self.current_picture = pygame.Surface((50, 50))
+            self.current_picture.fill((255, 0, 0))
+        
+    def get_character_name(self, hero_type):
+        if hero_type == 1: return "Roboman"
+        if hero_type == 2: return "Ninja"
+        if hero_type == 3: return "NinjaGirl"
+        if hero_type == 4: return "Archer"
     
     
     
     def load_assets(self):
+       
+        
+        # Load platform images
         platform_image_path = "src/assets/images/"
         platform_images = {}
         try:
@@ -104,7 +93,7 @@ class Client:
                 'right': pygame.image.load(os.path.join(platform_image_path, "platform_right.png")).convert_alpha(),
                 'solid': pygame.image.load(os.path.join(platform_image_path, "platform_solid.png")).convert_alpha(),
             }
-            self.platforms = load_level_data(online_multiplayer_data , platform_images)
+            self.platforms = load_level_data(multiplayer_data, platform_images)
             print("Platform images loaded successfully")
             
         except Exception as e:
@@ -115,66 +104,14 @@ class Client:
                 'right': pygame.Surface((64, 64)),
                 'solid': pygame.Surface((64, 64))
             }
-            self.platforms = load_level_data(online_multiplayer_data , self.platform_images)
+            self.platforms = load_level_data(multiplayer_data, self.platform_images)
         try:
             self.background = pygame.image.load("src/assets/images/city1.png")
             self.background = pygame.transform.scale(self.background, (screen_width, screen_height))
             print("Background image loaded successfully")
         except Exception as e:
             print(f"Error loading background: {e}")
-        try:
-            base_path = os.path.join('src', "assets", "images", "Guard Drone")
-            self.drone_idle_frames = [pygame.transform.scale(
-            pygame.image.load(os.path.join(base_path, 'idle', f"{i}.png")), (50, 35)) for i in range(8)]
-            self.drone_forward_frames = [pygame.transform.scale(
-            pygame.image.load(os.path.join(base_path, 'walk', f"{i}.png")), (50, 35)) for i in range(8)]
-            self.drone_backward_frames = [pygame.transform.flip(pygame.transform.scale(
-            pygame.image.load(os.path.join(base_path, 'walk', f"{i}.png")), (50, 35)),True,False) for i in range(8)]
-
-        except e:
-            print(e)
-            
-        try:
-            self.base_path = os.path.join("src", "assets", "images", "Gate")
-            self.DoorOpen_pic = pygame.transform.scale(pygame.image.load(os.path.join(self.base_path, "DoorOpen.png")), (91, 150))
-            self.DoorClose_pic = pygame.transform.scale(pygame.image.load(os.path.join(self.base_path, "DoorLocked.png")), (91, 150))
-            self.GreenFalg_pic = pygame.transform.scale(pygame.image.load(os.path.join(self.base_path, "Switch (1).png")), (21, 75))
-            self.RedFalg_pic = pygame.transform.scale(pygame.image.load(os.path.join(self.base_path, "Switch (2).png")), (21, 75))
-        except  e :
-            print(e)
-            
-        try:
-            base_path = os.path.join("src", "assets", "images", "power ups")
-            self.double_jump_powerup_frame=pygame.transform.scale(
-                pygame.image.load(
-                    os.path.join(base_path, "double jump.png")
-                ),
-                (60, 60)
-            )
-            self.guard_drone_powerup_frame=pygame.transform.scale(
-                pygame.image.load(
-                    os.path.join(base_path, "guard drone.png")
-                ),
-                (60, 60)
-            )
-            self.superpower_powerup_frame=pygame.transform.scale(
-                pygame.image.load(
-                    os.path.join(base_path, "super power.png")
-                ),
-                (60, 60)
-            )
-        except e:
-            print(e)
-            
-        try:
-            path = os.path.join("src", "assets", "images", "Objects","health_box","Box.png")
-
-            self.health_box_frame=pygame.transform.scale(
-            pygame.image.load(path),
-            (57,45)
-            )
-        except e:
-            print(e)
+              
             
         
         try:
@@ -188,8 +125,6 @@ class Client:
         base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src","assets", "images")
         
         try:
-            path = os.path.join('src', "assets", "images", "Guard Drone", "fire.png")
-            self.drone_lazer= pygame.transform.scale(pygame.image.load(path), (10, 10))
             self.Roboman_bullet=pygame.transform.scale(pygame.image.load(
                 os.path.join(base_path,"RoboMan_pictures", "Bullet.png")
             ),
@@ -537,7 +472,26 @@ class Client:
             'hitbox': pygame.Rect(0, 0, self.frames['Roboman']["idle_frames"][0].get_width(), self.frames['Roboman']["idle_frames"][0].get_height())
         })()
 
-    def send_input_loop(self):
+ 
+    '''def send_initial_data(self):
+        char_map = {1: "Roboman", 2: "Ninja", 3: "NinjaGirl", 4: "Archer"}
+        self.character_name = char_map.get(self.type, "Ninja")
+        self.load_ui_assets(self.character_name)
+        self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame = self.load_ui_assets_for_opponent("Ninja")
+        initial_data = {"username": self.username, "character": char_map.get(self.type, "Ninja")}
+        try:
+            self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
+            data = self.socket.recv(1024).decode('utf-8')
+            if json.loads(data).get("status") == "setup_complete":
+                print("Connected to server successfully!")
+            else:
+                print("Server setup failed")
+                exit()
+        except Exception as e:
+            print(f"Error sending initial data: {e}")
+            exit()
+'''
+    def send_input(self):
         clock = pygame.time.Clock()
         while True:
             pygame.event.pump()
@@ -555,7 +509,12 @@ class Client:
                 "left_click": mouse[0],
                 "right_click": mouse[2]
             }
-            self.send_json(input_data)
+            try:
+                self.socket.sendall(json.dumps(input_data).encode('utf-8'))
+                #print(f"[CLIENT] Sent input: {input_data}")
+            except Exception as e:
+                print(f"Connection lost: {e}")
+                break
             clock.tick(30)
 
     def play_sound(self, event_name, character_name="Ninja"):
@@ -647,42 +606,32 @@ class Client:
 
         return profile_picture,health_bar,health_bar_frame
                 
-    def get_ui_assets_cached(self, character_name):
-        if character_name not in self.ui_cache:
-            self.ui_cache[character_name] = self.load_ui_assets_for_opponent(character_name)
-        return self.ui_cache[character_name]
-    
-    def receive_state_loop(self):
+
+    def receive_state(self):
         buffer = ""
         while True:
             try:
+                while True:
                     chunk = self.socket.recv(1024)
                     if not chunk:
                         break
                     buffer += chunk.decode('utf-8')
+                    #print(f"[CLIENT] Received state: {chunk.decode('utf-8')}")
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
-
-
+                       
 
                         try:
                             parsed = json.loads(line)
-                            self.objects = parsed.get('objects', [])
                             selfdata = parsed["self"]
-                            self.drone=selfdata.get("drone","empty")
-                           
                             self.x_pos = selfdata['x_pos']
                             self.y_pos = selfdata['y_pos']
-                            self.is_dead = selfdata.get("is_dead", False)
                             self.health = selfdata['health']
                             self.Look = selfdata['look']
                             self.username = selfdata['username']
                             self.frame_source = selfdata['frame_source']
                             self.frame_index = selfdata['frame_index']
                             self.character_name = selfdata.get("character", "Ninja")
-                            self.creation_index = selfdata.get("creation_index", -1)
-                            for event in selfdata.get("events", []):
-                                self.play_sound(event, self.character_name)
                             
                             
 
@@ -690,49 +639,30 @@ class Client:
                             frame_source = selfdata['frame_source']
                             frame_index = selfdata['frame_index']
                             frame_list = self.frames[type_of_hero].get(frame_source, [])
-                            if frame_index==-2:
-                                self.current_picture=self.frames[self.character_name][self.frame_source]
-                            elif frame_list:
+                            if frame_list:
                                 self.current_picture = frame_list[frame_index]
                             
 
                             self.bullets = parsed.get("bullets", [])
-                            print(f"client bullet=\n{self.bullets}\n")
 
                             self.other_players_states = []
                             # نکته :اطلاعات حریف ها و هم تیمی توی یک لیست دارن ذخیره میشن و اگر هم تیمی داشته باشیم ایندکس اخر لیست برای اون هست
                             # Handle opponents (always present in both 1v1 and 2v2)
                             opponents = parsed.get("opponents", [])
                             for opponent_data in opponents:
-                                
-
                                 opponent_char = opponent_data.get("character", "Ninja")
-                                creation_index = opponent_data.get("creation_index", -1)
                                 opponent_frame_source = opponent_data.get("frame_source", "idle_frames")
                                 opponent_frame_index = opponent_data.get("frame_index", 0)
-                                if opponent_frame_index==-2:
-                                    opponent_frame=self.frames[opponent_char][opponent_frame_source]
-                                else:
-                                    opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
-                                    opponent_frame = opponent_frame_list[opponent_frame_index]
-                                for event in opponent_data.get("events", []):
-                                    self.play_sound(event, opponent_char)
-                                opp_profile, opp_health_bar, opp_health_bar_frame = self.get_ui_assets_cached(opponent_char)
+                                opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
+                                opponent_frame = opponent_frame_list[opponent_frame_index]
 
                                 
                                 self.other_players_states.append({
                                     "x_pos": opponent_data.get("x_pos", 0),
                                     "y_pos": opponent_data.get("y_pos", 0),
-                                    "username": opponent_data.get("username", "Player"),
                                     "frame_to_display": opponent_frame,
                                     "health": opponent_data.get("health", 100),
-                                    "profile_picture": opp_profile,
-                                    "health_bar": opp_health_bar,
-                                    "health_bar_frame": opp_health_bar_frame,
-                                    "Look":opponent_data.get('look','right'),
-                                    "creation_index": opponent_data.get("creation_index", 0),
-                                    "is_dead": opponent_data.get("is_dead", False),
-                                    "drone": opponent_data.get("drone", "None")
+                                    "Look":opponent_data.get('look','right')
                                 })
 
                                
@@ -742,60 +672,25 @@ class Client:
                             if teammate_data:
                                 teammate_char = teammate_data.get("character", "Ninja")
                                 teammate_frame_source = teammate_data.get("frame_source", "idle_frames")
-                                
                                 teammate_frame_index = teammate_data.get("frame_index", 0)
-                                
-                                creation_index = teammate_data.get("creation_index", -1)
-                                if teammate_frame_index==-2:
-                                    teammate_frame=self.frames[teammate_char][teammate_frame_source]
-                                else:
-                                    teammate_frame_list = self.frames[teammate_char].get(teammate_frame_source, [])
-                                    teammate_frame = teammate_frame_list[teammate_frame_index] 
-                                for event in teammate_data.get("events", []):
-                                    self.play_sound(event, teammate_char)
-                                opp_profile, opp_health_bar, opp_health_bar_frame = self.get_ui_assets_cached(teammate_char)
+                                teammate_frame_list = self.frames[teammate_char].get(teammate_frame_source, [])
+                                teammate_frame = teammate_frame_list[teammate_frame_index] 
+
                                 self.other_players_states.append({
                                     "x_pos": teammate_data.get("x_pos", 0),
                                     "y_pos": teammate_data.get("y_pos", 0),
-                                    "username": teammate_data.get("username", "Player"),
                                     "frame_to_display": teammate_frame,
                                     "health": teammate_data.get("health", 100),
-                                    "Look":teammate_data.get('look','right'),
-                                    "profile_picture": opp_profile,
-                                    "health_bar": opp_health_bar,
-                                    "health_bar_frame": opp_health_bar_frame,
-                                    "creation_index": opponent_data.get("creation_index", 0),
-                                    "drone": teammate_data.get("drone", "None") 
+                                    "Look":teammate_data.get('look','right')
                                 })
-                           
+
                         except Exception as e:
                             print(f"Error decoding JSON or setting frames: {e}")
 
             except Exception as e:
                     print(f"Error receiving game state: {e}")
                     break
-    def get_bar_position_from_index(self,index,opponents_count):
-        # حالت 1v1
-        if opponents_count == 1:
-            if index == 1:
-                return False, False  # پلیر اول → چپ بالا
-            elif index == 2:
-                return True, False   # پلیر دوم → راست بالا
-            else:
-                return False, False
-
-        # حالت 2v2
-        else:
-            if index == 1:
-                return False, False  # چپ بالا
-            elif index == 2:
-                return False, True   # چپ پایین
-            elif index == 3:
-                return True, False   # راست بالا
-            elif index == 4:
-                return True, True    # راست پایین
-            else:
-                return False, False    
+            
     def draw_health_bar(self, screen, health, profile_picture, health_bar, health_bar_frame, is_right_side, is_bottom):
         if health < 0:
             health = 0
@@ -835,103 +730,49 @@ class Client:
         if profile_picture:
             if is_right_side:
                 profile_picture = pygame.transform.flip(profile_picture, True, False)
-            screen.blit(pygame.transform.scale(profile_picture, (profileSideSize, profileSideSize)), (profile_x, profile_y))                               
+            screen.blit(pygame.transform.scale(profile_picture, (profileSideSize, profileSideSize)), (profile_x, profile_y))
+            
+                            
     def render_game(self):
         if self.screen==None:
             pygame.display.set_caption("BrawlForge Client")
             
-        self.screen.blit(self.background,(0, 0))
+        self.screen.blit(self.background, (0, 0))
         try:
             font = pygame.font.Font("src/assets/fonts/VCR_OSD_MONO.ttf", 20)
         except:
             font = pygame.font.SysFont("arial", 20)
-       
+        try:
+            if self.opponent.frame_source in self.opponent_frames:
+                 self.opponent.current_picture = self.opponent_frames[self.opponent.frame_source][self.opponent.frame_index]
+        except Exception as e:
+            #print(f"Error updating opponent frame: {e}")
+            self.opponent.current_picture = self.opponent_frames["idle_frames"][0]
         
         mid_x = (self.x_pos + self.current_picture.get_width() // 2)
         mid_y = (self.y_pos + self.current_picture.get_height() // 2)
         self.scroll[0] += (mid_x - screen_width / 2 - self.scroll[0]) / 15
         self.scroll[1] += (mid_y - screen_height / 2 - self.scroll[1]) / 15
-        
-        for obj in self.objects:
-         try:
-            if obj.get("status") == "used":
-                continue  
-            x_pos = obj.get("x_pos", 0)
-            y_pos = obj.get("y_pos", 0)
-            obj_type = obj.get("type", "")
-
-            if obj_type == "gates":
-                a_x = obj.get("A_x", 0)
-                a_y = obj.get("A_y", 0)
-                b_x = obj.get("B_x", 0)
-                b_y = obj.get("B_y", 0)
-                a_state = obj.get("A_state", "close")
-                b_state = obj.get("B_state", "close")
-                flag = obj.get("flag", "GreenFlag")
-
-                a_pic = self.DoorOpen_pic if a_state == "open" else self.DoorClose_pic
-                b_pic = self.DoorOpen_pic if b_state == "open" else self.DoorClose_pic
-                flag_pic = self.RedFlag_pic if flag == "RedFlag" else self.GreenFlag_pic
-
-                self.screen.blit(a_pic, (a_x - self.scroll[0], a_y - self.scroll[1]))
-                self.screen.blit(b_pic, (b_x - self.scroll[0], b_y - self.scroll[1]))
-                self.screen.blit(flag_pic, (a_x - 30 - self.scroll[0], a_y + 75 - self.scroll[1]))
-                self.screen.blit(flag_pic, (b_x - 30 - self.scroll[0], b_y + 75 - self.scroll[1]))
-
-            elif obj_type == "double jump":
-                self.screen.blit(self.double_jump_powerup_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
-            elif obj_type == "guard drone":
-                self.screen.blit(self.guard_drone_powerup_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
-            elif obj_type == "super power":
-                self.screen.blit(self.superpower_powerup_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
-            elif obj_type == "health_box":
-                self.screen.blit(self.health_box_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
-
-         except Exception as e:
-            print(f"Error rendering object {obj}: {e}")
 
         for platform in self.platforms:
             try:
                  platform.draw(self.screen, self.scroll)
             except Exception as e:
                  print(f"Error drawing platform: {e}")
-        if self.current_picture and  not self.is_dead:
+        if self.current_picture:
             self_image = pygame.transform.flip(self.current_picture, True, False) if self.Look == 'left' else self.current_picture
             self.screen.blit(self_image, (self.x_pos - self.scroll[0], self.y_pos - self.scroll[1]))
-            if isinstance(self.drone, dict) and 'frame_source' in self.drone:
-                if self.drone['frame_source']=="idle_frames":
-                    self.screen.blit(self.drone_idle_frames[self.drone['frame_index']],(self.drone['x_pos']-self.scroll[0],self.drone['y_pos']-self.scroll[1]))
-                elif self.drone['frame_source']=="forward":
-                    self.screen.blit(self.drone_forward_frames[self.drone['frame_index']],(self.drone['x_pos']-self.scroll[0],self.drone['y_pos']-self.scroll[1]))
-                elif self.drone['frame_source']=="backward":
-                    self.screen.blit(self.drone_backward_frames[self.drone['frame_index']],(self.drone['x_pos']-self.scroll[0],self.drone['y_pos']-self.scroll[1]))                    
             username_surface = font.render(self.username, True, (255, 255, 255))
             username_rect = username_surface.get_rect(center=(self.x_pos - self.scroll[0] + self_image.get_width() / 2, self.y_pos - self.scroll[1] - 15))
             self.screen.blit(username_surface, username_rect)
-                
-        for player_state in self.other_players_states:
-          if not player_state.get("is_dead",False):
-            opponent_image = player_state["frame_to_display"]
-            px = player_state.get("x_pos", 0)
-            py = player_state.get("y_pos", 0)
-            p_look = player_state.get('Look', 'right')
-            p_username = player_state.get('username', 'Player') 
-        
-            if p_look == 'left':
-               opponent_image = pygame.transform.flip(opponent_image, True, False)
-    
-            self.screen.blit(opponent_image, (px - self.scroll[0], py - self.scroll[1]))
-            other_username_surface = font.render(p_username, True, (220, 220, 220))
-            other_username_rect = other_username_surface.get_rect(center=(px - self.scroll[0] + opponent_image.get_width() / 2, py - self.scroll[1] - 15))
-            self.screen.blit(other_username_surface, other_username_rect)
-            drone = player_state.get('drone', 'None')
-            if drone != 'None':
-                if drone['frame_source'] == "idle_frames":
-                    self.screen.blit(self.drone_idle_frames[drone['frame_index']], (drone['x_pos'] - self.scroll[0], drone['y_pos'] - self.scroll[1]))
-                elif drone['frame_source'] == "forward":
-                    self.screen.blit(self.drone_forward_frames[drone['frame_index']], (drone['x_pos'] - self.scroll[0], drone['y_pos'] - self.scroll[1]))
-                elif drone['frame_source'] == "backward":
-                    self.screen.blit(self.drone_backward_frames[drone['frame_index']], (drone['x_pos'] - self.scroll[0], drone['y_pos'] - self.scroll[1]))
+            
+            
+        # اینجا بقیه پلیر ها رو رندر میکنیم     
+        for data in self.other_players_states:
+            if data["Look"]=='right':
+                self.screen.blit(data['frame_to_display'],(data['x_pos']-self.scroll[0],data['y_pos']-self.scroll[1]))
+            else:
+                self.screen.blit(pygame.transform.flip(data['frame_to_display'],True,False),(data['x_pos']-self.scroll[0],data['y_pos']-self.scroll[1]))
             
         for bullet in self.bullets:
             if bullet['owner']=="Roboman":
@@ -973,57 +814,24 @@ class Client:
                      self.screen.blit(pygame.transform.flip(self.Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
                     else:
                      self.screen.blit(pygame.transform.flip(self.Fired_Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
-            elif bullet['owner']=='drone':
-                self.screen.blit(self.drone_lazer,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
-                    
         #باید عکس پروفایل های همه لود بشه و بعد دیسپلی بشن
-        is_right_side, is_bottom = self.get_bar_position_from_index(self.creation_index,len(self.other_players_states))
-        self.draw_health_bar(self.screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, is_right_side, is_bottom)
-        for other_state in self.other_players_states:
-            idx = other_state.get("creation_index", 0)  
-            is_right_side, is_bottom = self.get_bar_position_from_index(
-                idx,
-                len(self.other_players_states)
-            )
-
-            self.draw_health_bar(
-                self.screen,
-                other_state["health"],
-                other_state["profile_picture"],  
-                other_state["health_bar"],                
-                other_state["health_bar_frame"],
-                is_right_side,
-                is_bottom
-            )
-
-        pygame.display.flip()
-    def send_json(self, data):
-        try:
-            message = json.dumps(data) + '\n'
-            self.socket.sendall(message.encode('utf-8'))
-        except (socket.error, BrokenPipeError):
-            print("Connection to server lost.")    
+        self.draw_health_bar(self.screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, False, False)
+        # self.draw_health_bar(screen, self.opponent.health, self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame, True, False)  
+        pygame.display.update()
+        
     def start(self):
-        initial_data = {"username": self.username, "character": self.hero_type}
-        print(f"DEBUG [Client.py]: Sending initial character data to server: {initial_data}")
-        self.send_json(initial_data)
-
-      
-        threading.Thread(target=self.send_input_loop, daemon=True).start()
-        threading.Thread(target=self.receive_state_loop, daemon=True).start()
+        print("starting")
+        threading.Thread(target=self.send_input, daemon=True).start()
+        threading.Thread(target=self.receive_state, daemon=True).start()
 
         clock = pygame.time.Clock()
-        running = True
-        while running:
+        while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
-            
+                    pygame.quit()
+                    exit()
+
             self.render_game()
-            clock.tick(60)
-        try:
-           self.socket.close()
-        except:
-            pass
-        pygame.quit()
+            clock.tick(30)
+        
 
