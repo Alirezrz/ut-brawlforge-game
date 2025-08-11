@@ -18,7 +18,7 @@ users = [
 ]
 
 action = input("1_Signup\n2_Login\nChoose (1/2): ")
-
+name=None
 if action == '1':  # Signup
     while True:
         name = input("Username: ")
