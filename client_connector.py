@@ -8,14 +8,66 @@ BROADCAST_PORT = 9192
 BROADCAST_MSG = b"DISCOVER_SERVER"
 SERVER_PORT = 9191
 
-timeout = 5  # seconds
+timeout = 30  # seconds
+users = [
+    {
+        "username": 'alireza',
+        'password': '0000',  # better to keep as string
+        'id': 1,
+    }
+]
+
+action = input("1_Signup\n2_Login\nChoose (1/2): ")
+
+if action == '1':  # Signup
+    while True:
+        name = input("Username: ")
+        password = input("Password: ")
+
+        # Check if username already exists
+        exists = False
+        for user in users:
+            if user['username'] == name:
+                exists = True
+                break
+        
+        if exists:
+            print("Username already taken! Try again.")
+        else:
+            new_id = users[-1]['id'] + 1 if users else 1
+            users.append({
+                'username': name,
+                'password': password,
+                'id': new_id
+            })
+            print(f"Signup successful! Welcome, {name}.")
+            break
+
+elif action == '2':  # Login
+    name = input("Username: ")
+    password = input("Password: ")
+
+    found = False
+    for user in users:
+        if user['username'] == name and user['password'] == password:
+            found = True
+            print(f"Login successful! Welcome back, {name}.")
+            break
+    
+    if not found:
+        print("Invalid username or password.")
+
+else:
+    print("Invalid choice. Please restart.")
+    
+NAME=name
 
 class ClientConnector:
     def __init__(self):
         self.server_address = None
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.settimeout(timeout)
-        self.username = None
+        self.username = NAME
         self.client_id = None
         self.is_connected = False
         self.find_server()
@@ -59,7 +111,7 @@ class ClientConnector:
 
     def exchange_user_info(self):
         try:
-            self.username = input("Enter your username: ")
+            self.username = NAME
             if not self.username:
                 print("[CLIENT] Username cannot be empty.")
                 self.client_socket.close()
