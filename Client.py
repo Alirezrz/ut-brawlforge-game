@@ -604,13 +604,14 @@ class Client:
         buffer = ""
         while True:
             try:
-                    chunk = self.socket.recv(1024)
+                    chunk = self.socket.recv(4096)
                     if not chunk:
                         break
                     buffer += chunk.decode('utf-8')
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
-
+                        if not line:
+                            continue
 
 
                         try:
@@ -648,12 +649,13 @@ class Client:
                             print(f"client bullet=\n{self.bullets}\n")
 
                             self.other_players_states = []
-                            # نکته :اطلاعات حریف ها و هم تیمی توی یک لیست دارن ذخیره میشن و اگر هم تیمی داشته باشیم ایندکس اخر لیست برای اون هست
-                            # Handle opponents (always present in both 1v1 and 2v2)
-                            opponents = parsed.get("opponents", [])
-                            for opponent_data in opponents:
-                                
+                            opponents_list = parsed.get("opponents", []) 
+                            single_opponent = parsed.get("opponent") 
 
+                            if single_opponent:
+                                opponents_list.append(single_opponent)
+
+                            for opponent_data in opponents_list:
                                 opponent_char = opponent_data.get("character", "Ninja")
                                 creation_index = opponent_data.get("creation_index", -1)
                                 opponent_frame_source = opponent_data.get("frame_source", "idle_frames")
