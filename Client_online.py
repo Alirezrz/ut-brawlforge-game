@@ -7,24 +7,15 @@ from src.levels import online_multiplayer_data , load_level_data
 from config import screen_width, screen_height,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
 from src.engine.network import Network
 
-
 pygame.init()
 
 action=input("1_Signup\n2_login\nchoose(1/2):")
 if action=='1':
     name=input("username:")
     password=input("password:")
-    
-    
 elif action =='2':
     name=input("username:")
-    password=input("password:")
-    
-    
-    
-    
-    
-
+    password=input("password:")       
 class Client:
     def __init__(self, sock, username, player_id, hero_type):
         self.socket = sock
@@ -991,7 +982,4 @@ class Client:
         except:
             pass
         pygame.quit()
-        
-        
-if
 
