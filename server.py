@@ -141,29 +141,35 @@ class Server:
                         if player_count == required_players:
                             print(f"[SERVER] Game {creator_id} is ready to start with {player_count} players.")
                             game_type_str = "1v1" if game_type == "1" else "2v2"
+
                             for p in session['players']:
                                 try:
-                                    p['socket'].sendall(b"Game is starting") 
+                                    p['socket'].sendall(b"Game is starting\n")
                                 except:
                                     pass
-                            pygame.time.wait(3000)
+
+                            for count in range(3, 0, -1):
+                                for p in session['players']:
+                                    try:
+                                        p['socket'].sendall(f"countdown:{count}\n".encode())
+                                    except:
+                                        pass
+                                pygame.time.wait(1000)  
+
                             for p in session['players']:
                                 try:
-                                    p['socket'].sendall(b"setup_complete")
+                                    p['socket'].sendall(b"setup_complete\n")
                                 except:
                                     pass
+
                             game = MultiplayerGame(game_type_str)
                             game.set_players([p['socket'] for p in session['players']])
                             game.game_active = True
                             threading.Thread(target=game.game_loop, daemon=True).start()
-                            break  
-                    if not self.is_socket_open(sock):
-                        print(f"[SERVER] Creator {client_info['username']} (ID: {creator_id}) socket closed")
-                        break
-                    pygame.time.wait(100)  
+                            break
         except Exception as e:
             print(f"[SERVER] Error in creator session for {client_info['username']}: {e}")
-
+                
     def handle_join_game(self, client_info):
         sock = client_info['socket']
         sock.sendall(b"Choose the way to join the game:\n1. Search username or id(creator of game id/username)\n2. Leave it on server\n(1 or 2):")
