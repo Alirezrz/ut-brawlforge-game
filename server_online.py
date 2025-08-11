@@ -26,7 +26,6 @@ class Server:
         self.lock = threading.Lock()  
 
         threading.Thread(target=self.accept_clients, daemon=True).start()
-        threading.Thread(target=self.broadcast_presence, daemon=True).start()
 
     def generate_unique_id(self, existing_ids):
         while True:

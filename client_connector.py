@@ -2,9 +2,10 @@ import pygame
 import socket
 from Client_online import Client
 import uuid 
+from src.utils import get_my_local_ip
 
-BROADCAST_PORT = 9192
-BROADCAST_MSG = b"DISCOVER_SERVER"
+
+SERVER_IP = get_my_local_ip()  
 SERVER_PORT = 9191
 
 timeout = 30 # seconds
@@ -18,23 +19,18 @@ users=[
 
 class ClientConnector:
     def __init__(self):
-        self.server_address = None
+        self.server_address = SERVER_IP
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.settimeout(timeout)
         self.username = None
         self.client_id = None
         self.connected = False   
 
-        self.find_server()
-
-        if self.server_address:
-            self.connect_to_server()
-            if self.connected and self.exchange_user_info():
-                self.send_request_option()
-            else:
-                print("[CLIENT] Not proceeding because user exchange or connection failed.")
+        self.connect_to_server()
+        if self.connected and self.exchange_user_info():
+            self.send_request_option()
         else:
-            print("[CLIENT] No server found on local network.")
+            print("[CLIENT] Not proceeding because user exchange or connection failed.")
 
     def find_server(self):
         print("[CLIENT] Searching for server...")
@@ -232,12 +228,12 @@ class ClientConnector:
             except:
                 pass
 
+
 if __name__ == '__main__':
     connector = ClientConnector()
 
     try:
         print("[CLIENT] Waiting for game start from server...")
-        # make sure connector.connected and username set before proceeding
         if not getattr(connector, "connected", False) or not getattr(connector, "username", None):
             print("[CLIENT] Not connected or not logged-in; exiting.")
         else:
