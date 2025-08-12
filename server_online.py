@@ -2,8 +2,9 @@ import pygame
 import socket
 import threading
 import random
-import uuid
-
+import os
+from pymongo import MongoClient
+from dotenv import load_dotenv
 from multiplayergame_online import MultiplayerGame
 
 HOST = '0.0.0.0'
@@ -30,6 +31,15 @@ class Server:
         self.socket.listen()
         print(f"[SERVER] Listening for clients on {HOST}:{PORT}")
 
+        load_dotenv()
+        mongo_uri = os.getenv("MONGO_URI")
+        if not mongo_uri:
+            raise ValueError("MONGO_URI not found in .env file")
+        
+        self.client = MongoClient(mongo_uri)
+        self.db = self.client["my_game_db"]
+        self.users_collection = self.db["users"]
+        
         self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.broadcast_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
@@ -81,11 +91,7 @@ class Server:
 
     # --- AUTH helpers (server-side) ---
     def find_user_by_credentials(self, username, password):
-        with self.lock:
-            for u in server_users:
-                if u['username'] == username and u['password'] == password:
-                    return u
-        return None
+        return self.users_collection.find_one({"username": username, "password": password})
 
     def username_exists(self, username):
         with self.lock:
