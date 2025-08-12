@@ -18,54 +18,60 @@ class Client:
         self.health_bar.fill((255, 0, 0))
         self.health_bar_frame = pygame.Surface((health_bar_lenght + 2 * roboman_health_bar_frame_thickness, 22))
         self.health_bar_frame.fill((255, 255, 255))
-        self.socket =sock
-        self.username=username
-        self.player_id=player_id
-        self.hero_type=hero_type
+        self.socket = sock
+        self.username = username
+        self.player_id = player_id
+        self.hero_type = hero_type
         initial_data = {
             "username": self.username,
-            "character":self.hero_type
+            "character": self.hero_type
         }
-        #print(f"[CLIENT] Sending initial data: {initial_data}")
+        
+        # Log the data before sending it
+        print(f"[CLIENT] Sending initial data: {json.dumps(initial_data)}")
+
         try:
-           self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
+            self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
         except Exception as e:
-            print(f"Error sending initial data: {e}")
+            print(f"[CLIENT] Error sending initial data: {e}")
+
         self.scroll = [0, 0]
         self.hero = None
         self.opponent = None
-        
         self.frames = {
-            "Roboman":{},
-            "Ninja":{},
-            "NinjaGirl":{},
-            "Archer":{}
+            "Roboman": {},
+            "Ninja": {},
+            "NinjaGirl": {},
+            "Archer": {}
         }
-        self.screen_width=screen_width
-        self.screen_height=screen_height
-        
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+
         self.opponent_character = ""
         self.opponent_frames = {"idle_frames": [pygame.Surface((50, 50))]}
-        self.x_pos=0
-        self.y_pos=0
-        self.health=100
-        self.Look='right'
-        self.frame_source='idle'
-        self.frame_index=0
-        self.current_picture=None
-        self.scroll=[0,0]
-        self.bullets=[]
+        self.x_pos = 0
+        self.y_pos = 0
+        self.health = 100
+        self.Look = 'right'
+        self.frame_source = 'idle'
+        self.frame_index = 0
+        self.current_picture = None
+        self.scroll = [0, 0]
+        self.bullets = []
         self.platforms = []
-        self.other_players_states=[]
+        self.other_players_states = []
+        
+        # Handle Pygame screen initialization
         try:
             screen = pygame.display.set_mode((screen_width, screen_height))
             pygame.display.set_caption("BrawlForge Client")
         except Exception as e:
-            print(f"Error initializing Pygame screen: {e}")
+            print(f"[CLIENT] Error initializing Pygame screen: {e}")
             exit()
 
-        self.screen=screen
+        self.screen = screen
         self.load_assets()
+
         if "idle_frames" in self.frames and len(self.frames["idle_frames"]) > 0:
             self.current_picture = self.frames["idle_frames"][0]
         else:

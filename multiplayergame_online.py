@@ -91,17 +91,29 @@ class MultiplayerGame:
     def client_thread(self, conn, player_index):
         print(f"Player {player_index} connected")
         try:
+            # Receive and parse the initial data
             initial_data = json.loads(conn.recv(1024).decode('utf-8'))
-            print(f"[CLIENT THREAD] Received initial data for player {player_index}: {initial_data}")
+            print(f"[SERVER] Received initial data for player {player_index}: {initial_data}")
+
             username = initial_data.get("username", f"Player{player_index+1}")
             char_choice = initial_data.get("character", "Ninja")
+
+            # Ensure that we only create a hero if the character is valid
+            if char_choice not in ["Roboman", "Ninja", "NinjaGirl", "Archer"]:
+                print(f"[SERVER] Invalid character choice '{char_choice}', defaulting to 'Ninja'")
+                char_choice = "Ninja"
+
+            # Create the hero with the selected character
             hero = self.create_hero(char_choice, 58*64, -2000, player_index + 1, username)
             self.heroes[player_index] = hero
             self.player_inputs[player_index] = {}
+
+            # Inform the client that the setup is complete
             conn.sendall(json.dumps({"status": "setup_complete"}).encode('utf-8'))
             print(f"Player {player_index} setup complete: {username} as {char_choice}")
+
         except Exception as e:
-            print(f"Error with client {player_index} during setup: {e}")
+            print(f"[SERVER] Error with client {player_index} during setup: {e}")
             conn.close()
             return
         while True:
@@ -110,15 +122,15 @@ class MultiplayerGame:
                 if not data:
                     break
                 self.player_inputs[player_index] = json.loads(data)
-                #print(f"[SERVER] Received from client {player_index}: {data}")
             except Exception as e:
-                print(f"Client {player_index} error: {e}")
+                print(f"[SERVER] Client {player_index} error: {e}")
                 break
         print(f"Player {player_index} disconnected.")
         self.clients[player_index] = None
         self.heroes[player_index] = None
         self.player_inputs[player_index] = {}
         conn.close()
+
 
     def game_loop(self):
         print("Game loop started")
