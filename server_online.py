@@ -12,14 +12,6 @@ PORT = 9191
 BROADCAST_PORT = 9192
 BROADCAST_MSG = b"DISCOVER_SERVER"
 
-server_users = [
-    {
-        'username': 'alireza',
-        'password': '0000',
-        'id': '1'
-    }
-]
-
 game_sessions = {}  # creator_id -> {'creator_socket': socket, 'players': [client_info], 'type': game_type}
 
 
