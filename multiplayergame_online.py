@@ -78,7 +78,7 @@ class MultiplayerGame:
                 hero.SOUND_FLAG=False
             else:
                 print(f"Unknown character {char_name}, defaulting to Ninja")
-                hero = Ninja(x, y, screen_width, screen_height, [], index, username,True,False)
+                hero = Ninja(x, y, screen_width, screen_height, [], index, username,False)
                 hero.SOUND_FLAG=False
 
             hero.character_name = char_name
