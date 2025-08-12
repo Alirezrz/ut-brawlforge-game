@@ -516,12 +516,13 @@ class Client:
                 "right_click": mouse[2]
             }
             try:
+                print(f"sending:\n{input_data}\n\n")
                 self.socket.sendall(json.dumps(input_data).encode('utf-8'))
                 #print(f"[CLIENT] Sent input: {input_data}")
             except Exception as e:
                 print(f"Connection lost: {e}")
                 break
-            clock.tick(30)
+            clock.tick(60)
 
     def play_sound(self, event_name, character_name="Ninja"):
         try:
