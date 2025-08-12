@@ -67,66 +67,17 @@ class ClientConnector:
 
     def exchange_user_info(self):
         """
+        Talk to the server to perform signup/login.
+        Server returns either "OK:<id>" or "ERR:<reason>".
         Returns True on success, False on failure.
-        Does not leave the caller assuming the socket is usable if it failed.
         """
         try:
+            # first message from server (Login/Signup prompt)
             prompt = self.client_socket.recv(1024).decode()
             print(f"[SERVER] {prompt}")
 
             action = input("Login/Signup(1/2):").strip()
-            if action == '1':
-                # LOGIN
-                Flag = True
-                while Flag:
-                    username = input("Username:").strip()
-                    password = input("Password:").strip()
-                    valid = False
-                    for user in users:
-                        if user['username'] == username and user['password'] == password:
-                            self.username = username
-                            valid = True
-                            Flag = False
-                            break
-                    if not valid:
-                        print("Invalid username or password — try again.")
-
-            elif action == '2':
-                # SIGNUP
-                while True:
-                    username = input("Choose a username:").strip()
-                    if not username:
-                        print("Username cannot be empty.")
-                        continue
-
-                    # check uniqueness
-                    if any(u['username'] == username for u in users):
-                        print("That username is already taken. Try another.")
-                        continue
-
-                    password = input("Choose a password:").strip()
-                    password_confirm = input("Confirm password:").strip()
-                    if password != password_confirm:
-                        print("Passwords do not match — try again.")
-                        continue
-
-                    # optional: basic password length check
-                    if len(password) < 4:
-                        print("Password too short (min 4 chars).")
-                        continue
-
-                    # create user and assign id
-                    new_id = str(uuid.uuid4())
-                    users.append({
-                        'username': username,
-                        'password': password,
-                        'id': new_id
-                    })
-                    self.username = username
-                    print(f"User '{username}' created with id {new_id}.")
-                    break
-
-            else:
+            if action not in ("1", "2"):
                 print("[CLIENT] Invalid action. Please enter '1' to login or '2' to signup.")
                 try:
                     self.client_socket.close()
@@ -134,20 +85,49 @@ class ClientConnector:
                     pass
                 return False
 
-            if not self.username:
-                print("[CLIENT] Username cannot be empty.")
-                try:
-                    self.client_socket.close()
-                except:
-                    pass
-                return False
+            self.client_socket.sendall(action.encode())
 
-            # send chosen username to server and receive assigned client_id
-            self.client_socket.sendall(self.username.encode())
-            self.client_id = self.client_socket.recv(1024).decode()
-            print(f"[CLIENT] Your assigned ID: {self.client_id}")
-            return True
+            while True:
+                server_msg = self.client_socket.recv(1024).decode()
+                if not server_msg:
+                    print("[CLIENT] Server closed the connection.")
+                    try:
+                        self.client_socket.close()
+                    except:
+                        pass
+                    return False
 
+                print(f"[SERVER] {server_msg}")
+
+                if server_msg.startswith("USERNAME:") or server_msg.startswith("Choose username:") or server_msg.startswith("Username:"):
+                    username = input("Username:").strip()
+                    self.client_socket.sendall(username.encode())
+
+                elif server_msg.startswith("Password:") or server_msg.startswith("Choose password:") or server_msg.startswith("Password"):
+                    password = input("Password:").strip()
+                    self.client_socket.sendall(password.encode())
+
+                elif server_msg.startswith("OK:"):
+                    self.client_id = server_msg.split(":", 1)[1].strip()
+                    try:
+                        self.username = username
+                    except UnboundLocalError:
+                        pass
+                    print(f"[CLIENT] Your assigned ID: {self.client_id}")
+                    return True
+
+                elif server_msg.startswith("ERR:"):
+                    reason = server_msg.split(":", 1)[1]
+                    print(f"[CLIENT] Server error: {reason}")
+                    if "Invalid username/password" in reason:
+                        try:
+                            self.client_socket.close()
+                        except:
+                            pass
+                        return False
+
+                else:
+                    print(f"[CLIENT] Received: {server_msg}")
         except Exception as e:
             print(f"[CLIENT] Failed to exchange user info: {e}")
             try:
@@ -155,6 +135,7 @@ class ClientConnector:
             except:
                 pass
             return False
+
 
 
     def send_request_option(self):

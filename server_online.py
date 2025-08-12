@@ -2,14 +2,25 @@ import pygame
 import socket
 import threading
 import random
+import uuid
 
 from multiplayergame_online import MultiplayerGame
+
 HOST = '0.0.0.0'
 PORT = 9191
 BROADCAST_PORT = 9192
 BROADCAST_MSG = b"DISCOVER_SERVER"
 
+server_users = [
+    {
+        'username': 'alireza',
+        'password': '0000',
+        'id': '1'
+    }
+]
+
 game_sessions = {}  # creator_id -> {'creator_socket': socket, 'players': [client_info], 'type': game_type}
+
 
 class Server:
     def __init__(self):
@@ -23,7 +34,7 @@ class Server:
         self.broadcast_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
         self.connected_clients = []
-        self.lock = threading.Lock()  
+        self.lock = threading.Lock()
 
         threading.Thread(target=self.accept_clients, daemon=True).start()
 
@@ -47,12 +58,12 @@ class Server:
             if client_info in self.connected_clients:
                 self.connected_clients.remove(client_info)
                 print(f"[SERVER] Removed client {client_info['username']} (ID: {client_info['id']}) from connected clients")
-            
+
             creator_id = client_info['id']
             if creator_id in game_sessions:
                 del game_sessions[creator_id]
                 print(f"[SERVER] Removed game session {creator_id} due to creator disconnection")
-            
+
             try:
                 if self.is_socket_open(client_info['socket']):
                     client_info['socket'].close()
@@ -68,22 +79,82 @@ class Server:
             except Exception as e:
                 print(f"[SERVER] Error accepting client: {e}")
 
+    # --- AUTH helpers (server-side) ---
+    def find_user_by_credentials(self, username, password):
+        with self.lock:
+            for u in server_users:
+                if u['username'] == username and u['password'] == password:
+                    return u
+        return None
+
+    def username_exists(self, username):
+        with self.lock:
+            for u in server_users:
+                if u['username'] == username:
+                    return True
+        return False
+
+    def create_user(self, username, password):
+        with self.lock:
+            existing_ids = {u['id'] for u in server_users}
+            new_id = self.generate_unique_id(existing_ids)
+            new_user = {'username': username, 'password': password, 'id': new_id}
+            server_users.append(new_user)
+            return new_user
+
+    # --- Client handler with login/signup on server side ---
     def handle_client(self, client_socket, addr):
         client_info = None
+        option = None
         try:
             client_socket.settimeout(30.0)
-            client_socket.sendall(b"Please enter your username:")
-            username = client_socket.recv(1024).decode().strip()
-            if not username:
-                print(f"[SERVER] Client {addr} disconnected during username input")
+            client_socket.sendall(b"Login(1) or Signup(2):")
+            action = client_socket.recv(1024).decode().strip()
+            if not action:
                 client_socket.close()
                 return
 
-            with self.lock:
-                existing_ids = [client['id'] for client in self.connected_clients]
-                client_id = self.generate_unique_id(existing_ids)
+            if action == "1":
+                client_socket.sendall(b"Username:")
+                username = client_socket.recv(1024).decode().strip()
+                client_socket.sendall(b"Password:")
+                password = client_socket.recv(1024).decode().strip()
 
-            client_socket.sendall(client_id.encode())
+                user = self.find_user_by_credentials(username, password)
+                if not user:
+                    client_socket.sendall(b"ERR:Invalid username/password")
+                    client_socket.close()
+                    print(f"[SERVER] Failed login attempt from {addr} username={username}")
+                    return
+                db_id = user['id']
+                client_socket.sendall(f"OK:{db_id}".encode())
+
+            elif action == "2":
+                while True:
+                    client_socket.sendall(b"Choose username:")
+                    username = client_socket.recv(1024).decode().strip()
+                    if not username:
+                        client_socket.sendall(b"ERR:Username cannot be empty")
+                        continue
+                    if self.username_exists(username):
+                        client_socket.sendall(b"ERR:Username taken")
+                        continue
+                    client_socket.sendall(b"Choose password:")
+                    password = client_socket.recv(1024).decode().strip()
+                    if len(password) < 4:
+                        client_socket.sendall(b"ERR:Password too short")
+                        continue
+                    new_user = self.create_user(username, password)
+                    db_id = new_user['id']
+                    client_socket.sendall(f"OK:{db_id}".encode())
+                    break
+            else:
+                client_socket.sendall(b"ERR:Invalid action")
+                client_socket.close()
+                return
+
+            username = username 
+            client_id = db_id
 
             client_info = {
                 "socket": client_socket,
@@ -93,11 +164,13 @@ class Server:
             }
             with self.lock:
                 self.connected_clients.append(client_info)
+            print(f"[SERVER] Authenticated client {username} (ID: {client_id}) from {addr}")
 
+            client_socket.settimeout(None)
             option = client_socket.recv(1024).decode().strip()
             if option == "1":
                 self.handle_create_game(client_info)
-                self.handle_creator_session(client_info)  
+                self.handle_creator_session(client_info)
             elif option == "2":
                 self.handle_join_game(client_info)
             else:
@@ -142,7 +215,7 @@ class Server:
                             game_type_str = "1v1" if game_type == "1" else "2v2"
                             for p in session['players']:
                                 try:
-                                    p['socket'].sendall(b"Game is starting") 
+                                    p['socket'].sendall(b"Game is starting")
                                 except:
                                     pass
                             pygame.time.wait(3000)
@@ -155,11 +228,11 @@ class Server:
                             game.set_players([p['socket'] for p in session['players']])
                             game.game_active = True
                             threading.Thread(target=game.game_loop, daemon=True).start()
-                            break  
+                            break
                     if not self.is_socket_open(sock):
                         print(f"[SERVER] Creator {client_info['username']} (ID: {creator_id}) socket closed")
                         break
-                    pygame.time.wait(100)  
+                    pygame.time.wait(100)
         except Exception as e:
             print(f"[SERVER] Error in creator session for {client_info['username']}: {e}")
 
@@ -238,6 +311,7 @@ class Server:
                 pygame.time.wait(1000)
             except Exception as e:
                 print(f"[SERVER] Error broadcasting presence: {e}")
+
 
 if __name__ == '__main__':
     pygame.init()
