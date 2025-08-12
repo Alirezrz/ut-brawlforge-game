@@ -19,8 +19,6 @@ class Client:
         self.screen_height=screen_height
         self.screen_width=screen_width
         self.is_dead=False
-        self.countdown_text = None
-        self.countdown_time = 0
         self.screen = pygame.display.set_mode((screen_width, screen_height))
         pygame.display.set_caption(f"BrawlForge - {username}")
         self.drone={}
@@ -615,15 +613,7 @@ class Client:
                         if not line:
                             continue
 
-                        if line.startswith("countdown:"):
-                            try:
-                                count_num = line.split(":")[1]
-                                self.countdown_text = count_num
-                                self.countdown_time = pygame.time.get_ticks()
-                            except:
-                                pass
-                            continue        
-                    
+
                         try:
                             parsed = json.loads(line)
                             self.objects = parsed.get('objects', [])
@@ -969,17 +959,7 @@ class Client:
                 is_right_side,
                 is_bottom
             )
-        if self.countdown_text:
-            if pygame.time.get_ticks() - self.countdown_time < 1000:  
-                try:
-                    font_big = pygame.font.Font("src/assets/fonts/VCR_OSD_MONO.ttf", 120)
-                except:
-                    font_big = pygame.font.SysFont("arial", 120)
-                text_surface = font_big.render(self.countdown_text, True, (255, 0, 0))
-                text_rect = text_surface.get_rect(center=(self.screen_width // 2, self.screen_height // 2))
-                self.screen.blit(text_surface, text_rect)
-            else:
-                self.countdown_text = None
+
         pygame.display.flip()
     def send_json(self, data):
         try:
