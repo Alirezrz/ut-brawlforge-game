@@ -19,6 +19,8 @@ class Client:
         self.screen_height=screen_height
         self.screen_width=screen_width
         self.is_dead=False
+        self.game_over =False
+        self.winner_message ="" 
         self.screen = pygame.display.set_mode((screen_width, screen_height))
         pygame.display.set_caption(f"BrawlForge - {username}")
         self.drone={}
@@ -616,6 +618,15 @@ class Client:
 
                         try:
                             parsed = json.loads(line)
+                            if parsed.get("type") == "game_over":
+                              winner_info = parsed.get('winner', 'Unknown')
+                              if winner_info == "Draw":
+                                  self.winner_message = "Draw!"
+                              else:
+                                  self.winner_message = f"{winner_info} Wins!"
+                              self.game_over = True
+                              print(f"Game Over! {self.winner_message}")
+                              break
                             self.objects = parsed.get('objects', [])
                             selfdata = parsed["self"]
                             self.drone=selfdata.get("drone","empty")
@@ -959,7 +970,18 @@ class Client:
                 is_right_side,
                 is_bottom
             )
-
+        if self.game_over:
+            overlay = pygame.Surface((self.screen_width, self.screen_height), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 180))
+            self.screen.blit(overlay, (0, 0))
+            try:
+                big_font = pygame.font.Font("src/assets/fonts/VCR_OSD_MONO.ttf", 120)
+            except:
+                big_font = pygame.font.SysFont("arial", 120)
+            
+            winner_text = big_font.render(self.winner_message, True, (255, 215, 0)) 
+            text_rect = winner_text.get_rect(center=(self.screen_width / 2, self.screen_height / 2))
+            self.screen.blit(winner_text, text_rect)
         pygame.display.flip()
     def send_json(self, data):
         try:

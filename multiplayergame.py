@@ -39,6 +39,8 @@ class MultiplayerGame:
         self.shot_bullets = []
         self.gates = []
         self.type = game_type
+        self.game_over_timer_start = None
+        self.game_over_delay = 3000 
         self.objects_dict= build_objects(online_multiplayer_data , self.heroes)
         health_boxes = [obj for obj in self.objects_dict['misc'] if isinstance(obj, PowerBox)]
         selected_health_boxes = random.sample(health_boxes, min(4, len(health_boxes)))
@@ -142,11 +144,27 @@ class MultiplayerGame:
         if not self.game_active:
             print("Game cancelled before start because all clients disconnected.")
             return
-
+        max_players = 2 if self.type == '1v1' else 4
+        while True:
+            ready_players = sum(1 for h in self.heroes if h is not None)
+            if ready_players == max_players:
+                print("All players ready. Starting main game simulation.")
+                break
+            print(f"Waiting for players... ({ready_players}/{max_players})")
+            time.sleep(0.5)
+        winner_found =False
         print("All players ready. Starting main game simulation.")
         while self.game_active:
             try:
-                #updating objs:
+                current_time = pygame.time.get_ticks()
+                if self.game_over_timer_start:
+                    if current_time - self.game_over_timer_start > self.game_over_delay:
+                        game_over_message = {"type": "game_over", "winner": self.winner}
+                        for client_conn in self.clients:
+                            if client_conn:
+                                send_json(client_conn, game_over_message)
+                        self.game_active = False
+                        break
                 for obj in self.objects:
                     obj.Update_online()
                     
@@ -171,13 +189,17 @@ class MultiplayerGame:
                             targets = [h for h in active_heroes if h.hero_creation_index in (1, 2)]
                     else:
                         targets = [h for h in active_heroes if h is not hero]
-
                     hero.attack_targets = targets
                     hero.handle_input_online(keys, self.gates, self.shot_bullets, Bullet, None, mouse)
                     hero.update_online(self.platforms, self.shot_bullets, targets, keys, self.gates, None)
                     
                     
-
+                if not winner_found:
+                    winner = self.check_win_condition()
+                    if winner:
+                        winner_found = True
+                        self.winner = winner
+                        self.game_over_timer_start = current_time
                 all_states = [h.serialize() if h else None for h in self.heroes]
                 bullets_state = [b.serialize() for b in self.shot_bullets]
                 print(f"bullets=\n{bullets_state}\n")
@@ -237,8 +259,35 @@ class MultiplayerGame:
     #         thread.start()
         
     #     threading.Thread(target=self.game_loop, daemon=True).start()
-    # multiplayergame.py -> class MultiplayerGame
 
+    def check_win_condition(self):
+        winner_name = None
+
+        if self.type == '1v1':
+          player1 = next((h for h in self.heroes if h and h.hero_creation_index == 1), None)
+          player2 = next((h for h in self.heroes if h and h.hero_creation_index == 2), None)
+          if player1 and player2:
+            if player1.DEAD and not player2.DEAD:
+                winner_name = player2.username  
+            elif player2.DEAD and not player1.DEAD:
+                winner_name = player1.username 
+            elif player1.DEAD and player2.DEAD:
+                winner_name = "Draw"
+        elif self.type == '2v2':
+          team1_players = [h for h in self.heroes if h and h.hero_creation_index in (1, 2)]
+          team2_players = [h for h in self.heroes if h and h.hero_creation_index in (3, 4)]
+          if team1_players and team2_players:
+            team1_eliminated = all(p.DEAD for p in team1_players)
+            team2_eliminated = all(p.DEAD for p in team2_players)
+
+            if team1_eliminated and not team2_eliminated:
+                winner_name = "Team 2"
+            elif team2_eliminated and not team1_eliminated:
+                winner_name = "Team 1"
+            elif team1_eliminated and team2_eliminated:
+                winner_name = "Draw"
+    
+        return winner_name
     def set_players(self, connections, teams):
         self.clients = connections
         self.teams = teams 
