@@ -5,8 +5,8 @@ import uuid
 from src.utils import get_my_local_ip
 
 
-SERVER_IP = get_my_local_ip()  
-SERVER_PORT = 9191
+SERVER_IP = 'b24ebf58-d845-4345-bf3e-f31854065465.hsvc.ir'  
+SERVER_PORT = 28640
 
 timeout = 30 # seconds
 users=[
