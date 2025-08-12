@@ -1,6 +1,6 @@
 from src.engine.platform import Platform
 from src.engine.power_ups import Power_up
-
+import pygame
 TILE_SIZE = 64
 
 
