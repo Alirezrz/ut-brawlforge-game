@@ -13,8 +13,8 @@ from src.engine.bullet import Bullet
 bullet_class=Bullet
 
 os.environ["SDL_VIDEODRIVER"] = "dummy"
-pygame.display.init()
-pygame.display.set_mode((1, 1))
+# pygame.display.init()
+# pygame.display.set_mode((1, 1))
 
 pygame.init()
 
