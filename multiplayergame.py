@@ -55,18 +55,30 @@ class MultiplayerGame:
                 obj.targets=self.heroes
             
     def create_hero(self, char_name, x, y, index, username):
-        print(f"Creating hero on server: {char_name} for player index {index} ({username})")
-        if char_name == "Roboman":
-            return Roboman(x, y, screen_width, screen_height, index, username, LOAD_FLAG=True)
-            
-        elif char_name == "Ninja":
-            return Ninja(x, y, screen_width, screen_height, [], index, username, LOAD_FLAG=True)
-        elif char_name == "NinjaGirl":
-            return NinjaGirl(x, y, screen_width, screen_height, [], index, username)
-        elif char_name == "Archer":
-            return Archer(x, y, [], index, username)
-        
-        return Ninja(x, y, screen_width, screen_height, [], index, username, LOAD_FLAG=True)
+        print(f"Creating hero: {char_name} at ({x}, {y}) for player {index} ({username})")
+        try:
+            if char_name == "Roboman":
+                hero = Roboman(x, y, screen_width, screen_height, index, username,True,False)
+                hero.SOUND_FLAG=False
+            elif char_name == "Ninja":
+                hero = Ninja(x, y, screen_width, screen_height, [], index, username,True,False)
+                hero.SOUND_FLAG=False
+            elif char_name == "NinjaGirl":
+                hero = NinjaGirl(x, y, screen_width, screen_height, [], index, username,True,False)
+                hero.SOUND_FLAG=False
+            elif char_name == "Archer":
+                hero = Archer(x, y, [], index, username,True,False)
+                hero.SOUND_FLAG=False
+            else:
+                print(f"Unknown character {char_name}, defaulting to Ninja")
+                hero = Ninja(x, y, screen_width, screen_height, [], index, username,True,False)
+                hero.SOUND_FLAG=False
+
+            hero.character_name = char_name
+            return hero
+        except Exception as e:
+            print(f"Error creating hero {char_name}: {e}")
+            return Ninja(x, y, screen_width, screen_height, [], index, username)
 
     def client_thread(self, conn, player_session_index):
         print(f"Game thread started for player index {player_session_index}.")
