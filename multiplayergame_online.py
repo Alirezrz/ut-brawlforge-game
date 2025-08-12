@@ -119,6 +119,7 @@ class MultiplayerGame:
         while True:
             try:
                 data = conn.recv(1024).decode('utf-8')
+                print(f"received data=\n{data}\n--------------\n")
                 if not data:
                     break
                 self.player_inputs[player_index] = json.loads(data)
