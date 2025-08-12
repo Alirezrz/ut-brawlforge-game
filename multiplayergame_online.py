@@ -91,24 +91,20 @@ class MultiplayerGame:
     def client_thread(self, conn, player_index):
         print(f"Player {player_index} connected")
         try:
-            # Receive and parse the initial data
             initial_data = json.loads(conn.recv(1024).decode('utf-8'))
             print(f"[SERVER] Received initial data for player {player_index}: {initial_data}")
 
             username = initial_data.get("username", f"Player{player_index+1}")
             char_choice = initial_data.get("character", "Ninja")
 
-            # Ensure that we only create a hero if the character is valid
             if char_choice not in ["Roboman", "Ninja", "NinjaGirl", "Archer"]:
                 print(f"[SERVER] Invalid character choice '{char_choice}', defaulting to 'Ninja'")
                 char_choice = "Ninja"
 
-            # Create the hero with the selected character
             hero = self.create_hero(char_choice, 58*64, -2000, player_index + 1, username)
             self.heroes[player_index] = hero
             self.player_inputs[player_index] = {}
 
-            # Inform the client that the setup is complete
             conn.sendall(json.dumps({"status": "setup_complete"}).encode('utf-8'))
             print(f"Player {player_index} setup complete: {username} as {char_choice}")
 
@@ -117,21 +113,20 @@ class MultiplayerGame:
             conn.close()
             return
 
-        # New handling for receiving game state in chunks
         buffer = ""
         while True:
             try:
                 chunk = conn.recv(1024).decode('utf-8')
                 if not chunk:
-                    break  # No data received means the connection was closed
+                    break  
 
-                buffer += chunk  # Append the new chunk to the buffer
-
+                buffer += chunk  
+                print(f"buffer=\n{buffer}\n----------------\n")
                 while '\n' in buffer:
-                    message_raw, buffer = buffer.split('\n', 1)  # Split at the newline, process the message
+                    message_raw, buffer = buffer.split('\n', 1)  
 
                     if message_raw:
-                        self.player_inputs[player_index] = json.loads(message_raw)  # Process valid JSON
+                        self.player_inputs[player_index] = json.loads(message_raw) 
 
             except Exception as e:
                 print(f"[SERVER] Client {player_index} error: {e}")
