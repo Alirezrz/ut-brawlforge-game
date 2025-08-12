@@ -114,6 +114,7 @@ class MultiplayerGame:
             return
 
         buffer = ""
+        clock = pygame.time.Clock()
         while True:
             try:
                 chunk = conn.recv(1024).decode('utf-8')
@@ -127,10 +128,11 @@ class MultiplayerGame:
 
                     if message_raw:
                         self.player_inputs[player_index] = json.loads(message_raw) 
-
+                clock.tick(60)
             except Exception as e:
                 print(f"[SERVER] Client {player_index} error: {e}")
                 break
+            
 
         print(f"Player {player_index} disconnected.")
         self.clients[player_index] = None
@@ -145,7 +147,7 @@ class MultiplayerGame:
         clock = pygame.time.Clock()
         while self.game_active:
             if not all(self.heroes):
-                clock.tick(30)
+                clock.tick(60)
                 continue
             try:
                 if self.type == '1v1':
@@ -253,7 +255,7 @@ class MultiplayerGame:
                             "bullets": bullets_state
                         }).encode('utf-8') + b"\n")
 
-                clock.tick(30)
+                clock.tick(60)
 
             except Exception as e:
                 print(f"Game loop error: {e}")
