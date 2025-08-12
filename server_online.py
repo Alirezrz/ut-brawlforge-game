@@ -94,11 +94,8 @@ class Server:
         return self.users_collection.find_one({"username": username, "password": password})
 
     def username_exists(self, username):
-        with self.lock:
-            for u in server_users:
-                if u['username'] == username:
-                    return True
-        return False
+        return self.users_collection.find_one({"username": username}) is not None
+
 
     def create_user(self, username, password):
         with self.lock:
