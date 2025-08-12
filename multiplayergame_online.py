@@ -74,7 +74,7 @@ class MultiplayerGame:
                 hero = NinjaGirl(x, y, screen_width, screen_height, [], index, username,True,False)
                 hero.SOUND_FLAG=False
             elif char_name == "Archer":
-                hero = Archer(x, y, [], index, username,True,False)
+                hero = Archer(x, y, [], index, username,False)
                 hero.SOUND_FLAG=False
             else:
                 print(f"Unknown character {char_name}, defaulting to Ninja")
