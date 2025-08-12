@@ -32,25 +32,7 @@ class ClientConnector:
         else:
             print("[CLIENT] Not proceeding because user exchange or connection failed.")
 
-    def find_server(self):
-        print("[CLIENT] Searching for server...")
-        udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        udp_socket.bind(('', BROADCAST_PORT))
-        udp_socket.settimeout(timeout)
 
-        try:
-            while True:
-                data, addr = udp_socket.recvfrom(1024)
-                if data == BROADCAST_MSG:
-                    print(f"[CLIENT] Server discovered at {addr[0]}")
-                    self.server_address = addr[0]
-                    break
-        except socket.timeout:
-            print("[CLIENT] Server discovery timed out.")
-        finally:
-            udp_socket.close()
 
     def connect_to_server(self):
         try:
