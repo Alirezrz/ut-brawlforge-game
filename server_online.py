@@ -31,6 +31,7 @@ class Server:
         self.client = MongoClient(mongo_uri)
         self.db = self.client["my_game_db"]
         self.users_collection = self.db["users"]
+        self.users_collection.create_index("username", unique=True)
         
         self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.broadcast_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
