@@ -1,42 +1,94 @@
+import pygame
+import threading
 import socket
 import json
-import pygame
 import os
+from src.levels import multiplayer_data, load_level_data
+from config import screen_width, screen_height,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
+from src.utils import get_my_local_ip
+# Initialize Pygame
+pygame.init()
 
-# Constants (make sure these values match your game configuration)
-screen_width = 800
-screen_height = 600
-profileSideSize = 50
-health_bar_lenght = 200
-roboman_health_bar_frame_thickness = 2
 
 class Client:
     def __init__(self, sock, username, player_id, hero_type):
+        self.profile_picture = pygame.Surface((profileSideSize, profileSideSize))
+        self.profile_picture.fill((100, 100, 100))
+        self.health_bar = pygame.Surface((health_bar_lenght, 20))
+        self.health_bar.fill((255, 0, 0))
+        self.health_bar_frame = pygame.Surface((health_bar_lenght + 2 * roboman_health_bar_frame_thickness, 22))
+        self.health_bar_frame.fill((255, 255, 255))
         self.socket = sock
         self.username = username
         self.player_id = player_id
         self.hero_type = hero_type
+        initial_data = {
+            "username": self.username,
+            "character": self.hero_type
+        }
+        
+        # Log the data before sending it
+        print(f"[CLIENT] Sending initial data: {json.dumps(initial_data)}")
 
-        # Initialize Pygame
-        pygame.init()
-        self.screen = pygame.display.set_mode((screen_width, screen_height))
-        pygame.display.set_caption(f"Game - {self.username}")
+        try:
+            self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
+        except Exception as e:
+            print(f"[CLIENT] Error sending initial data: {e}")
 
-        # Game state
+        self.scroll = [0, 0]
+        self.hero = None
+        self.opponent = None
+        self.frames = {
+            "Roboman": {},
+            "Ninja": {},
+            "NinjaGirl": {},
+            "Archer": {}
+        }
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+
+        self.opponent_character = ""
+        self.opponent_frames = {"idle_frames": [pygame.Surface((50, 50))]}
+        self.x_pos = 0
+        self.y_pos = 0
+        self.health = 100
+        self.Look = 'right'
+        self.frame_source = 'idle'
+        self.frame_index = 0
+        self.current_picture = None
+        self.scroll = [0, 0]
         self.bullets = []
+        self.platforms = []
         self.other_players_states = []
-        self.frame_source = 'idle_frames'
-        self.current_picture = pygame.Surface((50, 50))  # Default size
-        self.is_dead = False
+        
+        # Handle Pygame screen initialization
+        try:
+            screen = pygame.display.set_mode((screen_width, screen_height))
+            pygame.display.set_caption("BrawlForge Client")
+        except Exception as e:
+            print(f"[CLIENT] Error initializing Pygame screen: {e}")
+            exit()
 
-        # Load assets (to be implemented, can be handled later)
+        self.screen = screen
         self.load_assets()
 
-        # Send initial connection data to the server
-        initial_data = {"username": self.username, "character": self.hero_type}
-        self.send_data(initial_data)
-
+        if "idle_frames" in self.frames and len(self.frames["idle_frames"]) > 0:
+            self.current_picture = self.frames["idle_frames"][0]
+        else:
+            self.current_picture = pygame.Surface((50, 50))
+            self.current_picture.fill((255, 0, 0))
+        
+    def get_character_name(self, hero_type):
+        if hero_type == 1: return "Roboman"
+        if hero_type == 2: return "Ninja"
+        if hero_type == 3: return "NinjaGirl"
+        if hero_type == 4: return "Archer"
+    
+    
+    
     def load_assets(self):
+       
+        
         # Load platform images
         platform_image_path = "src/assets/images/"
         platform_images = {}
@@ -427,114 +479,365 @@ class Client:
         })()
 
  
-
-
-    def send_data(self, data):
-        """Send JSON data to the server."""
+    '''def send_initial_data(self):
+        char_map = {1: "Roboman", 2: "Ninja", 3: "NinjaGirl", 4: "Archer"}
+        self.character_name = char_map.get(self.type, "Ninja")
+        self.load_ui_assets(self.character_name)
+        self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame = self.load_ui_assets_for_opponent("Ninja")
+        initial_data = {"username": self.username, "character": char_map.get(self.type, "Ninja")}
         try:
-            print(f"[CLIENT] Sending data: {json.dumps(data)}")
-            self.socket.sendall(json.dumps(data).encode('utf-8'))
+            self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
+            data = self.socket.recv(1024).decode('utf-8')
+            if json.loads(data).get("status") == "setup_complete":
+                print("Connected to server successfully!")
+            else:
+                print("Server setup failed")
+                exit()
         except Exception as e:
-            print(f"[CLIENT] Error sending data: {e}")
-            self.socket.close()
-            return
-
-    def receive_data(self):
-        """Receive and process data from the server."""
-        buffer = ""
-        try:
-            while True:
-                chunk = self.socket.recv(4096)
-                if not chunk:
-                    print("[CLIENT] Server disconnected.")
-                    break
-                buffer += chunk.decode('utf-8')
-
-                while '\n' in buffer:
-                    line, buffer = buffer.split('\n', 1)
-                    if not line:
-                        continue
-                    try:
-                        data = json.loads(line)
-                        self.process_data(data)
-                    except json.JSONDecodeError as e:
-                        print(f"[CLIENT] Error decoding JSON: {e}")
-        except Exception as e:
-            print(f"[CLIENT] Error receiving data: {e}")
-
-    def process_data(self, data):
-        """Process the received game data from the server."""
-        if data.get("type") == "game_over":
-            print(f"Game Over! Winner: {data.get('winner')}")
-            self.is_dead = True
-        else:
-            # Update game state (e.g., player positions, health, etc.)
-            self.update_game_state(data)
-
-    def update_game_state(self, data):
-        """Update the client game state based on the received data."""
-        self.other_players_states = data.get("opponents", [])
-        self.bullets = data.get("bullets", [])
-        self.current_picture = pygame.image.load(data.get("character", "default.png"))
-
-    def game_loop(self):
-        """Main game loop."""
+            print(f"Error sending initial data: {e}")
+            exit()
+'''
+    def send_input(self):
         clock = pygame.time.Clock()
+        while True:
+            pygame.event.pump()
+            keys = pygame.key.get_pressed()
+            mouse = pygame.mouse.get_pressed()
+            input_data = {
+                "A": keys[pygame.K_a],
+                "D": keys[pygame.K_d],
+                "W": keys[pygame.K_w],
+                "LSHIFT": keys[pygame.K_LSHIFT],
+                "G": keys[pygame.K_g],
+                "TAB": keys[pygame.K_TAB],
+                "RCTRL": keys[pygame.K_RCTRL],
+                "RALT": keys[pygame.K_RALT],
+                "left_click": mouse[0],
+                "right_click": mouse[2]
+            }
+            try:
+                self.socket.sendall(json.dumps(input_data).encode('utf-8'))
+                #print(f"[CLIENT] Sent input: {input_data}")
+            except Exception as e:
+                print(f"Connection lost: {e}")
+                break
+            clock.tick(30)
 
-        while not self.is_dead:
-            self.handle_events()
-            self.receive_data()
-
-            # Update game display
-            self.render_game()
-
-            # Control frame rate
-            clock.tick(60)
-
-    def handle_events(self):
-        """Handle user input events."""
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.is_dead = True
-
-        # Get keyboard inputs
-        keys = pygame.key.get_pressed()
-        mouse = pygame.mouse.get_pressed()
-
-        # Prepare input data
-        input_data = {
-            "A": keys[pygame.K_a],
-            "D": keys[pygame.K_d],
-            "W": keys[pygame.K_w],
-            "LSHIFT": keys[pygame.K_LSHIFT],
-            "G": keys[pygame.K_g],
-            "TAB": keys[pygame.K_TAB],
-            "left_click": mouse[0],
-            "right_click": mouse[2]
-        }
-
-        # Send player inputs to server
-        self.send_data(input_data)
-
-    def render_game(self):
-        """Render the game state to the screen."""
-        self.screen.fill((0, 0, 0))  # Clear the screen with black
-
-        # Draw the current player (this is where you would draw the character sprite, health bar, etc.)
-        if not self.is_dead:
-            self.screen.blit(self.current_picture, (100, 100))  # Example position
-
-        # Draw other players (if any)
-        for player in self.other_players_states:
-            self.screen.blit(player.get("frame_to_display", self.current_picture), (player["x_pos"], player["y_pos"]))
-
-        # Update the screen
-        pygame.display.flip()
-
-    def disconnect(self):
-        """Close the connection with the server."""
+    def play_sound(self, event_name, character_name="Ninja"):
         try:
-            self.socket.close()
+            path = f"src/assets/sounds/{character_name}/{event_name}.mp3"
+            sound = pygame.mixer.Sound(path)
+            sound.play()
         except Exception as e:
-            print(f"[CLIENT] Error closing socket: {e}")
+            print(f"Error playing sound for {character_name} - {event_name}: {e}")
+
+
+    def load_ui_assets(self, character_name):
+        if character_name=="Roboman":
+            base_path = os.path.join("src", "assets", "images", "RoboMan_pictures")
+        else:
+            base_path = os.path.join("src", "assets", "images", character_name)
+
+        try:
+            if character_name=="Roboman":
+                self.profile_picture = pygame.image.load(os.path.join(base_path, "hero_profile.png"))
+            elif character_name=="Ninja":
+                self.profile_picture = pygame.image.load(os.path.join(base_path, "ninja_profile.png"))    
+            else:
+                self.profile_picture = pygame.image.load(os.path.join(base_path, "profile.png"))
+        except:
+            self.profile_picture = pygame.Surface((profileSideSize, profileSideSize))
+            self.profile_picture.fill((100, 100, 100))
+
+        try:
+            if character_name=="Roboman":
+                self.health_bar = pygame.image.load(os.path.join(base_path, "Roboman_health_bar.png"))
+            elif character_name=="Ninja":
+                self.health_bar = pygame.image.load(os.path.join(base_path, "Ninja_health_bar.png"))
+            else:
+                self.health_bar = pygame.image.load(os.path.join(base_path, "health_bar.png"))
+        except:
+            self.health_bar = pygame.Surface((health_bar_lenght, 20))
+            self.health_bar.fill((255, 0, 0))
+
+        try:
+            if character_name=="Roboman":
+                self.health_bar_frame = pygame.image.load(os.path.join(base_path, "Roboman_health_bar_frame.png"))
+            elif character_name=="Ninja":
+                self.health_bar_frame = pygame.image.load(os.path.join(base_path, "Ninja_health_bar_frame.png"))
+            else:
+                self.health_bar_frame = pygame.image.load(os.path.join(base_path, "health_bar_frame.png"))
+        except:
+            self.health_bar_frame = pygame.Surface((health_bar_lenght + 2 * roboman_health_bar_frame_thickness, 22))
+            self.health_bar_frame.fill((255, 255, 255))
+
+    def load_ui_assets_for_opponent(self, character_name):
+        if character_name=="Roboman":
+            base_path = os.path.join("src", "assets", "images", "RoboMan_pictures")
+        else:
+            base_path = os.path.join("src", "assets", "images", character_name)
+
+        try:
+            if character_name=="Roboman":
+                profile_picture = pygame.image.load(os.path.join(base_path, "hero_profile.png"))
+            elif character_name=="Ninja":
+                profile_picture = pygame.image.load(os.path.join(base_path, "ninja_profile.png"))    
+            else:
+                profile_picture = pygame.image.load(os.path.join(base_path, "profile.png"))
+        except:
+            profile_picture = pygame.Surface((profileSideSize, profileSideSize))
+            profile_picture.fill((100, 100, 100))
+
+        try:
+            if character_name=="Roboman":
+                health_bar = pygame.image.load(os.path.join(base_path, "Roboman_health_bar.png"))
+            elif character_name=="Ninja":
+                health_bar = pygame.image.load(os.path.join(base_path, "Ninja_health_bar.png"))
+            else:
+                health_bar = pygame.image.load(os.path.join(base_path, "health_bar.png"))
+        except:
+            health_bar = pygame.Surface((health_bar_lenght, 20))
+            health_bar.fill((255, 0, 0))
+
+        try:
+            if character_name=="Roboman":
+                health_bar_frame = pygame.image.load(os.path.join(base_path, "Roboman_health_bar_frame.png"))
+            elif character_name=="Ninja":
+                health_bar_frame = pygame.image.load(os.path.join(base_path, "Ninja_health_bar_frame.png"))
+            else:
+                health_bar_frame = pygame.image.load(os.path.join(base_path, "health_bar_frame.png"))
+        except:
+            health_bar_frame = pygame.Surface((health_bar_lenght + 2 * roboman_health_bar_frame_thickness, 22))
+            health_bar_frame.fill((255, 255, 255))
+
+        return profile_picture,health_bar,health_bar_frame
+                
+
+    def receive_state(self):
+        buffer = ""
+        while True:
+            try:
+                while True:
+                    chunk = self.socket.recv(1024)
+                    if not chunk:
+                        break
+                    buffer += chunk.decode('utf-8')
+                    #print(f"[CLIENT] Received state: {chunk.decode('utf-8')}")
+                    while '\n' in buffer:
+                        line, buffer = buffer.split('\n', 1)
+                       
+
+                        try:
+                            parsed = json.loads(line)
+                            selfdata = parsed["self"]
+                            self.x_pos = selfdata['x_pos']
+                            self.y_pos = selfdata['y_pos']
+                            self.health = selfdata['health']
+                            self.Look = selfdata['look']
+                            self.username = selfdata['username']
+                            self.frame_source = selfdata['frame_source']
+                            self.frame_index = selfdata['frame_index']
+                            self.character_name = selfdata.get("character", "Ninja")
+                            
+                            
+
+                            type_of_hero = selfdata['character']
+                            frame_source = selfdata['frame_source']
+                            frame_index = selfdata['frame_index']
+                            frame_list = self.frames[type_of_hero].get(frame_source, [])
+                            if frame_list:
+                                self.current_picture = frame_list[frame_index]
+                            
+
+                            self.bullets = parsed.get("bullets", [])
+
+                            self.other_players_states = []
+                            # نکته :اطلاعات حریف ها و هم تیمی توی یک لیست دارن ذخیره میشن و اگر هم تیمی داشته باشیم ایندکس اخر لیست برای اون هست
+                            # Handle opponents (always present in both 1v1 and 2v2)
+                            opponents = parsed.get("opponents", [])
+                            for opponent_data in opponents:
+                                opponent_char = opponent_data.get("character", "Ninja")
+                                opponent_frame_source = opponent_data.get("frame_source", "idle_frames")
+                                opponent_frame_index = opponent_data.get("frame_index", 0)
+                                opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
+                                opponent_frame = opponent_frame_list[opponent_frame_index]
+
+                                
+                                self.other_players_states.append({
+                                    "x_pos": opponent_data.get("x_pos", 0),
+                                    "y_pos": opponent_data.get("y_pos", 0),
+                                    "frame_to_display": opponent_frame,
+                                    "health": opponent_data.get("health", 100),
+                                    "Look":opponent_data.get('look','right')
+                                })
+
+                               
+
+                            # Handle teammate (only present in 2v2 mode)
+                            teammate_data = parsed.get("teammate")
+                            if teammate_data:
+                                teammate_char = teammate_data.get("character", "Ninja")
+                                teammate_frame_source = teammate_data.get("frame_source", "idle_frames")
+                                teammate_frame_index = teammate_data.get("frame_index", 0)
+                                teammate_frame_list = self.frames[teammate_char].get(teammate_frame_source, [])
+                                teammate_frame = teammate_frame_list[teammate_frame_index] 
+
+                                self.other_players_states.append({
+                                    "x_pos": teammate_data.get("x_pos", 0),
+                                    "y_pos": teammate_data.get("y_pos", 0),
+                                    "frame_to_display": teammate_frame,
+                                    "health": teammate_data.get("health", 100),
+                                    "Look":teammate_data.get('look','right')
+                                })
+
+                        except Exception as e:
+                            print(f"Error decoding JSON or setting frames: {e}")
+
+            except Exception as e:
+                    print(f"Error receiving game state: {e}")
+                    break
+            
+    def draw_health_bar(self, screen, health, profile_picture, health_bar, health_bar_frame, is_right_side, is_bottom):
+        if health < 0:
+            health = 0
+        scaled_frame_height = profileSideSize
+        frame_img = pygame.transform.scale(
+            health_bar_frame,
+            (health_bar_lenght + (2 * roboman_health_bar_frame_thickness), scaled_frame_height)
+        )
+        bar_img = pygame.transform.scale(
+            health_bar,
+            (
+                int(health_bar_lenght * (health / 100)),
+                scaled_frame_height - (2 * roboman_health_bar_frame_thickness)
+            )
+        )
+
+        if is_right_side:
+            bar_x = self.screen_width - health_bar_lenght - (2 * roboman_health_bar_frame_thickness) - profileSideSize
+            profile_x = self.screen_width - profileSideSize
+        else:
+            bar_x = profileSideSize
+            profile_x = 0
+
+        if is_bottom:
+            bar_y = self.screen_height - scaled_frame_height
+            profile_y = self.screen_height - profileSideSize
+        else:
+            bar_y = 0
+            profile_y = 0
+
+        health_x = bar_x + roboman_health_bar_frame_thickness
+        health_y = bar_y + roboman_health_bar_frame_thickness
+
+        screen.blit(frame_img, (bar_x, bar_y))
+        screen.blit(bar_img, (health_x, health_y))
+
+        if profile_picture:
+            if is_right_side:
+                profile_picture = pygame.transform.flip(profile_picture, True, False)
+            screen.blit(pygame.transform.scale(profile_picture, (profileSideSize, profileSideSize)), (profile_x, profile_y))
+            
+                            
+    def render_game(self):
+        if self.screen==None:
+            pygame.display.set_caption("BrawlForge Client")
+            
+        self.screen.blit(self.background, (0, 0))
+        try:
+            font = pygame.font.Font("src/assets/fonts/VCR_OSD_MONO.ttf", 20)
+        except:
+            font = pygame.font.SysFont("arial", 20)
+        try:
+            if self.opponent.frame_source in self.opponent_frames:
+                 self.opponent.current_picture = self.opponent_frames[self.opponent.frame_source][self.opponent.frame_index]
+        except Exception as e:
+            #print(f"Error updating opponent frame: {e}")
+            self.opponent.current_picture = self.opponent_frames["idle_frames"][0]
+        
+        mid_x = (self.x_pos + self.current_picture.get_width() // 2)
+        mid_y = (self.y_pos + self.current_picture.get_height() // 2)
+        self.scroll[0] += (mid_x - screen_width / 2 - self.scroll[0]) / 15
+        self.scroll[1] += (mid_y - screen_height / 2 - self.scroll[1]) / 15
+
+        for platform in self.platforms:
+            try:
+                 platform.draw(self.screen, self.scroll)
+            except Exception as e:
+                 print(f"Error drawing platform: {e}")
+        if self.current_picture:
+            self_image = pygame.transform.flip(self.current_picture, True, False) if self.Look == 'left' else self.current_picture
+            self.screen.blit(self_image, (self.x_pos - self.scroll[0], self.y_pos - self.scroll[1]))
+            username_surface = font.render(self.username, True, (255, 255, 255))
+            username_rect = username_surface.get_rect(center=(self.x_pos - self.scroll[0] + self_image.get_width() / 2, self.y_pos - self.scroll[1] - 15))
+            self.screen.blit(username_surface, username_rect)
+            
+            
+        # اینجا بقیه پلیر ها رو رندر میکنیم     
+        for data in self.other_players_states:
+            if data["Look"]=='right':
+                self.screen.blit(data['frame_to_display'],(data['x_pos']-self.scroll[0],data['y_pos']-self.scroll[1]))
+            else:
+                self.screen.blit(pygame.transform.flip(data['frame_to_display'],True,False),(data['x_pos']-self.scroll[0],data['y_pos']-self.scroll[1]))
+            
+        for bullet in self.bullets:
+            if bullet['owner']=="Roboman":
+                if bullet['Look']=='right':
+                    if not bullet["Flag"]:
+                     self.screen.blit(self.Roboman_bullet,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                     self.screen.blit(self.Roboman_rocket,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                else:
+                    if not bullet["Flag"]:
+                     self.screen.blit(pygame.transform.flip(self.Roboman_bullet,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                     self.screen.blit(pygame.transform.flip(self.Roboman_rocket,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                        
+            elif bullet['owner']=="Ninja" or bullet['owner']=="NinjaGirl" :
+                if bullet['Look']=='right':
+                    if not bullet["Flag"]:
+                     self.screen.blit(self.Kunai,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                     self.screen.blit(self.Fired_Kunai,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                        
+                else:
+                    if not bullet["Flag"]:
+                     self.screen.blit(pygame.transform.flip(self.Kunai,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                     self.screen.blit(pygame.transform.flip(self.Fired_Kunai,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                        
+                     
+                     
+            elif bullet['owner']=="Archer" :
+                if bullet['Look']=='right':
+                    if not bullet["Flag"]:
+                        self.screen.blit(self.Arrow,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                        self.screen.blit(self.Fired_Arrow,(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                        
+                else:
+                    if not bullet["Flag"]:
+                     self.screen.blit(pygame.transform.flip(self.Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+                    else:
+                     self.screen.blit(pygame.transform.flip(self.Fired_Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
+        #باید عکس پروفایل های همه لود بشه و بعد دیسپلی بشن
+        self.draw_health_bar(self.screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, False, False)
+        # self.draw_health_bar(screen, self.opponent.health, self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame, True, False)  
+        pygame.display.update()
+        
+    def start(self):
+        print("starting")
+        threading.Thread(target=self.send_input, daemon=True).start()
+        threading.Thread(target=self.receive_state, daemon=True).start()
+
+        clock = pygame.time.Clock()
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+
+            self.render_game()
+            clock.tick(30)
+        
 
