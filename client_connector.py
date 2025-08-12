@@ -9,13 +9,7 @@ SERVER_IP = 'b24ebf58-d845-4345-bf3e-f31854065465.hsvc.ir'
 SERVER_PORT = 28640
 
 timeout = 30 # seconds
-users=[
-    {
-        'username':'alireza',
-        'password':'0000',
-        'id':'1'
-    }
-]
+
 
 class ClientConnector:
     def __init__(self):
