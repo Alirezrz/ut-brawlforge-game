@@ -8,12 +8,9 @@ from src.engine.Ninja import Ninja
 from src.engine.NinjaGirl import NinjaGirl
 from src.engine.Archer import Archer
 from config import screen_width, screen_height
-from src.levels import online_multiplayer_data, load_level_data,build_objects
+from src.levels import multiplayer_data, load_level_data
 from src.engine.bullet import Bullet
 bullet_class=Bullet
-import random
-from src.engine.heatlh_box import PowerBox
-from src.engine.power_ups import Power_up
 
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 pygame.display.init()
@@ -43,7 +40,7 @@ except Exception as e:
         surface.fill((100, 100, 100))
 
 try:
-    platforms = load_level_data(online_multiplayer_data, platform_images)
+    platforms = load_level_data(multiplayer_data, platform_images)
     print("Platforms loaded successfully")
 except Exception as e:
     print(f"Error loading platforms: {e}")
@@ -63,18 +60,6 @@ class MultiplayerGame:
         self.gates = []
         self.type=type
         self.TEAMS_SET=False
-        self.objects_dict= build_objects(online_multiplayer_data , self.heroes)
-        health_boxes = [obj for obj in self.objects_dict['misc'] if isinstance(obj, PowerBox)]
-        selected_health_boxes = random.sample(health_boxes, min(4, len(health_boxes)))
-        power_ups = [obj for obj in self.objects_dict['power ups'] if isinstance(obj, Power_up)]
-        selected_power_ups = random.sample(power_ups, min(5, len(power_ups)))
-        other_misc = [obj for obj in self.objects_dict['misc'] 
-                    if not isinstance(obj, PowerBox) and not isinstance(obj, Power_up)]        
-        self.objects = selected_health_boxes + self.objects_dict['gates'] + selected_power_ups + other_misc
-
-        for obj in self.objects:
-            if type(obj)==Power_up:
-                obj.targets=self.heroes
 
     def create_hero(self, char_name, x, y, index, username):
         print(f"Creating hero: {char_name} at ({x}, {y}) for player {index} ({username})")
@@ -143,9 +128,6 @@ class MultiplayerGame:
             if not all(self.heroes):
                 clock.tick(30)
                 continue
-            #updating objs:
-            for obj in self.objects:
-                obj.Update_online()
             try:
                 if self.type == '1v1':
                     hero1, hero2 = self.heroes[0], self.heroes[1]
