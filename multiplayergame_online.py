@@ -116,16 +116,27 @@ class MultiplayerGame:
             print(f"[SERVER] Error with client {player_index} during setup: {e}")
             conn.close()
             return
+
+        # New handling for receiving game state in chunks
+        buffer = ""
         while True:
             try:
-                data = conn.recv(1024).decode('utf-8')
-                print(f"received data=\n{data}\n-------------\n")
-                if not data:
-                    break
-                self.player_inputs[player_index] = json.loads(data)
+                chunk = conn.recv(1024).decode('utf-8')
+                if not chunk:
+                    break  # No data received means the connection was closed
+
+                buffer += chunk  # Append the new chunk to the buffer
+
+                while '\n' in buffer:
+                    message_raw, buffer = buffer.split('\n', 1)  # Split at the newline, process the message
+
+                    if message_raw:
+                        self.player_inputs[player_index] = json.loads(message_raw)  # Process valid JSON
+
             except Exception as e:
                 print(f"[SERVER] Client {player_index} error: {e}")
                 break
+
         print(f"Player {player_index} disconnected.")
         self.clients[player_index] = None
         self.heroes[player_index] = None
