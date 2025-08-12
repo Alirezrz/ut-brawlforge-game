@@ -6,7 +6,7 @@ from src.engine.protector import Guard_Drone
 from src.engine.bullet import Bullet
 
 class Archer:
-    def __init__(self, x, y, targets,index=3,username='Player',soundflag=True):
+    def __init__(self, x, y, targets,index=3,username='Player',loadflag=True,soundflag=True):
         self.username=username
         self.SOUND_FLAG=soundflag
         self.frame_address=None
@@ -32,9 +32,10 @@ class Archer:
         self.jump_cooldown = 250
         self.double_jump_allowed = True
         self.has_defuse_kit=False
-        self.jump_sound= pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "Archer", "jump.MP3"))
-        self.shoot_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "Archer", "shoot.mp3"))
-        self.melee_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "Archer", "melee.mp3"))
+        if self.SOUND_FLAG:
+            self.jump_sound= pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "Archer", "jump.MP3"))
+            self.shoot_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "Archer", "shoot.mp3"))
+            self.melee_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "Archer", "melee.mp3"))
         self.DEAD=False
         self.ALIVE=True
         self.health_bar_frame =pygame.image.load("src/assets/images/Archer/health_bar_frame.png")
@@ -46,7 +47,8 @@ class Archer:
         self.width = 88
         self.height = 100
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
-        self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "archer", "archer hurt.mp3"))     
+        if self.SOUND_FLAG:
+            self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "archer", "archer hurt.mp3"))     
         self.health = 100
         self.max_health = 100
         self.bullets = []
