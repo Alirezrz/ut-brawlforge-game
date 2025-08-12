@@ -2,22 +2,15 @@ import pygame
 import socket
 import threading
 import random
-import uuid
-
+import os
+from pymongo import MongoClient
+from dotenv import load_dotenv
 from multiplayergame_online import MultiplayerGame
 
 HOST = '0.0.0.0'
 PORT = 9191
 BROADCAST_PORT = 9192
 BROADCAST_MSG = b"DISCOVER_SERVER"
-
-server_users = [
-    {
-        'username': 'alireza',
-        'password': '0000',
-        'id': '1'
-    }
-]
 
 game_sessions = {}  # creator_id -> {'creator_socket': socket, 'players': [client_info], 'type': game_type}
 
@@ -30,6 +23,16 @@ class Server:
         self.socket.listen()
         print(f"[SERVER] Listening for clients on {HOST}:{PORT}")
 
+        load_dotenv()
+        mongo_uri = os.getenv("MONGO_URI")
+        if not mongo_uri:
+            raise ValueError("MONGO_URI not found in .env file")
+        
+        self.client = MongoClient(mongo_uri)
+        self.db = self.client["my_game_db"]
+        self.users_collection = self.db["users"]
+        self.users_collection.create_index("username", unique=True)
+        
         self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.broadcast_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
@@ -81,26 +84,23 @@ class Server:
 
     # --- AUTH helpers (server-side) ---
     def find_user_by_credentials(self, username, password):
-        with self.lock:
-            for u in server_users:
-                if u['username'] == username and u['password'] == password:
-                    return u
-        return None
+        return self.users_collection.find_one({"username": username, "password": password})
 
     def username_exists(self, username):
-        with self.lock:
-            for u in server_users:
-                if u['username'] == username:
-                    return True
-        return False
+        return self.users_collection.find_one({"username": username}) is not None
+
 
     def create_user(self, username, password):
-        with self.lock:
-            existing_ids = {u['id'] for u in server_users}
-            new_id = self.generate_unique_id(existing_ids)
-            new_user = {'username': username, 'password': password, 'id': new_id}
-            server_users.append(new_user)
-            return new_user
+        last_user = self.users_collection.find_one(sort=[("id", -1)])
+        new_id = str(int(last_user["id"]) + 1) if last_user else "1"
+
+        new_user = {
+            "username": username,
+            "password": password,
+            "id": new_id
+        }
+        self.users_collection.insert_one(new_user)
+        return new_user
 
     # --- Client handler with login/signup on server side ---
     def handle_client(self, client_socket, addr):

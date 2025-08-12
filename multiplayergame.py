@@ -227,7 +227,8 @@ class MultiplayerGame:
                            "self": all_states[i], 
                            "opponents": opponents_states, 
                            "teammate": teammate_state, 
-                           "bullets": bullets_state
+                           "bullets": bullets_state,
+                           "objects":objs_state,
                         } 
                         send_json(client_conn, game_state)
 
