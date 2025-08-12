@@ -2,4 +2,3 @@ pygame~=2.6.0
 pygame
 pymongo
 werkzeug
-dotenv
