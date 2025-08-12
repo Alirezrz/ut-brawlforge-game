@@ -98,12 +98,16 @@ class Server:
 
 
     def create_user(self, username, password):
-        with self.lock:
-            existing_ids = {u['id'] for u in server_users}
-            new_id = self.generate_unique_id(existing_ids)
-            new_user = {'username': username, 'password': password, 'id': new_id}
-            server_users.append(new_user)
-            return new_user
+        last_user = self.users_collection.find_one(sort=[("id", -1)])
+        new_id = str(int(last_user["id"]) + 1) if last_user else "1"
+
+        new_user = {
+            "username": username,
+            "password": password,
+            "id": new_id
+        }
+        self.users_collection.insert_one(new_user)
+        return new_user
 
     # --- Client handler with login/signup on server side ---
     def handle_client(self, client_socket, addr):
