@@ -4,7 +4,7 @@ import threading
 import random
 import os
 from pymongo import MongoClient
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 from multiplayergame_online import MultiplayerGame
 
 HOST = '0.0.0.0'
@@ -23,7 +23,7 @@ class Server:
         self.socket.listen()
         print(f"[SERVER] Listening for clients on {HOST}:{PORT}")
 
-        load_dotenv()
+        #load_dotenv()
         mongo_uri = os.getenv("MONGO_URI")
         if not mongo_uri:
             raise ValueError("MONGO_URI not found in .env file")
