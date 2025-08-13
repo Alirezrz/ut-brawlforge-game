@@ -69,9 +69,7 @@ class MultiplayerGame:
         power_ups = [obj for obj in self.objects_dict['power ups'] if isinstance(obj, Power_up)]
         selected_power_ups = random.sample(power_ups, min(5, len(power_ups)))
         self.objects = selected_health_boxes + self.objects_dict['gates'] + selected_power_ups 
-        for obj in self.objects:
-            if type(obj)==Power_up:
-                obj.targets=self.heroes
+        
 
     def create_hero(self, char_name, x, y, index, username):
         print(f"Creating hero: {char_name} at ({x}, {y}) for player {index} ({username})")
