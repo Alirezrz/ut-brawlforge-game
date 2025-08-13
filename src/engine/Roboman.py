@@ -806,7 +806,7 @@ class Roboman:
     def activate_jetpack(self):
         current_time = pygame.time.get_ticks()
         if not self.on_ground and not self.jetpack_active and (current_time - self.last_jetpack_use_time >= self.jetpack_reload_duration) and self.DOUBLE_JUMP_FLAG:
-            if self.jetpack_sound and self.SOUND_FLAG:
+            if self.SOUND_FLAG:
                 self.jetpack_sound.play()
             self.events.append("jetpack")    
             self.jetpack_active = True
