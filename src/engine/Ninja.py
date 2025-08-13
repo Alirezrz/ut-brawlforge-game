@@ -99,8 +99,7 @@ class Ninja:
         self.shutter_alpha = 0
         self.shutter_direction = 1 
         self.is_first_time=True          
-
-        if LOAD_FLAG:
+        if soundeffect_flag :
             self.jump_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja jump.MP3"))
             self.kunai_hit_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit.mp3"))
             self.kunai_hit_platform_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit platofrm.mp3"))
@@ -108,6 +107,7 @@ class Ninja:
             self.melee_hit_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "sword hit.mp3"))
             self.throw_kunai_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "throw kunai.mp3"))
             self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja hurt.mp3"))        
+        if LOAD_FLAG:  
             self.ninja_health_bar_frame = pygame.image.load("src/assets/images/Ninja/Ninja_health_bar_frame.png")
             self.ninja_health_bar =pygame.image.load("src/assets/images/Ninja/Ninja_health_bar.png")
             self.ninja_profile_picture = pygame.image.load("src/assets/images/Ninja/ninja_profile.png")

@@ -65,20 +65,20 @@ class MultiplayerGame:
         print(f"Creating hero: {char_name} at ({x}, {y}) for player {index} ({username})")
         try:
             if char_name == "Roboman":
-                hero = Roboman(x, y, screen_width, screen_height, index, username,False,False)
+                hero = Roboman(x, y, screen_width, screen_height, index, username,True,False)
                 hero.SOUND_FLAG=False
             elif char_name == "Ninja":
-                hero = Ninja(x, y, screen_width, screen_height, [], index, username,False,False)
+                hero = Ninja(x, y, screen_width, screen_height, [], index, username,True,False)
                 hero.SOUND_FLAG=False
             elif char_name == "NinjaGirl":
-                hero = NinjaGirl(x, y, screen_width, screen_height, [], index, username,False,False)
+                hero = NinjaGirl(x, y, screen_width, screen_height, [], index, username,True,False)
                 hero.SOUND_FLAG=False
             elif char_name == "Archer":
                 hero = Archer(x, y, [], index, username,False)
                 hero.SOUND_FLAG=False
             else:
                 print(f"Unknown character {char_name}, defaulting to Ninja")
-                hero = Ninja(x, y, screen_width, screen_height, [], index, username,False,False)
+                hero = Ninja(x, y, screen_width, screen_height, [], index, username,True,False)
                 hero.SOUND_FLAG=False
 
             hero.character_name = char_name
