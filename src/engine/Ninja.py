@@ -933,7 +933,6 @@ class Ninja:
                 self.bullets.remove(bullet)
         self.update_drone()  
        
-        print(f"number of drones----->{len(self.guard_drone)}\n\n")
         if hasattr(self, "ALIVE") and not self.ALIVE:
             self.update_animation(shot_bullets)
             return

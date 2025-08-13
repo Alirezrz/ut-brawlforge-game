@@ -32,9 +32,11 @@ class Archer:
         self.jump_cooldown = 250
         self.double_jump_allowed = True
         self.has_defuse_kit=False
-        # self.jump_sound= pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "Archer", "jump.MP3"))
-        # self.shoot_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "Archer", "shoot.mp3"))
-        # self.melee_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "Archer", "melee.mp3"))
+        if soundflag:
+            self.jump_sound= pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "Archer", "jump.MP3"))
+            self.shoot_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "Archer", "shoot.mp3"))
+            self.melee_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "Archer", "melee.mp3"))
+            self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "archer", "archer hurt.mp3"))
         self.DEAD=False
         self.ALIVE=True
         self.health_bar_frame =pygame.image.load("src/assets/images/Archer/health_bar_frame.png")
@@ -46,7 +48,7 @@ class Archer:
         self.width = 88
         self.height = 100
         self.hitbox = pygame.Rect(self.x_pos, self.y_pos, self.width, self.height)
-        # self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "archer", "archer hurt.mp3"))     
+            
         self.health = 100
         self.max_health = 100
         self.bullets = []
@@ -102,8 +104,8 @@ class Archer:
         
         
     def hurt(self):
-        # if self.SOUND_FLAG:
-        #     self.hurt_sound.play()
+        if self.SOUND_FLAG:
+            self.hurt_sound.play()
         self.events.append("archer hurt")
         if self.health <= 0:
             self.die()
@@ -197,8 +199,8 @@ class Archer:
         self.status = 'attack'
         self.current_frame_index = 0
         self.attack_triggered = False
-        # if self.SOUND_FLAG:
-        #     self.melee_sound.play()
+        if self.SOUND_FLAG:
+            self.melee_sound.play()
         self.events.append("melee") 
         self.shooting = True  
         self.HIT_PER_ATTACK=0
@@ -289,8 +291,8 @@ class Archer:
                 self.frame_address=["attack_frames",self.current_frame_index % len(self.attack_frames)]
 
                 self.damage_nearby_targets()
-                # if self.SOUND_FLAG:
-                #     self.melee_sound.play()
+                if self.SOUND_FLAG:
+                    self.melee_sound.play()
                 self.events.append("melee")
                 if self.current_frame_index >= len(self.attack_frames) - 1:
                     self.status = 'idle'
@@ -322,8 +324,8 @@ class Archer:
         arrow_image = self.firedarrow_pic if self.super_power_active else self.arrow_pic
         damage = 35 if self.super_power_active else 25
         new_arrow = Arrow(self.username,arrow_x, arrow_y, direction, arrow_image, damage)
-        # if self.SOUND_FLAG:
-        #     self.shoot_sound.play()
+        if self.SOUND_FLAG:
+            self.shoot_sound.play()
         self.events.append("shoot")
         self.bullets.append(new_arrow)
         shot_bullets.append(new_arrow)
@@ -496,8 +498,8 @@ class Archer:
             return
 
         if self.on_ground:
-            # if self.SOUND_FLAG:
-            #     self.jump_sound.play()
+            if self.SOUND_FLAG:
+                self.jump_sound.play()
             self.events.append("jump")
             self.vertical_speed = self.jump_strenght
             self.jump_count = 1
@@ -505,8 +507,8 @@ class Archer:
             self.current_platform = None
             self.last_jump_time = current_time
         elif self.jump_count == 1 and self.double_jump_allowed and self.DOUBLE_JUMP_FLAG:
-            # if self.SOUND_FLAG:
-            #  self.jump_sound.play()
+            if self.SOUND_FLAG:
+             self.jump_sound.play()
             self.events.append("jump")
             self.vertical_speed = self.jump_strenght
             self.jump_count = 2
