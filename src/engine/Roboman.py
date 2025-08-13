@@ -95,7 +95,7 @@ class Roboman:
             
             for i in range(1, 5):
                 try:
-                    img_path = os.path.join(base_path, "Shoot", f"Shoot ({i}).png")
+                    img_path = os.path.join(base_path, "shoot", f"Shoot ({i}).png")
                     shoot_tmp = pygame.image.load(img_path)
                     if i == 1: self.shoot_frames.append(pygame.transform.scale(shoot_tmp, (83, 118)))
                     elif i == 2: self.shoot_frames.append(pygame.transform.scale(shoot_tmp, (83, 118)))
