@@ -466,9 +466,7 @@ class Ninja:
             self.frame_address=["idle_frames",self.current_frame_index]
 
         self.update_attack()
-        print(f"sending from ninja ")
-        print(f"frame_adress={self.frame_address[0] }    {self.frame_address[1]}")
-        print("-------------------------------")
+        
 
 
     def fire_kunai(self, shot_bullets):
