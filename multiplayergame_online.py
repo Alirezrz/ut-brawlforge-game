@@ -13,6 +13,8 @@ from src.levels import multiplayer_data, load_level_data,online_multiplayer_data
 from src.engine.bullet import Bullet
 from src.engine.heatlh_box import PowerBox
 from src.engine.power_ups import Power_up
+from pymongo import MongoClient
+from dotenv import load_dotenv
 bullet_class=Bullet
 
 os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -53,7 +55,11 @@ except Exception as e:
 
 class MultiplayerGame:
     def __init__(self,type):
-
+        load_dotenv()
+        mongo_uri = os.getenv("MONGO_URI")
+        if not mongo_uri:
+            raise ValueError("MONGO_URI not found in .env file")
+        self.db = MongoClient(mongo_uri)["my_game_db"] if db is None else db
         self.clients = []
         self.player_inputs = {}
         self.heroes = [None, None]  if type=='1v1' else  [None, None] *2 
