@@ -46,7 +46,7 @@ class Client:
         }
         self.screen_width = screen_width
         self.screen_height = screen_height
-
+        self.objects=[]
         self.opponent_character = ""
         self.opponent_frames = {"idle_frames": [pygame.Surface((50, 50))]}
         self.x_pos = 0
@@ -87,7 +87,28 @@ class Client:
     
     
     def load_assets(self):
-       
+        try:
+            base_path = os.path.join("src", "assets", "images", "power ups")
+            self.double_jump_powerup_frame=pygame.transform.scale(
+                pygame.image.load(
+                    os.path.join(base_path, "double jump.png")
+                ),
+                (60, 60)
+            )
+            self.guard_drone_powerup_frame=pygame.transform.scale(
+                pygame.image.load(
+                    os.path.join(base_path, "guard drone.png")
+                ),
+                (60, 60)
+            )
+            self.superpower_powerup_frame=pygame.transform.scale(
+                pygame.image.load(
+                    os.path.join(base_path, "super power.png")
+                ),
+                (60, 60)
+            )
+        except e:
+            print(e)
         
         # Load platform images
         platform_image_path = "src/assets/images/"
@@ -479,24 +500,7 @@ class Client:
         })()
 
  
-    '''def send_initial_data(self):
-        char_map = {1: "Roboman", 2: "Ninja", 3: "NinjaGirl", 4: "Archer"}
-        self.character_name = char_map.get(self.type, "Ninja")
-        self.load_ui_assets(self.character_name)
-        self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame = self.load_ui_assets_for_opponent("Ninja")
-        initial_data = {"username": self.username, "character": char_map.get(self.type, "Ninja")}
-        try:
-            self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
-            data = self.socket.recv(1024).decode('utf-8')
-            if json.loads(data).get("status") == "setup_complete":
-                print("Connected to server successfully!")
-            else:
-                print("Server setup failed")
-                exit()
-        except Exception as e:
-            print(f"Error sending initial data: {e}")
-            exit()
-'''
+
     def send_input(self):
         clock = pygame.time.Clock()
         while True:
@@ -630,6 +634,7 @@ class Client:
 
                         try:
                             parsed = json.loads(line)
+                            self.objects = parsed.get('objects', [])
                             selfdata = parsed["self"]
                             self.x_pos = selfdata['x_pos']
                             self.y_pos = selfdata['y_pos']
@@ -760,7 +765,43 @@ class Client:
         mid_y = (self.y_pos + self.current_picture.get_height() // 2)
         self.scroll[0] += (mid_x - screen_width / 2 - self.scroll[0]) / 15
         self.scroll[1] += (mid_y - screen_height / 2 - self.scroll[1]) / 15
+        for obj in self.objects:
+         try:
+            if obj.get("status") == "used":
+                continue  
+            x_pos = obj.get("x_pos", 0)
+            y_pos = obj.get("y_pos", 0)
+            obj_type = obj.get("type", "")
 
+            if obj_type == "gates":
+                a_x = obj.get("A_x", 0)
+                a_y = obj.get("A_y", 0)
+                b_x = obj.get("B_x", 0)
+                b_y = obj.get("B_y", 0)
+                a_state = obj.get("A_state", "close")
+                b_state = obj.get("B_state", "close")
+                flag = obj.get("flag", "GreenFlag")
+
+                a_pic = self.DoorOpen_pic if a_state == "open" else self.DoorClose_pic
+                b_pic = self.DoorOpen_pic if b_state == "open" else self.DoorClose_pic
+                flag_pic = self.RedFlag_pic if flag == "RedFlag" else self.GreenFlag_pic
+
+                self.screen.blit(a_pic, (a_x - self.scroll[0], a_y - self.scroll[1]))
+                self.screen.blit(b_pic, (b_x - self.scroll[0], b_y - self.scroll[1]))
+                self.screen.blit(flag_pic, (a_x - 30 - self.scroll[0], a_y + 75 - self.scroll[1]))
+                self.screen.blit(flag_pic, (b_x - 30 - self.scroll[0], b_y + 75 - self.scroll[1]))
+
+            elif obj_type == "double jump":
+                self.screen.blit(self.double_jump_powerup_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
+            elif obj_type == "guard drone":
+                self.screen.blit(self.guard_drone_powerup_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
+            elif obj_type == "super power":
+                self.screen.blit(self.superpower_powerup_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
+            elif obj_type == "health_box":
+                self.screen.blit(self.health_box_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
+
+         except Exception as e:
+            print(f"Error rendering object {obj}: {e}")
         for platform in self.platforms:
             try:
                  platform.draw(self.screen, self.scroll)
