@@ -3,7 +3,7 @@ import threading
 import socket
 import json
 import os
-from src.levels import multiplayer_data, load_level_data
+from src.levels import multiplayer_data, load_level_data,online_multiplayer_data
 from config import screen_width, screen_height,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
 from src.utils import get_my_local_ip
 # Initialize Pygame
@@ -99,7 +99,7 @@ class Client:
                 'right': pygame.image.load(os.path.join(platform_image_path, "platform_right.png")).convert_alpha(),
                 'solid': pygame.image.load(os.path.join(platform_image_path, "platform_solid.png")).convert_alpha(),
             }
-            self.platforms = load_level_data(multiplayer_data, platform_images)
+            self.platforms = load_level_data(online_multiplayer_data, platform_images)
             print("Platform images loaded successfully")
             
         except Exception as e:
@@ -110,7 +110,7 @@ class Client:
                 'right': pygame.Surface((64, 64)),
                 'solid': pygame.Surface((64, 64))
             }
-            self.platforms = load_level_data(multiplayer_data, self.platform_images)
+            self.platforms = load_level_data(online_multiplayer_data, self.platform_images)
         try:
             self.background = pygame.image.load("src/assets/images/city1.png")
             self.background = pygame.transform.scale(self.background, (screen_width, screen_height))
