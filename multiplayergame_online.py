@@ -217,12 +217,11 @@ class MultiplayerGame:
 
                     hero1.handle_input_online(keys1, self.gates, self.shot_bullets, bullet_class, None, mouse1)
                     hero2.handle_input_online(keys2, self.gates, self.shot_bullets, bullet_class, None, mouse2)
-
-
-                    hero1.update_online(self.platforms, self.shot_bullets, [hero2], keys1, self.gates, None)
                     hero1.attack_targets=[hero2]
-                    hero2.update_online(self.platforms, self.shot_bullets, [hero1], keys2, self.gates, None)
                     hero2.attack_targets=[hero1]
+                    hero1.update_online(self.platforms, self.shot_bullets, [hero2], keys1, self.gates, None)
+                    hero2.update_online(self.platforms, self.shot_bullets, [hero1], keys2, self.gates, None)
+                    
 
                     state_p1 = hero1.serialize()
                     state_p2 = hero2.serialize()
@@ -272,8 +271,9 @@ class MultiplayerGame:
 
                     for i in range(4):
                         targets = [h for j, h in enumerate(heroes) if j // 2 != i // 2]
-                        heroes[i].update_online(self.platforms, self.shot_bullets, targets, keys[i], self.gates, None)
                         heroes[i].attack_targets=targets
+                        heroes[i].update_online(self.platforms, self.shot_bullets, targets, keys[i], self.gates, None)
+                        
 
                     states = [h.serialize() for h in heroes]
                     bullets_state = [b.serialize() for b in self.shot_bullets]
