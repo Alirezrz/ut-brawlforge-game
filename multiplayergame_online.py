@@ -221,13 +221,15 @@ class MultiplayerGame:
                     }
                     mouse2 = (inputs2.get("left_click", False), False, inputs2.get("right_click", False))
 
+                    hero1.attack_targets = [hero2]
+                    hero2.attack_targets = [hero1]
+
                     hero1.handle_input_online(keys1, self.gates, self.shot_bullets, bullet_class, None, mouse1)
                     hero2.handle_input_online(keys2, self.gates, self.shot_bullets, bullet_class, None, mouse2)
-                    hero1.attack_targets=[hero2]
-                    hero2.attack_targets=[hero1]
-                    hero1.update_online(self.platforms, self.shot_bullets, [hero2], keys1, self.gates, None)
-                    hero2.update_online(self.platforms, self.shot_bullets, [hero1], keys2, self.gates, None)
-                    
+
+                    hero1.update_online(self.platforms, self.shot_bullets, hero1.attack_targets, keys1, self.gates, None)
+                    hero2.update_online(self.platforms, self.shot_bullets, hero2.attack_targets, keys2, self.gates, None)
+
 
                     state_p1 = hero1.serialize()
                     state_p2 = hero2.serialize()
@@ -273,13 +275,15 @@ class MultiplayerGame:
 
                     heroes = [hero1, hero2, hero3, hero4]
                     for i in range(4):
-                        heroes[i].handle_input_online(keys[i], self.gates, self.shot_bullets, bullet_class, None, mice[i])
+                        if heroes[i].hero_creation_index in (1, 2):  # Team 1
+                            heroes[i].attack_targets = [h for h in heroes if h and h.hero_creation_index in (3, 4)]
+                        else:  # Team 2
+                            heroes[i].attack_targets = [h for h in heroes if h and h.hero_creation_index in (1, 2)]
 
-                    for i in range(4):
-                        targets = [h for j, h in enumerate(heroes) if j // 2 != i // 2]
-                        heroes[i].attack_targets=targets
-                        heroes[i].update_online(self.platforms, self.shot_bullets, targets, keys[i], self.gates, None)
-                        
+                        heroes[i].handle_input_online(keys[i], self.gates, self.shot_bullets, bullet_class, None, mice[i])
+                        heroes[i].update_online(self.platforms, self.shot_bullets, heroes[i].attack_targets, keys[i], self.gates, None)
+
+                                            
 
                     states = [h.serialize() for h in heroes]
                     bullets_state = [b.serialize() for b in self.shot_bullets]
