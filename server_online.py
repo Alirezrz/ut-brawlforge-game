@@ -97,7 +97,10 @@ class Server:
         new_user = {
             "username": username,
             "password": password,
-            "id": new_id
+            "id": new_id,
+            "kill": 0,
+            "death": 0
+
         }
         self.users_collection.insert_one(new_user)
         return new_user
