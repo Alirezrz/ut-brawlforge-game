@@ -63,18 +63,7 @@ class MultiplayerGame:
         self.gates = []
         self.type=type
         self.TEAMS_SET=False
-        self.objects_dict= build_objects(online_multiplayer_data , self.heroes)
-        health_boxes = [obj for obj in self.objects_dict['misc'] if isinstance(obj, PowerBox)]
-        selected_health_boxes = random.sample(health_boxes, min(4, len(health_boxes)))
-        power_ups = [obj for obj in self.objects_dict['power ups'] if isinstance(obj, Power_up)]
-        selected_power_ups = random.sample(power_ups, min(5, len(power_ups)))
-        other_misc = [obj for obj in self.objects_dict['misc'] 
-                    if not isinstance(obj, PowerBox) and not isinstance(obj, Power_up)]        
-        self.objects = selected_health_boxes + self.objects_dict['gates'] + selected_power_ups + other_misc
-
-        for obj in self.objects:
-            if type(obj)==Power_up:
-                obj.targets=self.heroes
+        
         
 
     def create_hero(self, char_name, x, y, index, username):
