@@ -2,11 +2,12 @@ import pygame
 import sys
 import os
 import json
+import socket
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 from config import screen_width, screen_height,explode_side_size,enenmy_health_bar_height,enenmy_health_bar_width
 from src.engine.game import Game
-from src.engine.menu import Menu, GameModeMenu, MapCharacterMenu,MultiplayerMapCharacterMenu, GameOverMenu,MatchmakingMenu,NetworkMenu,LobbyMenu,JoinGameMenu,MultiplayerCharacterSelectMenu,SearchPlayerMenu,LoginSignupMenu,OnlineActionMenu,JoinMethodMenu,TextInputMenu
+from src.engine.menu import Menu, GameModeMenu, MapCharacterMenu,MultiplayerMapCharacterMenu, GameOverMenu,MatchmakingMenu,NetworkMenu,LobbyMenu,JoinGameMenu,MultiplayerCharacterSelectMenu,SearchPlayerMenu,LoginSignupMenu,OnlineActionMenu,JoinMethodMenu,TextInputMenu,OnlineLobbyMenu 
 from src.engine.multiplayer_game import Game_2
 from src.engine.network import Network
 from Client import Client
@@ -49,41 +50,53 @@ except (FileNotFoundError, pygame.error) as e:
     exit()
 
 
-def wait_for_server_response(screen, background, sock):
+def display_temporary_message(screen, background, message, duration=2000):
     font = pygame.font.Font(None, 60)
-    wait_text = font.render("Waiting for Server Response...", True, (255, 255, 255))
+    text_surf = font.render(message, True, (255, 200, 200))
+    text_rect = text_surf.get_rect(center=(screen.get_width() / 2, screen.get_height() / 2))
+    
+    start_time = pygame.time.get_ticks()
+    while pygame.time.get_ticks() - start_time < duration:
+        screen.blit(background, (0, 0))
+        screen.blit(text_surf, text_rect)
+        pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+
+
+def wait_for_server_response(screen, background, sock):
+    """Displays a waiting screen and listens for a simple TEXT response."""
+    font = pygame.font.Font(None, 60)
+    wait_text = font.render("Waiting for Host Approval...", True, (255, 255, 255))
     wait_rect = wait_text.get_rect(center=(screen.get_width() / 2, screen.get_height() / 2))
     
-    sock.setblocking(False)
-    buffer = ""
+    sock.settimeout(45.0) 
     
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return None
-
-        try:
-            data = sock.recv(4096).decode('utf-8')
-            if not data: 
-                print("[CLIENT] Connection closed by server while waiting.")
-                return None
-            
-            buffer += data
-            if '\n' in buffer:
-                message_raw, buffer = buffer.split('\n', 1)
-                if message_raw:
-                    sock.setblocking(True)
-                    return json.loads(message_raw)
+                sock.settimeout(None)
+                return "exit"
         
-        except BlockingIOError:
-            pass
-        except (json.JSONDecodeError, ConnectionResetError) as e:
-            print(f"Error while waiting for server response: {e}")
-            return None
+        try:
+           
+            data = sock.recv(1024).decode('utf-8').strip()
+            if data:
+                sock.settimeout(None) 
+                return data
+        except socket.timeout:
+            print("[CLIENT] Timed out waiting for host response.")
+            sock.settimeout(None)
+            return "timeout"
+        except (socket.error, ConnectionResetError) as e:
+            print(f"Error while waiting for response: {e}")
+            return "error"
+
         screen.blit(background, (0, 0))
         screen.blit(wait_text, wait_rect)
         pygame.display.flip()
-        pygame.time.Clock().tick(30)
 
 while True:
     menu = Menu(screen, background1)
@@ -208,61 +221,67 @@ while True:
 
                     if success:
                         online_action_menu = OnlineActionMenu(screen, background1)
-                        action_loop = True
                         
-                        while action_loop:
+                        while True: 
                             online_action = online_action_menu.run()
 
                             if online_action in ["back", "exit"]:
                                 connector.client_socket.close()
-                                action_loop = False
-                                continue
+                                break 
 
                             lobby_result = None
-                         
+                            
                             if "create" in online_action:
                                 game_type = "1v1" if "1v1" in online_action else "2v2"
-                                connector.client_socket.sendall(b'1') 
-                                connector.client_socket.recv(1024)
-                                type_code = b'1' if game_type == "1v1" else b'2'
-                                connector.client_socket.sendall(type_code)
+                                connector.client.sendall(b'1') 
+                                connector.client.recv(1024)
+                                connector.client.sendall(b'1' if game_type == '1v1' else b'2')
                                 
-                                print("[CLIENT] Create request sent. Entering lobby screen...")
-                                initial_lobby_data = {
-                                    "game_id": "Waiting for Server...",
-                                    "players": [connector.username],
-                                    "game_type": game_type
-                                }
-                                lobby_menu = LobbyMenu(screen, background1, connector, initial_lobby_data, is_host=True)
+                                print("[CLIENT] Waiting for server confirmation of lobby creation...")
+                                try:
+                                    confirmation_msg = connector.client.recv(1024).decode()
+                                    print(f"[SERVER] {confirmation_msg}")
+                                except socket.timeout:
+                                    print("[CLIENT] Timed out waiting for lobby confirmation.")
+                                    continue
+                                
+                                print("[CLIENT] Entering lobby screen...")
+                                initial_data = {"game_id": "Syncing...", "players": [username], "game_type": game_type}
+                                lobby_menu = OnlineLobbyMenu(screen, background1, connector, initial_data, is_host=True)
                                 lobby_result = lobby_menu.run()
 
-                   
                             elif online_action == "join_game":
-                                connector.client_socket.sendall(b'2') 
-                                connector.client_socket.recv(1024)
+                                connector.client.sendall(b'2')
+                                connector.client.recv(1024)
                                 
                                 join_method_menu = JoinMethodMenu(screen, background1)
                                 join_action = join_method_menu.run()
-                                
-                                join_sent = False
+
+                                join_request_sent = False
                                 if join_action == "search_id":
-                                    connector.client_socket.sendall(b'1') 
-                                    text_input_menu = TextInputMenu(screen, background1, "Enter ID or Username")
+                                    connector.client.sendall(b'1')
+                                    text_input_menu = TextInputMenu(screen, background1, "Enter Host ID or Username")
                                     game_id = text_input_menu.run()
                                     if game_id:
-                                        connector.client_socket.recv(1024)
-                                        connector.client_socket.sendall(game_id.encode())
-                                        join_sent = True
+                                        connector.client.recv(1024)
+                                        connector.client.sendall(game_id.encode())
+                                        join_request_sent = True
                                 
                                 elif join_action == "server_decide":
-                                    connector.client_socket.sendall(b'2')
-                                    join_sent = True
+                                    connector.client.sendall(b'2')
+                                    join_request_sent = True
 
-                                if join_sent:
-                                    print("[CLIENT] Join request sent. Entering lobby to wait for approval...")
-                                    pending_lobby_data = {"game_id": "Joining...", "players": [connector.username], "game_type": "N/A"}
-                                    lobby_menu = LobbyMenu(screen, background1, connector, pending_lobby_data, is_host=False)
-                                    lobby_result = lobby_menu.run()
+                                if join_request_sent:
+
+                                    response_text = wait_for_server_response(screen, background1, connector.client)
+                                    
+                                    if response_text and "accepted" in response_text.lower():
+                                        print("[CLIENT] Join request accepted! Entering lobby...")
+                                        accepted_data = {"game_id": "Joined", "players": ["You", "Host"], "game_type": "N/A"}
+                                        lobby_menu = OnlineLobbyMenu(screen, background1, connector, accepted_data, is_host=False)
+                                        lobby_result = lobby_menu.run()
+                                    else:
+                                        display_temporary_message(screen, background1, response_text or "Join Failed!")
                             if lobby_result == "start_game":
                                 char_menu = MultiplayerCharacterSelectMenu(screen, background1)
                                 selected_hero = char_menu.run()
@@ -270,9 +289,8 @@ while True:
                                     game_client = ClientOnline(connector.client_socket, connector.username, connector.client_id, selected_hero)
                                     game_client.start()
                                 
-                                action_loop = False
                                 start_menu_running = False
-                        
+                                break 
                         if not start_menu_running: break 
                     else:
                         login_menu.message = message
