@@ -124,7 +124,6 @@ class MultiplayerGame:
                     break  
 
                 buffer += chunk  
-                print(f"buffer=\n{buffer}\n----------------\n")
                 while '\n' in buffer:
                     message_raw, buffer = buffer.split('\n', 1)  
 
