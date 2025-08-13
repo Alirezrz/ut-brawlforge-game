@@ -35,20 +35,20 @@ class Roboman:
         
         self.Bullet_Class_ref = None
         self.attack_targets =None # این باید باشه 
-        if Soundeffect_flag:
-            self.shot_hit_enemy_sound = pygame.mixer.Sound(
-            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_enemy.wav")
-            )
-            self.shot_hit_platform_sound = pygame.mixer.Sound(
-            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_platoform.mp3")
-                )
-            self.jump_sound = pygame.mixer.Sound(
-            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "robot jump.MP3"))
-            self.shoot_sound = pygame.mixer.Sound(
-            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shoot.mp3"))
-            self.jetpack_sound = pygame.mixer.Sound(
-            os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "jetpack.mp3"))
-            self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))
+        # if Soundeffect_flag:
+        #     self.shot_hit_enemy_sound = pygame.mixer.Sound(
+        #     os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_enemy.wav")
+        #     )
+        #     self.shot_hit_platform_sound = pygame.mixer.Sound(
+        #     os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_platoform.mp3")
+        #         )
+        #     self.jump_sound = pygame.mixer.Sound(
+        #     os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "robot jump.MP3"))
+        #     self.shoot_sound = pygame.mixer.Sound(
+        #     os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shoot.mp3"))
+        #     self.jetpack_sound = pygame.mixer.Sound(
+        #     os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "jetpack.mp3"))
+        #     self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))
         if LOAD_FLAG: 
             self.hero_profile_picture = pygame.image.load("src/assets/images/RoboMan_pictures/hero_profile.png")
             self.roboman_health_bar_frame = pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar_frame.png")
@@ -275,8 +275,8 @@ class Roboman:
 
 
     def hurt(self):
-        if self.SOUND_FLAG:
-            self.hurt_sound.play()
+        # if self.SOUND_FLAG:
+        #     self.hurt_sound.play()
         self.events.append("roboman hurt")
         if self.health <= 0:
             self.die()
@@ -570,9 +570,9 @@ class Roboman:
         current_time = pygame.time.get_ticks()
 
         if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active:
-            if self.shoot_sound and self.SOUND_FLAG:
-                self.shoot_sound.play()
-                self.events.append("shoot")
+            # if self.shoot_sound and self.SOUND_FLAG:
+            #     self.shoot_sound.play()
+                # self.events.append("shoot")
 
             self.Last__Shooting_time = current_time
             if not self.on_ground:
@@ -629,9 +629,9 @@ class Roboman:
             return  # rocket still cooling down
 
         if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active and self.SUPER_POWER_FLAG:
-            if self.shoot_sound and self.SOUND_FLAG:
-                self.shoot_sound.play()
-                self.events.append("shoot")
+            # if self.shoot_sound and self.SOUND_FLAG:
+            #     self.shoot_sound.play()
+                # self.events.append("shoot")
             self.Last__Shooting_time = current_time
             self.last_rocket_shot = current_time
 
@@ -726,9 +726,9 @@ class Roboman:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
                     self.explosions.append(Explosion(bullet.x_pos,bullet.y_pos-65))
-                    if self.shot_hit_platform_sound and self.SOUND_FLAG:
-                        self.shot_hit_platform_sound.play()
-                        self.events.append("shot_hit_platform")
+                    # if self.shot_hit_platform_sound and self.SOUND_FLAG:
+                    #     self.shot_hit_platform_sound.play()
+                        # self.events.append("shot_hit_platform")
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
                     if bullet in shot_bullets:
@@ -757,9 +757,9 @@ class Roboman:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
                     self.explosions.append(Explosion(bullet.x_pos,bullet.y_pos-65))
-                    if self.shot_hit_platform_sound and self.SOUND_FLAG:
-                        self.shot_hit_platform_sound.play()
-                        self.events.append("shot_hit_platform")
+                    # if self.shot_hit_platform_sound and self.SOUND_FLAG:
+                    #     self.shot_hit_platform_sound.play()
+                        # self.events.append("shot_hit_platform")
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
                     if bullet in shot_bullets:
@@ -784,8 +784,8 @@ class Roboman:
     def jump(self):
         if self.on_ground :
             self.frame_flag=True
-            if self.jump_sound and self.SOUND_FLAG:
-                self.jump_sound.play()
+            # if self.jump_sound and self.SOUND_FLAG:
+            #     self.jump_sound.play()
             self.events.append("robot jump")    
             self.vertical_speed = self.jump_strenght
             self.on_ground = False
@@ -800,8 +800,8 @@ class Roboman:
     def activate_jetpack(self):
         current_time = pygame.time.get_ticks()
         if not self.on_ground and not self.jetpack_active and (current_time - self.last_jetpack_use_time >= self.jetpack_reload_duration) and self.DOUBLE_JUMP_FLAG:
-            if self.jetpack_sound and self.SOUND_FLAG:
-                self.jetpack_sound.play()
+            # if self.jetpack_sound and self.SOUND_FLAG:
+            #     self.jetpack_sound.play()
             self.events.append("jetpack")    
             self.jetpack_active = True
             self.jetpack_start_time = current_time
