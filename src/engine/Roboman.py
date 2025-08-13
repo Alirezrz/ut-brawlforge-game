@@ -35,8 +35,7 @@ class Roboman:
         
         self.Bullet_Class_ref = None
         self.attack_targets =None # این باید باشه 
-        if LOAD_FLAG:
-            
+        if Soundeffect_flag:
             self.shot_hit_enemy_sound = pygame.mixer.Sound(
             os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "shot_hit_enemy.wav")
             )
@@ -50,6 +49,7 @@ class Roboman:
             self.jetpack_sound = pygame.mixer.Sound(
             os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "jetpack.mp3"))
             self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "RoboMan", "roboman hurt.mp3"))
+        if LOAD_FLAG: 
             self.hero_profile_picture = pygame.image.load("src/assets/images/RoboMan_pictures/hero_profile.png")
             self.roboman_health_bar_frame = pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar_frame.png")
             self.roboman_health_bar = pygame.image.load("src/assets/images/RoboMan_pictures/Roboman_health_bar.png")
