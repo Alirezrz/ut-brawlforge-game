@@ -140,9 +140,11 @@ class GameModeMenu:
         self.multi_button_rect = pygame.Rect(0, 0, 300, 50)
         self.multi_button_rect.center = (screen.get_width() // 2, button_y_start + 70)
         self.host_button_rect = pygame.Rect(0, 0, 300, 50)
-        self.host_button_rect.center = (screen.get_width() // 2, button_y_start + 140)
+        self.online_button_rect = pygame.Rect(0, 0, 300, 50)
+        self.online_button_rect.center = (screen.get_width() // 2, button_y_start + 140)
+        self.host_button_rect.center = (screen.get_width() // 2, button_y_start + 210)
         self.exit_button_rect = pygame.Rect(0, 0, 300, 50)
-        self.exit_button_rect.center = (screen.get_width() // 2, button_y_start + 210)
+        self.exit_button_rect.center = (screen.get_width() // 2, button_y_start + 280)
         try:
            self.click_sound = pygame.mixer.Sound("src/assets/sounds/menu/click.wav")
         except FileNotFoundError:
@@ -163,6 +165,7 @@ class GameModeMenu:
             self.draw_button("Single Player", self.single_button_rect, self.single_button_rect.collidepoint(mouse_pos))
             self.draw_button("Multi Player", self.multi_button_rect, self.multi_button_rect.collidepoint(mouse_pos))
             self.draw_button("Host Server", self.host_button_rect, self.host_button_rect.collidepoint(mouse_pos))
+            self.draw_button("Connect to Online Server", self.online_button_rect, self.online_button_rect.collidepoint(mouse_pos))
             self.draw_button("Back to Main Menu", self.exit_button_rect, self.exit_button_rect.collidepoint(mouse_pos))
             if self.status_message:
                 self.draw_text(self.status_message, pygame.font.SysFont(None, 35), (200, 255, 200), (self.screen.get_width() // 2, self.host_button_rect.bottom + 30))
@@ -181,6 +184,10 @@ class GameModeMenu:
                         if self.click_sound:
                             self.click_sound.play()
                         return "multi"
+                    if self.online_button_rect.collidepoint(event.pos):
+                          if self.click_sound:
+                            self.click_sound.play()
+                            return "online"
                     if self.exit_button_rect.collidepoint(event.pos):
                         if self.click_sound:
                             self.click_sound.play()
@@ -880,11 +887,9 @@ class JoinGameMenu:
 
     def try_join(self):
         if self.game_id:
-            request = {"action": "join_game", "game_id": self.game_id}
-            self.network.send_json(request)
-            return "wait_for_acceptance", None
+            return "id_entered", self.game_id 
         else:
-            self.message = "Please enter a Game ID."
+            self.message = "Please enter a Game ID or Username."
             self.message_color = (255, 100, 100)
             return None, None
     def draw(self):
@@ -930,6 +935,9 @@ class LobbyMenu:
 
     def run(self):
         while True:
+            result = self.check_server_messages()
+            if result:
+                return result
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.network.disconnect()
@@ -944,16 +952,7 @@ class LobbyMenu:
                                 self.click_sound.play()
                             print("[CLIENT DEBUG] 'Start Game' button clicked. Sending action to server...")
                             self.network.client.setblocking(True)
-                            
-
                             self.network.send_json({"action": "start_game"})
-                           
-                            self.network.client.setblocking(False)
-                            print("[CLIENT DEBUG] 'start_game' action sent.")
-
-            result = self.check_server_messages()
-            if result: 
-                return result
             self.draw()
             pygame.display.flip()
             pygame.time.Clock().tick(15) 
@@ -975,8 +974,9 @@ class LobbyMenu:
 
                 if msg_type in ["lobby_update", "join_accepted", "lobby_created"]:
                     self.players = response.get("players", [])
+                    self.game_id = response.get("game_id", self.game_id)
                 elif msg_type == "join_request" and self.is_host:
-                    self.join_request_popup = {"username": response["username"], "visible": True}
+                    self.join_request_popup = response
                 elif msg_type == "match_starting":
                     print("[CLIENT DEBUG] 'match_starting' message received! Exiting lobby...") 
                     self.network.client.setblocking(True)
@@ -988,7 +988,8 @@ class LobbyMenu:
                     print(f"Server Error: {response.get('message')}")
                     return "exit"
                 
-        except BlockingIOError: pass
+        except BlockingIOError: 
+            pass
         except (json.JSONDecodeError, socket.error, ConnectionResetError) as e:
             print(f"Error in lobby: {e}")
             return "exit"
@@ -1001,17 +1002,23 @@ class LobbyMenu:
             decision = "no"
         
         if decision:
-            if self.click_sound:
-                self.click_sound.play()
+            requester_username = self.join_request_popup.get("username")
             self.network.client.setblocking(True)
-            self.network.send_json({"action": "host_decision", "decision": decision})
+            self.network.send_json({
+                "action": "host_decision",
+                "decision": decision,
+                "target_username": requester_username
+            })
             self.network.client.setblocking(False)
             self.join_request_popup = None
-
     def draw(self):
         self.screen.blit(self.background, (0,0))
-        title_surf = self.title_font.render(f"Lobby - Game ID: {self.game_id}", True, (255, 255, 255))
-        self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width()//2, 100)))
+        if self.is_host:
+            id_text = f"Game ID: {self.game_id} (Your ID: {self.network.client_id})"
+        else:
+            id_text = f"Lobby - Game ID: {self.game_id}"
+        title_surf = self.title_font.render(id_text, True, (255, 255, 255))
+        self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width() // 2, 100)))
 
         for i, player_name in enumerate(self.players):
             player_surf = self.font.render(f"Player {i+1}: {player_name}", True, (255, 255, 255))
@@ -1020,16 +1027,13 @@ class LobbyMenu:
 
         if self.is_host:
             max_players = 2 if self.game_type == '1v1' else 4
-            if len(self.players) == max_players:
-                color = (0, 200, 0) 
-                text = "Start Game"
-            else:
-                color = (100, 100, 100) 
-                text = f"Waiting... ({len(self.players)}/{max_players})"
-            
+            color = (0, 200, 0) if len(self.players) == max_players else (100, 100, 100)
+            text = "Start Game" if len(self.players) == max_players else f"Waiting... ({len(self.players)}/{max_players})"
             pygame.draw.rect(self.screen, color, self.start_button, border_radius=10)
             text_surf = self.font.render(text, True, (255, 255, 255))
             self.screen.blit(text_surf, text_surf.get_rect(center=self.start_button.center))
+        if self.join_request_popup:
+            self.draw_popup()
 
         if self.join_request_popup:
             self.draw_popup()
@@ -1163,10 +1167,9 @@ class SearchPlayerMenu:
                     if self.search_button.collidepoint(event.pos):
                         if self.click_sound: self.click_sound.play()
                         if self.player_id:
-                            # ارسال درخواست به سرور
                             request = {"action": "request_play_by_id", "target_id": self.player_id}
                             self.network.send_json(request)
-                            return "waiting_for_response", None # منتظر پاسخ سرور بمان
+                            return "waiting_for_response", None 
                     if self.back_button.collidepoint(event.pos):
                         if self.click_sound: self.click_sound.play()
                         return "back", None
@@ -1185,7 +1188,6 @@ class SearchPlayerMenu:
             pygame.display.flip()
 
     def draw(self):
-        # این متد مشابه متد draw در JoinGameMenu است
         self.screen.blit(self.background, (0, 0))
         title_surf = self.title_font.render("Search Player by ID", True, (255, 255, 255))
         self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width() // 2, 150)))
@@ -1201,3 +1203,321 @@ class SearchPlayerMenu:
         pygame.draw.rect(self.screen, (150, 0, 0), self.back_button, border_radius=10)
         back_text = self.font.render("Back", True, (255, 255, 255))
         self.screen.blit(back_text, back_text.get_rect(center=self.back_button.center))
+
+
+class LoginSignupMenu:
+    def __init__(self, screen, background):
+        self.screen = screen
+        self.background = background
+        self.font = pygame.font.Font(None, 50)
+        self.title_font = pygame.font.Font(None, 74)
+        self.username = ""
+        self.password = ""
+        self.active_field = "username" 
+        self.message = "Enter your credentials"
+        self.message_color = (255, 255, 255)
+        self.username_box = pygame.Rect(screen.get_width() // 2 - 200, 250, 400, 50)
+        self.password_box = pygame.Rect(screen.get_width() // 2 - 200, 320, 400, 50)
+        self.login_button = pygame.Rect(screen.get_width() // 2 - 200, 400, 180, 60)
+        self.signup_button = pygame.Rect(screen.get_width() // 2 + 20, 400, 180, 60)
+        self.back_button = pygame.Rect(screen.get_width() // 2 - 90, 480, 180, 60)
+
+    def draw(self):
+        self.screen.blit(self.background, (0, 0))
+       
+        title_surf = self.title_font.render("Login / Signup", True, (255, 255, 255))
+        self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width() // 2, 150)))
+        msg_surf = self.font.render(self.message, True, self.message_color)
+        self.screen.blit(msg_surf, msg_surf.get_rect(center=(self.screen.get_width() // 2, 210)))
+        pygame.draw.rect(self.screen, (255, 165, 0) if self.active_field == "username" else (255, 255, 255), self.username_box, 2, border_radius=5)
+        username_surf = self.font.render("Username: " + self.username, True, (255, 255, 255))
+        self.screen.blit(username_surf, (self.username_box.x + 10, self.username_box.y + 10))
+
+        pygame.draw.rect(self.screen, (255, 165, 0) if self.active_field == "password" else (255, 255, 255), self.password_box, 2, border_radius=5)
+        password_surf = self.font.render("Password: " + "*" * len(self.password), True, (255, 255, 255))
+        self.screen.blit(password_surf, (self.password_box.x + 10, self.password_box.y + 10))
+
+        pygame.draw.rect(self.screen, (0, 150, 0), self.login_button, border_radius=10)
+        login_text = self.font.render("Login", True, (255, 255, 255))
+        self.screen.blit(login_text, login_text.get_rect(center=self.login_button.center))
+
+        pygame.draw.rect(self.screen, (0, 100, 150), self.signup_button, border_radius=10)
+        signup_text = self.font.render("Signup", True, (255, 255, 255))
+        self.screen.blit(signup_text, signup_text.get_rect(center=self.signup_button.center))
+
+        pygame.draw.rect(self.screen, (150, 0, 0), self.back_button, border_radius=10)
+        back_text = self.font.render("Back", True, (255, 255, 255))
+        self.screen.blit(back_text, back_text.get_rect(center=self.back_button.center))
+
+    def run(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return "exit", None, None
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.username_box.collidepoint(event.pos):
+                        self.active_field = "username"
+                    elif self.password_box.collidepoint(event.pos):
+                        self.active_field = "password"
+                    else:
+                        self.active_field = None
+
+                    if self.login_button.collidepoint(event.pos):
+                        return "login", self.username, self.password
+                    if self.signup_button.collidepoint(event.pos):
+                        return "signup", self.username, self.password
+                    if self.back_button.collidepoint(event.pos):
+                        return "back", None, None
+
+                if event.type == pygame.KEYDOWN and self.active_field:
+                    if event.key == pygame.K_BACKSPACE:
+                        if self.active_field == "username":
+                            self.username = self.username[:-1]
+                        elif self.active_field == "password":
+                            self.password = self.password[:-1]
+                    elif event.key == pygame.K_TAB:
+                        self.active_field = "password" if self.active_field == "username" else "username"
+                    else:
+                        if self.active_field == "username":
+                            self.username += event.unicode
+                        elif self.active_field == "password":
+                            self.password += event.unicode
+            
+            self.draw()
+            pygame.display.flip()
+
+
+class OnlineActionMenu:
+    def __init__(self, screen, background):
+        self.screen = screen
+        self.background = background
+        self.font = pygame.font.Font(None, 50)
+        self.title_font = pygame.font.Font(None, 74)
+        
+        y_start = 250
+        self.buttons = [
+            {"text": "Create 1v1 Game", "rect": pygame.Rect(0, 0, 400, 60), "action": "create_1v1"},
+            {"text": "Create 2v2 Game", "rect": pygame.Rect(0, 0, 400, 60), "action": "create_2v2"},
+            {"text": "Join Game by ID", "rect": pygame.Rect(0, 0, 400, 60), "action": "join_game"},
+            {"text": "Back to Main Menu", "rect": pygame.Rect(0, 0, 400, 60), "action": "back"}
+        ]
+        
+        for i, button in enumerate(self.buttons):
+            button["rect"].center = (screen.get_width() // 2, y_start + i * 80)
+
+    def draw(self):
+        self.screen.blit(self.background, (0, 0))
+        title_surf = self.title_font.render("Online Lobby", True, (255, 255, 255))
+        self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width() // 2, 150)))
+
+        mouse_pos = pygame.mouse.get_pos()
+        for button in self.buttons:
+            color = (255, 165, 0) if button["rect"].collidepoint(mouse_pos) else (255, 255, 255)
+            text_surf = self.font.render(button["text"], True, color)
+            self.screen.blit(text_surf, text_surf.get_rect(center=button["rect"].center))
+
+    def run(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return "exit"
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    for button in self.buttons:
+                        if button["rect"].collidepoint(event.pos):
+                            return button["action"]
+            
+            self.draw()
+            pygame.display.flip()
+
+
+class JoinMethodMenu:
+    def __init__(self, screen, background):
+        self.screen = screen
+        self.background = background
+        self.font = pygame.font.Font(None, 50)
+        self.title_font = pygame.font.Font(None, 74)
+        
+        y_start = 300
+        self.buttons = [
+            {"text": "Search by ID / username ", "rect": pygame.Rect(0, 0, 500, 60), "action": "search_id"},
+            {"text": "Let Server Decide", "rect": pygame.Rect(0, 0, 500, 60), "action": "server_decide"},
+            {"text": "Back", "rect": pygame.Rect(0, 0, 200, 60), "action": "back"}
+        ]
+        
+        for i, button in enumerate(self.buttons):
+            button["rect"].center = (screen.get_width() // 2, y_start + i * 90)
+
+    def draw(self):
+        self.screen.blit(self.background, (0, 0))
+        title_surf = self.title_font.render("How to Join?", True, (255, 255, 255))
+        self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width() // 2, 180)))
+
+        mouse_pos = pygame.mouse.get_pos()
+        for button in self.buttons:
+            color = (255, 165, 0) if button["rect"].collidepoint(mouse_pos) else (255, 255, 255)
+            text_surf = self.font.render(button["text"], True, color)
+            self.screen.blit(text_surf, text_surf.get_rect(center=button["rect"].center))
+
+    def run(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return "exit"
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    for button in self.buttons:
+                        if button["rect"].collidepoint(event.pos):
+                            return button["action"]
+            
+            self.draw()
+            pygame.display.flip()
+
+
+class TextInputMenu:
+    def __init__(self, screen, background, prompt):
+        self.screen = screen
+        self.background = background
+        self.prompt = prompt
+        self.font = pygame.font.Font(None, 50)
+        self.title_font = pygame.font.Font(None, 60)
+        self.input_text = ""
+        self.input_box = pygame.Rect(screen.get_width() // 2 - 200, 300, 400, 50)
+        self.confirm_button = pygame.Rect(screen.get_width() // 2 - 100, 400, 200, 50)
+        self.back_button = pygame.Rect(50, screen.get_height() - 100, 150, 50)
+
+    def draw(self):
+        self.screen.blit(self.background, (0, 0))
+        prompt_surf = self.title_font.render(self.prompt, True, (255, 255, 255))
+        self.screen.blit(prompt_surf, prompt_surf.get_rect(center=(self.screen.get_width() // 2, 220)))
+        
+        pygame.draw.rect(self.screen, (255, 165, 0), self.input_box, 2, border_radius=5)
+        text_surface = self.font.render(self.input_text, True, (255, 255, 255))
+        self.screen.blit(text_surface, (self.input_box.x + 10, self.input_box.y + 5))
+        
+        pygame.draw.rect(self.screen, (0, 150, 0), self.confirm_button, border_radius=10)
+        confirm_text = self.font.render("Confirm", True, (255, 255, 255))
+        self.screen.blit(confirm_text, confirm_text.get_rect(center=self.confirm_button.center))
+
+        pygame.draw.rect(self.screen, (150, 0, 0), self.back_button, border_radius=10)
+        back_text = self.font.render("Back", True, (255, 255, 255))
+        self.screen.blit(back_text, back_text.get_rect(center=self.back_button.center))
+
+    def run(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return None
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.confirm_button.collidepoint(event.pos):
+                        return self.input_text
+                    if self.back_button.collidepoint(event.pos):
+                        return None
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        return self.input_text
+                    elif event.key == pygame.K_BACKSPACE:
+                        self.input_text = self.input_text[:-1]
+                    else:
+                        self.input_text += event.unicode
+            
+            self.draw()
+            pygame.display.flip()
+
+
+class OnlineLobbyMenu:
+    def __init__(self, screen, background, network_handler, lobby_data, is_host):
+        self.screen = screen
+        self.background = background
+        self.network = network_handler  
+        self.game_id = lobby_data.get("game_id", "N/A")
+        self.players = lobby_data.get("players", [])
+        self.game_type = lobby_data.get("game_type", "1v1")
+        self.is_host = is_host
+        self.font = pygame.font.Font(None, 50)
+        self.title_font = pygame.font.Font(None, 70)
+        
+        self.network.client.setblocking(False)
+        self.join_request_popup = None 
+        self.yes_button_rect = None
+        self.no_button_rect = None
+
+        if self.is_host:
+            self.start_button = pygame.Rect(screen.get_width() - 380, screen.get_height() - 110, 350, 70)
+
+    def run(self):
+        while True:
+            server_message = self.check_server_messages()
+            if server_message:
+                if "wants to join" in server_message and self.is_host:
+                    self.join_request_popup = server_message
+                elif "Game is starting" in server_message or "setup_complete" in server_message:
+                    return "start_game"
+                elif "You have been accepted" in server_message:
+                    pass 
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.network.client.close()
+                    return "exit"
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.join_request_popup:
+                        self.handle_popup_click(event.pos)
+            
+            self.draw()
+            pygame.display.flip()
+            pygame.time.Clock().tick(15)
+
+    def check_server_messages(self):
+        try:
+            data = self.network.client.recv(4096).decode('utf-8').strip()
+            if data:
+                print(f"[SERVER MESSAGE RECEIVED] {data}")
+                return data
+        except BlockingIOError:
+            pass 
+        except (socket.error, ConnectionResetError):
+            return "exit"
+        return None
+
+    def handle_popup_click(self, pos):
+        decision = None
+        if self.yes_button_rect and self.yes_button_rect.collidepoint(pos):
+            decision = "yes"
+        elif self.no_button_rect and self.no_button_rect.collidepoint(pos):
+            decision = "no"
+        
+        if decision:
+            self.network.client.setblocking(True)
+            self.network.client.sendall(decision.encode())
+            self.network.client.setblocking(False)
+            self.join_request_popup = None
+    
+    def draw(self):
+        self.screen.blit(self.background, (0, 0))
+        id_text = f"Game ID: {self.game_id}" if self.is_host else f"Lobby: {self.game_id}"
+        title_surf = self.title_font.render(id_text, True, (255, 255, 255))
+        self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width() // 2, 100)))
+        for i, player_name in enumerate(self.players):
+            player_surf = self.font.render(f"Player {i+1}: {player_name}", True, (255, 255, 255))
+            self.screen.blit(player_surf, player_surf.get_rect(center=(self.screen.get_width() // 2, 250 + i * 60)))
+        if self.is_host:
+            pygame.draw.rect(self.screen, (100, 100, 100), self.start_button, border_radius=10)
+            text_surf = self.font.render("Waiting for Players...", True, (255, 255, 255))
+            self.screen.blit(text_surf, text_surf.get_rect(center=self.start_button.center))
+
+        if self.join_request_popup:
+            self.draw_popup()
+            
+    def draw_popup(self):
+        s = pygame.Surface((700, 250), pygame.SRCALPHA); s.fill((0,0,0, 220))
+        popup_rect = s.get_rect(center=(self.screen.get_width()//2, self.screen.get_height()//2))
+        self.screen.blit(s, popup_rect.topleft)
+        text_surf = self.font.render(self.join_request_popup, True, (255, 255, 255))
+        self.screen.blit(text_surf, text_surf.get_rect(center=(popup_rect.centerx, popup_rect.centery - 50)))
+        
+        self.yes_button_rect = pygame.Rect(0,0,120,50); self.yes_button_rect.center = (popup_rect.centerx - 90, popup_rect.centery + 50)
+        self.no_button_rect = pygame.Rect(0,0,120,50); self.no_button_rect.center = (popup_rect.centerx + 90, popup_rect.centery + 50)
+        pygame.draw.rect(self.screen, (0,150,0), self.yes_button_rect, border_radius=10)
+        pygame.draw.rect(self.screen, (150,0,0), self.no_button_rect, border_radius=10)
+        yes_text = self.font.render("Accept", True, (255,255,255)); no_text = self.font.render("Deny", True, (255,255,255))
+        self.screen.blit(yes_text, yes_text.get_rect(center=self.yes_button_rect.center))
+        self.screen.blit(no_text, no_text.get_rect(center=self.no_button_rect.center))
