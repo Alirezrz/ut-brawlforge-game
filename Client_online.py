@@ -522,7 +522,7 @@ class Client:
             except Exception as e:
                 print(f"Connection lost: {e}")
                 break
-            clock.tick(60)
+            clock.tick(30)
 
     def play_sound(self, event_name, character_name="Ninja"):
         try:
