@@ -109,7 +109,7 @@ class Ninja:
         #     self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja hurt.mp3"))        
         if LOAD_FLAG:  
             self.ninja_health_bar_frame = pygame.image.load("src/assets/images/Ninja/Ninja_health_bar_frame.png")
-            self.ninja_health_bar =pygame.image.load("src/assets/images/Ninja/Ninja_health_bar.png")
+            self.ninja_health_bar =pygame.image.load("src/assets/images/Ninja/ninja_health_bar.png")
             self.ninja_profile_picture = pygame.image.load("src/assets/images/Ninja/ninja_profile.png")
             base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images", "Ninja")
 
