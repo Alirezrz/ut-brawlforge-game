@@ -576,7 +576,7 @@ class Roboman:
         current_time = pygame.time.get_ticks()
 
         if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active:
-            if self.shoot_sound and self.SOUND_FLAG:
+            if self.SOUND_FLAG:
                 self.shoot_sound.play()
                 self.events.append("shoot")
 
@@ -635,7 +635,7 @@ class Roboman:
             return  # rocket still cooling down
 
         if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active and self.SUPER_POWER_FLAG:
-            if self.shoot_sound and self.SOUND_FLAG:
+            if  self.SOUND_FLAG:
                 self.shoot_sound.play()
                 self.events.append("shoot")
             self.Last__Shooting_time = current_time
