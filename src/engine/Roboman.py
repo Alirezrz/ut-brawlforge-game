@@ -790,7 +790,7 @@ class Roboman:
     def jump(self):
         if self.on_ground :
             self.frame_flag=True
-            if self.jump_sound and self.SOUND_FLAG:
+            if  self.SOUND_FLAG:
                 self.jump_sound.play()
             self.events.append("robot jump")    
             self.vertical_speed = self.jump_strenght
