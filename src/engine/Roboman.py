@@ -184,6 +184,8 @@ class Roboman:
             try:
                 if pygame.display.get_surface():
                     self.bullet_picture = pygame.image.load(bullet_image_path).convert_alpha()
+                else:
+                    self.bullet_picture = pygame.image.load(bullet_image_path)
                 self.bullet_picture = pygame.transform.scale(self.bullet_picture ,(35,15))
             except FileNotFoundError:
                 print(f"Error: Bullet.png not found at {bullet_image_path}. Using a placeholder.")
@@ -194,6 +196,8 @@ class Roboman:
             )
             if pygame.display.get_surface():
                 self.rocket=pygame.image.load(bullet_image_path).convert_alpha()
+            else:
+                self.rocket=pygame.image.load(bullet_image_path)
             self.rocket=pygame.transform.scale(self.rocket ,(43,25))
             image_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
