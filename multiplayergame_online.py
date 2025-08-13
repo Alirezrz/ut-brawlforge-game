@@ -9,23 +9,19 @@ from src.engine.Ninja import Ninja
 from src.engine.NinjaGirl import NinjaGirl
 from src.engine.Archer import Archer
 from config import screen_width, screen_height
-from src.levels import multiplayer_data, load_level_data,online_multiplayer_data,build_objects
+from src.levels import multiplayer_data, load_level_data, online_multiplayer_data, build_objects
 from src.engine.bullet import Bullet
 from src.engine.heatlh_box import PowerBox
 from src.engine.power_ups import Power_up
 from pymongo import MongoClient
 from dotenv import load_dotenv
-bullet_class=Bullet
+bullet_class = Bullet
 
 os.environ["SDL_VIDEODRIVER"] = "dummy"
-# pygame.display.init()
-# pygame.display.set_mode((1, 1))
-
 pygame.init()
 
-
-start_x= 58*64
-start_y=-1000
+start_x = 58 * 64
+start_y = -1000
 
 # Load platforms
 platform_image_path = "src/assets/images/"
@@ -51,58 +47,54 @@ except Exception as e:
     print(f"Error loading platforms: {e}")
     platforms = []
 
-
-
 class MultiplayerGame:
-    def __init__(self,type):
+    def __init__(self, type):
         load_dotenv()
         mongo_uri = os.getenv("MONGO_URI")
         if not mongo_uri:
             raise ValueError("MONGO_URI not found in .env file")
-        self.db = MongoClient(mongo_uri)["my_game_db"] 
+        self.db = MongoClient(mongo_uri)["my_game_db"]
         self.clients = []
         self.player_inputs = {}
-        self.heroes = [None, None]  if type=='1v1' else  [None, None] *2 
+        self.heroes = [None, None] if type == '1v1' else [None, None] * 2
         self.game_active = False
         self.platforms = platforms
         self.shot_bullets = []
         self.gates = []
-        self.type=type
-        self.TEAMS_SET=False
-        self.objects_dict= build_objects(online_multiplayer_data , self.heroes)
+        self.type = type
+        self.TEAMS_SET = False
+        self.objects_dict = build_objects(online_multiplayer_data, self.heroes)
         health_boxes = [obj for obj in self.objects_dict['misc'] if isinstance(obj, PowerBox)]
         selected_health_boxes = random.sample(health_boxes, min(4, len(health_boxes)))
         power_ups = [obj for obj in self.objects_dict['power ups'] if isinstance(obj, Power_up)]
         selected_power_ups = random.sample(power_ups, min(5, len(power_ups)))
-        self.objects = selected_health_boxes + self.objects_dict['gates'] + selected_power_ups 
-        
+        self.objects = selected_health_boxes + self.objects_dict['gates'] + selected_power_ups
 
     def create_hero(self, char_name, x, y, index, username):
         print(f"Creating hero: {char_name} at ({x}, {y}) for player {index} ({username})")
         try:
             if char_name == "Roboman":
-                hero = Roboman(x, y, screen_width, screen_height, index, username,True,False)
-                hero.SOUND_FLAG=False
+                hero = Roboman(x, y, screen_width, screen_height, index, username, True, False)
+                hero.SOUND_FLAG = False
             elif char_name == "Ninja":
-                hero = Ninja(x, y, screen_width, screen_height, [], index, username,True,False)
-                hero.SOUND_FLAG=False
+                hero = Ninja(x, y, screen_width, screen_height, [], index, username, True, False)
+                hero.SOUND_FLAG = False
             elif char_name == "NinjaGirl":
-                hero = NinjaGirl(x, y, screen_width, screen_height, [], index, username,True,False)
-                hero.SOUND_FLAG=False
+                hero = NinjaGirl(x, y, screen_width, screen_height, [], index, username, True, False)
+                hero.SOUND_FLAG = False
             elif char_name == "Archer":
-                hero = Archer(x, y, [], index, username,False)
-                hero.SOUND_FLAG=False
+                hero = Archer(x, y, [], index, username, False)
+                hero.SOUND_FLAG = False
             else:
                 print(f"Unknown character {char_name}, defaulting to Ninja")
-                hero = Ninja(x, y, screen_width, screen_height, [], index, username,True,False)
-                hero.SOUND_FLAG=False
+                hero = Ninja(x, y, screen_width, screen_height, [], index, username, True, False)
+                hero.SOUND_FLAG = False
 
             hero.character_name = char_name
             return hero
         except Exception as e:
             print(f"Error creating hero {char_name}: {e}")
             return Ninja(x, y, screen_width, screen_height, [], index, username)
-        
 
     def client_thread(self, conn, player_index):
         print(f"Player {player_index} connected")
@@ -117,21 +109,21 @@ class MultiplayerGame:
                 print(f"[SERVER] Invalid character choice '{char_choice}', defaulting to 'Ninja'")
                 char_choice = "Ninja"
             if self.type == "1v1":
-                if player_index==1:
-                    player_start=online_multiplayer_data['1v1player1_start']
-                else :
-                    player_start=online_multiplayer_data['1v1player2_start']    
-            else:
-                if player_index==1:
-                    player_start=online_multiplayer_data['2v2player1_start']  
-                elif player_index==2:
-                    player_start=online_multiplayer_data['2v2player2_start']               
-                elif player_index==3:
-                    player_start=online_multiplayer_data['2v2player3_start']
+                if player_index == 1:
+                    player_start = online_multiplayer_data['1v1player1_start']
                 else:
-                    player_start=online_multiplayer_data['2v2player4_start']
+                    player_start = online_multiplayer_data['1v1player2_start']
+            else:
+                if player_index == 1:
+                    player_start = online_multiplayer_data['2v2player1_start']
+                elif player_index == 2:
+                    player_start = online_multiplayer_data['2v2player2_start']
+                elif player_index == 3:
+                    player_start = online_multiplayer_data['2v2player3_start']
+                else:
+                    player_start = online_multiplayer_data['2v2player4_start']
 
-            hero = self.create_hero(char_choice, player_start['x'],  player_start['y'], player_index + 1, username)
+            hero = self.create_hero(char_choice, player_start['x'], player_start['y'], player_index + 1, username)
             self.heroes[player_index] = hero
             self.player_inputs[player_index] = {}
 
@@ -143,34 +135,30 @@ class MultiplayerGame:
             conn.close()
             return
 
-
-
         buffer = ""
         clock = pygame.time.Clock()
         while True:
             try:
                 chunk = conn.recv(1024).decode('utf-8')
                 if not chunk:
-                    break  
+                    break
 
-                buffer += chunk  
+                buffer += chunk
                 while '\n' in buffer:
-                    message_raw, buffer = buffer.split('\n', 1)  
+                    message_raw, buffer = buffer.split('\n', 1)
 
                     if message_raw:
-                        self.player_inputs[player_index] = json.loads(message_raw) 
+                        self.player_inputs[player_index] = json.loads(message_raw)
                 clock.tick(30)
             except Exception as e:
                 print(f"[SERVER] Client {player_index} error: {e}")
                 break
-            
 
         print(f"Player {player_index} disconnected.")
         self.clients[player_index] = None
         self.heroes[player_index] = None
         self.player_inputs[player_index] = {}
         conn.close()
-
 
     def game_loop(self):
         print("Game loop started")
@@ -194,8 +182,6 @@ class MultiplayerGame:
                     hero1, hero2 = self.heroes[0], self.heroes[1]
                     inputs1 = self.player_inputs.get(0, {})
                     inputs2 = self.player_inputs.get(1, {})
-
-                    
 
                     keys1 = {
                         pygame.K_a: inputs1.get("A", False),
@@ -230,6 +216,14 @@ class MultiplayerGame:
                     hero1.update_online(self.platforms, self.shot_bullets, hero1.attack_targets, keys1, self.gates, None)
                     hero2.update_online(self.platforms, self.shot_bullets, hero2.attack_targets, keys2, self.gates, None)
 
+                    # بررسی مرگ و آپدیت kills و deaths
+                    for bullet in self.shot_bullets:
+                        if bullet.owner != hero1.username and hero1.health <= 0:
+                            self.db.users_collection.update_one({"username": hero1.username}, {"$inc": {"deaths": 1}})
+                            self.db.users_collection.update_one({"username": bullet.owner}, {"$inc": {"kills": 1}})
+                        if bullet.owner != hero2.username and hero2.health <= 0:
+                            self.db.users_collection.update_one({"username": hero2.username}, {"$inc": {"deaths": 1}})
+                            self.db.users_collection.update_one({"username": bullet.owner}, {"$inc": {"kills": 1}})
 
                     state_p1 = hero1.serialize()
                     state_p2 = hero2.serialize()
@@ -239,40 +233,36 @@ class MultiplayerGame:
                         "self": state_p1,
                         "opponents": [state_p2],
                         "bullets": bullets_state,
-                        "objects":objs_state,
+                        "objects": objs_state,
                     }).encode('utf-8') + b"\n")
 
                     self.clients[1].sendall(json.dumps({
                         "self": state_p2,
                         "opponents": [state_p1],
                         "bullets": bullets_state,
-                        "objects":objs_state,
+                        "objects": objs_state,
                     }).encode('utf-8') + b"\n")
-
-                    # hero1.events = []
-                    # hero2.events = []
 
                 elif self.type == '2v2':
                     hero1, hero2, hero3, hero4 = self.heroes
                     inputs = [self.player_inputs.get(i, {}) for i in range(4)]
-                    keys=[]
+                    keys = []
                     for i in range(4):
                         keys.append({
-                        pygame.K_a: inputs[i].get("A", False),
-                        pygame.K_d: inputs[i].get("D", False),
-                        pygame.K_w: inputs[i].get("W", False),
-                        pygame.K_LSHIFT: inputs[i].get("LSHIFT", False),
-                        pygame.K_g: inputs[i].get("G", False),
-                        pygame.K_TAB: inputs[i].get("TAB", False),
-                        pygame.K_RCTRL: inputs[i].get("RCTRL", False),
-                        pygame.K_RALT: inputs[i].get("RALT", False),
-                    })
-                        
-                    mice=[]
+                            pygame.K_a: inputs[i].get("A", False),
+                            pygame.K_d: inputs[i].get("D", False),
+                            pygame.K_w: inputs[i].get("W", False),
+                            pygame.K_LSHIFT: inputs[i].get("LSHIFT", False),
+                            pygame.K_g: inputs[i].get("G", False),
+                            pygame.K_TAB: inputs[i].get("TAB", False),
+                            pygame.K_RCTRL: inputs[i].get("RCTRL", False),
+                            pygame.K_RALT: inputs[i].get("RALT", False),
+                        })
+                    
+                    mice = []
                     for i in range(4):
                         mice.append((inputs[i].get("left_click", False), False, inputs[i].get("right_click", False)))
                     
-
                     heroes = [hero1, hero2, hero3, hero4]
                     for i in range(4):
                         if heroes[i].hero_creation_index in (1, 2):  # Team 1
@@ -283,12 +273,16 @@ class MultiplayerGame:
                         heroes[i].handle_input_online(keys[i], self.gates, self.shot_bullets, bullet_class, None, mice[i])
                         heroes[i].update_online(self.platforms, self.shot_bullets, heroes[i].attack_targets, keys[i], self.gates, None)
 
-                                            
+                    # بررسی مرگ و آپدیت kills و deaths
+                    for bullet in self.shot_bullets:
+                        for hero in heroes:
+                            if hero and hero.health <= 0 and bullet.owner != hero.username:
+                                self.db.users_collection.update_one({"username": hero.username}, {"$inc": {"deaths": 1}})
+                                self.db.users_collection.update_one({"username": bullet.owner}, {"$inc": {"kills": 1}})
 
                     states = [h.serialize() for h in heroes]
                     bullets_state = [b.serialize() for b in self.shot_bullets]
 
-                    # Players 0 and 1 are team A, 2 and 3 are team B
                     team_data = [
                         (0, 1, [states[2], states[3]]),
                         (1, 0, [states[2], states[3]]),
@@ -302,7 +296,7 @@ class MultiplayerGame:
                             "teammate": states[mate_idx],
                             "opponents": opponents,
                             "bullets": bullets_state,
-                            "objects":objs_state,
+                            "objects": objs_state,
                         }).encode('utf-8') + b"\n")
 
                 clock.tick(30)
