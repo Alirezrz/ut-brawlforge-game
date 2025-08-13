@@ -64,7 +64,8 @@ class MultiplayerGame:
         self.type=type
         self.TEAMS_SET=False
         self.objects_dict= build_objects(online_multiplayer_data , self.heroes)
-        #health_boxes = [obj for obj in self.objects_dict['misc'] if isinstance(obj, PowerBox)]
+        health_boxes = [obj for obj in self.objects_dict['misc'] if isinstance(obj, PowerBox)]
+        selected_health_boxes = random.sample(health_boxes, min(4, len(health_boxes)))
         
         
         
