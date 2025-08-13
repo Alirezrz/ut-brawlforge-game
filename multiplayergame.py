@@ -202,7 +202,6 @@ class MultiplayerGame:
                         self.game_over_timer_start = current_time
                 all_states = [h.serialize() if h else None for h in self.heroes]
                 bullets_state = [b.serialize() for b in self.shot_bullets]
-                print(f"bullets=\n{bullets_state}\n")
                 objs_state = []
                 for obj in self.objects:
                     if hasattr(obj, 'serialize'):

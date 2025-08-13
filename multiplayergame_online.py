@@ -68,7 +68,7 @@ class MultiplayerGame:
         selected_health_boxes = random.sample(health_boxes, min(4, len(health_boxes)))
         power_ups = [obj for obj in self.objects_dict['power ups'] if isinstance(obj, Power_up)]
         selected_power_ups = random.sample(power_ups, min(5, len(power_ups)))
-        
+        self.objects = selected_health_boxes + self.objects_dict['gates'] + selected_power_ups 
         
 
     def create_hero(self, char_name, x, y, index, username):
@@ -175,6 +175,13 @@ class MultiplayerGame:
                 clock.tick(30)
                 continue
             try:
+                objs_state = []
+                for obj in self.objects:
+                    if hasattr(obj, 'serialize'):
+                        try:
+                            objs_state.append(obj.serialize())
+                        except Exception as e:
+                            print(f"Serialization error for object {obj}: {e}")
                 if self.type == '1v1':
                     hero1, hero2 = self.heroes[0], self.heroes[1]
                     inputs1 = self.player_inputs.get(0, {})
@@ -220,13 +227,15 @@ class MultiplayerGame:
                     self.clients[0].sendall(json.dumps({
                         "self": state_p1,
                         "opponents": [state_p2],
-                        "bullets": bullets_state
+                        "bullets": bullets_state,
+                        "objects":objs_state,
                     }).encode('utf-8') + b"\n")
 
                     self.clients[1].sendall(json.dumps({
                         "self": state_p2,
                         "opponents": [state_p1],
-                        "bullets": bullets_state
+                        "bullets": bullets_state,
+                        "objects":objs_state,
                     }).encode('utf-8') + b"\n")
 
                     # hero1.events = []
@@ -277,7 +286,8 @@ class MultiplayerGame:
                             "self": states[idx],
                             "teammate": states[mate_idx],
                             "opponents": opponents,
-                            "bullets": bullets_state
+                            "bullets": bullets_state,
+                            "objects":objs_state,
                         }).encode('utf-8') + b"\n")
 
                 clock.tick(30)
