@@ -140,9 +140,11 @@ class GameModeMenu:
         self.multi_button_rect = pygame.Rect(0, 0, 300, 50)
         self.multi_button_rect.center = (screen.get_width() // 2, button_y_start + 70)
         self.host_button_rect = pygame.Rect(0, 0, 300, 50)
-        self.host_button_rect.center = (screen.get_width() // 2, button_y_start + 140)
+        self.online_button_rect = pygame.Rect(0, 0, 300, 50)
+        self.online_button_rect.center = (screen.get_width() // 2, button_y_start + 140)
+        self.host_button_rect.center = (screen.get_width() // 2, button_y_start + 210)
         self.exit_button_rect = pygame.Rect(0, 0, 300, 50)
-        self.exit_button_rect.center = (screen.get_width() // 2, button_y_start + 210)
+        self.exit_button_rect.center = (screen.get_width() // 2, button_y_start + 280)
         try:
            self.click_sound = pygame.mixer.Sound("src/assets/sounds/menu/click.wav")
         except FileNotFoundError:
@@ -163,6 +165,7 @@ class GameModeMenu:
             self.draw_button("Single Player", self.single_button_rect, self.single_button_rect.collidepoint(mouse_pos))
             self.draw_button("Multi Player", self.multi_button_rect, self.multi_button_rect.collidepoint(mouse_pos))
             self.draw_button("Host Server", self.host_button_rect, self.host_button_rect.collidepoint(mouse_pos))
+            self.draw_button("Connect to Online Server", self.online_button_rect, self.online_button_rect.collidepoint(mouse_pos))
             self.draw_button("Back to Main Menu", self.exit_button_rect, self.exit_button_rect.collidepoint(mouse_pos))
             if self.status_message:
                 self.draw_text(self.status_message, pygame.font.SysFont(None, 35), (200, 255, 200), (self.screen.get_width() // 2, self.host_button_rect.bottom + 30))
@@ -181,6 +184,10 @@ class GameModeMenu:
                         if self.click_sound:
                             self.click_sound.play()
                         return "multi"
+                    if self.online_button_rect.collidepoint(event.pos):
+                          if self.click_sound:
+                            self.click_sound.play()
+                            return "online"
                     if self.exit_button_rect.collidepoint(event.pos):
                         if self.click_sound:
                             self.click_sound.play()
@@ -1163,7 +1170,6 @@ class SearchPlayerMenu:
                     if self.search_button.collidepoint(event.pos):
                         if self.click_sound: self.click_sound.play()
                         if self.player_id:
-                            # ارسال درخواست به سرور
                             request = {"action": "request_play_by_id", "target_id": self.player_id}
                             self.network.send_json(request)
                             return "waiting_for_response", None # منتظر پاسخ سرور بمان
@@ -1185,7 +1191,6 @@ class SearchPlayerMenu:
             pygame.display.flip()
 
     def draw(self):
-        # این متد مشابه متد draw در JoinGameMenu است
         self.screen.blit(self.background, (0, 0))
         title_surf = self.title_font.render("Search Player by ID", True, (255, 255, 255))
         self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width() // 2, 150)))

@@ -9,7 +9,8 @@ from src.engine.menu import Menu, GameModeMenu, MapCharacterMenu,MultiplayerMapC
 from src.engine.multiplayer_game import Game_2
 from src.engine.network import Network
 from Client import Client
-
+from Client_online import Client as ClientOnline 
+from client_connector import ClientConnector
 pygame.init()
 pygame.mixer.init()
 
@@ -143,7 +144,38 @@ while True:
                             multiplayer_active = False
                 
                 network_handler.disconnect()
-                
+            elif mode == "online":
+                print("[INFO] Attempting to connect to online server...")
+                connector = ClientConnector()
+                if connector.connected and connector.username:
+                    try:
+                       print("[CLIENT] Waiting for game start signal from online server...")
+                       connector.client_socket.settimeout(120.0) 
+                       while True:
+                            msg = connector.client_socket.recv(1024).decode()
+                            print(f"[SERVER] {msg}")
+                            if "setup_complete" in msg:
+                                print("[CLIENT] Setup complete! Starting online game client...")
+                                char_select_menu = MultiplayerCharacterSelectMenu(screen, background1)
+                                selected_hero = char_select_menu.run()
+                                if selected_hero:
+                                    game_client = ClientOnline(
+                                      connector.client_socket,
+                                      connector.username,
+                                      connector.client_id,
+                                      hero_type=selected_hero
+                                    )
+                                    game_client.start()
+                                    multiplayer_active = False
+                                    start_menu_running = False
+                                break
+                    except Exception as e:
+                       print(f"[CLIENT] Error during online session: {e}")
+                    finally:
+                       connector.client_socket.close()
+                else:
+                    print("[CLIENT] Connection or login to online server failed. Returning to menu.")
+                continue
             if game: 
                 status, message = game.run()
                 if status == "game_over":
