@@ -99,14 +99,14 @@ class Ninja:
         self.shutter_alpha = 0
         self.shutter_direction = 1 
         self.is_first_time=True          
-        # if soundeffect_flag :
-        #     self.jump_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja jump.MP3"))
-        #     self.kunai_hit_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit.mp3"))
-        #     self.kunai_hit_platform_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit platofrm.mp3"))
-        #     self.melee_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "sword.mp3"))
-        #     self.melee_hit_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "sword hit.mp3"))
-        #     self.throw_kunai_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "throw kunai.mp3"))
-        #     self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja hurt.mp3"))        
+        if soundeffect_flag :
+            self.jump_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja jump.MP3"))
+            self.kunai_hit_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit.mp3"))
+            self.kunai_hit_platform_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "kunai hit platofrm.mp3"))
+            self.melee_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "sword.mp3"))
+            self.melee_hit_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "sword hit.mp3"))
+            self.throw_kunai_sound = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "throw kunai.mp3"))
+            self.hurt_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds", "ninja", "ninja hurt.mp3"))        
         if LOAD_FLAG:  
             self.ninja_health_bar_frame = pygame.image.load("src/assets/images/Ninja/Ninja_health_bar_frame.png")
             self.ninja_health_bar =pygame.image.load("src/assets/images/Ninja/ninja_health_bar.png")
@@ -215,8 +215,8 @@ class Ninja:
 
     
     def hurt(self):
-        # if self.SOUND_FLAG:
-        #     self.hurt_sound.play()
+        if self.SOUND_FLAG:
+            self.hurt_sound.play()
         self.events.append("ninja hurt")
         if self.health <= 0:
             self.die()
@@ -489,8 +489,8 @@ class Ninja:
         "Ninja",
         40 if self.Super_cofficent>1 else 20
         )
-        # if self.SOUND_FLAG:
-        #     self.throw_kunai_sound.play()
+        if self.SOUND_FLAG:
+            self.throw_kunai_sound.play()
         self.events.append("throw kunai")
 
         self.bullets.append(bullet)
@@ -586,8 +586,8 @@ class Ninja:
         for bullet in self.bullets:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
-                    # if self.SOUND_FLAG:
-                    #     self.kunai_hit_platform_sound.play()
+                    if self.SOUND_FLAG:
+                        self.kunai_hit_platform_sound.play()
                     self.events.append("kunai hit platofrm")
 
                     if bullet in self.bullets:
@@ -616,8 +616,8 @@ class Ninja:
         for bullet in self.bullets:
             for  platform in platforms:
                 if bullet.hitbox.colliderect(platform.rect):
-                    # if self.SOUND_FLAG:
-                    #     self.kunai_hit_platform_sound.play()
+                    if self.SOUND_FLAG:
+                        self.kunai_hit_platform_sound.play()
                     self.events.append("kunai hit platofrm")
 
                     if bullet in self.bullets:
@@ -642,8 +642,8 @@ class Ninja:
             return
 
         if self.on_ground and self.jump_count == 0 and self.AllowJump_flag:
-            # if self.SOUND_FLAG:
-            #     self.jump_sound.play()
+            if self.SOUND_FLAG:
+                self.jump_sound.play()
             self.events.append("ninja jump")
             self.vertical_speed = self.jump_strenght 
             self.jump_count = 1
@@ -660,8 +660,8 @@ class Ninja:
     def double_jump(self):
         current_time = pygame.time.get_ticks()
         self.vertical_speed = self.jump_strenght
-        # if self.SOUND_FLAG:
-        #     self.jump_sound.play()
+        if self.SOUND_FLAG:
+            self.jump_sound.play()
         self.events.append("ninja jump")
         self.on_ground = False
         self.current_platform = None
@@ -873,8 +873,8 @@ class Ninja:
         if self.ATTACK and self.vertical_speed==0 and self.current_platform!=None:
             self.prev_status = self.status
             self.status = 'attack'
-            # if self.SOUND_FLAG:
-            #     self.melee_sound.play() 
+            if self.SOUND_FLAG:
+                self.melee_sound.play() 
             self.events.append("sword")
             self.current_frame_index = 0
             self.attack_hit_registered = False
@@ -884,8 +884,8 @@ class Ninja:
         elif self.ATTACK:
             self.prev_status = self.status
             self.status = 'jumpattack'
-            # if self.SOUND_FLAG:
-            #     self.melee_sound.play() 
+            if self.SOUND_FLAG:
+                self.melee_sound.play() 
             self.events.append("sword")
             self.current_frame_index = 0
             self.attack_hit_registered = False
