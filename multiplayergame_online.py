@@ -98,16 +98,30 @@ class MultiplayerGame:
 
     def client_thread(self, conn, player_index):
         print(f"Player {player_index} connected")
+        buffer = ""
         try:
-            initial_data = json.loads(conn.recv(1024).decode('utf-8'))
-            print(f"[SERVER] Received initial data for player {player_index}: {initial_data}")
+            while '\n' not in buffer:
+                chunk = conn.recv(4096)
+                if not chunk:
+                    raise ConnectionError("Client disconnected before sending setup")
+                buffer += chunk.decode('utf-8')
 
+            initial_line, buffer = buffer.split('\n', 1)
+            try:
+                initial_data = json.loads(initial_line)
+            except json.JSONDecodeError as e:
+                print(f"[SERVER] Failed to decode initial JSON from client {player_index}: {e}")
+                conn.close()
+                return
+
+            print(f"[SERVER] Received initial data for player {player_index}: {initial_data}")
             username = initial_data.get("username", f"Player{player_index+1}")
             char_choice = initial_data.get("character", "Ninja")
 
             if char_choice not in ["Roboman", "Ninja", "NinjaGirl", "Archer"]:
                 print(f"[SERVER] Invalid character choice '{char_choice}', defaulting to 'Ninja'")
                 char_choice = "Ninja"
+
             if self.type == "1v1":
                 if player_index == 1:
                     player_start = online_multiplayer_data['1v1player1_start']
@@ -135,20 +149,26 @@ class MultiplayerGame:
             conn.close()
             return
 
-        buffer = ""
+        # --- Main loop ---
         clock = pygame.time.Clock()
         while True:
             try:
-                chunk = conn.recv(1024).decode('utf-8')
+                chunk = conn.recv(4096)
                 if not chunk:
                     break
 
-                buffer += chunk
+                buffer += chunk.decode('utf-8')
+
                 while '\n' in buffer:
                     message_raw, buffer = buffer.split('\n', 1)
-
-                    if message_raw:
+                    if not message_raw:
+                        continue
+                    try:
                         self.player_inputs[player_index] = json.loads(message_raw)
+                    except json.JSONDecodeError as e:
+                        print(f"[SERVER] JSON decode error from client {player_index}: {e} -- raw: {message_raw}")
+                        continue
+
                 clock.tick(30)
             except Exception as e:
                 print(f"[SERVER] Client {player_index} error: {e}")
@@ -159,6 +179,7 @@ class MultiplayerGame:
         self.heroes[player_index] = None
         self.player_inputs[player_index] = {}
         conn.close()
+
 
 
     def game_loop(self):
