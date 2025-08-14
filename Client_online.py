@@ -621,14 +621,11 @@ class Client:
                 
     def receive_state(self):
         buffer = ""
-        # small timeout for select so the loop remains responsive
         SELECT_TIMEOUT = 0.1
         while True:
             try:
-                # Wait until the socket is readable (prevents WSAEWOULDBLOCK / WinError 10035)
                 rlist, _, _ = select.select([self.socket], [], [], SELECT_TIMEOUT)
                 if not rlist:
-                    # no data available this cycle; continue
                     continue
 
                 chunk = self.socket.recv(4096)
@@ -637,11 +634,9 @@ class Client:
                     break
 
                 text = chunk.decode('utf-8', errors='ignore')
-                # debug: shows raw incoming chunk (can remove later to reduce spam)
                 print(f"[CLIENT] Received state chunk: {text!r}")
                 buffer += text
 
-                # handle one-or-more newline-terminated messages packed in buffer
                 while '\n' in buffer:
                     line, buffer = buffer.split('\n', 1)
                     if not line.strip():
@@ -649,19 +644,14 @@ class Client:
                     try:
                         parsed = json.loads(line)
                     except json.JSONDecodeError:
-                        # Not JSON — maybe a simple control/text message (e.g. "Game is starting")
-                        # handle simple string messages here:
                         msg = line.strip()
                         print(f"[CLIENT] Control/message received: {msg}")
-                        # for example, respond to setup_complete or start commands if needed:
                         if msg == "Game is starting":
-                            # you can set flags or play sounds here
                             pass
                         elif msg == "setup_complete":
                             pass
                         continue
 
-                    # --- existing JSON handling (kept from your original code) ---
                     try:
                         self.objects = parsed.get('objects', [])
                         selfdata = parsed["self"]
@@ -683,48 +673,53 @@ class Client:
                         if frame_list:
                             self.current_picture = frame_list[frame_index]
 
-                        # update bullets / other_players_states etc (as in your original code)
                         self.bullets = parsed.get("bullets", [])
-                        # opponents/teammate handling preserved
+
                         self.other_players_states = []
+                        # نکته :اطلاعات حریف ها و هم تیمی توی یک لیست دارن ذخیره میشن و اگر هم تیمی داشته باشیم ایندکس اخر لیست برای اون هست
+                        # Handle opponents (always present in both 1v1 and 2v2)
                         opponents = parsed.get("opponents", [])
                         for opponent_data in opponents:
                             opponent_char = opponent_data.get("character", "Ninja")
                             opponent_frame_source = opponent_data.get("frame_source", "idle_frames")
                             opponent_frame_index = opponent_data.get("frame_index", 0)
                             opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
-                            opponent_frame = opponent_frame_list[opponent_frame_index] if opponent_frame_list else pygame.Surface((50,50))
+                            opponent_frame = opponent_frame_list[opponent_frame_index]
+
+                            
                             self.other_players_states.append({
                                 "x_pos": opponent_data.get("x_pos", 0),
                                 "y_pos": opponent_data.get("y_pos", 0),
                                 "frame_to_display": opponent_frame,
                                 "health": opponent_data.get("health", 100),
-                                "Look": opponent_data.get('look', 'right')
+                                "Look":opponent_data.get('look','right')
                             })
 
+                            
+
+                        # Handle teammate (only present in 2v2 mode)
                         teammate_data = parsed.get("teammate")
                         if teammate_data:
                             teammate_char = teammate_data.get("character", "Ninja")
                             teammate_frame_source = teammate_data.get("frame_source", "idle_frames")
                             teammate_frame_index = teammate_data.get("frame_index", 0)
                             teammate_frame_list = self.frames[teammate_char].get(teammate_frame_source, [])
-                            teammate_frame = teammate_frame_list[teammate_frame_index] if teammate_frame_list else pygame.Surface((50,50))
+                            teammate_frame = teammate_frame_list[teammate_frame_index] 
+
                             self.other_players_states.append({
                                 "x_pos": teammate_data.get("x_pos", 0),
                                 "y_pos": teammate_data.get("y_pos", 0),
                                 "frame_to_display": teammate_frame,
                                 "health": teammate_data.get("health", 100),
-                                "Look": teammate_data.get('look', 'right')
+                                "Look":teammate_data.get('look','right')
                             })
 
                     except Exception as e:
                         print(f"Error applying parsed state: {e}")
 
             except BlockingIOError:
-                # defensive: if non-blocking mode causes WSAEWOULDBLOCK, ignore and continue
                 continue
             except socket.timeout:
-                # if socket has a timeout, ignore and continue
                 continue
             except Exception as e:
                 print(f"Error receiving game state: {e}")
