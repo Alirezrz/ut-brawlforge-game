@@ -257,14 +257,14 @@ class MultiplayerGame:
                         "opponents": [state_p2],
                         "bullets": bullets_state,
                         "objects": objs_state,
-                    }+ '\n').encode('utf-8'))
+                    }).encode('utf-8') + b"\n")
 
                     self.clients[1].sendall(json.dumps({
                         "self": state_p2,
                         "opponents": [state_p1],
                         "bullets": bullets_state,
                         "objects": objs_state,
-                    }+ '\n').encode('utf-8') )
+                    }).encode('utf-8') + b"\n")
 
                 elif self.type == '2v2':
                     hero1, hero2, hero3, hero4 = self.heroes
