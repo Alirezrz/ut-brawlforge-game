@@ -23,7 +23,7 @@ class Client:
         self.username = username
         self.player_id = player_id
         self.creation_index=1
-        self.ui_cache=[]
+        self.ui_cache={}
         self.hero_type = hero_type
         initial_data = {
             "username": self.username,
