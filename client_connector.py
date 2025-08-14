@@ -46,6 +46,7 @@ class ClientConnector:
             else:
                 return False, "Unknown server response."
 
+
         except Exception as e:
             print(f"[CLIENT] Authentication error: {e}")
             return False, f"Error: {e}"
