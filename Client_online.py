@@ -695,12 +695,19 @@ class Client:
                             opponent_frame_index = opponent_data.get("frame_index", 0)
                             opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
                             opponent_frame = opponent_frame_list[opponent_frame_index]
-
+                            for event in opponent_data.get("events", []):
+                                    self.play_sound(event, opponent_char)
+                            opp_profile, opp_health_bar, opp_health_bar_frame = self.get_ui_assets_cached(opponent_char)
                             
                             self.other_players_states.append({
                                 "x_pos": opponent_data.get("x_pos", 0),
                                 "y_pos": opponent_data.get("y_pos", 0),
+                                "username": opponent_data.get("username", "Player"),
                                 "frame_to_display": opponent_frame,
+                                "profile_picture": opp_profile,
+                                "health_bar": opp_health_bar,
+                                "health_bar_frame": opp_health_bar_frame,
+                                "creation_index": opponent_data.get("creation_index", 0),
                                 "health": opponent_data.get("health", 100),
                                 "Look":opponent_data.get('look','right')
                             })
@@ -715,11 +722,18 @@ class Client:
                             teammate_frame_index = teammate_data.get("frame_index", 0)
                             teammate_frame_list = self.frames[teammate_char].get(teammate_frame_source, [])
                             teammate_frame = teammate_frame_list[teammate_frame_index] 
-
+                            for event in teammate_data.get("events", []):
+                                    self.play_sound(event, teammate_char)
+                            opp_profile, opp_health_bar, opp_health_bar_frame = self.get_ui_assets_cached(teammate_char)        
                             self.other_players_states.append({
                                 "x_pos": teammate_data.get("x_pos", 0),
                                 "y_pos": teammate_data.get("y_pos", 0),
+                                "username": teammate_data.get("username", "Player"),
                                 "frame_to_display": teammate_frame,
+                                "profile_picture": opp_profile,
+                                "health_bar": opp_health_bar,
+                                "health_bar_frame": opp_health_bar_frame,
+                                "creation_index": teammate_data.get("creation_index", 0),
                                 "health": teammate_data.get("health", 100),
                                 "Look":teammate_data.get('look','right')
                             })
