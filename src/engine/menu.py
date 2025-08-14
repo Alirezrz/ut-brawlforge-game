@@ -887,9 +887,11 @@ class JoinGameMenu:
 
     def try_join(self):
         if self.game_id:
-            return "id_entered", self.game_id 
+            request = {"action": "join_game", "game_id": self.game_id}
+            self.network.send_json(request)
+            return "wait_for_acceptance", None
         else:
-            self.message = "Please enter a Game ID or Username."
+            self.message = "Please enter a Game ID."
             self.message_color = (255, 100, 100)
             return None, None
     def draw(self):
@@ -935,9 +937,6 @@ class LobbyMenu:
 
     def run(self):
         while True:
-            result = self.check_server_messages()
-            if result:
-                return result
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.network.disconnect()
@@ -952,7 +951,16 @@ class LobbyMenu:
                                 self.click_sound.play()
                             print("[CLIENT DEBUG] 'Start Game' button clicked. Sending action to server...")
                             self.network.client.setblocking(True)
+                            
+
                             self.network.send_json({"action": "start_game"})
+                           
+                            self.network.client.setblocking(False)
+                            print("[CLIENT DEBUG] 'start_game' action sent.")
+
+            result = self.check_server_messages()
+            if result: 
+                return result
             self.draw()
             pygame.display.flip()
             pygame.time.Clock().tick(15) 
@@ -974,9 +982,8 @@ class LobbyMenu:
 
                 if msg_type in ["lobby_update", "join_accepted", "lobby_created"]:
                     self.players = response.get("players", [])
-                    self.game_id = response.get("game_id", self.game_id)
                 elif msg_type == "join_request" and self.is_host:
-                    self.join_request_popup = response
+                    self.join_request_popup = {"username": response["username"], "visible": True}
                 elif msg_type == "match_starting":
                     print("[CLIENT DEBUG] 'match_starting' message received! Exiting lobby...") 
                     self.network.client.setblocking(True)
@@ -988,8 +995,7 @@ class LobbyMenu:
                     print(f"Server Error: {response.get('message')}")
                     return "exit"
                 
-        except BlockingIOError: 
-            pass
+        except BlockingIOError: pass
         except (json.JSONDecodeError, socket.error, ConnectionResetError) as e:
             print(f"Error in lobby: {e}")
             return "exit"
@@ -1002,23 +1008,17 @@ class LobbyMenu:
             decision = "no"
         
         if decision:
-            requester_username = self.join_request_popup.get("username")
+            if self.click_sound:
+                self.click_sound.play()
             self.network.client.setblocking(True)
-            self.network.send_json({
-                "action": "host_decision",
-                "decision": decision,
-                "target_username": requester_username
-            })
+            self.network.send_json({"action": "host_decision", "decision": decision})
             self.network.client.setblocking(False)
             self.join_request_popup = None
+
     def draw(self):
         self.screen.blit(self.background, (0,0))
-        if self.is_host:
-            id_text = f"Game ID: {self.game_id} (Your ID: {self.network.client_id})"
-        else:
-            id_text = f"Lobby - Game ID: {self.game_id}"
-        title_surf = self.title_font.render(id_text, True, (255, 255, 255))
-        self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width() // 2, 100)))
+        title_surf = self.title_font.render(f"Lobby - Game ID: {self.game_id}", True, (255, 255, 255))
+        self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width()//2, 100)))
 
         for i, player_name in enumerate(self.players):
             player_surf = self.font.render(f"Player {i+1}: {player_name}", True, (255, 255, 255))
@@ -1027,13 +1027,16 @@ class LobbyMenu:
 
         if self.is_host:
             max_players = 2 if self.game_type == '1v1' else 4
-            color = (0, 200, 0) if len(self.players) == max_players else (100, 100, 100)
-            text = "Start Game" if len(self.players) == max_players else f"Waiting... ({len(self.players)}/{max_players})"
+            if len(self.players) == max_players:
+                color = (0, 200, 0) 
+                text = "Start Game"
+            else:
+                color = (100, 100, 100) 
+                text = f"Waiting... ({len(self.players)}/{max_players})"
+            
             pygame.draw.rect(self.screen, color, self.start_button, border_radius=10)
             text_surf = self.font.render(text, True, (255, 255, 255))
             self.screen.blit(text_surf, text_surf.get_rect(center=self.start_button.center))
-        if self.join_request_popup:
-            self.draw_popup()
 
         if self.join_request_popup:
             self.draw_popup()
@@ -1169,7 +1172,7 @@ class SearchPlayerMenu:
                         if self.player_id:
                             request = {"action": "request_play_by_id", "target_id": self.player_id}
                             self.network.send_json(request)
-                            return "waiting_for_response", None 
+                            return "waiting_for_response", None
                     if self.back_button.collidepoint(event.pos):
                         if self.click_sound: self.click_sound.play()
                         return "back", None
@@ -1204,7 +1207,6 @@ class SearchPlayerMenu:
         back_text = self.font.render("Back", True, (255, 255, 255))
         self.screen.blit(back_text, back_text.get_rect(center=self.back_button.center))
 
-
 class LoginSignupMenu:
     def __init__(self, screen, background):
         self.screen = screen
@@ -1214,7 +1216,7 @@ class LoginSignupMenu:
         self.username = ""
         self.password = ""
         self.active_field = "username" 
-        self.message = "Enter your credentials"
+        self.message = "Enter your info"
         self.message_color = (255, 255, 255)
         self.username_box = pygame.Rect(screen.get_width() // 2 - 200, 250, 400, 50)
         self.password_box = pygame.Rect(screen.get_width() // 2 - 200, 320, 400, 50)
