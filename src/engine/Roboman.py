@@ -578,7 +578,7 @@ class Roboman:
         if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active:
             if self.SOUND_FLAG:
                 self.shoot_sound.play()
-                self.events.append("shoot")
+            self.events.append("shoot")
 
             self.Last__Shooting_time = current_time
             if not self.on_ground:
@@ -637,7 +637,7 @@ class Roboman:
         if current_time - self.Last__Shooting_time > self.Reload_duration and not self.jetpack_active and self.SUPER_POWER_FLAG:
             if  self.SOUND_FLAG:
                 self.shoot_sound.play()
-                self.events.append("shoot")
+            self.events.append("shoot")
             self.Last__Shooting_time = current_time
             self.last_rocket_shot = current_time
 
@@ -734,7 +734,7 @@ class Roboman:
                     self.explosions.append(Explosion(bullet.x_pos,bullet.y_pos-65))
                     if self.shot_hit_platform_sound and self.SOUND_FLAG:
                         self.shot_hit_platform_sound.play()
-                        self.events.append("shot_hit_platform")
+                    self.events.append("shot_hit_platform")
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
                     if bullet in shot_bullets:
@@ -765,7 +765,7 @@ class Roboman:
                     self.explosions.append(Explosion(bullet.x_pos,bullet.y_pos-65))
                     if self.shot_hit_platform_sound and self.SOUND_FLAG:
                         self.shot_hit_platform_sound.play()
-                        self.events.append("shot_hit_platform")
+                    self.events.append("shot_hit_platform")
                     if bullet in self.bullets:
                         self.bullets.remove(bullet)
                     if bullet in shot_bullets:
