@@ -90,6 +90,13 @@ class Client:
     
     def load_assets(self):
         try:
+            
+            
+            path=os.path.join("src",'assets','images','Objects',"health_box","Box")
+            self.health_box_frame=pygame.transform.scale(
+                pygame.image.load(path),
+                (80,63)
+            )
             base_path = os.path.join("src", "assets", "images", "power ups")
             self.double_jump_powerup_frame=pygame.transform.scale(
                 pygame.image.load(
