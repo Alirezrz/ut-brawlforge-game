@@ -326,7 +326,8 @@ class MultiplayerGame:
                             "bullets": bullets_state,
                             "objects": objs_state,
                         }).encode('utf-8') + b"\n")
-
+                active_heroes = [h for h in self.heroes if h is not None]
+                for h in active_heroes: h.events.clear()
                 clock.tick(30)
 
             except Exception as e:
