@@ -671,7 +671,9 @@ class Client:
                         self.frame_source = selfdata['frame_source']
                         self.frame_index = selfdata['frame_index']
                         self.character_name = selfdata.get("character", "Ninja")
-                        
+                        self.creation_index = selfdata.get("creation_index", -1)
+                        for event in selfdata.get("events", []):
+                            self.play_sound(event, self.character_name)
                         
 
                         type_of_hero = selfdata['character']
