@@ -696,6 +696,7 @@ class Client:
                             opponent_frame_index = opponent_data.get("frame_index", 0)
                             opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
                             opponent_frame = opponent_frame_list[opponent_frame_index]
+                            creation_index = opponent_data.get("creation_index", -1)
                             for event in opponent_data.get("events", []):
                                     self.play_sound(event, opponent_char)
                             opp_profile, opp_health_bar, opp_health_bar_frame = self.get_ui_assets_cached(opponent_char)
@@ -910,9 +911,53 @@ class Client:
                     else:
                      self.screen.blit(pygame.transform.flip(self.Fired_Arrow,True,False),(bullet['x_pos']-self.scroll[0],bullet['y_pos']-self.scroll[1]))
         #باید عکس پروفایل های همه لود بشه و بعد دیسپلی بشن
-        self.draw_health_bar(self.screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, False, False)
-        # self.draw_health_bar(screen, self.opponent.health, self.opponent_profile_picture, self.opponent_health_bar, self.opponent_health_bar_frame, True, False)  
+        is_right_side, is_bottom = self.get_bar_position_from_index(self.creation_index,len(self.other_players_states))
+        self.draw_health_bar(self.screen, self.health, self.profile_picture, self.health_bar, self.health_bar_frame, is_right_side, is_bottom)
+        for other_state in self.other_players_states:
+            idx = other_state.get("creation_index", 0)  
+            is_right_side, is_bottom = self.get_bar_position_from_index(
+                idx,
+                len(self.other_players_states)
+            )
+        
+            self.draw_health_bar(
+                self.screen,
+                other_state["health"],
+                other_state["profile_picture"],  
+                other_state["health_bar"],                
+                other_state["health_bar_frame"],
+                is_right_side,
+                is_bottom
+            )
+        
+        
         pygame.display.update()
+    def get_bar_position_from_index(self,index,opponents_count):
+        # حالت 1v1
+        if opponents_count == 1:
+            if index == 1:
+                return False, False  # پلیر اول → چپ بالا
+            elif index == 2:
+                return True, False   # پلیر دوم → راست بالا
+            else:
+                return False, False
+
+        # حالت 2v2
+        else:
+            if index == 1:
+                return False, False  # چپ بالا
+            elif index == 2:
+                return False, True   # چپ پایین
+            elif index == 3:
+                return True, False   # راست بالا
+            elif index == 4:
+                return True, True    # راست پایین
+            else:
+                return False, False
+    def get_ui_assets_cached(self, character_name):
+        if character_name not in self.ui_cache:
+            self.ui_cache[character_name] = self.load_ui_assets_for_opponent(character_name)
+        return self.ui_cache[character_name]
         
     def start(self):
         print("starting")
