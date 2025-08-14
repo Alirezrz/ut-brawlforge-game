@@ -521,7 +521,7 @@ class Client:
                 "right_click": mouse[2]
             }
             try:
-                print(f"sending:\n{input_data}\n\n")
+               # print(f"sending:\n{input_data}\n\n")
                 self.socket.sendall((json.dumps(input_data) +'\n') .encode('utf-8'))
                 #print(f"[CLIENT] Sent input: {input_data}")
             except Exception as e:
@@ -628,7 +628,7 @@ class Client:
                     if not chunk:
                         break
                     buffer += chunk.decode('utf-8')
-                    #print(f"[CLIENT] Received state: {chunk.decode('utf-8')}")
+                    print(f"[CLIENT] Received state: {chunk.decode('utf-8')}")
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
                        
