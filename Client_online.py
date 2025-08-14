@@ -87,6 +87,13 @@ class Client:
         if hero_type == 4: return "Archer"
     
     
+    def play_sound(self, event_name, character_name="Ninja"):
+        try:
+            path = f"src/assets/sounds/{character_name}/{event_name}.mp3"
+            sound = pygame.mixer.Sound(path)
+            sound.play()
+        except Exception as e:
+            print(f"Error playing sound for {character_name} - {event_name}: {e}")        
     
     def load_assets(self):
         try:
