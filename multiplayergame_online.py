@@ -141,7 +141,7 @@ class MultiplayerGame:
             self.heroes[player_index] = hero
             self.player_inputs[player_index] = {}
 
-            conn.sendall(json.dumps({"status": "setup_complete"}).encode('utf-8'))
+            conn.sendall((json.dumps({"status": "setup_complete"}) + '\n').encode('utf-8'))
             print(f"Player {player_index} setup complete: {username} as {char_choice}")
 
         except Exception as e:
