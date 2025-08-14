@@ -187,6 +187,7 @@ class MultiplayerGame:
         
         clock = pygame.time.Clock()
         while self.game_active:
+            print("------in the loop-----")
             if not all(self.heroes):
                 clock.tick(30)
                 continue
