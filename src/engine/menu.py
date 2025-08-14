@@ -1428,16 +1428,18 @@ class OnlineLobbyMenu:
     def __init__(self, screen, background, network_handler, lobby_data, is_host):
         self.screen = screen
         self.background = background
-        self.network = network_handler  
+        self.network = network_handler
         self.game_id = lobby_data.get("game_id", "N/A")
         self.players = lobby_data.get("players", [])
         self.game_type = lobby_data.get("game_type", "1v1")
         self.is_host = is_host
-        self.font = pygame.font.Font(None, 50)
         self.title_font = pygame.font.Font(None, 70)
-        
+        self.player_font = pygame.font.Font(None, 50)
+        self.popup_font = pygame.font.Font(None, 40) 
+        self.button_font = pygame.font.Font(None, 45) 
+
         self.network.client.setblocking(False)
-        self.join_request_popup = None 
+        self.join_request_popup_text = None 
         self.yes_button_rect = None
         self.no_button_rect = None
 
@@ -1449,7 +1451,7 @@ class OnlineLobbyMenu:
             server_message = self.check_server_messages()
             if server_message:
                 if "wants to join" in server_message and self.is_host:
-                    self.join_request_popup = server_message
+                    self.join_request_popup_text = server_message
                 elif "Game is starting" in server_message or "setup_complete" in server_message:
                     return "start_game"
                 elif "You have been accepted" in server_message:
@@ -1459,7 +1461,7 @@ class OnlineLobbyMenu:
                     self.network.client.close()
                     return "exit"
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.join_request_popup:
+                    if self.join_request_popup_text:
                         self.handle_popup_click(event.pos)
             
             self.draw()
@@ -1489,35 +1491,36 @@ class OnlineLobbyMenu:
             self.network.client.setblocking(True)
             self.network.client.sendall(decision.encode())
             self.network.client.setblocking(False)
-            self.join_request_popup = None
-    
+            self.join_request_popup_text = None
+
     def draw(self):
         self.screen.blit(self.background, (0, 0))
         id_text = f"Game ID: {self.game_id}" if self.is_host else f"Lobby: {self.game_id}"
         title_surf = self.title_font.render(id_text, True, (255, 255, 255))
         self.screen.blit(title_surf, title_surf.get_rect(center=(self.screen.get_width() // 2, 100)))
         for i, player_name in enumerate(self.players):
-            player_surf = self.font.render(f"Player {i+1}: {player_name}", True, (255, 255, 255))
+            player_surf = self.player_font.render(f"Player {i+1}: {player_name}", True, (255, 255, 255))
             self.screen.blit(player_surf, player_surf.get_rect(center=(self.screen.get_width() // 2, 250 + i * 60)))
         if self.is_host:
             pygame.draw.rect(self.screen, (100, 100, 100), self.start_button, border_radius=10)
-            text_surf = self.font.render("Waiting for Players...", True, (255, 255, 255))
+            text_surf = self.player_font.render("Waiting for Players...", True, (255, 255, 255))
             self.screen.blit(text_surf, text_surf.get_rect(center=self.start_button.center))
 
-        if self.join_request_popup:
+        if self.join_request_popup_text:
             self.draw_popup()
             
     def draw_popup(self):
-        s = pygame.Surface((700, 250), pygame.SRCALPHA); s.fill((0,0,0, 220))
-        popup_rect = s.get_rect(center=(self.screen.get_width()//2, self.screen.get_height()//2))
+        s = pygame.Surface((750, 250), pygame.SRCALPHA); s.fill((0, 0, 0, 220))
+        popup_rect = s.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2))
         self.screen.blit(s, popup_rect.topleft)
-        text_surf = self.font.render(self.join_request_popup, True, (255, 255, 255))
+        text_surf = self.popup_font.render(self.join_request_popup_text, True, (255, 255, 255))
         self.screen.blit(text_surf, text_surf.get_rect(center=(popup_rect.centerx, popup_rect.centery - 50)))
-        
-        self.yes_button_rect = pygame.Rect(0,0,120,50); self.yes_button_rect.center = (popup_rect.centerx - 90, popup_rect.centery + 50)
-        self.no_button_rect = pygame.Rect(0,0,120,50); self.no_button_rect.center = (popup_rect.centerx + 90, popup_rect.centery + 50)
-        pygame.draw.rect(self.screen, (0,150,0), self.yes_button_rect, border_radius=10)
-        pygame.draw.rect(self.screen, (150,0,0), self.no_button_rect, border_radius=10)
-        yes_text = self.font.render("Accept", True, (255,255,255)); no_text = self.font.render("Deny", True, (255,255,255))
+  
+        self.yes_button_rect = pygame.Rect(0, 0, 140, 55); self.yes_button_rect.center = (popup_rect.centerx - 110, popup_rect.centery + 50)
+        self.no_button_rect = pygame.Rect(0, 0, 140, 55); self.no_button_rect.center = (popup_rect.centerx + 110, popup_rect.centery + 50)
+        pygame.draw.rect(self.screen, (0, 150, 0), self.yes_button_rect, border_radius=10)
+        pygame.draw.rect(self.screen, (150, 0, 0), self.no_button_rect, border_radius=10)
+        yes_text = self.button_font.render("Accept", True, (255, 255, 255))
+        no_text = self.button_font.render("Deny", True, (255, 255, 255))
         self.screen.blit(yes_text, yes_text.get_rect(center=self.yes_button_rect.center))
         self.screen.blit(no_text, no_text.get_rect(center=self.no_button_rect.center))
