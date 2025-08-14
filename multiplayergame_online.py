@@ -258,6 +258,10 @@ class MultiplayerGame:
                         "bullets": bullets_state,
                         "objects": objs_state,
                     }).encode('utf-8') + b"\n")
+                    
+                    
+                    print(f"Client one:\nself{state_p1}\nopponents:{state_p2}\nbullets:{bullets_state}\nobjects:{objs_state}\n")
+                    
 
                     self.clients[1].sendall(json.dumps({
                         "self": state_p2,
@@ -265,6 +269,7 @@ class MultiplayerGame:
                         "bullets": bullets_state,
                         "objects": objs_state,
                     }).encode('utf-8') + b"\n")
+                    print(f"Client two:\nself{state_p2}\nopponents:{state_p1}\nbullets:{bullets_state}\nobjects:{objs_state}\n")
 
                 elif self.type == '2v2':
                     hero1, hero2, hero3, hero4 = self.heroes
