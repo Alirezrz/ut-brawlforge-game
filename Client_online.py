@@ -2,6 +2,7 @@ import pygame
 import threading
 import socket
 import json
+import select
 import os
 from src.levels import multiplayer_data, load_level_data,online_multiplayer_data
 from config import screen_width, screen_height,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
@@ -89,6 +90,13 @@ class Client:
     
     def load_assets(self):
         try:
+            
+            
+            path=os.path.join("src",'assets','images','Objects',"health_box","Box")
+            self.health_box_frame=pygame.transform.scale(
+                pygame.image.load(path),
+                (80,63)
+            )
             base_path = os.path.join("src", "assets", "images", "power ups")
             self.double_jump_powerup_frame=pygame.transform.scale(
                 pygame.image.load(
@@ -521,7 +529,7 @@ class Client:
                 "right_click": mouse[2]
             }
             try:
-                print(f"sending:\n{input_data}\n\n")
+               # print(f"sending:\n{input_data}\n\n")
                 self.socket.sendall((json.dumps(input_data) +'\n') .encode('utf-8'))
                 #print(f"[CLIENT] Sent input: {input_data}")
             except Exception as e:
@@ -618,91 +626,111 @@ class Client:
 
         return profile_picture,health_bar,health_bar_frame
                 
-
     def receive_state(self):
         buffer = ""
+        SELECT_TIMEOUT = 0.1
         while True:
             try:
-                while True:
-                    chunk = self.socket.recv(1024)
-                    if not chunk:
-                        break
-                    buffer += chunk.decode('utf-8')
-                    #print(f"[CLIENT] Received state: {chunk.decode('utf-8')}")
-                    while '\n' in buffer:
-                        line, buffer = buffer.split('\n', 1)
-                       
+                rlist, _, _ = select.select([self.socket], [], [], SELECT_TIMEOUT)
+                if not rlist:
+                    continue
 
-                        try:
-                            parsed = json.loads(line)
-                            self.objects = parsed.get('objects', [])
-                            selfdata = parsed["self"]
-                            self.x_pos = selfdata['x_pos']
-                            self.y_pos = selfdata['y_pos']
-                            self.health = selfdata['health']
-                            self.Look = selfdata['look']
-                            self.username = selfdata['username']
-                            self.frame_source = selfdata['frame_source']
-                            self.frame_index = selfdata['frame_index']
-                            self.character_name = selfdata.get("character", "Ninja")
-                            
-                            
-
-                            type_of_hero = selfdata['character']
-                            frame_source = selfdata['frame_source']
-                            frame_index = selfdata['frame_index']
-                            frame_list = self.frames[type_of_hero].get(frame_source, [])
-                            if frame_list:
-                                self.current_picture = frame_list[frame_index]
-                            
-
-                            self.bullets = parsed.get("bullets", [])
-
-                            self.other_players_states = []
-                            # نکته :اطلاعات حریف ها و هم تیمی توی یک لیست دارن ذخیره میشن و اگر هم تیمی داشته باشیم ایندکس اخر لیست برای اون هست
-                            # Handle opponents (always present in both 1v1 and 2v2)
-                            opponents = parsed.get("opponents", [])
-                            for opponent_data in opponents:
-                                opponent_char = opponent_data.get("character", "Ninja")
-                                opponent_frame_source = opponent_data.get("frame_source", "idle_frames")
-                                opponent_frame_index = opponent_data.get("frame_index", 0)
-                                opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
-                                opponent_frame = opponent_frame_list[opponent_frame_index]
-
-                                
-                                self.other_players_states.append({
-                                    "x_pos": opponent_data.get("x_pos", 0),
-                                    "y_pos": opponent_data.get("y_pos", 0),
-                                    "frame_to_display": opponent_frame,
-                                    "health": opponent_data.get("health", 100),
-                                    "Look":opponent_data.get('look','right')
-                                })
-
-                               
-
-                            # Handle teammate (only present in 2v2 mode)
-                            teammate_data = parsed.get("teammate")
-                            if teammate_data:
-                                teammate_char = teammate_data.get("character", "Ninja")
-                                teammate_frame_source = teammate_data.get("frame_source", "idle_frames")
-                                teammate_frame_index = teammate_data.get("frame_index", 0)
-                                teammate_frame_list = self.frames[teammate_char].get(teammate_frame_source, [])
-                                teammate_frame = teammate_frame_list[teammate_frame_index] 
-
-                                self.other_players_states.append({
-                                    "x_pos": teammate_data.get("x_pos", 0),
-                                    "y_pos": teammate_data.get("y_pos", 0),
-                                    "frame_to_display": teammate_frame,
-                                    "health": teammate_data.get("health", 100),
-                                    "Look":teammate_data.get('look','right')
-                                })
-
-                        except Exception as e:
-                            print(f"Error decoding JSON or setting frames: {e}")
-
-            except Exception as e:
-                    print(f"Error receiving game state: {e}")
+                chunk = self.socket.recv(4096)
+                if not chunk:
+                    print("[CLIENT] Server closed connection")
                     break
+
+                text = chunk.decode('utf-8', errors='ignore')
+                print(f"[CLIENT] Received state chunk: {text!r}")
+                buffer += text
+
+                while '\n' in buffer:
+                    line, buffer = buffer.split('\n', 1)
+                    if not line.strip():
+                        continue
+                    try:
+                        parsed = json.loads(line)
+                    except json.JSONDecodeError:
+                        msg = line.strip()
+                        print(f"[CLIENT] Control/message received: {msg}")
+                        if msg == "Game is starting":
+                            pass
+                        elif msg == "setup_complete":
+                            pass
+                        continue
+
+                    try:
+                        self.objects = parsed.get('objects', [])
+                        selfdata = parsed["self"]
+                        self.x_pos = selfdata['x_pos']
+                        self.y_pos = selfdata['y_pos']
+                        self.health = selfdata['health']
+                        self.Look = selfdata['look']
+                        self.username = selfdata['username']
+                        self.frame_source = selfdata['frame_source']
+                        self.frame_index = selfdata['frame_index']
+                        self.character_name = selfdata.get("character", "Ninja")
+                        
+                        
+
+                        type_of_hero = selfdata['character']
+                        frame_source = selfdata['frame_source']
+                        frame_index = selfdata['frame_index']
+                        frame_list = self.frames[type_of_hero].get(frame_source, [])
+                        if frame_list:
+                            self.current_picture = frame_list[frame_index]
+
+                        self.bullets = parsed.get("bullets", [])
+
+                        self.other_players_states = []
+                        # نکته :اطلاعات حریف ها و هم تیمی توی یک لیست دارن ذخیره میشن و اگر هم تیمی داشته باشیم ایندکس اخر لیست برای اون هست
+                        # Handle opponents (always present in both 1v1 and 2v2)
+                        opponents = parsed.get("opponents", [])
+                        for opponent_data in opponents:
+                            opponent_char = opponent_data.get("character", "Ninja")
+                            opponent_frame_source = opponent_data.get("frame_source", "idle_frames")
+                            opponent_frame_index = opponent_data.get("frame_index", 0)
+                            opponent_frame_list = self.frames[opponent_char].get(opponent_frame_source, [])
+                            opponent_frame = opponent_frame_list[opponent_frame_index]
+
+                            
+                            self.other_players_states.append({
+                                "x_pos": opponent_data.get("x_pos", 0),
+                                "y_pos": opponent_data.get("y_pos", 0),
+                                "frame_to_display": opponent_frame,
+                                "health": opponent_data.get("health", 100),
+                                "Look":opponent_data.get('look','right')
+                            })
+
+                            
+
+                        # Handle teammate (only present in 2v2 mode)
+                        teammate_data = parsed.get("teammate")
+                        if teammate_data:
+                            teammate_char = teammate_data.get("character", "Ninja")
+                            teammate_frame_source = teammate_data.get("frame_source", "idle_frames")
+                            teammate_frame_index = teammate_data.get("frame_index", 0)
+                            teammate_frame_list = self.frames[teammate_char].get(teammate_frame_source, [])
+                            teammate_frame = teammate_frame_list[teammate_frame_index] 
+
+                            self.other_players_states.append({
+                                "x_pos": teammate_data.get("x_pos", 0),
+                                "y_pos": teammate_data.get("y_pos", 0),
+                                "frame_to_display": teammate_frame,
+                                "health": teammate_data.get("health", 100),
+                                "Look":teammate_data.get('look','right')
+                            })
+
+                    except Exception as e:
+                        print(f"Error applying parsed state: {e}")
+
+            except BlockingIOError:
+                continue
+            except socket.timeout:
+                continue
+            except Exception as e:
+                print(f"Error receiving game state: {e}")
+                break
             
     def draw_health_bar(self, screen, health, profile_picture, health_bar, health_bar_frame, is_right_side, is_bottom):
         if health < 0:

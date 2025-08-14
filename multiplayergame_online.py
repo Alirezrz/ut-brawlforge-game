@@ -141,7 +141,7 @@ class MultiplayerGame:
             self.heroes[player_index] = hero
             self.player_inputs[player_index] = {}
 
-            conn.sendall(json.dumps({"status": "setup_complete"}).encode('utf-8'))
+            conn.sendall((json.dumps({"status": "setup_complete"}) + '\n').encode('utf-8'))
             print(f"Player {player_index} setup complete: {username} as {char_choice}")
 
         except Exception as e:
@@ -187,6 +187,7 @@ class MultiplayerGame:
         
         clock = pygame.time.Clock()
         while self.game_active:
+            print("------in the loop-----")
             if not all(self.heroes):
                 clock.tick(30)
                 continue
@@ -257,6 +258,10 @@ class MultiplayerGame:
                         "bullets": bullets_state,
                         "objects": objs_state,
                     }).encode('utf-8') + b"\n")
+                    
+                    
+                    print(f"Client one:\nself{state_p1}\nopponents:{state_p2}\nbullets:{bullets_state}\nobjects:{objs_state}\n")
+                    
 
                     self.clients[1].sendall(json.dumps({
                         "self": state_p2,
@@ -264,6 +269,7 @@ class MultiplayerGame:
                         "bullets": bullets_state,
                         "objects": objs_state,
                     }).encode('utf-8') + b"\n")
+                    print(f"Client two:\nself{state_p2}\nopponents:{state_p1}\nbullets:{bullets_state}\nobjects:{objs_state}\n")
 
                 elif self.type == '2v2':
                     hero1, hero2, hero3, hero4 = self.heroes

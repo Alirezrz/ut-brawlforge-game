@@ -238,7 +238,7 @@ class Server:
         sock = client_info['socket']
         creator_id = client_info['id']
         try:
-            sock.sendall(b"Game created. Waiting for players to join...")
+            sock.sendall(b"Game created. Waiting for players to join...\n")
             while True:
                 with self.lock:
                     session = game_sessions.get(creator_id)
@@ -251,13 +251,13 @@ class Server:
                             game_type_str = "1v1" if game_type == "1" else "2v2"
                             for p in session['players']:
                                 try:
-                                    p['socket'].sendall(b"Game is starting")
+                                    p['socket'].sendall(b"Game is starting\n")
                                 except:
                                     pass
                             pygame.time.wait(3000)
                             for p in session['players']:
                                 try:
-                                    p['socket'].sendall(b"setup_complete")
+                                    p['socket'].sendall(b"setup_complete\n")
                                 except:
                                     pass
                             game = MultiplayerGame(game_type_str)
