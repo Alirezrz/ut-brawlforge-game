@@ -31,7 +31,8 @@ class Client:
         print(f"[CLIENT] Sending initial data: {json.dumps(initial_data)}")
 
         try:
-            self.socket.sendall(json.dumps(initial_data).encode('utf-8'))
+            self.socket.sendall((json.dumps(initial_data) + '\n').encode('utf-8'))
+
         except Exception as e:
             print(f"[CLIENT] Error sending initial data: {e}")
 
