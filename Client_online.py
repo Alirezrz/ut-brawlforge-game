@@ -664,15 +664,24 @@ class Client:
                     # --- existing JSON handling (kept from your original code) ---
                     try:
                         self.objects = parsed.get('objects', [])
-                        selfdata = parsed.get("self", {})
-                        self.x_pos = selfdata.get('x_pos', self.x_pos)
-                        self.y_pos = selfdata.get('y_pos', self.y_pos)
-                        self.health = selfdata.get('health', self.health)
-                        self.Look = selfdata.get('look', self.Look)
-                        self.username = selfdata.get('username', self.username)
-                        self.frame_source = selfdata.get('frame_source', self.frame_source)
-                        self.frame_index = selfdata.get('frame_index', self.frame_index)
-                        self.character_name = selfdata.get("character", getattr(self, 'character_name', 'Ninja'))
+                        selfdata = parsed["self"]
+                        self.x_pos = selfdata['x_pos']
+                        self.y_pos = selfdata['y_pos']
+                        self.health = selfdata['health']
+                        self.Look = selfdata['look']
+                        self.username = selfdata['username']
+                        self.frame_source = selfdata['frame_source']
+                        self.frame_index = selfdata['frame_index']
+                        self.character_name = selfdata.get("character", "Ninja")
+                        
+                        
+
+                        type_of_hero = selfdata['character']
+                        frame_source = selfdata['frame_source']
+                        frame_index = selfdata['frame_index']
+                        frame_list = self.frames[type_of_hero].get(frame_source, [])
+                        if frame_list:
+                            self.current_picture = frame_list[frame_index]
 
                         # update bullets / other_players_states etc (as in your original code)
                         self.bullets = parsed.get("bullets", [])
