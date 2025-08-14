@@ -22,6 +22,7 @@ class Client:
         self.socket = sock
         self.username = username
         self.player_id = player_id
+        self.creation_index=1
         self.hero_type = hero_type
         initial_data = {
             "username": self.username,
