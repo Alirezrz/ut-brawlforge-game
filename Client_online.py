@@ -23,6 +23,7 @@ class Client:
         self.username = username
         self.player_id = player_id
         self.creation_index=1
+        self.ui_cache=[]
         self.hero_type = hero_type
         initial_data = {
             "username": self.username,
@@ -643,7 +644,7 @@ class Client:
                     break
 
                 text = chunk.decode('utf-8', errors='ignore')
-                print(f"[CLIENT] Received state chunk: {text!r}")
+               # print(f"[CLIENT] Received state chunk: {text!r}")
                 buffer += text
 
                 while '\n' in buffer:
@@ -845,8 +846,8 @@ class Client:
                 self.screen.blit(self.guard_drone_powerup_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
             elif obj_type == "super power":
                 self.screen.blit(self.superpower_powerup_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
-            elif obj_type == "health_box":
-                self.screen.blit(self.health_box_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
+            #elif obj_type == "health_box":
+            #    self.screen.blit(self.health_box_frame, (x_pos - self.scroll[0], y_pos - self.scroll[1]))
 
          except Exception as e:
             print(f"Error rendering object {obj}: {e}")
