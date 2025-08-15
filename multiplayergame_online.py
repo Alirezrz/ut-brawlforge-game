@@ -331,11 +331,15 @@ class MultiplayerGame:
                         }).encode('utf-8') + b"\n")
                 active_heroes = [h for h in self.heroes if h is not None]
                 for h in active_heroes: h.events.clear()
+                if self.check_win_condition():
+                    self.game_active = False
+                    break
                 clock.tick(30)
 
             except Exception as e:
                 print(f"Game loop error: {e}")
                 self.game_active = False
+
 
     def check_win_condition(self):
       
