@@ -966,7 +966,7 @@ class Client:
         except Exception:
             idle_frame0 = None
 
-        if self.current_picture != pygame.Surface((50, 50)):
+        if self.x_pos!=0 and self.y_pos!=0:
             if not self.COUNT_DOWN_DONE and not self.START_COUNT_DOWN:
                 self.START_COUNT_DOWN = True
                 self.count_down_start = pygame.time.get_ticks()
