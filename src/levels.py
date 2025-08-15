@@ -402,8 +402,8 @@ online_multiplayer_data = {
             {'x': 38*TILE_SIZE, 'y': 5 * TILE_SIZE, 'tiles': 15},
             {'x': 10*TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
             {'x': 40*TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 10},
-            {'x': 8*TILE_SIZE, 'y': 0 * TILE_SIZE, 'tiles': 1},
-            {'x': 52*TILE_SIZE, 'y': 0 * TILE_SIZE, 'tiles': 1},
+            {'x': 7*TILE_SIZE, 'y': 0 * TILE_SIZE, 'tiles': 1},
+            {'x': 53*TILE_SIZE, 'y': 0 * TILE_SIZE, 'tiles': 1},
             {'x': 10*TILE_SIZE, 'y': -2 * TILE_SIZE, 'tiles': 40},
             {'x': 27*TILE_SIZE, 'y': 2 * TILE_SIZE, 'tiles': 3},
 
