@@ -246,11 +246,11 @@ class MultiplayerGame:
                     # بررسی مرگ و آپدیت kills و deaths
                     for bullet in self.shot_bullets:
                         if bullet.owner != hero1.username and hero1.health <= 0:
-                            self.db.users_collection.update_one({"username": hero1.username}, {"$inc": {"deaths": 1}})
-                            self.db.users_collection.update_one({"username": bullet.owner}, {"$inc": {"kills": 1}})
+                            self.users_collection.update_one({"username": hero1.username}, {"$inc": {"deaths": 1}})
+                            self.users_collection.update_one({"username": bullet.owner}, {"$inc": {"kills": 1}})
                         if bullet.owner != hero2.username and hero2.health <= 0:
-                            self.db.users_collection.update_one({"username": hero2.username}, {"$inc": {"deaths": 1}})
-                            self.db.users_collection.update_one({"username": bullet.owner}, {"$inc": {"kills": 1}})
+                            self.users_collection.update_one({"username": hero2.username}, {"$inc": {"deaths": 1}})
+                            self.users_collection.update_one({"username": bullet.owner}, {"$inc": {"kills": 1}})
 
                     state_p1 = hero1.serialize()
                     state_p2 = hero2.serialize()
@@ -309,8 +309,8 @@ class MultiplayerGame:
                     for bullet in self.shot_bullets:
                         for hero in heroes:
                             if hero and hero.health <= 0 and bullet.owner != hero.username:
-                                self.db.users_collection.update_one({"username": hero.username}, {"$inc": {"deaths": 1}})
-                                self.db.users_collection.update_one({"username": bullet.owner}, {"$inc": {"kills": 1}})
+                                self.users_collection.update_one({"username": hero.username}, {"$inc": {"deaths": 1}})
+                                self.users_collection.update_one({"username": bullet.owner}, {"$inc": {"kills": 1}})
 
                     states = [h.serialize() for h in heroes]
                     bullets_state = [b.serialize() for b in self.shot_bullets]
@@ -371,16 +371,16 @@ class MultiplayerGame:
 
     def _update_win_loss(self, winner_username, loser_username):
         self._send_game_result([winner_username], [loser_username])
-        self.db.users_collection.update_one({"username": winner_username}, {"$inc": {"wins": 1}})
-        self.db.users_collection.update_one({"username": loser_username}, {"$inc": {"losses": 1}})
+        self.users_collection.update_one({"username": winner_username}, {"$inc": {"wins": 1}})
+        self.users_collection.update_one({"username": loser_username}, {"$inc": {"losses": 1}})
         print(f"[GAME] {winner_username} WIN, {loser_username} LOSE")
 
     def _update_team_win_loss(self, winning_team, losing_team):
         self._send_game_result([h.username for h in winning_team],[h.username for h in losing_team])
         for hero in winning_team:
-            self.db.users_collection.update_one({"username": hero.username}, {"$inc": {"wins": 1}})
+            self.users_collection.update_one({"username": hero.username}, {"$inc": {"wins": 1}})
         for hero in losing_team:
-            self.db.users_collection.update_one({"username": hero.username}, {"$inc": {"losses": 1}})
+            self.users_collection.update_one({"username": hero.username}, {"$inc": {"losses": 1}})
         print(f"[GAME] Team {[h.username for h in winning_team]} WIN, "
               f"Team {[h.username for h in losing_team]} LOSE")
 
