@@ -924,6 +924,15 @@ class Client:
                 is_right_side,
                 is_bottom
             )
+        if self.match_result:
+            try:
+                font = pygame.font.Font("src/assets/fonts/VCR_OSD_MONO.ttf", 50)
+            except:
+                font = pygame.font.SysFont("arial", 50)
+            color = (0, 255, 0) if self.match_result == "win" else (255, 0, 0)
+            text_surface = font.render(self.match_result.upper(), True, color)
+            rect = text_surface.get_rect(center=(self.screen_width//2, self.screen_height//2))
+            self.screen.blit(text_surface, rect)    
         
         
         pygame.display.update()
