@@ -181,11 +181,13 @@ while True:
                             if selected_hero:
                                 print("[CLIENT DEBUG] Character selected. Starting game client...") # DEBUG PRINT
                         
-                                game_client = Client(network_handler.client, network_handler.username, network_handler.player_id, selected_hero)
-                                game_client.start() 
-
-                                multiplayer_active = False
-                                start_menu_running = False 
+                                game_client = Client(network_handler.client, network_handler.username, network_handler.player_id, selected_hero, background1)
+                                action_after_game = game_client.start() 
+                                if action_after_game == "exit":
+                                    multiplayer_active = False
+                                    start_menu_running = False 
+                                else:
+                                    multiplayer_active = False
                             else:
                                
                                 multiplayer_active = False
