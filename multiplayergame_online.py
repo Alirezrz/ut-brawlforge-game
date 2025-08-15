@@ -370,12 +370,14 @@ class MultiplayerGame:
 
     def _update_win_loss(self, winner_username, loser_username):
         """آپدیت برد و باخت برای حالت یک به یک"""
+        self._send_game_result([winner_username], [loser_username])
         self.db.users_collection.update_one({"username": winner_username}, {"$inc": {"wins": 1}})
         self.db.users_collection.update_one({"username": loser_username}, {"$inc": {"losses": 1}})
         print(f"[GAME] {winner_username} WIN, {loser_username} LOSE")
 
     def _update_team_win_loss(self, winning_team, losing_team):
         """آپدیت برد و باخت برای حالت تیمی"""
+        self._send_game_result([h.username for h in winning_team],[h.username for h in losing_team])
         for hero in winning_team:
             self.db.users_collection.update_one({"username": hero.username}, {"$inc": {"wins": 1}})
         for hero in losing_team:
@@ -391,3 +393,13 @@ class MultiplayerGame:
         for idx, conn in enumerate(clients):
             threading.Thread(target=self.client_thread, args=(conn, idx), daemon=True).start()
         threading.Thread(target=self.game_loop, daemon=True).start()
+
+    def _send_game_result(self, winners, losers):
+        for idx, hero in enumerate(self.heroes):
+            if hero is None:
+                continue
+            result = "win" if hero.username in winners else "lose"
+            try:
+                self.clients[idx].sendall((json.dumps({"game_result": result}) + "\n").encode("utf-8"))
+            except Exception as e:
+                print(f"[SERVER] Failed to send game result to {hero.username}: {e}")    
