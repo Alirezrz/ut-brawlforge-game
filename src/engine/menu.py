@@ -1314,7 +1314,7 @@ class LoginSignupMenu:
 
 
 class OnlineActionMenu:
-    def __init__(self, screen, background,user_info):
+    def __init__(self, screen, background,user_info=None):
         self.screen = screen
         self.background = background
         self.font = pygame.font.Font(None, 50)
