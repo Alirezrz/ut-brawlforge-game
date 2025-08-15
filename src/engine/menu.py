@@ -1301,7 +1301,7 @@ class OnlineActionMenu:
         self.buttons = [
             {"text": "Create 1v1 Game", "rect": pygame.Rect(0, 0, 400, 60), "action": "create_1v1"},
             {"text": "Create 2v2 Game", "rect": pygame.Rect(0, 0, 400, 60), "action": "create_2v2"},
-            {"text": "Join Game by ID", "rect": pygame.Rect(0, 0, 400, 60), "action": "join_game"},
+            {"text": "Join Game", "rect": pygame.Rect(0, 0, 400, 60), "action": "join_game"},
             {"text": "Back to Main Menu", "rect": pygame.Rect(0, 0, 400, 60), "action": "back"}
         ]
         
