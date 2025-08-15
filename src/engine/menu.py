@@ -274,7 +274,7 @@ class MapCharacterMenu:
           "level1": 1,
           "level2": 2,
           "level3": 3,
-          "level4": 4
+          "Boss fight": 4
         }
         try:
             city_num = map_to_city.get(map_name, 1)
