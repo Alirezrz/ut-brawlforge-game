@@ -10,6 +10,7 @@ from src.engine.game import Game
 from src.engine.menu import Menu, GameModeMenu, MapCharacterMenu,MultiplayerMapCharacterMenu, GameOverMenu,MatchmakingMenu,NetworkMenu,LobbyMenu,JoinGameMenu,MultiplayerCharacterSelectMenu,SearchPlayerMenu,LoginSignupMenu,OnlineActionMenu,JoinMethodMenu,TextInputMenu,OnlineLobbyMenu 
 from src.engine.multiplayer_game import Game_2
 from src.engine.network import Network
+from src.engine.database import get_user_info
 from Client import Client
 from Client_online import Client as ClientOnline 
 from client_connector import ClientConnector
@@ -222,7 +223,8 @@ while True:
                     success, message = connector.authenticate(action_code, username, password)
 
                     if success:
-                        online_action_menu = OnlineActionMenu(screen, background1)
+                        current_user = get_user_info(username)
+                        online_action_menu = OnlineActionMenu(screen, background1,current_user)
                         
                         while True: 
                             online_action = online_action_menu.run()
