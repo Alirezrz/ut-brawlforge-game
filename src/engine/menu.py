@@ -1339,11 +1339,14 @@ class OnlineActionMenu:
     def draw(self):
         self.screen.blit(self.background, (0, 0))
 
-        
+
         if self.user_info:
-            info_text = f"{self.user_info['username']}  |  Wins: {self.user_info['wins']}  Losses: {self.user_info['losses']}"
+            wins_half = self.user_info['wins'] / 2
+            losses_half = self.user_info['losses'] / 2
+            info_text = f"{self.user_info['username']}  |  Wins: {wins_half}  Losses: {losses_half}"
             info_surf = self.font.render(info_text, True, (255, 255, 255))
             self.screen.blit(info_surf, (20, 20))
+
         
         
         title_surf = self.title_font.render("Online Lobby", True, (255, 255, 255))
