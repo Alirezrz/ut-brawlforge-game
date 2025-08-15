@@ -270,8 +270,15 @@ class MapCharacterMenu:
         for sound in self.sounds.values():
             sound.set_volume(0.5)
     def load_map_preview(self, map_name):
+        map_to_city = {
+          "level1": 1,
+          "level2": 2,
+          "level3": 3,
+          "level4": 4
+        }
         try:
-            img_path = os.path.join("src", "assets", "images", "levels", f"{map_name}_preview.png")
+            city_num = map_to_city.get(map_name, 1)
+            img_path = os.path.join("src", "assets", "images", f"city{city_num}.png")
             img = pygame.image.load(img_path)
             return pygame.transform.scale(img, (self.map_button_width, self.map_button_height))
         except FileNotFoundError:
@@ -540,15 +547,10 @@ class GameOverMenu:
         self.exit_game_rect = None
 
     def draw(self):
-        # Draw the background
         self.screen.blit(self.background, (0, 0))
-
-        # Draw the game over message
         message_surface = self.font.render(self.message, True, (255, 255, 255))
         message_rect = message_surface.get_rect(center=(self.screen.get_width() / 2, self.screen.get_height() / 4))
         self.screen.blit(message_surface, message_rect)
-
-        # Draw menu options
         for i, option in enumerate(self.menu_options):
             color = (255, 255, 0) if i == self.selected_option_index else (255, 255, 255)
             option_surface = self.small_font.render(option, True, color)
