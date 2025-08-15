@@ -658,7 +658,6 @@ class Client:
                             
 
                             self.bullets = parsed.get("bullets", [])
-                            print(f"client bullet=\n{self.bullets}\n")
 
                             self.other_players_states = []
                             opponents_list = parsed.get("opponents", []) 

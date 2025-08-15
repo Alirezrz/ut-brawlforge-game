@@ -3,3 +3,4 @@ pygame
 pymongo
 werkzeug
 dotenv
+openai
