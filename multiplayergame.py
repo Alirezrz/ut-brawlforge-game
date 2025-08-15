@@ -39,7 +39,7 @@ class MultiplayerGame:
         self.gates = []
         self.type = game_type
         self.game_over_timer_start = None
-        self.game_over_delay = 3000 
+        self.game_over_delay = 1000 
         self.objects_dict= build_objects(online_multiplayer_data , self.heroes)
         health_boxes = [obj for obj in self.objects_dict['misc'] if isinstance(obj, PowerBox)]
         selected_health_boxes = random.sample(health_boxes, min(4, len(health_boxes)))
