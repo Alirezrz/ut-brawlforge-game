@@ -693,7 +693,7 @@ class MatchmakingMenu:
             {"text": "Create 1v1 Game", "rect": pygame.Rect(0, 0, 400, 50), "action": "create_1v1"},
             {"text": "Create 2v2 Game", "rect": pygame.Rect(0, 0, 400, 50), "action": "create_2v2"},
             {"text": "Join Game by ID", "rect": pygame.Rect(0, 0, 400, 50), "action": "join"},
-            {"text": "Search Player by ID", "rect": pygame.Rect(0, 0, 400, 50), "action": "search_player"}
+            # {"text": "Search Player by ID", "rect": pygame.Rect(0, 0, 400, 50), "action": "search_player"}
         ]
         for i, button in enumerate(self.buttons):
             button["rect"].center = (screen.get_width() // 2, 300 + i * 80)
