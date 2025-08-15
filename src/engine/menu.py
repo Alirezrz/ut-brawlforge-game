@@ -1473,6 +1473,11 @@ class OnlineLobbyMenu:
 
         if self.is_host:
             self.start_button = pygame.Rect(screen.get_width() - 380, screen.get_height() - 110, 350, 70)
+        try:
+            self.click_sound = pygame.mixer.Sound("src/assets/sounds/menu/click.wav")
+        except pygame.error as e:
+            print(f"Cannot load click sound in NetworkMenu: {e}")
+            self.click_sound = None   
 
     def run(self):
         while True:
@@ -1516,6 +1521,8 @@ class OnlineLobbyMenu:
             decision = "no"
         
         if decision:
+            if self.click_sound:
+                self.click_sound.play()
             self.network.client.setblocking(True)
             self.network.client.sendall(decision.encode())
             self.network.client.setblocking(False)
