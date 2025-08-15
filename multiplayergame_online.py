@@ -64,6 +64,8 @@ class MultiplayerGame:
         self.death_logged = {}
         self.gates = []
         self.type = type
+        self.game_ended = False
+
         self.TEAMS_SET = False
         self.objects_dict = build_objects(online_multiplayer_data, self.heroes)
         health_boxes = [obj for obj in self.objects_dict['misc'] if isinstance(obj, PowerBox)]
@@ -321,8 +323,9 @@ class MultiplayerGame:
                         }).encode('utf-8') + b"\n")
                 active_heroes = [h for h in self.heroes if h is not None]
                 for h in active_heroes: h.events.clear()
-                if self.check_win_condition():
+                if not self.game_ended and self.check_win_condition():
                     self.game_active = False
+                    self.game_ended = True
                     break
                 clock.tick(30)
 
