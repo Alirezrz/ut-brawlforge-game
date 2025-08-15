@@ -1341,8 +1341,8 @@ class OnlineActionMenu:
 
 
         if self.user_info:
-            wins_half = self.user_info['wins'] / 2
-            losses_half = self.user_info['losses'] / 2
+            wins_half = self.user_info['wins'] // 2
+            losses_half = self.user_info['losses'] // 2
             info_text = f"{self.user_info['username']}  |  Wins: {wins_half}  Losses: {losses_half}"
             info_surf = self.font.render(info_text, True, (255, 255, 255))
             self.screen.blit(info_surf, (20, 20))
