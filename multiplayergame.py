@@ -22,7 +22,6 @@ platform_images = {key: pygame.Surface((64, 64)) for key in ['left', 'middle', '
 platforms = load_level_data(online_multiplayer_data , platform_images)
 
 def send_json(conn, data):
-    """Safely sends a JSON object with a newline terminator."""
     try:
         message = json.dumps(data) + '\n'
         conn.sendall(message.encode('utf-8'))

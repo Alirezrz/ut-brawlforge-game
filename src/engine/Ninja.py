@@ -13,7 +13,7 @@ class Ninja:
         self.events = []
         self.SOUND_FLAG=soundeffect_flag
         self.frame_address=None
-
+        self.is_eliminated = False
         self.x_pos = x
         self.y_pos = y
         self.on_platform = False
@@ -232,7 +232,8 @@ class Ninja:
         self.AllowJump_flag = False
         self.allow_move_left = False
         self.allow_move_right = False
-        self.y_pos+=30        
+        self.y_pos+=30  
+        self.is_eliminated = True      
         self.previous_center = (self.x_pos + self.width // 2, self.y_pos + self.height)
              
     def display_health_bar(self, screen):

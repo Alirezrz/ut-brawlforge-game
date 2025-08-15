@@ -4,6 +4,8 @@ import socket
 import json
 import select
 import os
+import sys
+from src.engine.menu import GameOverMenu
 from src.levels import multiplayer_data, load_level_data,online_multiplayer_data
 from config import screen_width, screen_height,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
 from src.utils import get_my_local_ip
@@ -25,6 +27,8 @@ class Client:
         self.creation_index=1
         self.ui_cache={}
         self.hero_type = hero_type
+        self.game_over = False
+        self.winner_message = ""
         initial_data = {
             "username": self.username,
             "character": self.hero_type
@@ -664,6 +668,15 @@ class Client:
 
                     try:
                         self.objects = parsed.get('objects', [])
+                        if parsed.get("type") == "game_over":
+                            winner_info = parsed.get('winner', 'Unknown')
+                            if winner_info == "Draw":
+                                self.winner_message = "Draw!"
+                            else:
+                                self.winner_message = f"{winner_info} Wins!"
+                            self.game_over = True
+                            print(f"[CLIENT] Game over message received! Winner: {winner_info}")
+                            continue 
                         selfdata = parsed["self"]
                         self.x_pos = selfdata['x_pos']
                         self.y_pos = selfdata['y_pos']
@@ -966,13 +979,29 @@ class Client:
         threading.Thread(target=self.receive_state, daemon=True).start()
 
         clock = pygame.time.Clock()
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
+        running = True
+        while running:
+           
+            if self.game_over:
+                
+                game_over_menu = GameOverMenu(self.screen, self.background, self.winner_message)
+                action = game_over_menu.run()
 
-            self.render_game()
-            clock.tick(30)
+                if action == "menu":
+                    running = False
+                elif action == "exit":
+                    pygame.quit()
+                    sys.exit()  
+            else:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+                self.render_game()
+            pygame.display.flip()
+            clock.tick(60)    
         
 
+        try:
+          self.socket.close()
+        except:
+          pass

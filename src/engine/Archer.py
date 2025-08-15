@@ -13,6 +13,7 @@ class Archer:
         self.hero_creation_index=index
         self.x_pos = x
         self.y_pos = y
+        self.is_eliminated = False
         self.screen_height=screen_height
         self.screen_width=screen_width
         self.on_platform = False
@@ -652,6 +653,7 @@ class Archer:
             return
 
         self.ALIVE = False
+        self.is_eliminated = True
         self.DEAD = False  # will become True when animation finishes
         self.status = 'dead'
         self.current_frame_index = 0

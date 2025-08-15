@@ -19,7 +19,13 @@ bullet_class = Bullet
 
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 pygame.init()
-
+def send_json(conn, data):
+    try:
+        message = json.dumps(data) + '\n'
+        conn.sendall(message.encode('utf-8'))
+    except (socket.error, BrokenPipeError):
+        print("Failed to send to a disconnected socket.")
+        pass
 start_x = 58 * 64
 start_y = -1000
 
@@ -63,6 +69,9 @@ class MultiplayerGame:
         self.gates = []
         self.type = type
         self.TEAMS_SET = False
+        self.winner = None
+        self.game_over_timer_start = None
+        self.game_over_delay = 3000
         self.objects_dict = build_objects(online_multiplayer_data, self.heroes)
         health_boxes = [obj for obj in self.objects_dict['misc'] if isinstance(obj, PowerBox)]
         selected_health_boxes = random.sample(health_boxes, min(4, len(health_boxes)))
@@ -188,6 +197,16 @@ class MultiplayerGame:
         clock = pygame.time.Clock()
         while self.game_active:
             print("------in the loop-----")
+            current_time = pygame.time.get_ticks()
+            if self.game_over_timer_start:
+                if current_time - self.game_over_timer_start > self.game_over_delay:
+                    game_over_message = {"type": "game_over", "winner": self.winner}
+                    print(f"SERVER: Sending final game over message: {game_over_message}")
+                    for client_conn in self.clients:
+                        if client_conn:
+                            send_json(client_conn, game_over_message)
+                    self.game_active = False
+                    continue
             if not all(self.heroes):
                 clock.tick(30)
                 continue
@@ -238,7 +257,12 @@ class MultiplayerGame:
 
                     hero1.update_online(self.platforms, self.shot_bullets, hero1.attack_targets, keys1, self.gates, None)
                     hero2.update_online(self.platforms, self.shot_bullets, hero2.attack_targets, keys2, self.gates, None)
-
+                if not self.winner:
+                    winner_result = self.check_win_condition()
+                    if winner_result:
+                        self.winner = winner_result
+                        self.game_over_timer_start = current_time
+                        print(f"SERVER: Winner detected: {self.winner}. Starting timer.")
                     # بررسی مرگ و آپدیت kills و deaths
                     for bullet in self.shot_bullets:
                         if bullet.owner != hero1.username and hero1.health <= 0:
@@ -341,3 +365,44 @@ class MultiplayerGame:
         for idx, conn in enumerate(clients):
             threading.Thread(target=self.client_thread, args=(conn, idx), daemon=True).start()
         threading.Thread(target=self.game_loop, daemon=True).start()
+def check_win_condition(self):
+    winner_name = None
+    active_heroes = [h for h in self.heroes if h is not None]
+    
+    if not active_heroes:
+        return None
+
+    if self.type == '1v1':
+        if len(active_heroes) < 2: return None
+        player1 = self.heroes[0]
+        player2 = self.heroes[1]
+        
+        if player1 and player2:
+            p1_lost = player1.is_eliminated
+            p2_lost = player2.is_eliminated
+
+            if p1_lost and not p2_lost:
+                winner_name = player2.username
+            elif p2_lost and not p1_lost:
+                winner_name = player1.username
+            elif p1_lost and p2_lost:
+                winner_name = "Draw"
+            
+    elif self.type == '2v2':
+        if len(active_heroes) < 4: return None
+        team1_players = [h for h in self.heroes if h and h.hero_creation_index in (1, 2)]
+        team2_players = [h for h in self.heroes if h and h.hero_creation_index in (3, 4)]
+
+        if team1_players and team2_players:
+            
+            team1_eliminated = all(p.is_eliminated for p in team1_players)
+            team2_eliminated = all(p.is_eliminated for p in team2_players)
+
+            if team1_eliminated and not team2_eliminated:
+                winner_name = "Team 2"
+            elif team2_eliminated and not team1_eliminated:
+                winner_name = "Team 1"
+            elif team1_eliminated and team2_eliminated:
+                winner_name = "Draw"
+            
+    return winner_name
