@@ -244,14 +244,7 @@ class MultiplayerGame:
                     hero2.update_online(self.platforms, self.shot_bullets, hero2.attack_targets, keys2, self.gates, None)
 
                     # بررسی مرگ و آپدیت kills و deaths
-                    for bullet in self.shot_bullets:
-                        if bullet.owner != hero1.username and hero1.health <= 0:
-                            self.users_collection.update_one({"username": hero1.username}, {"$inc": {"deaths": 1}})
-                            self.users_collection.update_one({"username": bullet.owner}, {"$inc": {"kills": 1}})
-                        if bullet.owner != hero2.username and hero2.health <= 0:
-                            self.users_collection.update_one({"username": hero2.username}, {"$inc": {"deaths": 1}})
-                            self.users_collection.update_one({"username": bullet.owner}, {"$inc": {"kills": 1}})
-
+                  
                     state_p1 = hero1.serialize()
                     state_p2 = hero2.serialize()
                     bullets_state = [b.serialize() for b in self.shot_bullets]
@@ -306,12 +299,7 @@ class MultiplayerGame:
                         heroes[i].update_online(self.platforms, self.shot_bullets, heroes[i].attack_targets, keys[i], self.gates, None)
 
                     # بررسی مرگ و آپدیت kills و deaths
-                    for bullet in self.shot_bullets:
-                        for hero in heroes:
-                            if hero and hero.health <= 0 and bullet.owner != hero.username:
-                                self.users_collection.update_one({"username": hero.username}, {"$inc": {"deaths": 1}})
-                                self.users_collection.update_one({"username": bullet.owner}, {"$inc": {"kills": 1}})
-
+       
                     states = [h.serialize() for h in heroes]
                     bullets_state = [b.serialize() for b in self.shot_bullets]
 
@@ -340,34 +328,54 @@ class MultiplayerGame:
             except Exception as e:
                 print(f"Game loop error: {e}")
                 self.game_active = False
+    def _register_death_and_kill(self, dead_username):
+    # پیدا کردن آخرین کسی که به این بازیکن تیر زده
+        killer = None
+        for bullet in reversed(self.shot_bullets):  # از آخر به اول، چون آخرین تیر مهمه
+            if bullet.owner != dead_username:
+                killer = bullet.owner
+                break
+
+        self.users_collection.update_one({"username": dead_username}, {"$inc": {"deaths": 1}})
+        if killer:
+            self.users_collection.update_one({"username": killer}, {"$inc": {"kills": 1}})
 
 
     def check_win_condition(self):
-      
         if self.type == '1v1':
             hero1, hero2 = self.heroes[0], self.heroes[1]
+
+            if hero1.health <= 0:
+                self._register_death_and_kill(hero1.username)
+            if hero2.health <= 0:
+                self._register_death_and_kill(hero2.username)
+
             if hero1.health <= 0 or hero2.health <= 0:
-                if hero1.health > 0:  
+                if hero1.health > 0:
                     self._update_win_loss(hero1.username, hero2.username)
-                elif hero2.health > 0:  
+                elif hero2.health > 0:
                     self._update_win_loss(hero2.username, hero1.username)
                 return True
 
         elif self.type == '2v2':
-            team1 = [self.heroes[0], self.heroes[1]]
-            team2 = [self.heroes[2], self.heroes[3]]
+            heroes = [self.heroes[0], self.heroes[1], self.heroes[2], self.heroes[3]]
 
-            team1_alive = any(h.health > 0 for h in team1)
-            team2_alive = any(h.health > 0 for h in team2)
+            for hero in heroes:
+                if hero.health <= 0:
+                    self._register_death_and_kill(hero.username)
+
+            team1_alive = any(h.health > 0 for h in heroes[0:2])
+            team2_alive = any(h.health > 0 for h in heroes[2:4])
 
             if not team1_alive or not team2_alive:
                 if team1_alive:
-                    self._update_team_win_loss(team1, team2)
-                elif team2_alive:  
-                    self._update_team_win_loss(team2, team1)
+                    self._update_team_win_loss(heroes[0:2], heroes[2:4])
+                elif team2_alive:
+                    self._update_team_win_loss(heroes[2:4], heroes[0:2])
                 return True
 
         return False
+
 
     def _update_win_loss(self, winner_username, loser_username):
         self._send_game_result([winner_username], [loser_username])
