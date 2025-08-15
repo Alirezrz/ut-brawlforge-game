@@ -297,9 +297,9 @@ class MultiplayerGame:
                     
                     heroes = [hero1, hero2, hero3, hero4]
                     for i in range(4):
-                        if heroes[i].hero_creation_index in (1, 2):  # Team 1
+                        if heroes[i].hero_creation_index in (1, 2):
                             heroes[i].attack_targets = [h for h in heroes if h and h.hero_creation_index in (3, 4)]
-                        else:  # Team 2
+                        else:
                             heroes[i].attack_targets = [h for h in heroes if h and h.hero_creation_index in (1, 2)]
 
                         heroes[i].handle_input_online(keys[i], self.gates, self.shot_bullets, bullet_class, None, mice[i])
@@ -347,9 +347,9 @@ class MultiplayerGame:
         if self.type == '1v1':
             hero1, hero2 = self.heroes[0], self.heroes[1]
             if hero1.health <= 0 or hero2.health <= 0:
-                if hero1.health > 0:  # hero1 برنده است
+                if hero1.health > 0:  
                     self._update_win_loss(hero1.username, hero2.username)
-                elif hero2.health > 0:  # hero2 برنده است
+                elif hero2.health > 0:  
                     self._update_win_loss(hero2.username, hero1.username)
                 return True
 
@@ -361,23 +361,21 @@ class MultiplayerGame:
             team2_alive = any(h.health > 0 for h in team2)
 
             if not team1_alive or not team2_alive:
-                if team1_alive:  # تیم 1 برنده
+                if team1_alive:
                     self._update_team_win_loss(team1, team2)
-                elif team2_alive:  # تیم 2 برنده
+                elif team2_alive:  
                     self._update_team_win_loss(team2, team1)
                 return True
 
         return False
 
     def _update_win_loss(self, winner_username, loser_username):
-        """آپدیت برد و باخت برای حالت یک به یک"""
         self._send_game_result([winner_username], [loser_username])
         self.db.users_collection.update_one({"username": winner_username}, {"$inc": {"wins": 1}})
         self.db.users_collection.update_one({"username": loser_username}, {"$inc": {"losses": 1}})
         print(f"[GAME] {winner_username} WIN, {loser_username} LOSE")
 
     def _update_team_win_loss(self, winning_team, losing_team):
-        """آپدیت برد و باخت برای حالت تیمی"""
         self._send_game_result([h.username for h in winning_team],[h.username for h in losing_team])
         for hero in winning_team:
             self.db.users_collection.update_one({"username": hero.username}, {"$inc": {"wins": 1}})
