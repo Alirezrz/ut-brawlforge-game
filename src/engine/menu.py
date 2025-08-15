@@ -545,6 +545,11 @@ class GameOverMenu:
 
         self.return_to_menu_rect = None
         self.exit_game_rect = None
+        try:
+            self.click_sound = pygame.mixer.Sound("src/assets/sounds/menu/click.wav")
+        except pygame.error as e:
+            print(f"Cannot load click sound in NetworkMenu: {e}")
+            self.click_sound = None  
 
     def draw(self):
         self.screen.blit(self.background, (0, 0))
@@ -582,8 +587,12 @@ class GameOverMenu:
                             return "exit"
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.return_to_menu_rect and self.return_to_menu_rect.collidepoint(event.pos):
+                        if self.click_sound:
+                            self.click_sound.play()
                         return "menu"
                     if self.exit_game_rect and self.exit_game_rect.collidepoint(event.pos):
+                        if self.click_sound:
+                            self.click_sound.play()
                         return "exit"
                 if event.type == pygame.MOUSEMOTION:
                     if self.return_to_menu_rect and self.return_to_menu_rect.collidepoint(event.pos):
