@@ -14,7 +14,7 @@ class Menu:
         self.small_font = pygame.font.Font(None, 50)
         self.running = True
         try:
-            logo_path = os.path.join("src", "assets", "images", "ut brawlforge icon.webp") 
+            logo_path = os.path.join("src", "assets", "images", "ut-brawlforge-icon.png") 
             self.logo = pygame.image.load(logo_path).convert_alpha()
             self.logo = pygame.transform.scale(self.logo, (400, 400))
         except pygame.error as e:

@@ -20,6 +20,7 @@ class Client:
         self.screen_width=screen_width
         self.is_dead=False
         self.game_over =False
+        self.game_over_delay = 2000 
         self.winner_message ="" 
         self.screen = pygame.display.set_mode((screen_width, screen_height))
         pygame.display.set_caption(f"BrawlForge - {username}")
@@ -970,6 +971,7 @@ class Client:
                 is_right_side,
                 is_bottom
             )
+
         if self.game_over:
             overlay = pygame.Surface((self.screen_width, self.screen_height), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 180))
@@ -978,10 +980,13 @@ class Client:
                 big_font = pygame.font.Font("src/assets/fonts/VCR_OSD_MONO.ttf", 120)
             except:
                 big_font = pygame.font.SysFont("arial", 120)
-            
-            winner_text = big_font.render(self.winner_message, True, (255, 215, 0)) 
+
+            winner_text = big_font.render(self.winner_message, True, (255, 215, 0))
             text_rect = winner_text.get_rect(center=(self.screen_width / 2, self.screen_height / 2))
             self.screen.blit(winner_text, text_rect)
+
+            if getattr(self, "game_over_time", None) is None:
+                self.game_over_time = pygame.time.get_ticks()
         pygame.display.flip()
     def send_json(self, data):
         try:
@@ -990,10 +995,11 @@ class Client:
         except (socket.error, BrokenPipeError):
             print("Connection to server lost.")    
     def start(self):
+        
         initial_data = {"username": self.username, "character": self.hero_type}
         print(f"DEBUG [Client.py]: Sending initial character data to server: {initial_data}")
         self.send_json(initial_data)
-
+        self.game_over_time = None
       
         threading.Thread(target=self.send_input_loop, daemon=True).start()
         threading.Thread(target=self.receive_state_loop, daemon=True).start()
@@ -1003,6 +1009,10 @@ class Client:
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    running = False
+            
+            if getattr(self, "game_over_time", None) is not None:
+                if pygame.time.get_ticks() - self.game_over_time > 2000:
                     running = False
             
             self.render_game()

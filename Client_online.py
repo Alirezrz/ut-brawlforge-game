@@ -265,8 +265,9 @@ class Client:
                     except Exception as e:
                         print(f"Error loading Roboman death frame 'Dead ({i}).png': {e}")
                         self.frames["Roboman"]["death_frames"].append(pygame.Surface(sizes[i-1]))
-                self.frames["Roboman"]["jetpack_frame"] = pygame.transform.scale(
-                    pygame.image.load(os.path.join(base_path, "jetpack.png")), (80, 118))
+                self.frames["Roboman"]["jetpack_frame"] = [
+                        pygame.transform.scale(pygame.image.load(os.path.join(base_path, "jetpack.png")), (80, 118))
+                    ]
                 
                 base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src","assets", "images")
                 base_path = os.path.join(base_path, "Ninja")

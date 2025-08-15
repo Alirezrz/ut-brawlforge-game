@@ -4,11 +4,14 @@ import json
 import random
 import time
 from multiplayergame import MultiplayerGame
-
+import tkinter as tk
+from tkinter import messagebox
 HOST = '0.0.0.0'
 PORT = 9191
 SERVER_ADDRESS = (HOST, PORT)
-
+server_socket = None
+server_running = False
+accept_thread = None
 clients = {}
 lobbies = {}
 active_games = {}
@@ -17,8 +20,8 @@ def send_json(conn, data):
     try:
         message = json.dumps(data) + '\n'
         conn.sendall(message.encode('utf-8'))
-    except (socket.error, BrokenPipeError) as e:
-        print(f"Could not send data: {e}")
+    except (socket.error, BrokenPipeError, OSError) as e:
+        print(f"Could not send data to {getattr(conn, 'getpeername', lambda: 'client')()}: {e}")
 
 def broadcast_lobby_update(lobby_id):
     if lobby_id in lobbies:
@@ -27,7 +30,90 @@ def broadcast_lobby_update(lobby_id):
         update_message = {"type": "lobby_update", "players": player_list}
         for conn in lobby["players"]:
             send_json(conn, update_message)
+def accept_loop(sock):
+    global server_running
+    print(f"[*] Lobby server listening on {HOST}:{PORT}")
+    sock.settimeout(1.0)   
+    while server_running:
+        try:
+            conn, addr = sock.accept()
+            thread = threading.Thread(target=client_handler, args=(conn,))
+            thread.daemon = True
+            thread.start()
+        except socket.timeout:
+            continue
+        except OSError:
+            break
+    print("[*] Accept loop has stopped.")
 
+def shutdown_server_and_clients():
+    global server_running, server_socket
+    print("[*] Shutting down server...")
+
+    server_running = False
+
+    try:
+        if server_socket:
+            server_socket.close()
+    except Exception:
+        pass
+
+    for conn in list(clients.keys()):
+        try:
+            send_json(conn, {"type": "server_shutdown", "message": "Server is shutting down."})
+        except Exception:
+            pass
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+    clients.clear()
+    lobbies.clear()
+    active_games.clear()
+
+    print("[*] Server and all client connections closed.")
+
+def start_server_in_thread():
+    global server_socket, server_running, accept_thread
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server_socket.bind(SERVER_ADDRESS)
+    server_socket.listen(5)
+    server_running = True
+
+    accept_thread = threading.Thread(target=accept_loop, args=(server_socket,))
+    accept_thread.daemon = True
+    accept_thread.start()
+    
+    
+def on_stop_button(root):
+    if messagebox.askyesno("Stop Server", "Stop the server and disconnect all clients?"):
+        shutdown_server_and_clients()
+        root.destroy()
+
+def make_gui_and_run():
+    root = tk.Tk()
+    root.title("Lobby Server")
+    width, height = 400, 180
+    screen_w = root.winfo_screenwidth()
+    screen_h = root.winfo_screenheight()
+    x = (screen_w // 2) - (width // 2)
+    y = (screen_h // 2) - (height // 2)
+    root.geometry(f"{width}x{height}+{x}+{y}")
+    root.resizable(False, False)
+
+    lbl = tk.Label(root, text=f"Lobby Server running on {HOST}:{PORT}", font=("Segoe UI", 12))
+    lbl.pack(pady=(20, 10))
+
+    stop_btn = tk.Button(root, text="Stop Server", font=("Segoe UI", 14, "bold"),
+                         width=16, height=2, command=lambda: on_stop_button(root))
+    stop_btn.pack(pady=(5, 20))
+
+    root.protocol("WM_DELETE_WINDOW", lambda: on_stop_button(root))
+    root.mainloop()
+    
+    
 def client_handler(conn):
     player_id = "0"
     username = "Guest"
@@ -211,11 +297,12 @@ def client_handler(conn):
              print(f"[+] Client {username} (ID: {player_id}) has entered a game. Handing off connection.")
 
 def main():
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM); server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server.bind(SERVER_ADDRESS); server.listen(5); print(f"[*] Lobby server listening on {HOST}:{PORT}")
-    while True:
-        conn, addr = server.accept()
-        thread = threading.Thread(target=client_handler, args=(conn,)); thread.daemon = True; thread.start()
+    start_server_in_thread()
+    make_gui_and_run()
+
+    if accept_thread and accept_thread.is_alive():
+        accept_thread.join(timeout=1.0)
+    print("[*] Server stopped. Exiting.")
 
 if __name__ == "__main__":
     main()
