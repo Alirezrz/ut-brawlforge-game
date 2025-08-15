@@ -18,7 +18,7 @@ class Client:
         self.hero_type = hero_type
         self.screen_height=screen_height
         self.screen_width=screen_width
-        self.count_dwon_soud=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..", "assets", "sounds","countdown.mp3"))
+        self.count_dwon_soud=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..","src", "assets", "sounds","countdown.mp3"))
         self.is_dead=False
         self.game_over =False
         self.game_over_delay = 2000 
