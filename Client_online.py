@@ -4,15 +4,17 @@ import socket
 import json
 import select
 import os
+import sys
 from src.levels import multiplayer_data, load_level_data,online_multiplayer_data
 from config import screen_width, screen_height,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
 from src.utils import get_my_local_ip
+from src.engine.menu import GameOverMenu
 # Initialize Pygame
 pygame.init()
 
 
 class Client:
-    def __init__(self, sock, username, player_id, hero_type):
+    def __init__(self, sock, username, player_id, hero_type,background ):
         self.profile_picture = pygame.Surface((profileSideSize, profileSideSize))
         self.profile_picture.fill((100, 100, 100))
         self.health_bar = pygame.Surface((health_bar_lenght, 20))
@@ -20,6 +22,7 @@ class Client:
         self.health_bar_frame = pygame.Surface((health_bar_lenght + 2 * roboman_health_bar_frame_thickness, 22))
         self.health_bar_frame.fill((255, 255, 255))
         self.socket = sock
+        self.background = background
         self.username = username
         self.player_id = player_id
         self.match_result = None
@@ -1007,14 +1010,28 @@ class Client:
         threading.Thread(target=self.receive_state, daemon=True).start()
 
         clock = pygame.time.Clock()
-        while True:
+        running=True
+        while running:
+            if self.match_result:
+                running = False
+                continue
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-
+                    running = False
+            
             self.render_game()
             clock.tick(30)
+        action_to_return = "exit"
+        if self.match_result:
+            self.render_game()
+            pygame.display.flip()
+            pygame.time.wait(3000)
+            final_message = "You Win!" if self.match_result == "win" else "You Lose!"
+            game_over_menu = GameOverMenu(self.screen, self.background, final_message)
+            action_to_return = game_over_menu.run()
+        return action_to_return
+
         
 
 

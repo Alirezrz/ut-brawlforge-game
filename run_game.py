@@ -288,16 +288,18 @@ while True:
                                 char_menu = MultiplayerCharacterSelectMenu(screen, background1)
                                 selected_hero = char_menu.run()
                                 if selected_hero:
-                                    game_client = ClientOnline(connector.client_socket, connector.username, connector.client_id, selected_hero)
-                                    game_client.start()
+                                    game_client = ClientOnline(connector.client_socket, connector.username, connector.client_id, selected_hero, background1)
+                                    action_after_game = game_client.start()
+                                    if action_after_game == "exit":
+                                        start_menu_running = False
+                                        break
+                                    else: 
+                                        break 
                                 
-                                start_menu_running = False
-                                break 
-                        if not start_menu_running: break 
+                        if not start_menu_running: break
                     else:
                         login_menu.message = message
                         login_menu.message_color = (255, 100, 100)
-                
                 continue
             if game: 
                 status, message = game.run()
