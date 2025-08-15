@@ -337,6 +337,49 @@ class MultiplayerGame:
                 print(f"Game loop error: {e}")
                 self.game_active = False
 
+    def check_win_condition(self):
+      
+        if self.type == '1v1':
+            hero1, hero2 = self.heroes[0], self.heroes[1]
+            if hero1.health <= 0 or hero2.health <= 0:
+                if hero1.health > 0:  # hero1 برنده است
+                    self._update_win_loss(hero1.username, hero2.username)
+                elif hero2.health > 0:  # hero2 برنده است
+                    self._update_win_loss(hero2.username, hero1.username)
+                return True
+
+        elif self.type == '2v2':
+            team1 = [self.heroes[0], self.heroes[1]]
+            team2 = [self.heroes[2], self.heroes[3]]
+
+            team1_alive = any(h.health > 0 for h in team1)
+            team2_alive = any(h.health > 0 for h in team2)
+
+            if not team1_alive or not team2_alive:
+                if team1_alive:  # تیم 1 برنده
+                    self._update_team_win_loss(team1, team2)
+                elif team2_alive:  # تیم 2 برنده
+                    self._update_team_win_loss(team2, team1)
+                return True
+
+        return False
+
+    def _update_win_loss(self, winner_username, loser_username):
+        """آپدیت برد و باخت برای حالت یک به یک"""
+        self.db.users_collection.update_one({"username": winner_username}, {"$inc": {"wins": 1}})
+        self.db.users_collection.update_one({"username": loser_username}, {"$inc": {"losses": 1}})
+        print(f"[GAME] {winner_username} WIN, {loser_username} LOSE")
+
+    def _update_team_win_loss(self, winning_team, losing_team):
+        """آپدیت برد و باخت برای حالت تیمی"""
+        for hero in winning_team:
+            self.db.users_collection.update_one({"username": hero.username}, {"$inc": {"wins": 1}})
+        for hero in losing_team:
+            self.db.users_collection.update_one({"username": hero.username}, {"$inc": {"losses": 1}})
+        print(f"[GAME] Team {[h.username for h in winning_team]} WIN, "
+              f"Team {[h.username for h in losing_team]} LOSE")
+
+    
     def set_players(self, clients):
         self.clients = clients
         self.player_inputs = {i: {} for i in range(len(clients))}
