@@ -244,7 +244,7 @@ class Roboman:
         self.rocket_reload_duration=6000
 
 
-        self.is_eliminated = False
+
         self.DEAD=False
         self.ALIVE=True
 
@@ -290,12 +290,8 @@ class Roboman:
     def die(self):
         if hasattr(self, "DEAD") and self.DEAD:
             return
-
         self.ALIVE = False
-        if not self.ALIVE: 
-            return
         self.status = 'dead'
-        self.is_eliminated = True
         self.current_frame_index = 0
         self.last_animation_state = 'death'
         self.vertical_speed = 0
