@@ -18,7 +18,7 @@ class Client:
         self.hero_type = hero_type
         self.screen_height=screen_height
         self.screen_width=screen_width
-        self.count_dwon_soud=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..","src", "assets", "sounds","countdown.mp3"))
+        self.count_down_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), "..","src", "assets", "sounds","countdown.mp3"))
         self.is_dead=False
         self.game_over =False
         self.game_over_delay = 2000 
@@ -1058,7 +1058,7 @@ class Client:
     def count_down(self):
         if not getattr(self, "START_COUNT_DOWN", False):
             return
-        self.count_dwon_soud.play()
+        self.count_down_sound.play()
         if getattr(self, "count_down_start", None) is None:
             self.count_down_start = pygame.time.get_ticks()
 
