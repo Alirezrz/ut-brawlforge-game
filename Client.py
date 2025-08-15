@@ -3,21 +3,23 @@ import threading
 import socket
 import json
 import os
+import sys 
 from src.levels import online_multiplayer_data , load_level_data
 from config import screen_width, screen_height,profileSideSize,health_bar_lenght,roboman_health_bar_frame_thickness
-
+from src.engine.menu import GameOverMenu
 
 pygame.init()
 
 
 class Client:
-    def __init__(self, sock, username, player_id, hero_type):
+    def __init__(self, sock, username, player_id, hero_type,background):
         self.socket = sock
         self.username = username
         self.player_id = player_id
         self.hero_type = hero_type
         self.screen_height=screen_height
         self.screen_width=screen_width
+        self.background=background
         self.count_down_sound=pygame.mixer.Sound(os.path.join(os.path.dirname(__file__),"src", "assets", "sounds","countdown.mp3"))
         self.is_dead=False
         self.game_over =False
@@ -1041,18 +1043,24 @@ class Client:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-            
-            if getattr(self, "game_over_time", None) is not None:
-                if pygame.time.get_ticks() - self.game_over_time > 2000:
-                    running = False
+            if self.game_over:
+                running = False
+                continue
+            # if getattr(self, "game_over_time", None) is not None:
+            #     if pygame.time.get_ticks() - self.game_over_time > 2000:
+            #         running = False
             
             self.render_game()
             clock.tick(60)
+        action_to_return = "exit" 
+        if self.game_over:
+            game_over_menu = GameOverMenu(self.screen, self.background, self.winner_message)
+            action_to_return = game_over_menu.run()
         try:
            self.socket.close()
         except:
             pass
-        pygame.quit()
+        return action_to_return
         
         
     def count_down(self):
