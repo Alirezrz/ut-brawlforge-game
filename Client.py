@@ -32,13 +32,15 @@ class Client:
         self.other_players_states = []
         self.bullets = []
         self.scroll = [0, 0]
-        
+        self.INPUT_FLAG=False
         self.objects=[]
         self.x_pos, self.y_pos, self.health, self.Look = 0, 0, 100, 'right'
         self.current_picture = pygame.Surface((50, 100)) 
         self.character_name = "Ninja"
         self.creation_index = 1
-        
+        self.COUNT_DOWN_DONE=False
+        self.START_COUNT_DOWN=False
+        self.count_down_start = None
         self.load_assets()
         try:
             self.current_picture = self.frames[self.hero_type]['idle_frames'][0]
@@ -494,18 +496,33 @@ class Client:
             pygame.event.pump()
             keys = pygame.key.get_pressed()
             mouse = pygame.mouse.get_pressed()
-            input_data = {
-                "A": keys[pygame.K_a],
-                "D": keys[pygame.K_d],
-                "W": keys[pygame.K_w],
-                "LSHIFT": keys[pygame.K_LSHIFT],
-                "G": keys[pygame.K_g],
-                "TAB": keys[pygame.K_TAB],
-                "RCTRL": keys[pygame.K_RCTRL],
-                "RALT": keys[pygame.K_RALT],
-                "left_click": mouse[0],
-                "right_click": mouse[2]
-            }
+            if self.INPUT_FLAG:
+                input_data = {
+                    "A": keys[pygame.K_a],
+                    "D": keys[pygame.K_d],
+                    "W": keys[pygame.K_w],
+                    "LSHIFT": keys[pygame.K_LSHIFT],
+                    "G": keys[pygame.K_g],
+                    "TAB": keys[pygame.K_TAB],
+                    "RCTRL": keys[pygame.K_RCTRL],
+                    "RALT": keys[pygame.K_RALT],
+                    "left_click": mouse[0],
+                    "right_click": mouse[2]
+                }
+            else:
+                input_data = {
+                    "A":False,
+                    "D": False,
+                    "W": False,
+                    "LSHIFT": False,
+                    "G":False,
+                    "TAB":False,
+                    "RCTRL": False,
+                    "RALT":False,
+                    "left_click":False,
+                    "right_click":False
+                }
+                
             self.send_json(input_data)
             clock.tick(30)
 
@@ -986,6 +1003,19 @@ class Client:
 
             if getattr(self, "game_over_time", None) is None:
                 self.game_over_time = pygame.time.get_ticks()
+                
+        idle_frame0 = None
+        try:
+            idle_frame0 = self.frames.get(self.hero_type, {}).get('idle_frames', [None])[0]
+        except Exception:
+            idle_frame0 = None
+
+        if idle_frame0 is not None and self.current_picture != idle_frame0:
+            if not self.COUNT_DOWN_DONE and not self.START_COUNT_DOWN:
+                self.START_COUNT_DOWN = True
+                self.count_down_start = pygame.time.get_ticks()
+            if self.START_COUNT_DOWN:
+                self.count_down()
         pygame.display.flip()
     def send_json(self, data):
         try:
@@ -1021,4 +1051,38 @@ class Client:
         except:
             pass
         pygame.quit()
+        
+        
+    def count_down(self):
+        if not getattr(self, "START_COUNT_DOWN", False):
+            return
+
+        if getattr(self, "count_down_start", None) is None:
+            self.count_down_start = pygame.time.get_ticks()
+
+        elapsed_ms = pygame.time.get_ticks() - self.count_down_start
+        seconds_passed = elapsed_ms // 1000
+        total_seconds = 3
+        seconds_left = total_seconds - seconds_passed
+
+        try:
+            big_font = pygame.font.Font("src/assets/fonts/VCR_OSD_MONO.ttf", 140)
+        except Exception:
+            big_font = pygame.font.SysFont("arial", 140)
+
+        if seconds_left > 0:
+            overlay = pygame.Surface((self.screen_width, self.screen_height), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 140))
+            self.screen.blit(overlay, (0, 0))
+
+            text_surf = big_font.render(str(seconds_left), True, (255, 255, 255))
+            text_rect = text_surf.get_rect(center=(self.screen_width // 2, self.screen_height // 2))
+            self.screen.blit(text_surf, text_rect)
+        else:
+            self.INPUT_FLAG = True
+            self.START_COUNT_DOWN = False
+            self.count_down_start = None
+            self.COUNT_DOWN_DONE = True
+
+            
 
