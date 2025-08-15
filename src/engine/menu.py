@@ -1222,7 +1222,7 @@ class LoginSignupMenu:
         self.password_box = pygame.Rect(screen.get_width() // 2 - 200, 320, 400, 50)
         self.login_button = pygame.Rect(screen.get_width() // 2 - 200, 400, 180, 60)
         self.signup_button = pygame.Rect(screen.get_width() // 2 + 20, 400, 180, 60)
-        self.back_button = pygame.Rect(screen.get_width() // 2 - 90, 480, 180, 60)
+        self.back_button = pygame.Rect(50, screen.get_height() - 100, 150, 50)
         try:
             self.click_sound = pygame.mixer.Sound("src/assets/sounds/menu/click.wav")
         except pygame.error as e:
@@ -1250,11 +1250,9 @@ class LoginSignupMenu:
         pygame.draw.rect(self.screen, (0, 100, 150), self.signup_button, border_radius=10)
         signup_text = self.font.render("Signup", True, (255, 255, 255))
         self.screen.blit(signup_text, signup_text.get_rect(center=self.signup_button.center))
-
-        pygame.draw.rect(self.screen, (150, 0, 0), self.back_button, border_radius=10)
+        pygame.draw.rect(self.screen, (150, 0, 0), self.back_button)
         back_text = self.font.render("Back", True, (255, 255, 255))
         self.screen.blit(back_text, back_text.get_rect(center=self.back_button.center))
-
     def run(self):
         while True:
             for event in pygame.event.get():
