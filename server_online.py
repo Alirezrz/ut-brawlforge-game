@@ -96,8 +96,6 @@ class Server:
             "username": username,
             "password": password,
             "id": new_id,
-            "kills": 0,
-            "deaths": 0,
             "wins": 0,
             "losses": 0
 
