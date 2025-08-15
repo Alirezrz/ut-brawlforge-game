@@ -317,7 +317,7 @@ class Server:
                     print(f"[SERVER] Removed game session {creator_id} due to invalid creator socket")
             return
 
-        msg = f"Player {client_info['username']} (ID: {client_info['id']}) wants to join the game. Accept? (yes/no):"
+        msg = f"Player {client_info['username']} (ID: {client_info['id']}) wants to join the game."
         try:
             creator_socket.settimeout(30.0)
             creator_socket.sendall(msg.encode())
