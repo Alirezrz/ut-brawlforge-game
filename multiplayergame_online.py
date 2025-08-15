@@ -54,6 +54,7 @@ class MultiplayerGame:
         if not mongo_uri:
             raise ValueError("MONGO_URI not found in .env file")
         self.db = MongoClient(mongo_uri)["my_game_db"]
+        self.users_collection = self.db["users"]
         self.clients = []
         self.player_inputs = {}
         self.heroes = [None, None] if type == '1v1' else [None, None] * 2
