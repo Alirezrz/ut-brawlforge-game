@@ -97,7 +97,9 @@ class Server:
             "password": password,
             "id": new_id,
             "kill": 0,
-            "death": 0
+            "death": 0,
+            "win": 0,
+            "lose": 0
 
         }
         self.users_collection.insert_one(new_user)
