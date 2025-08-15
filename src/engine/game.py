@@ -46,7 +46,7 @@ class Game:
             self.hero = Ninja(
                 player_start_pos['x'], player_start_pos['y'],
                 screen_width, screen_height,
-                [],1  # لیست targets بعداً ست می‌شود
+                [],1  
             )
         elif selected_char == "Archer":
             self.hero=Archer(player_start_pos['x'], player_start_pos['y'],
@@ -86,13 +86,9 @@ class Game:
             if type(obj)==Power_up:
                 obj.targets=[self.hero]
                        
-        
-        
 
-        # هدف‌گذاری دشمنان
         apply_targets_to_enemies(self.enemies_dict, [self.hero])
 
-        # اهداف حمله نینجا
         self.hero.attack_targets = all_enemies
 
         
@@ -109,7 +105,7 @@ class Game:
             self.enemies_dict.get('drones'),
             self.objects,
             self.enemies_dict.get('gunmans'),
-            None,  # archer, only if needed
+            None,  
             self.enemies_dict.get('dragonlord'),
             self.enemies_dict.get('flyingdemons'),  
             self.objects_dict.get('bomb'),

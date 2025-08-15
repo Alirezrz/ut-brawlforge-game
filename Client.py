@@ -1001,6 +1001,7 @@ class Client:
             winner_text = big_font.render(self.winner_message, True, (255, 215, 0))
             text_rect = winner_text.get_rect(center=(self.screen_width / 2, self.screen_height / 2))
             self.screen.blit(winner_text, text_rect)
+            
 
             if getattr(self, "game_over_time", None) is None:
                 self.game_over_time = pygame.time.get_ticks()
