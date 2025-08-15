@@ -1054,6 +1054,7 @@ class Client:
             clock.tick(60)
         action_to_return = "exit" 
         if self.game_over:
+            pygame.time.wait(3000) 
             game_over_menu = GameOverMenu(self.screen, self.background, self.winner_message)
             action_to_return = game_over_menu.run()
         try:
