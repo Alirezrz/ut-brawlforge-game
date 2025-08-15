@@ -866,6 +866,9 @@ class Client:
             
         # اینجا بقیه پلیر ها رو رندر میکنیم     
         for data in self.other_players_states:
+            username_surface = font.render(data['username'], True, (255, 255, 255))
+            username_rect = username_surface.get_rect(center=(data['x_pos'] - self.scroll[0] + self_image.get_width() / 2, data['y_pos'] - self.scroll[1] - 15))
+            self.screen.blit(username_surface, username_rect)
             if data["Look"]=='right':
                 self.screen.blit(data['frame_to_display'],(data['x_pos']-self.scroll[0],data['y_pos']-self.scroll[1]))
             else:
