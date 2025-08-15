@@ -61,6 +61,7 @@ class MultiplayerGame:
         self.game_active = False
         self.platforms = platforms
         self.shot_bullets = []
+        self.death_logged = {}
         self.gates = []
         self.type = type
         self.TEAMS_SET = False
@@ -329,9 +330,8 @@ class MultiplayerGame:
                 print(f"Game loop error: {e}")
                 self.game_active = False
     def _register_death_and_kill(self, dead_username):
-    # پیدا کردن آخرین کسی که به این بازیکن تیر زده
         killer = None
-        for bullet in reversed(self.shot_bullets):  # از آخر به اول، چون آخرین تیر مهمه
+        for bullet in reversed(self.shot_bullets):  
             if bullet.owner != dead_username:
                 killer = bullet.owner
                 break
@@ -340,15 +340,28 @@ class MultiplayerGame:
         if killer:
             self.users_collection.update_one({"username": killer}, {"$inc": {"kills": 1}})
 
+    def _log_death_once(self, hero):
+        if hero is None or hero.username in self.death_logged:
+            return
+        if hero.health <= 0:
+            killer = self._find_killer(hero.username)
+            self.users_collection.update_one({"username": hero.username}, {"$inc": {"deaths": 1}})
+            if killer:
+                self.users_collection.update_one({"username": killer}, {"$inc": {"kills": 1}})
+            self.death_logged[hero.username] = True
+
+    def _find_killer(self, dead_username):
+        for bullet in reversed(self.shot_bullets):
+            if bullet.owner != dead_username:
+                return bullet.owner
+        return None
 
     def check_win_condition(self):
         if self.type == '1v1':
             hero1, hero2 = self.heroes[0], self.heroes[1]
 
-            if hero1.health <= 0:
-                self._register_death_and_kill(hero1.username)
-            if hero2.health <= 0:
-                self._register_death_and_kill(hero2.username)
+            self._log_death_once(hero1)
+            self._log_death_once(hero2)
 
             if hero1.health <= 0 or hero2.health <= 0:
                 if hero1.health > 0:
@@ -358,11 +371,10 @@ class MultiplayerGame:
                 return True
 
         elif self.type == '2v2':
-            heroes = [self.heroes[0], self.heroes[1], self.heroes[2], self.heroes[3]]
+            heroes = self.heroes
 
             for hero in heroes:
-                if hero.health <= 0:
-                    self._register_death_and_kill(hero.username)
+                self._log_death_once(hero)
 
             team1_alive = any(h.health > 0 for h in heroes[0:2])
             team2_alive = any(h.health > 0 for h in heroes[2:4])
@@ -375,8 +387,6 @@ class MultiplayerGame:
                 return True
 
         return False
-
-
     def _update_win_loss(self, winner_username, loser_username):
         self._send_game_result([winner_username], [loser_username])
         self.users_collection.update_one({"username": winner_username}, {"$inc": {"wins": 1}})
