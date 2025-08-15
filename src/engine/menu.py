@@ -1223,7 +1223,11 @@ class LoginSignupMenu:
         self.login_button = pygame.Rect(screen.get_width() // 2 - 200, 400, 180, 60)
         self.signup_button = pygame.Rect(screen.get_width() // 2 + 20, 400, 180, 60)
         self.back_button = pygame.Rect(screen.get_width() // 2 - 90, 480, 180, 60)
-
+        try:
+            self.click_sound = pygame.mixer.Sound("src/assets/sounds/menu/click.wav")
+        except pygame.error as e:
+            print(f"Cannot load click sound in NetworkMenu: {e}")
+            self.click_sound = None  
     def draw(self):
         self.screen.blit(self.background, (0, 0))
        
@@ -1259,17 +1263,27 @@ class LoginSignupMenu:
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.username_box.collidepoint(event.pos):
+                        if self.click_sound:
+                            self.click_sound.play()
                         self.active_field = "username"
                     elif self.password_box.collidepoint(event.pos):
+                        if self.click_sound:
+                            self.click_sound.play()
                         self.active_field = "password"
                     else:
                         self.active_field = None
 
                     if self.login_button.collidepoint(event.pos):
+                        if self.click_sound:
+                            self.click_sound.play()
                         return "login", self.username, self.password
                     if self.signup_button.collidepoint(event.pos):
+                        if self.click_sound:
+                            self.click_sound.play()
                         return "signup", self.username, self.password
                     if self.back_button.collidepoint(event.pos):
+                        if self.click_sound:
+                            self.click_sound.play()
                         return "back", None, None
 
                 if event.type == pygame.KEYDOWN and self.active_field:
@@ -1307,7 +1321,11 @@ class OnlineActionMenu:
         
         for i, button in enumerate(self.buttons):
             button["rect"].center = (screen.get_width() // 2, y_start + i * 80)
-
+        try:
+            self.click_sound = pygame.mixer.Sound("src/assets/sounds/menu/click.wav")
+        except pygame.error as e:
+            print(f"Cannot load click sound in NetworkMenu: {e}")
+            self.click_sound = None  
     def draw(self):
         self.screen.blit(self.background, (0, 0))
         title_surf = self.title_font.render("Online Lobby", True, (255, 255, 255))
@@ -1327,6 +1345,8 @@ class OnlineActionMenu:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for button in self.buttons:
                         if button["rect"].collidepoint(event.pos):
+                            if self.click_sound:
+                                self.click_sound.play()
                             return button["action"]
             
             self.draw()
@@ -1349,7 +1369,11 @@ class JoinMethodMenu:
         
         for i, button in enumerate(self.buttons):
             button["rect"].center = (screen.get_width() // 2, y_start + i * 90)
-
+        try:
+            self.click_sound = pygame.mixer.Sound("src/assets/sounds/menu/click.wav")
+        except pygame.error as e:
+            print(f"Cannot load click sound in NetworkMenu: {e}")
+            self.click_sound = None  
     def draw(self):
         self.screen.blit(self.background, (0, 0))
         title_surf = self.title_font.render("How to Join?", True, (255, 255, 255))
@@ -1369,6 +1393,8 @@ class JoinMethodMenu:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for button in self.buttons:
                         if button["rect"].collidepoint(event.pos):
+                            if self.click_sound:
+                                self.click_sound.play()
                             return button["action"]
             
             self.draw()
@@ -1447,6 +1473,11 @@ class OnlineLobbyMenu:
 
         if self.is_host:
             self.start_button = pygame.Rect(screen.get_width() - 380, screen.get_height() - 110, 350, 70)
+        try:
+            self.click_sound = pygame.mixer.Sound("src/assets/sounds/menu/click.wav")
+        except pygame.error as e:
+            print(f"Cannot load click sound in NetworkMenu: {e}")
+            self.click_sound = None   
 
     def run(self):
         while True:
@@ -1490,6 +1521,8 @@ class OnlineLobbyMenu:
             decision = "no"
         
         if decision:
+            if self.click_sound:
+                self.click_sound.play()
             self.network.client.setblocking(True)
             self.network.client.sendall(decision.encode())
             self.network.client.setblocking(False)
