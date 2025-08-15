@@ -30,7 +30,16 @@ class Client:
             "username": self.username,
             "character": self.hero_type
         }
-        
+
+
+
+        self.count_down_sound = pygame.mixer.Sound(
+            os.path.join(os.path.dirname(__file__), "src", "assets", "sounds", "countdown.mp3")
+        )
+        self.INPUT_FLAG = False
+        self.COUNT_DOWN_DONE = False
+        self.START_COUNT_DOWN = False
+        self.count_down_start = None
         # Log the data before sending it
         print(f"[CLIENT] Sending initial data: {json.dumps(initial_data)}")
 
@@ -520,26 +529,42 @@ class Client:
             pygame.event.pump()
             keys = pygame.key.get_pressed()
             mouse = pygame.mouse.get_pressed()
-            input_data = {
-                "A": keys[pygame.K_a],
-                "D": keys[pygame.K_d],
-                "W": keys[pygame.K_w],
-                "LSHIFT": keys[pygame.K_LSHIFT],
-                "G": keys[pygame.K_g],
-                "TAB": keys[pygame.K_TAB],
-                "RCTRL": keys[pygame.K_RCTRL],
-                "RALT": keys[pygame.K_RALT],
-                "left_click": mouse[0],
-                "right_click": mouse[2]
-            }
+
+            if getattr(self, "INPUT_FLAG", False):
+                input_data = {
+                    "A": keys[pygame.K_a],
+                    "D": keys[pygame.K_d],
+                    "W": keys[pygame.K_w],
+                    "LSHIFT": keys[pygame.K_LSHIFT],
+                    "G": keys[pygame.K_g],
+                    "TAB": keys[pygame.K_TAB],
+                    "RCTRL": keys[pygame.K_RCTRL],
+                    "RALT": keys[pygame.K_RALT],
+                    "left_click": mouse[0],
+                    "right_click": mouse[2]
+                }
+            else:
+                input_data = {
+                    "A": False,
+                    "D": False,
+                    "W": False,
+                    "LSHIFT": False,
+                    "G": False,
+                    "TAB": False,
+                    "RCTRL": False,
+                    "RALT": False,
+                    "left_click": False,
+                    "right_click": False
+                }
+
             try:
-               # print(f"sending:\n{input_data}\n\n")
-                self.socket.sendall((json.dumps(input_data) +'\n') .encode('utf-8'))
-                #print(f"[CLIENT] Sent input: {input_data}")
+                self.socket.sendall((json.dumps(input_data) + '\n').encode('utf-8'))
             except Exception as e:
                 print(f"Connection lost: {e}")
                 break
+
             clock.tick(30)
+
 
     def play_sound(self, event_name, character_name="Ninja"):
         try:
@@ -935,6 +960,19 @@ class Client:
             self.screen.blit(text_surface, rect)    
         
         
+        idle_frame0 = None
+        try:
+            idle_frame0 = self.frames.get(self.hero_type, {}).get('idle_frames', [None])[0]
+        except Exception:
+            idle_frame0 = None
+
+        if self.current_picture != pygame.Surface((50, 50)):
+            if not self.COUNT_DOWN_DONE and not self.START_COUNT_DOWN:
+                self.START_COUNT_DOWN = True
+                self.count_down_start = pygame.time.get_ticks()
+            if self.START_COUNT_DOWN:
+                self.count_down()
+
         pygame.display.update()
     def get_bar_position_from_index(self,index,opponents_count):
         # حالت 1v1
@@ -979,3 +1017,35 @@ class Client:
             clock.tick(30)
         
 
+
+
+    def count_down(self):
+        if not getattr(self, "START_COUNT_DOWN", False):
+            return
+        self.count_down_sound.play()
+        if getattr(self, "count_down_start", None) is None:
+            self.count_down_start = pygame.time.get_ticks()
+
+        elapsed_ms = pygame.time.get_ticks() - self.count_down_start
+        seconds_passed = elapsed_ms // 1000
+        total_seconds = 3
+        seconds_left = total_seconds - seconds_passed
+
+        try:
+            big_font = pygame.font.Font("src/assets/fonts/VCR_OSD_MONO.ttf", 140)
+        except Exception:
+            big_font = pygame.font.SysFont("arial", 140)
+
+        if seconds_left > 0:
+            overlay = pygame.Surface((self.screen_width, self.screen_height), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 140))
+            self.screen.blit(overlay, (0, 0))
+
+            text_surf = big_font.render(str(seconds_left), True, (255, 255, 255))
+            text_rect = text_surf.get_rect(center=(self.screen_width // 2, self.screen_height // 2))
+            self.screen.blit(text_surf, text_rect)
+        else:
+            self.INPUT_FLAG = True
+            self.START_COUNT_DOWN = False
+            self.count_down_start = None
+            self.COUNT_DOWN_DONE = True
