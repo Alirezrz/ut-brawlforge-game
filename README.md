@@ -1,3 +1,13 @@
+# 🎮 Python Multiplayer Game Project
+
+Welcome to the project repository! 
+
+For a complete overview of the game's features, networking architecture, design decisions, and system requirements, please review our comprehensive presentation document:
+
+👉 **[View the Project Presentation PDF](./presentation.pdf)**
+
+
+
 # UT Brawlforge
 
 ## ساختار پروژه
