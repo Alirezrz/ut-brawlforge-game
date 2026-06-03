@@ -2,7 +2,7 @@
 
 Welcome to the project repository! 
 
-For a complete overview of the game's features, networking architecture, design decisions, and system requirements, please review our comprehensive presentation document:
+For a complete overview of the game's features, networking architecture, please review our  presentation document:
 
 👉 **[View the Project Presentation PDF](https://github.com/Alirezrz/ut-brawlforge-game/blob/main/Presentation.pdf)**
 
