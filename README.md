@@ -37,8 +37,7 @@ For a complete overview of the game's features, networking architecture, please 
 ## نحوه نصب و اجرا
 
 برای نصب و اجرای این پروژه، مراحل زیر را دنبال کنید:
-
-1.  **نصب dependencyها:**
+**نصب dependencyها:**
 
     کتابخانه‌های مورد نیاز پروژه را با استفاده از فایل `requirements.txt` نصب کنید:
     ```bash
